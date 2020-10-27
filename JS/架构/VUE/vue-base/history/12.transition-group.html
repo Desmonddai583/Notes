@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
+
+    <div id="app">
+        <input type="text" v-model="content">
+        <!-- v-for + v-if -->
+        <transition-group 
+            enter-active-class="animated  bounceInLeft"
+            leave-active-class=" animated  bounceOutRight"
+        >
+            <li v-for="arr in computedArr" :key="arr">{{arr}}</li>
+        </transition-group>
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el:'#app',
+            data(){
+                return {
+                    content:'',
+                    arrs:['abc','bcd','def','yyy','zzz']
+                }
+            },
+            computed:{
+                computedArr(){
+                    return this.arrs.filter(item=>item.includes(this.content));
+                }
+            }
+        })
+    </script>
+    <style>
+        li{
+            background:blue;
+            color:#fff;
+            line-height: 35px;
+            width: 200px;;
+        }    
+    </style>
+</body>
+</html>

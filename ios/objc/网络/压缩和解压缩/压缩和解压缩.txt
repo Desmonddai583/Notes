@@ -1,0 +1,37 @@
+使用ZipArchive来压缩和解压缩文件需要添加依赖库(libz),使用需要包含SSZipArchive文件，
+如果使用cocoaPoads来安装框架，那么会自动的配置框架的使用环境
+
+压缩文件
+  1. 
+    /*
+    第一个参数：压缩文件要保存的位置
+    第二个参数：要压缩哪几个文件(全路径)
+    */
+    [SSZipArchive createZipFileAtPath:fullpath withFilesAtPaths:arrayM];
+  2.
+    /*
+    第一个参数：压缩文件要保存的位置
+    第二个参数：要压缩哪几个文件(全路径)
+    第三个参数：压缩密码
+    */
+    [SSZipArchive createZipFileAtPath:@"/Users/xiaomage/Desktop/Test.zip" withFilesAtPaths:arrayM withPassword:@"123456"];
+  3. 
+    /*
+    第一个参数：文件压缩到哪个地方
+    第二个参数：要压缩哪些文件(路径)
+    */
+    [SSZipArchive createZipFileAtPath:fullpath withContentsOfDirectory:zipFile];
+
+解压缩文件
+  1.
+    /*
+    第一个参数：要解压的文件
+    第二个参数：要解压到什么地方
+    */
+    [SSZipArchive unzipFileAtPath:unZipFile toDestination:fullpath];
+  2. 多了进度和完结的代码块
+    [SSZipArchive unzipFileAtPath:@"/Users/xiaomage/Desktop/demo.zip" toDestination:@"/Users/xiaomage/Desktop/xx" progressHandler:^(NSString *entry, unz_file_info zipInfo, long entryNumber, long total) {
+        NSLog(@"%zd---%zd",entryNumber,total);
+    } completionHandler:^(NSString *path, BOOL succeeded, NSError *error) {
+        NSLog(@"%@",path);
+    }];

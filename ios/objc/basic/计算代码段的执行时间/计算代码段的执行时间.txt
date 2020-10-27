@@ -1,0 +1,14 @@
+第一种方法
+  NSDate *start = [NSDate date];
+  //2.根据url地址下载图片数据到本地（二进制数据）
+  NSData *data = [NSData dataWithContentsOfURL:url];
+
+  NSDate *end = [NSDate date];
+  NSLog(@"第二步操作花费的时间为%f",[end timeIntervalSinceDate:start]);
+  
+第二种方法
+  CFTimeInterval start = CFAbsoluteTimeGetCurrent();
+  NSData *data = [NSData dataWithContentsOfURL:url];
+
+  CFTimeInterval end = CFAbsoluteTimeGetCurrent();
+  NSLog(@"第二步操作花费的时间为%f",end - start);

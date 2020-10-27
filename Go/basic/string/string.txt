@@ -1,0 +1,84 @@
+strconv.FormatXxx() // 将基本数据类型转为字符串类型
+strconv.Itoa() // 将int整形转换为字符串类型
+strconv.ParseXxx() // 将字符串类型转为基本数据类型
+strconv.Atoi() // 将字符串类型转为int整形
+
+字符串的底层是[]byte数组,如果想要修改字符串的某个字符(当然拷贝完的对象不是源对象了,是一个新的对象)
+    var str string = "jahaha"
+    sce := make([]byte, len(str))
+    copy(sce, str)
+    sce[0] = 'M'
+    fmt.Printf("%s\n", sce)
+
+字符串
+    len()用来获取字符串长度,获取的是字节数
+    如果想通过len直接获取子的个数当有中文时,需要先将字符串转化为rune类型的切片
+        str1 := "呆呆"
+        var str2 []rune = []rune(str1)
+        len := len(str2)
+    strings.IndexByte(str1, 'c') // 查找指定字符在字符串中第一次出现的位置,没有返回-1,不能查中文
+    strings.IndexRune(str1, '哈') // 类似IndexByte,但是可查找中文,查找逻辑中1个中文字占3个位置
+    strings.IndexAny(str1, “6ic”) // 拆开“6ic”,一个一个去查找位置,并返回最前面的位置,中英文都可查
+    stirngs.Index(str1, '6ic') // 和Any不同,是将'6ic'当成一个整体去查找
+    strings.IndexFunc(str1, func(ch rune) bool {
+        if ch == 'i' {
+            return true
+        }
+        return false
+    }) // 自定义方法进行字符串查询,背后就是将字符串转换成一个[]rune,然后遍历,自定义函数返回true就代表找到了
+    上述方法前面加个Last就是逆向查找
+
+    strings.Contains(str, "123") // 判断字符串是否包含子串
+    strings.ContainsRune(str, '呆呆') // 判断字符串是否包含字符
+    strings.ContainsAny(str, "123") // 拆开'123'只要任何一个字符在字符串中存在就返回true
+    strings.HasPrefix(str, "123") // 判断字符串是否以指定字符串开头
+    strings.HasSuffix(str, ".123") // 判断字符串是否以指定字符串结尾
+
+    strings.Compare(str1, str2) // 比较两个字符串,相等返回0,第一个大于第二个返回1,反之返回-1
+    strings.EqualFold(str1, str2) // 比较两个字符串是否相等,相等返回true反之返回false
+
+    strings.ToUpper(str1) // 将字符串中小写字母转为大写
+    strings.ToLower(str1) // 将字符串中大写字母转为小写
+    strings.ToTitle(str1) // 将字符串中小写转为大写,不同语言下可能有不同的转换方式
+    strings.Title(str1) // 将字符串中每个单词的首字母大写
+
+    string.Split(str1, ",") // 切割字符串
+    string.SplitN(str2, ",", 2) // 切割字符串,指定切割为几份
+    string.SplitAfter(str2, ",") // 切割字符串,会保留分隔符
+    string.SplitAfterN(str2, ",", 2) // 切割字符串,会保留分隔符,并且指定切割为几份
+
+    strings.Fields(str) // 按空格切割,连续的空格按一个空格算
+    strings.FieldsFunc(str, func(ch rune) bool {
+        if ch == ’;‘ {
+            return true
+        }
+        return false
+    }) // 按函数指定的分割符切割,返回true表示满足切割条件
+
+    sce := []string{"www", "it666", "com"}
+    string.Join(sce, ".") // 合并字符串
+    string.Repeat(str1, 3) // 按照指定的数目重复拼接成字符串
+    string.Replace(str1, "abc", "www", 2) // 替换字符串,最后一个数字代表多个匹配时要替换几个,-1代表全部替换
+
+    string.Trim(str, "123") // 清理掉字符串前后的指定子串(这里为123)
+    string.TrimLeft(str, "123") // 清理掉字符串前的指定子串(这里为123) 
+    string.TrimRight(str, "123") // 清理掉字符串后的指定子串(这里为123)
+    string.TrimFunc(str, func(ch rune) bool {
+        if ch == ’1‘ {
+            return true
+        }
+        return false
+    }) // 按函数指定的字符清理掉字符串前后,返回true表示满足清理条件
+    string.TrimLeftFunc  string.TrimRightFunc类似
+    string.TrimSpace(str) // 清理掉字符串前后的空格
+    string.TrimPrefix(str, "123") // 清理字符串前缀
+    string.TrimSuffix(str, "123") // 清理字符串后缀
+
+⾼效的字符串连接
+    推荐使用strings.Builder
+    
+    var builder strings.Builder
+    for i := 0; i < numbers; i++ {
+      builder.WriteString(strconv.Itoa(i))
+    }
+    _ = builder.String()

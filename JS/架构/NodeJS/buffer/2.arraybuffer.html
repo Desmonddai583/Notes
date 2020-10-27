@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="file" id="file">
+    <script>
+        // 上传文件  后端返回的是buffer  操作excl
+        // 前端最常用的Blob对象 binary large object (是不可变的) 代表的是文件类型
+        // File 基于Blob
+
+        // 1.实现前端下载 html的功能
+        // let str = `<h1>hello world</h1>`;
+        // const blob = new Blob([str], {
+        //     type: 'text/html'
+        // });
+        // // 前端下载都用的a标签
+        // let a = document.createElement('a');
+        // a.setAttribute('download', 'a.html')
+        // a.innerHTML = '下载'
+        // // 通过blob产生一个临时访问的连接
+        // a.href = URL.createObjectURL(blob);
+        // document.body.appendChild(a);
+
+        // webgl
+        // 二进制类型 不能直接修改arraybuffer
+        // let arrayBuffer = new ArrayBuffer(10);
+        // let blob = new Blob([arrayBuffer]);
+        // // blob 代表的是传输的整体文件
+
+        // // FileReader 文件读取器
+        // let fileReader = new FileReader();
+        // fileReader.onload = function () {
+        //     console.log(fileReader.result);
+        // }
+        // fileReader.readAsDataURL(blob);
+
+
+        // 预览功能
+        //file.addEventListener('change', (e) => {
+        // let file = e.target.files[0];
+        // let fileReader = new FileReader();
+        // fileReader.onload = function () {
+        //     let img = document.createElement('img');
+        //     img.src = fileReader.result;
+        //     document.body.appendChild(img)
+        // }
+        // fileReader.readAsDataURL(file);
+
+
+        // let r = URL.createObjectURL(file);
+        // let img = document.createElement('img');
+        // img.src = r;
+        // document.body.appendChild(img)
+        // URL.revokeObjectURL(r);
+        //})
+
+
+        // arraybuffer 浏览器中的二进制
+        // 通过视图来进行访问
+        // let buffer = new ArrayBuffer(4); // 创造4个字节
+        // // TypedArray 藐视底层的二进制数据 int8Array  uint8Array
+
+        // let x1 = new Uint8Array(buffer);
+        // x1[0] = 1; // 00000000 00000000 11111111 00000001
+        // x1[1] = 255;
+        // console.log(x1); // 数组类型 // [1,255,0,0]
+
+        // let x2 = new Uint16Array(buffer); // [65281,0]
+        // //  // 00000000000000001111111100000001
+
+        // let x3 = new Uint32Array(buffer);
+        // console.log(x3)
+
+        // DateView 也可以通过一个借口去更改
+        // 如何将字符串转换成arrayBuffer  == buffer
+
+        // 前端解析 excel
+        // function ArrayBufferToString(buf) {
+        //     return String.fromCharCode(...new Uint16Array(buf))
+        // }
+
+        // function stringToArrayBuffer(str) { // utf16 不管是字符还是汉字
+        //     let buffer = new ArrayBuffer(str.length * 2);
+        //     let view = new Uint16Array(buffer)
+        //     for (let i = 0; i < str.length; i++) {
+        //         console.log(str.charCodeAt(i))
+        //         view[i] = str.charCodeAt(i)
+        //     }
+        //     return buffer
+        // }
+        // console.log(ArrayBufferToString(stringToArrayBuffer('你好'))); // toString
+
+
+        // 发个请求 服务端返回给我一个文件，实现下载即可
+        function request(url, method = "get") {
+            return new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function () {
+                    resolve(xhr.response);
+                }
+                xhr.send();
+            })
+        }
+        request('/download').then(arraybuffer => {
+            let b = new Blob([arraybuffer]); // 直接将arrarybuffer封装成文件
+            let blobUrl = URL.createObjectURL(b);
+            let a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = 'a.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl)
+        })
+    </script>
+</body>
+
+</html>

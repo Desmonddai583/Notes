@@ -1,0 +1,61 @@
+在Flutter中，应用程序分为debug、profile、release三种模式
+
+debug模式
+  在 Debug 模式下，app 可以被安装在真机、模拟器、仿真器上进行调试
+
+  Debug 模式有如下特点：
+    断言是开启的（Assertions）
+    服务扩展是开启的（Service extension）
+      这个可以从runApp的源码查看
+      runApp -> WidgetsFlutterBinding -> initServiceExtensions
+    开启调试，类似于DevTools的工具可以连接到应用程序的进程中
+    针对快速开发和运行周期进行了编译优化（但不是针对执行速度、二进制文件大小或者部署）
+      比如Dart是JIT模式（Just In Time，即时编译，也可以理解成 边运行边编译）
+
+  默认情况下，运行 flutter run 会使用 Debug 模式，点击Android Studio run按钮，也是debug模式
+
+  下面的情况会出现在Debug 模式下：
+    热重载（Hot Reload）功能仅能在调试模式下运行；
+    仿真器和模拟器仅能在调试模式下运行；
+    在debug模式下，应用可能会出现掉帧或者卡顿现象；
+
+release模式
+  当我们要发布应用程序时，总是希望最大化的优化性能和应用程序所占据的空间。
+  在 Release 模式下是不支持模拟器和仿真器的，只能在真机上运行。
+
+  Release 模式有如下特点：
+    断言是无效的
+    服务扩展是无效的
+    debugging是无效的
+    编译针对快速启动、快速执行和小的 package 的大小进行了优化
+      比如Dart是AOT模式（Ahead Of Time，预先编译）
+  
+  flutter run --release 命令会使用 Release 模式来进行编译
+
+profile模式
+  profile模式和release模式类似，但是会保留一些信息方便我们对性能进行检测
+
+  profile模式有如下特点：
+    保留了一些扩展是开启的；
+    DevTools的工具可以连接到应用程序的进程中；
+
+  Profile模式最重要的作用就是可以利用DevTools来测试应用的性能；
+
+开发中模式区分
+  在开发中，我们可能想要对debug和release模式进行区分，根据不同的模式进行不同的相关设置,常见的有两种方式：
+    通过assert断言，因为在release模式下断言是无效的
+    通过kReleaseMode常量来区分
+  
+  通过断言assert来区分：
+    因为assert要求我们必须传入一个bool值，所以我们使用了一个立即执行函数
+    
+    String baseURL = "production baseURL";
+    assert(() {
+      baseURL = "development baseURL";
+      return true;
+    }());
+
+  通过kReleaseMode常量来区分
+    String baseURL = kReleaseMode ? "production baseURL": "development baseURL";
+
+  开发中如果有多个属性需要区分可以封装一个Config的类，通过InheritedWidget来进行共享即可

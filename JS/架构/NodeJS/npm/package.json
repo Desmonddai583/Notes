@@ -1,0 +1,29 @@
+{
+  "name": "zhufeng-node-lesson",
+  "version": "1.2.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "zf": "./bin/www"
+  },
+  "scripts": {
+    "hello": "SET NODE_ENV=development && node 1.js",
+    "path": "path",
+    "mime": "mime 1.js",
+    "test": "mime 1.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "mime": "^2.4.4"
+  },
+  "peerDependencies": {
+    "jquery": "2.2.0"
+  },
+  "bundledDependencies": [
+    "jquery"
+  ],
+  "optionalDependencies": {}
+}

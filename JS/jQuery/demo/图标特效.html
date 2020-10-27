@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>49-图标特效</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        ul{
+            list-style: none;
+            width: 400px;
+            height: 250px;
+            border: 1px solid #000;
+            margin: 100px auto;
+        }
+        ul>li{
+            width: 100px;
+            height: 50px;
+            margin-top: 50px;
+            text-align: center;
+            float: left;
+            overflow: hidden;
+        }
+        ul>li>span{
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: url("images/bg.png") no-repeat 0 0;
+            position: relative;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            // 1.遍历所有的li
+            $("li").each(function (index, ele) {
+                // 1.1生成新的图片位置
+                var $url = "url(\"images/bg.png\") no-repeat 0 "+(index * -24)+"px"
+                // 1.2设置新的图片位置
+                $(this).children("span").css("background", $url);
+            });
+            
+            // 2.监听li移入事件
+            $("li").mouseenter(function () {
+                // 2.1将图标往上移动
+                $(this).children("span").animate({
+                    top: -50
+                }, 1000, function () {
+                    // 2.2将图片往下移动
+                    $(this).css("top", "50px");
+                    // 2.3将图片复位
+                    $(this).animate({
+                        top: 0
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<ul>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+    <li><span></span><p>百度</p></li>
+</ul>
+</body>
+</html>

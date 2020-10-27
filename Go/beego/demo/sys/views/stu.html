@@ -1,0 +1,61 @@
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>添加学员</legend>
+</fieldset>
+
+<form class="layui-form" action="/option/addStudent" method="post" enctype="multipart/form-data">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-block">
+            <input type="text" name="stuName" lay-verify="title" autocomplete="off" placeholder="请输入姓名" class="layui-input" value="{{.stuName}}">
+        </div>
+        <div class="layui-input-block">
+            <p style="color:red;">{{.nameError}}</p>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">简介</label>
+        <div class="layui-input-block">
+            <textarea placeholder="请输入内容" class="layui-textarea" name="stuDesc">{{.stuDesc}}</textarea>
+        </div>
+        <div class="layui-input-block">
+            <p style="color:red;">{{.descError}}</p>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">班级</label>
+        <div class="layui-input-block">
+            <select name="stuClass" lay-filter="aihao">
+                <option value=""></option>
+                {{range $index, $elem := .classTypes}}
+                    {{if eq $.stuClass $elem.ClassName}}
+                        <option value="{{$elem.ClassName}}" selected>{{ $elem.ClassName}}</option>
+                    {{else}}
+                        <option value="{{$elem.ClassName}}">{{ $elem.ClassName}}</option>
+                    {{end}}
+                {{end}}
+            </select>
+        </div>
+        <div class="layui-input-block">
+            <p style="color:red;">{{.classError}}</p>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">头像</label>
+        <div class="layui-input-block">
+            <input type="file" name="stuIcon" lay-verify="title" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-block">
+            <p style="color:red;">{{.imgError}}</p>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">添加</button>
+        </div>
+    </div>
+</form>

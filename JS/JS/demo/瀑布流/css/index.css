@@ -1,0 +1,22 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+html,body{
+    background: #ccc;
+}
+.box{
+    display: inline-block;
+    /*background: #ccc;*/
+    padding-top: 10px;
+    padding-left: 10px;
+    float: left;
+}
+.pic{
+    background: #fff;
+    padding: 10px;
+}
+img{
+    vertical-align: top;
+    width: 200px;
+}

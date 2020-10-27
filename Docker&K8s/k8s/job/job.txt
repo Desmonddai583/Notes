@@ -1,0 +1,9 @@
+cronjob除了用yaml創建之外，也可以通過使用kubectl run來創建
+kubectl run hello --schedule="*/1 * * * *" --restart=OnFailure --image=busybox -- /bin/sh -c "date; echo Hello from the Kubernetes cluster"
+
+kubectl delete cronjob hello // 刪除cronjob
+这将会终止正在创建的Job。然而，运行中的Job将不会被终止，不会删除Job或它们的Pod。
+为了清理那些Job和Pod，需要列出该CronJob创建的全部Job，然后删除它们。
+一旦Job被删除，由Job创建的Pod也会被删除。
+注意，所有由名称为“hello”的CronJob创建的Job会以前缀字符串“hello-”进行命名。
+如果想要删除当前Namespace中的所有Job，可以通过命令kubectl delete jobs --all立刻删除它们。

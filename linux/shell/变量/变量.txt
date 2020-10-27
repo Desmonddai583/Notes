@@ -1,0 +1,100 @@
+位置变量
+    $n n为数字,$0代表脚本本身,$1-$9代表1-9个参数,10以上的参数需要用大括号包含,如${10}
+    $@ 命令行所有参数,但每个参数区别对待
+    $* 命令行所有参数,所有参数视为一个整体
+    $# 参数个数
+
+环境变量
+    分类
+        对所有用户生效的环境变量 /etc/profile
+        对特定用户生效的环境变量 ~/.bashrc或者~/.bash_profile
+        临时有效的环境变量 脚本或命令行使用export
+    常用
+        PATH 命令搜索的路径
+        HOME 用户家目录的路径
+        LOGNAME 用户登录名
+        PWD 当前所在路径
+        HISTFILE 历史命令的保存文件
+        HISTSIZE 历史命令保存的最大行数
+        HOSTNAME 主机名
+        SHELL 用户当前使用的shell
+        PS1 一级命令提示符
+        TMOUT 用户和系统交互过程的超时值
+        IFS 系统输入分隔符
+        OFS 系统输出分隔符
+
+特殊变量
+    $?	上个命令的退出状态，或函数的返回值
+    $$	当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID
+
+sh -x nginx.sh  # -x可以看到脚本的执行过程
+
+变量替换
+    variable_1="I love you,Do you love me"
+    1. ${变量#匹配规则}	         从头开始匹配，最短删除
+        var1=${variable_1#*ov}   "e you,Do you love me"
+    2. ${变量##匹配规则}         从头开始匹配，最长删除
+        var2=${variable_1##*ov}  "e me"
+    3. ${变量%匹配规则}	         从尾开始匹配，最短删除
+        var3=${variable_1%ov*}   "I love you,Do you l"
+    4. ${变量%%匹配规则}         从尾开始匹配，最长删除
+        var4=${variable_1%%ov*}  "I l"
+    5. ${变量/旧字符串/新字符串}  替换变量内的旧字符串为新字符串，只替换第一个
+        var5=${PATH/bin/BIN}
+    6. ${变量//旧字符串/新字符串} 替换变量内的旧字符串为新字符串，全部替换
+        var6=${PATH//bin/BIN}
+
+变量测试
+    配置方式            str没有配置    str为空串    str已配置且非空
+    var=${str-expr}    var=expr      var=        var=$str
+    var=${str:-expr}   var=expr      var=expr    var=$str
+    var=${str+expr}    var=          var=expr    var=expr
+    var=${str:+expr}   var=          var=        var=expr
+    var=${str=expr}    var=expr      var=        var=$str
+    var=${str:=expr}   var=expr      var=expr    var=$str
+
+有类型变量
+    1. declare -r	# 声明变量为只读类型
+        declare -r var="hello"
+		var="world"		# -bash: var: readonly variable
+    2. declare -i	# 声明变量类型为整型
+        num1=10
+        declare -i num2
+        num2=$num1+1
+        echo $num2  # 11
+    3. declare -f	# 在脚本中显示系统定义的函数和内容
+    4. declare -F	# 在脚本中显示系统定义的函数
+    5. declare -a   # 声明变量为数组 下标从0开始
+        declare -a array
+        array=("jones" "mike" "kobe" "jordan")
+
+        输出数组内容
+            echo ${array[@]}	输出全部内容
+		    echo ${array[1]}	输出下标索引为1的内容
+        获取数组长度
+            echo ${#array}		数组内元素个数
+			echo ${#array[2]}	数组内下标索引为2的元素长度
+        给数组某个下标赋值
+            array[0]="lily"		    给数组下标索引为1的元素赋值为lily
+			array[20]="hanmeimei"	在数组尾部添加一个新元素
+        删除元素
+            unset array[2]		清除元素
+			unset array			清空整个数组
+        分片访问
+            ${array[@]:1:4}		显示数组下标索引从1开始到3的3个元素，不显示索引为4的元素
+        内容替换
+            ${array[@]/an/AN}	将数组中所有元素内包含an的子串替换为AN
+        数组遍历
+            for v in ${array[@]}
+            do
+                echo $v
+            done
+    6. declare -x   # 声明为环境变量，可以在脚本中直接使用
+        num5 = 30
+        declare -x num5
+
+    取消声明的变量
+        declare +r
+        declare +i
+        declare +a
+        declare +x

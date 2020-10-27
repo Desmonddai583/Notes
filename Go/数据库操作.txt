@@ -1,0 +1,199 @@
+mysql
+	因为Go语言官方没有提供任何数据库操作的驱动, 
+	所以需要安装第三方的数据库驱动,才能在Go中操作数据库
+	https://github.com/go-sql-driver/mysql
+
+	安装第三方的数据库驱动
+	go get -u -v github.com/go-sql-driver/mysql
+	注意点: 
+		想要在命令行中使用go语言的get指令, 除了需要安装go语言以外, 还需要安装git
+		-u: 安装最新版本, 如果本地已经安装过了, 那么就更新到最新版本
+		-v: 显示安装的过程
+		默认情况下go get会将下载的第三方包下载到GOPATH的src路径中
+
+	1. 通过sql.Open()打开数据库
+		Open函数并不会立即建立一个数据库网络连接, 也不会对数据库连接参数的合法性做检查, 
+		它仅仅是初始化一个sql的DB对象, 当真正需要使用到数据库的时候才会建立连接
+		sql.Open("mysql", "用户名:密码@tcp(IP:端口号)/数据库名称?charset=utf8")
+		返回值: 数据库对象和错误对象
+
+		db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/itzb?charset=utf8")
+		if err != nil {
+			fmt.Println("打开数据库失败", err)
+			return
+		}
+
+	2. 关闭数据库 
+		defer db.Close()
+
+	3. 创建表
+		1. 编写创建表的语句
+			sql := "create table if not exists gotest(id int auto_increment primary key, name varchar(20))"
+		2. 执行创建表的语句
+			_, err = db.Exec(sql)
+			if err != nil{
+				fmt.Println("创建表失败", err)
+				return
+			}
+
+	4. 插入数据
+		sql = "insert into gotest values(null, 'zq')"
+		result , err := db.Exec(sql)
+		if err != nil{
+			fmt.Println("插入失败", err)
+			return;
+		}
+		fmt.Println(result.LastInsertId()) // 当前插入的ID
+
+	5. 修改数据
+		sql = "update gotest set name='www' where id=1"
+		sql = "update gotest set name='qq'"
+		result , err := db.Exec(sql)
+		if err != nil{
+			fmt.Println("修改失败", err)
+			return;
+		}
+		fmt.Println(result.RowsAffected())  // 当前影响到的行数
+
+	6. 删除数据
+		sql = "delete from gotest where id=2"
+		_ , err = db.Exec(sql)
+		if err != nil{
+			fmt.Println("删除失败", err)
+		}
+
+	7. 预处理
+		sql = "insert into gotest values(null, ?)"
+		stmt, err := db.Prepare(sql)
+		if err != nil{
+			fmt.Println("预处理失败", err)
+			return
+		}
+		arr := []string{"zs", "ls", "ww", "zl"}
+		for _, value := range arr{
+			//fmt.Println(index, value)
+			stmt.Exec(value)
+		}
+
+	8. 查询单行数据
+		1 编写SQL语句
+			sql = "select id, name from gotest where id=3"
+		2 查询一条结果
+			row:= db.QueryRow(sql)
+		3 定义变量保存查询到的结果
+			var id int
+			var name string
+		4 从查询结果中获取对应的值
+			注意点: Scan接收的参数必须和查询到的参数个数一致(包括顺序)
+			err = row.Scan(&id, &name)
+			if err != nil{
+				fmt.Println("获取数据失败", err)
+				return
+			}
+			fmt.Println("结果", id, name)
+
+	9. 查询多行数据
+		sql = "select id, name from gotest"
+		rows, err := db.Query(sql)
+		if err != nil{
+			fmt.Println("获取数据失败", err)
+			return
+		}
+
+		var id int
+		var name string
+
+		for rows.Next() {
+			rows.Scan(&id, &name)
+			fmt.Println("结果", id, name)
+		}
+
+Redis
+	1. go get github.com/gomodule/redigo/redis
+	2. 导入下载好的Redigo库
+	3. 建立与Redis数据库的连接
+	4. 通过建立的连接操作数据库
+
+	// 1. 建立连接
+	conn, err := redis.Dial("tcp", "127.0.0.1:6379")
+	if err != nil {
+		fmt.Println("Connect failed")
+		return
+	}
+
+	// 2. 关闭连接
+	defer conn.Close()
+
+	// 3. 执行指令
+	// 第一种方法Send
+	// Send方法会将指令放入缓冲区中,不会立即执行
+	conn.Send("set", "name", "lnj")
+	// 让操作系统执行缓冲区中指令
+	conn.Flush()
+	// 接收指令执行完毕的结果
+	rep, err := conn.Receive()
+	if err != nil {
+		fmt.Println("cmd failed", err)
+		return
+	}
+	fmt.Println(rep)
+
+	// 第二种方法Do
+	// Do方法会立即执行指令
+	rep, err := conn.Do("get", "name")
+	fmt.Println(reflect.TypeOf(rep))
+	fmt.Println(rep)
+	// 将返回结果转换为需要的类型
+	// 如果使用mget获取多个,可以通过Strings方法转换成一个string的切片
+	res, err := redis.String(rep, err)
+	if err != nil {
+		fmt.Println("transform failed", err)
+		return
+	}
+	fmt.Println(res)
+
+	// 获取多个不同类型的值
+	res, err := redis.Values(rep, err)
+	var name string
+	var age int
+	redis.Scan(&res, &name, &age)
+
+	// 存储结构体至redis
+	// 将结构体转换为二进制之后再存储到Redis中
+	type Person struct {
+		Id int
+		Name string
+		Age int
+	}
+
+	var per1 Person
+	per.Id = 1
+	per.Name = "lnj"
+	per.Age = 34
+
+	var per2 Person
+	per.Id = 2
+	per.Name = "lzq"
+	per.Age = 18
+
+	pers := []Person{per1, per2}
+
+	// 1. 创建一个容器,用于存储转换之后的二进制数据
+	var buffer bytes.buffer
+	// 2. 创建一个编码对象，指定将转换的数据存储到buffer中
+	enc := gob.NewEncoder(&buffer)
+	// 3. 将pers的数据转换到buffer中
+	enc.Encode(&pers)
+	// 4. 将转换之后的二进制数据存储到Redis中
+	conn.Do("set", "pers", buffer,Bytes())
+	
+	// 1. 去Redis中查询数据
+	rep, err := conn.Do("get", "pers")
+	// 2. 将查询的数据转换为2进制
+	res, _ := redis.Bytes(rep, err)
+	// 3. 创建解码对象
+	dec := god.NewDecoder(bytes.NewReader(res))
+	// 4. 将二进制的数据解码到指定变量中
+	var pers []Person
+	dec.Decode(&pers)
+	fmt.Println(pers)

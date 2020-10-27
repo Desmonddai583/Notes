@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>水波纹按钮效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 100px;
+            height: 100px;
+            background: skyblue;
+            margin: 100px auto;
+            position: relative;
+        }
+        div span{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+
+            width: 25px;
+            height: 25px;
+            line-height: 22px;
+            text-align: center;
+            color: orange;
+            font-size: 22px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 999;
+        }
+        div b{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        div .one{
+            animation:myDD1 1s infinite;
+        }
+        div .two{
+            animation:myDD2 1s infinite;
+        }
+        @keyframes myDD1 {
+            from{
+                opacity: 0.8;
+                transform: translateX(-50%) translateY(-50%) scale(1);
+            }
+            to{
+                opacity: 0.0;
+                transform: translateX(-50%) translateY(-50%) scale(2);
+            }
+        }
+        @keyframes myDD2 {
+            from{
+                opacity: 0.8;
+                transform: translateX(-50%) translateY(-50%) scale(1);
+            }
+            to{
+                opacity: 0.0;
+                transform: translateX(-50%) translateY(-50%) scale(3);
+            }
+        }
+    </style>
+</head>
+<body>
+<div>
+    <span>+</span>
+    <b class="one"></b>
+    <b class="two"></b>
+</div>
+</body>
+</html>

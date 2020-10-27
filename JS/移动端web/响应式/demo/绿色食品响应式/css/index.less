@@ -1,0 +1,341 @@
+*{
+  margin: 0;
+  padding: 0;
+  touch-action: none;
+}
+html,body{
+  width: 100%;
+  height: 100%;
+  font-family: "微软雅黑";
+  font-size: 12px;
+  color: rgb(97,97,97);
+}
+a{
+  text-decoration: none;
+  color: rgb(97,97,97);
+}
+/*版心的混合*/
+.center(){
+  width: 980px;
+  height: 100%;
+  margin: 0 auto;
+}
+/*常用的工具类*/
+.f-float{
+  float: left;
+}
+.r-float{
+  float: right;
+}
+
+body{
+  background: url("../images/bg.jpg") no-repeat center 0;
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    background: url("../images/bg2.jpg") no-repeat center 0;
+  }
+}
+/*顶部Start*/
+.header{
+  width: 100%;
+  height: 120px;
+  .header-in{
+    .center;
+    padding-top: 20px;
+    box-sizing: border-box;
+    // 以下是做平板端的适配
+    @media screen and (max-width: 992px) and (min-width: 768px){
+      h1{
+        display: none;
+      }
+    }
+  }
+}
+/*顶部End*/
+/*导航Start*/
+.nav{
+  width: 100%;
+  height: 60px;
+  line-height: 40px;
+  .nav-in{
+    .center();
+    background: skyblue;
+    margin: 0 auto;
+
+    span{
+      display: inline-block;
+      width: 20px;
+      height: 60px;
+      background: url("../images/nav-left.jpg") no-repeat 0 0;
+    }
+    .nav-right{
+      background: url("../images/nav-right.jpg") no-repeat 0 0;
+    }
+    ul{
+      list-style: none;
+      width: 940px;
+      height: 100%;
+      display: flex;
+      background: url("../images/nav-center.jpg");
+      li{
+        flex-grow: 1;
+        text-align: center;
+        background: url("../images/nav-line.jpg") no-repeat right 5px;
+        &:last-child{
+          background: none;
+        }
+        a{
+          &:hover{
+            border-bottom: 1px solid #fff;
+          }
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    .nav-in{
+      width: 100%;
+      ul{
+        width: 100%;
+      }
+      span{
+        display: none;
+      }
+    }
+  }
+}
+/*导航End*/
+/*广告Start*/
+.banner{
+  width: 100%;
+  height: 382px;
+  .banner-in{
+    .center();
+  }
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    height: auto;
+    .banner-in{
+      width: 100%;
+      img{
+        width: 100%;
+      }
+    }
+  }
+}
+/*广告End*/
+/*内容Start*/
+.content{
+  width: 100%;
+  .content-in{
+    .center();
+    background: darkgray;
+    .content-top{
+      width: 100%;
+      height: 92px;
+      padding: 4px;
+      box-sizing: border-box;
+      background: #fff;
+      ul{
+        list-style: none;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        li{
+          width: 236px;
+          height: 84px;
+          background: url("../images/con-top-item.jpg") no-repeat;
+          h2>a{
+            display: inline-block;
+            width: 100%;
+            height: 30px;
+            background: url("../images/con-top-spirit.jpg") no-repeat 0 0;
+            margin-left: 2px;
+            margin-top: 2px;
+          }
+          p{
+            width: 186px;
+            margin-left: 50px;
+          }
+        }
+      }
+    }
+
+    .content-bottom{
+      width: 100%;
+      height: 210px;
+      display: flex;
+      background: url("../images/con-down-bg.jpg");
+      //div{ // .content-bottom div
+      &>div{ // .content-bottom>div
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      .content-title{
+        overflow: hidden;
+      }
+      .content-title>a{
+        display: inline-block;
+        width: 185px;
+        height: 38px;
+        background: url("../images/con-down-about.jpg") no-repeat;
+        &:nth-child(2){
+          width: 34px;
+          height: 20px;
+          background: url("../images/con-down-add.jpg") no-repeat;
+          margin-top: 10px;
+        }
+      }
+      .content-one{
+        width: 323px;
+        height: 100%;
+        background: url("../images/con-down-line.jpg") no-repeat right 10px;
+        dl{
+          margin-top: 30px;
+          width: 100%;
+          dt{
+            margin-right: 20px;
+          }
+          a{
+            color: green;
+          }
+        }
+      }
+      .content-two{
+        width: 407px;
+        height: 100%;
+        background: url("../images/con-down-line.jpg") no-repeat right 10px;
+        ul{
+          margin-top: 30px;
+          list-style: none;
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          text-align: center;
+          li{
+            flex-basis: 120px;
+            a{
+              color: #ccc;
+            }
+          }
+        }
+      }
+      .content-three{
+        width: 250px;
+        height: 100%;
+        p{
+          margin-top: 30px;
+          line-height: 20px;
+        }
+      }
+    }
+  }
+
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    .content-in{
+      width: 100%;
+      box-sizing: border-box;
+      .content-top{
+        height: auto;
+        ul{
+          flex-wrap: wrap;
+          li{
+            width: 49%;
+            margin-right: 1%;
+            margin-bottom: 1%;
+            background: linear-gradient(to bottom, #f0f0f0, #fbfbfb);
+            border-radius: 5px;
+            p{
+              width: auto;
+            }
+          }
+        }
+      }
+
+      .content-bottom{
+        height: auto;
+        flex-wrap: wrap;
+        background-image: none;
+        background: #fff;
+        padding: 10px;
+        box-sizing: border-box;
+        &>div{
+          width: 100% !important;
+          background: linear-gradient(to bottom, #f0f0f0, #fbfbfb) !important;
+          margin-bottom: 10px;
+          border-radius: 10px;
+        }
+        ul{
+          justify-content: center !important;
+          li{
+            margin-right: 5%;
+          }
+        }
+      }
+    }
+  }
+}
+
+/*内容End*/
+/*子导航Start*/
+.sub-nav{
+  width: 100%;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  .sub-nav-in{
+    .center();
+    background: #b4b4b4;
+    ul{
+      list-style: none;
+      margin: 0 auto;
+      display: inline-block;
+      overflow: hidden;
+      li{
+        float: left;
+        padding: 0 3px;
+      }
+    }
+  }
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    display: none;
+  }
+}
+/*子导航End*/
+/*底部Start*/
+.footer{
+  width: 100%;
+  height: 86px;
+  background: #f3f3f3;
+  .footer-in{
+    .center();
+    padding-top: 23px;
+    box-sizing: border-box;
+    p{
+      line-height: 25px;
+    }
+
+  }
+  // 以下是做平板端的适配
+  @media screen and (max-width: 992px) and (min-width: 768px){
+    padding: 10px;
+    box-sizing: border-box;
+    background: none;
+    .footer-in{
+      overflow: hidden;
+      width: 100%;
+      background: linear-gradient(to bottom, #f0f0f0, #fbfbfb) !important;
+      border-radius: 10px;
+      padding-top: 23px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+}
+/*底部End*/

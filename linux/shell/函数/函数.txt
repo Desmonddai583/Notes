@@ -1,0 +1,63 @@
+函数定义和使用
+    函数定义的两种语法
+        1. 
+            name()
+            {
+                command1
+                command2
+                .....
+                commandn
+            }
+        2.
+            function name
+            {
+                command1
+                command2
+                .....
+                commandn
+            }
+    函数使用
+        调用函数直接使用函数名即可，相当于一条命令
+    向函数传递参数
+        函数传参和给脚本传参类似，都是使用$1 $2 $3 $4 $5 $6 $7这种方式
+    函数返回值
+        使用return返回值 
+            只能返回1-255的整数
+            通常返回1或0,0表示成功,1表示失败
+            this_pid=$$
+
+            function is_nginx_running
+			{
+
+				ps -ef | grep nginx | grep -v $this_pid | grep -v grep > /dev/null 2>&1
+				if [ $? -eq 0 ];then
+					return 0  # 只写return等同于return 0
+				else
+					return 1
+				fi
+			}
+
+			is_nginx_running && echo "Nginx is running" || echo "Nginx is stopped"
+        使用echo返回值
+            通常用于返回数据
+            function add
+			{
+				echo "`expr $1 \+ $2`"
+			}
+
+			sum=`add $1 $2`
+    局部变量和全局变量
+        要点1：Shell脚本中，默认所有变量都是全局变量；即使函数内部定义的变量，一旦函数调用后，改变了就将一直存在，直到脚本执行完毕
+		要点2：定义局部变量，使用local关键字；
+		要点3：函数内部，变量会自动覆盖外部变量
+
+        编程习惯原则：
+			1、尽量在函数内部使用local关键字，将变量的作用于限制在函数内部
+			2、命名变量名时尽可能遵循实义性的，尽量做到见名知意
+    函数库
+        将经常使用的重复代码封装成函数文件
+        一般不直接执行,而是由其他脚本调用
+        库文件的后缀是任意的,但一般使用.lib
+        库文件通常没有可执行选项
+        第一行一般使用#!/bin/echo,输出警告信息,避免用户执行
+        在脚本中,通过 . 库文件名的绝对路径 即可导入库中的函数 e.g. . base_function

@@ -1,0 +1,105 @@
+sendfile on | off // defualt off
+context: http, server, location, if in location
+
+// default off, 在sendfile开启的情况下，提高而网络包的传输效率
+// 其实就是把多个包整合一次性发出去，对于大文件的传输效率有帮助
+tcp_nopush on | off; 
+context: http, server, location
+
+// default on, 这个与nopush相反，让包不做等待直接返回
+// 只有在keepalive长连接的情况下才能发挥作用
+tcp_nodelay on | off;
+context: http, server, location
+
+gzip on | off; // default off 压缩传输
+context: http, server, location, if in location
+
+gzip_comp_level level; // default level 1 压缩比，越高文件大小越小
+context: http, server, location
+
+gzip_http_version 1.0 | 1.1; // default 1.1 控制gzip_http版本
+context: http, server, location
+
+// 预读gzip功能，nginx会先去找是否有.gzip的文件
+// 如果有则直接返回，这样就省去压缩消耗的性能，但是需要提前先解压好
+gzip_static
+
+http_gunzip_module // 用来防止一些浏览器不支持gzip
+
+
+location ~ .*\.(jpg|gif|png)$ {
+    gzip on;
+    gzip_http_version 1.1;
+    gzip_comp_level 2;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    root  /opt/app/code/images;
+}
+
+location ~ .*\.(txt|xml)$ {
+    gzip on;
+    gzip_http_version 1.1;
+    gzip_comp_level 1;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    root  /opt/app/code/doc;
+}
+
+location ~ ^/download {
+    gzip_static on;
+    tcp_nopush on;
+    root /opt/app/code;
+}
+
+
+浏览器缓存
+    校验过期机制
+        1 校验是否过期 Expires(HTTP1.0), Cache Control(max-age)(HTTP1.1)
+        2 Etag
+        3 Last-Modified
+    如果第一步过期就会去查看Etag, 如果没有Etag就去第三步, 
+    如果没有Last-Modified就会直接去向服务器请求
+    如果有第二步或第三步就会去服务器查询是否匹配，如果匹配则直接去浏览器缓存读取，
+    否则从服务器获取
+
+    如果是从缓存读取返回的状态码为304
+
+    nginx缓存配置
+    expires [modified] time;  // 添加Cache-Control或Expires头
+    expires epoch | max | off; // default off
+    context: http, server, location, if in location
+
+    location ~ .*\.(htm|html)$ {
+        expires 24h;
+        root  /opt/app/code;
+    }
+
+
+跨域访问
+    add_header name value [always];
+    context: http, server, location, if in location
+
+    location ~ .*\.(htm|html)$ {
+        add_header Access-Control-Allow-Origin http://www.desmond.com(*代表允许所有); 
+        add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
+        root  /opt/app/code;
+    }
+
+
+防盗链
+    通过判断http_refer
+    valid_referers none | blocked | server_names | string ...;
+    context: server, location
+
+    location ~ .*\.(jpg|gif|png)$ {
+        gzip on;
+        gzip_http_version 1.1;
+        gzip_comp_level 2;
+        gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+ 
+        // none表示允许不带refer信息的请求 
+        // block表示允许一些没有带协议信息(http://)的请求
+        valid_referers none blocked 116.62.103.228 jeson.imoocc.com ~wei\.png;
+        if ($invalid_referer) {
+            return 403;
+        }
+        root  /opt/app/code/images;
+    }

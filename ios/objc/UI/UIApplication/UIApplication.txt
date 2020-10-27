@@ -1,0 +1,127 @@
+UIApplication对象是应⽤程序的象征. 每⼀个应⽤都有⾃⼰的UIApplication对象,这个对象是系统⾃动帮我们创建的, 它是⼀个单例对象.
+⼀个iOS程序启动后创建的第⼀个对象就是UIApplication对象,我们只能通过[UIApplication sharedApplication]获得这个单例对象,不能够⼿动去创建它.
+
+利⽤UIApplication对象，能进⾏⼀些应⽤级别的操作. 
+设置应⽤程序图标右上⾓的红⾊提醒数字 
+设置联网指⽰器的可⻅性 
+设置应⽤程序的状态栏 
+进⾏应⽤之间的跳转
+
+模仿UIApplication单例
+  1. 程序⼀启动的时候就创建对象
+    当类被加载到内存的时候就会调⽤load的⽅法,它会⽐main优先调⽤
+    static Person *_instance;
+    // 当类被加载到内存当中就会调用
+    +(void)load{
+        NSLog(@"%s",__func__);
+        _instance = [[Person alloc] init];
+    }
+  2. 保证调⽤alloc时会产⽣异常
+    +(instancetype)alloc{
+      if (_instance) {
+          //程序就崩溃
+          NSException *exc = [NSException exceptionWithName:@"NSInternalInconsistencyException"
+                                                    reason:@"There can only be one Person instance."
+                                                  userInfo:nil];
+          //抛出异常
+          [exc raise];
+      }
+      return [super alloc];
+    }
+  3. 通过share⽅式获取对象
+    + (instancetype)sharedPerson{
+        return _instance;
+    }
+
+UIApplication功能
+  1. 设置应⽤提醒数字
+    // 获取UIApplication对象
+    UIApplication *ap = [UIApplication sharedApplication];
+    // 在设置之前, 要注册⼀个通知,从ios8之后,都要先注册⼀个通知对象.才能够接收到提醒.
+    UIUserNotiﬁcationSettings *notice = [UIUserNotiﬁcationSettings settingsForTypes:UIUserNotiﬁcationTypeBadge categories:nil];
+    // 注册通知对象 
+    [ap registerUserNotiﬁcationSettings:notice]; 
+    // 设置提醒数字 
+    ap.applicationIconBadgeNumber = 10;
+  2. 设置连网状态
+    ap.networkActivityIndicatorVisible = YES;
+  3. 设置状态栏
+    1. 控制器管理
+      // 应⽤程序的状态栏,默认是交给控制器来管理的. 
+      // 控制器提供的⽅法,可以直接重写这个⽅法
+      // 在控制器当中设置状态栏样式
+      -(UIStatusBarStyle)preferredStatusBarStyle{ 
+        return UIStatusBarStyleLightContent; 
+      }
+      // 隐藏状态栏,通过控制器的⽅式.同样实现⽅法
+      // 返回NO时为不隐藏 
+      // 返回YES时为显⽰
+      -(BOOL)prefersStatusBarHidden{ 
+        return NO; 
+      }
+
+    2. 应用程序管理
+      通常在开发当中都是应⽤程序来管理状态栏来做统⼀管理,不然的话会有很多个控制器,⾮常的⿇烦
+      想要让应⽤程序管理状态栏,要在info.plist当中进⾏配置
+      添加⼀个key值View controller-based status bar appearance
+      设置为NO就是应⽤程序来管理了
+
+      通过UIApplication来管理状态
+        1.获取UIApplication 
+          UIApplication *ap = [UIApplication sharedApplication];
+        2.设置状态栏样式.
+          ap.statusBarStyle = UIStatusBarStyleLightContent;
+        3.设置状态的隐藏 
+          ap.statusBarHidden = YES;
+  4. 跳转网⻚
+    UIApplication *ap = [UIApplication sharedApplication]
+    // 跳转网⻚
+    NSURL *url =[NSURL URLWithString:@"http://www.baidu.com"]; 
+    [ap openURL:url];
+    // 打电话 
+    [ap openURL:[NSURL URLWithString:@"tel://10086"]]; 
+    // 发短信 
+    [ap openURL:[NSURL URLWithString:@"sms://10086"]];
+
+UIApplication代理
+  UIApplication会在程序⼀启动时候创建⼀个遵守UIApplicationDelegate代理
+  这个就是我们程序⼀创建时的AppDelegate类.AppDelegate就是遵守了UIApplicationDelegate协议.
+  在这个类中很定义很多监听系统事件的⽅法.同时也定义了⼀些应⽤程序的⽣命周期⽅法.
+
+  //应用程序启动完毕时调用
+  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+      NSLog(@"%s",__func__);
+      return YES;
+  }
+
+  //应用程序将要失去焦点时调用
+  - (void)applicationWillResignActive:(UIApplication *)application {
+    NSLog(@"%s",__func__);
+  }
+
+  //应用程序进入到后台时调用
+  - (void)applicationDidEnterBackground:(UIApplication *)application {
+    NSLog(@"%s",__func__);
+  }
+
+  //应用程序进入到前台时调用
+  - (void)applicationWillEnterForeground:(UIApplication *)application {
+    NSLog(@"%s",__func__);
+  }
+
+  //应用程序获取焦点
+  //焦点:能否与用户进行交互.
+  - (void)applicationDidBecomeActive:(UIApplication *)application {
+      NSLog(@"%s",__func__);
+  }
+
+  //当应用程序退出的时候调用
+  - (void)applicationWillTerminate:(UIApplication *)application {
+    NSLog(@"%s",__func__);
+  }
+
+  //当应用程序收到内存警告时调用
+  -(void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+      //清理缓存.图片,视频.
+      NSLog(@"%s",__func__);
+  }

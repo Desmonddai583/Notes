@@ -1,0 +1,124 @@
+.cart-list{
+  .maxWidth;
+  width: 100%;
+  background: #fff;
+  margin-top: 20/50rem;
+  .cart-list-title{
+    height: 50/50rem;
+    line-height: 50/50rem;
+    display: flex;
+    border-bottom: 2/50rem solid #ddd;
+  }
+  .cart-list-checkbox{
+    display: inline-block;
+    width: 35/50rem;
+    height: 35/50rem;
+    background: url("../images/shop-icon.png") no-repeat;
+    background-size: 100/50rem 200/50rem;
+    vertical-align: middle;
+    margin: 7/50rem 15/50rem;
+    padding: 0 !important;
+    border: none !important;
+    &.active{
+      background-position: -50/50rem 0;
+    }
+  }
+  .cart-list-content{
+    .cart-list-item{
+      padding: 15/50rem 0;
+      border-bottom: 2/50rem solid #ddd;
+      .cart-item-left{
+        img{
+          width: 100/50rem;
+        }
+        margin-right: 15/50rem;
+      }
+      .cart-item-right{
+        overflow: hidden;
+        position: relative;
+        .cart-item-name>a{
+          font-size: 25/50rem;
+          display: -webkit-box;
+          -webkit-line-clamp: 1; // 限定只显示2行
+          text-overflow: ellipsis;// 超出的文本显示...
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .cart-item-attr{
+          font-size: 18/50rem;
+          margin: 15/50rem 0;
+        }
+        .cart-item-price{
+          color: orangered;
+          font-size: 18/50rem;
+          span{
+            font-size: 20/50rem;
+          }
+        }
+        .cart-item-step{
+          position: absolute;
+          right: 15/50rem;
+          bottom: 0;
+          span, input{
+            display: inline-block;
+            font-size: 20/50rem;
+            width: 30/50rem;
+            height: 30/50rem;
+            line-height: 30/50rem;
+            text-align: center;
+            background: #ddd;
+          }
+        }
+      }
+    }
+  }
+}
+
+.cart-bottom{
+  .maxWidth;
+  width: 100%;
+  height: 45/50rem;
+  line-height: 45/50rem;
+  background: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  .cart-bottom-left{
+    .cart-list-checkbox{
+      display: inline-block;
+      width: 35/50rem;
+      height: 35/50rem;
+      background: url("../images/shop-icon.png") no-repeat;
+      background-size: 100/50rem 200/50rem;
+      vertical-align: middle;
+      margin: 7/50rem 15/50rem;
+      &.active{
+        background-position: -50/50rem 0;
+      }
+    }
+    span{
+      font-size: 20/50rem;
+    }
+    span:nth-of-type(2){
+      color: orangered;
+    }
+  }
+  .cart-bottom-right{
+    height: 100%;
+    display: flex;
+    button{
+      height: 100%;
+      border: none;
+      padding: 0 25/50rem;
+      font-size: 20/50rem;
+      color: #fff;
+      &:nth-child(1){
+        background: #3c8ee5;
+      }
+      &:nth-child(2){
+        background: #ff4544;
+      }
+    }
+  }
+}

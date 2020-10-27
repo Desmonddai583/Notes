@@ -1,0 +1,39 @@
+1. upstream name {...}
+    context: http
+
+    upstream imooc {
+        server 116.62.103.228:8001;
+        server 116.62.103.228:8002;
+        server 116.62.103.228:8003;
+    }
+
+    server {
+      location / {
+        proxy_pass http://imooc
+      }
+    }
+
+    upstream举例
+    upstream imooc {
+        server 116.62.103.228:8001;
+        server backend1.example.com weight=5;
+        server backend2.example.com:8080 down;
+        server unix:/tmp/backend3;
+
+        server backup1.example.com:8080 backup;
+        server backup2.example.com:8080 backup;
+    }
+
+    其他参数
+      backup 表示预留的备份服务器
+      down 表示当前server暂时不参与负载均衡
+      max_fails 允许请求失败的次数
+      fail_timeout 经过max_fails失败后,服务暂停的时间,默认10秒
+      max_conns 限制最大的接受的连接数
+    调度算法
+      轮询 默认
+      weight 设置权重,权重越大分配到的几率越大
+      ip_hash 每个请求按访问ip的hash结果分配,这样来自同一个ip的固定访问一个后端
+      least_conn 最少链接数,哪个机器链接数少就分发
+      url_hash 按照访问的url的hash结果来分配请求,使每个url定向到同一个后端
+      hash关键数值 hash自定义的key

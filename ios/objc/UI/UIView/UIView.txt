@@ -1,0 +1,89 @@
+每一个UIViewController内部都有个默认的UIView属性
+控制器中管理的其他所有控件都是这个view的子控件（直接或者间接）
+
+常见属性
+  @property(nonatomic,readonly) UIView *superview; 获得自己的父控件对象
+  @property(nonatomic,readonly,copy) NSArray *subviews; 获得自己的所有子控件对象
+  @property(nonatomic) NSInteger tag; 控件的ID(标识)，父控件可以通过tag来找到对应的子控件
+  @property(nonatomic) CGAffineTransform transform; 控件的形变属性(可以设置旋转角度、比例缩放、平移等属性)
+
+常见方法  
+  - (void)addSubview:(UIView *)view; 添加一个子控件view,背后会先判断下这个view有没有父控件,如果有,会拿到这个view,先从父控件移除,再添加
+  - (void)removeFromSuperview; 从父控件中移除
+  - (UIView *)viewWithTag:(NSInteger)tag; 根据一个tag标识找出对应的控件（一般都是子控件）
+
+插入subview
+  让某个view插入到另一个view下面
+  [self.superview insertSubview:smallCircle belowSubview:self];
+
+UIView位置尺寸
+  @property(nonatomic) CGRect frame;
+  控件矩形框在父控件中的位置和尺寸(以父控件的左上角为坐标原点)
+  @property(nonatomic) CGRect bounds;
+  控件矩形框的位置和尺寸(以自己左上角为坐标原点，所以bounds的x、y一般为0)
+  @property(nonatomic) CGPoint center;
+  控件中点的位置(以父控件的左上角为坐标原点)
+
+Transform
+  相对于最原始的位置做的平移
+  CGAffineTransformMakeTranslation(0, -100);
+  相对于上一次做平移
+  CGAffineTransformTranslate(self.imageV.transform, 0, -100);
+  相对于最原始的位置做的旋转
+  CGAffineTransformMakeRotation(M_PI_4);
+  获取transform旋转了多少度
+  CGAﬃneTransform transform = self.selectBtn.transform; 
+  CGFloat angel = atan2(self.selectBtn.transform.b, self.selectBtn.transform.a);
+  相对于上一次做旋转
+  CGAffineTransformRotate(self.imageV.transform, M_PI_4);
+  相对于最原始的位置做的缩放
+  CGAffineTransformMakeScale(0.5, 0.5);
+  相对于上一次做缩放
+  CGAffineTransformScale(self.imageV.transform, 0.8, 0.8);
+
+  注意transform并不会修改center.它修改的是frame
+
+动画返弹效果
+  Duration:动画的执⾏时⻓ 
+  delay:动画延时时⻓.
+  Damping:动画的弹性系数,越⼩,弹簧效果越明显 
+  initialSpringVelocity:弹簧初始化速度 
+  
+  [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.1 
+  initialSpringVelocity:0 
+  options:UIViewAnimationOptionCurveLinear animations:^{
+    动画执⾏代码
+  } completion:^(BOOL ﬁnished) { 
+    动画完成时调⽤.
+  }];
+
+复位transform
+  view.transform = CGAffineTransformIdentity;
+
+size和center问题
+  如果size,从frame取出来,先设置size,在设置center,就可能导致位置偏差
+    redView.center = self.view.center;
+    CGRect frame = redView.frame;
+    frame.size = CGSizeMake(200, 200);
+    redView.frame = frame;
+  如果size,从bounds取出来,就不用考虑center和size区别
+  背后原因就是因为frame是从坐上角开始画,而bounds是从中心开始画,
+  所以如果在一开始不设定size的情况下先设定center会导致frame从center的位置开始画从而偏差
+  所以开发中建议使用bounds多一些
+
+bounds和frame
+  frame和bounds都是用来描述一块区域
+
+  frame:描述可视范围
+  bounds:描述可视范围在内容的区域
+
+  所有的子控件都是相对于内容
+  修改bounds的x和y,等于修改内容原点,所以如果一个空间没有子控件时修改bounds的x,y看不出区别,但是有子控件时就会发现变化
+
+  相对性:可视范围相对于父控件位置永远不变
+        可视范围相对于内容,位置改变
+
+透明度问题
+  子控件会因为父控件的透明而透明
+  解决不透明的方法,不要修改父控件的alpha,修改背景颜色就可以了
+    parent.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7f];

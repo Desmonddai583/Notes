@@ -1,0 +1,762 @@
+C语言中函数分为声明和实现
+OC中定义一个类也分为声明和实现, 也就是说以后我们在OC中定义类, 就是在写类的声明和实现
+
+1. 如何编写类的声明
+  以@interface开头 , 以@end结尾, 然后再class name对应的地方写上事物名称, 也就是类名即可
+  注意: 类名的首字符必须大写
+  声明一个类的目的就是为了告诉系统, 我们这个类中有哪些属性和行为
+  OC类声明中属性只能在写@interface和@end之间的{}中
+  注意: 编写OC类属性的时, 建议将所有属性的名称前面都加上_
+
+  OC中的行为和C语言中的函数一样, 都是用来保存一段特定功能的代码
+  C语言中定义一个函数, 分为声明和实现, 声明写在.h中, 实现写在.c中
+  OC中定义一个方法, 也分为声明和实现, 声明写在@interface中, 实现写在@implementation
+
+  C语言的函数分为两种: 内部函数和外部函数
+  OC中的方法也分为两种; 类方法和对象方法
+  
+  类方法只能用类名调用, 对象方法只能用对象调用
+  OC中的类方法用+表示, OC中的对象方法用-表示
+
+  编写C语言函数的规律: 1.确定函数名称 2.确定形参 3.确定返回值 4.确定返回值类型
+  编写OC方法也有规律, 规律和C语言一模一样
+
+  类方法和对象方法的区别
+  1. 对象方法以-开头
+      类方法以+开头
+  
+  2. 对象方法必须用对象调用
+      类方法必须用类来调用
+  
+  3. 对象方法中可以直接访问属性(成员变量)
+      类方法中不可以直接访问属性(成员变量)
+  
+  4. 类方法和对象方法可以进行相互调用
+      4.1对象方法中可以直接调用类方法
+      4.2类方法中间接调用对象方法  (注意: 不建议这样使用)
+      4.3类方法中可以直接调用其它类方法
+      4.4对象方法中可以直接调用对象方法
+  
+  类方法的应用场景
+  如果方法中没有使用到属性(成员变量), 那么能用类方法就用类方法
+  类方法的执行效率比对象方法高
+  
+  类方法一般用于定义工具方法
+    字符串查找
+    文件操作
+    数据库操作
+
+  类名后面的 :NSObject 是为了让我们的Iphone类具备创建对象的能力
+  @interface Iphone : NSObject
+  {
+    // 注意: 默认情况下, OC对象中的属性是不能直接访问的
+    @public  // 只要让类中的属性公开, 以后就可以直接通过一个指向结构体的指针来操作对象中的属性
+    float _model; // 型号  0
+    int _cpu; // cup   0
+    double _size; // 尺寸  0
+    int _color; // 颜色  0
+  }
+  // 行为
+  // 注意: OC中的方法, 如果没有形参不需要写(), 而是直接写一个;
+  // 为什么OC中没有形参不需要写()呢? 因为OC方法中的()有特殊的用途, OC方法中的()是用来扩住数据类型的
+  - (void)about;
+  // 有返回值没有参数的, 读取短信
+  - (char *)loadMessage;
+  // 有返回值有参数的
+  // 注意: OC中的方法如果有参数, 那么每个参数的数据类型前面必须加上一个:
+  // 注意: 当前这个有参数的方法它的方法名称是signal:  冒号也是方法名称的一部分
+  - (int)signal:(int)number;
+  // 有返回值并且有多个参数的
+  // 为了提高我们的阅读性, OC方法允许我们给每个参数添加一个标签来说明当前参数的含义
+  // 注意: 标签也是方法名的一部分
+  // 方法名是 sendMessageWithNumber:andContent:
+  - (int)sendMessageWithNumber:(int)number andContent:(char *)content;
+  // 如果你不想每次使用方法都需要创建对象开辟存储空间
+  // 并且如果该方法中没有使用到属性(成员变量), 那么你可以把这个方法定义为类方法
+  // 对象方法用对象调用  类方法用类调用
+  // 如果定义类方法, 类方法的写法和对象方法一模一样, 除了前面的-号不同以外,
+  // 只需要将对象方法的-号换成+, 那么就定义了一个类方法
+  + (int)sumWithValue1:(int)value1 andValue2:(int)value2;
+  + (void)demo;
+  @end
+
+2. 如何编写类的实现
+  以@implementation开头, 以@end结尾, 然后在class对应的地方写上声明时声明的类的名称, 必须和声明的类名一模一样
+  
+  @implementation Iphone
+  // 行为的实现
+  - (void)about
+  {
+    // 如果在对象方法中想访问该对象的属性, 可以直接写上_属性名称即可
+    NSLog(@"型号 = %f, cpu = %i, 尺寸= %f, 颜色 = %i", _model, _cpu, _size, _color);
+    // 对象方法中可以直接调用对象方法
+    [self loadMessage]
+  }
+  - (char *)loadMessage
+  {
+      char *content = "老婆我们家我做主";
+      return content;
+  }
+  - (int)signal:(int)number
+  {
+      NSLog(@"打电话给%i", number);
+      return 1;
+  }
+  - (int)sendMessageWithNumber:(int)number andContent:(char *)content
+  {
+      NSLog(@"发短信给%i, 内容是%s", number, content);
+      return 1;
+  }
+  + (int)sumWithValue1:(int)value1 andValue2:(int)value2
+  {
+    return value1 + value2;
+  }
+  + (void)demo
+  {
+    NSLog(@"demo");
+  }
+  @end
+
+3. 如何通过一个类来创建对象
+  在OC中想要通过一个类来创建一个对象, 必须给类发送一个消息(好比C语言中调用函数一样)
+  如何发送消息?   在OC中只要想要发送消息就先写上 [类名称/对象名称 方法名称];
+  发送什么消息(调用什么方法)可以创建一个对象呢? new
+
+  只要通过一个类调用类的new方法, 也就是给类发送一个叫做new的消息之后
+  系统内部就会做3件事情
+  1. 为Iphone类创建出来得对象分配存储空间
+  2. 初始化Iphone类创建出来的对象中的属性
+  3. 返回Iphone类创建出来的对象对应的地址
+
+  OC中的类其实本质就是一个结构体, 所以p这个指针其实就是指向了一个结构体
+  通过一个Iphone类型的指针接收了 Iphone对象的地址
+  如果使用给一个指针保存了某一个对象的地址, 那么我们就称这个指针位之为某个类型的对象
+  利用Iphone类型的指针保存了Iphone对象的地址, 那么我们就称Iphone类型的指针p之为Iphone对象
+  Iphone *p = [Iphone new];
+  p->_size = 3.5;
+  p->_color = 0;
+  p->_model = 4;
+  p->_cpu = 1;
+  NSLog(@"size = %f, color = %i, model = %f, cpu = %i", p->_size, p->_color, p->_model, p->_cpu);
+
+  如果给对象发消息(如果调用对象的方法)
+  [p about];
+  
+  注意: OC中的NSLog对C语言的字符串支持不是很好, 如果返回的是中文的C语言字符串可能输出的是乱码, 也有可能什么都不输出
+  char *content = [p loadMessage];
+  NSLog(@"content = %s", content);
+
+  [p signal:13838338];
+  [p sendMessageWithNumber:123456789 andContent:"hi"];
+
+  int res = [Iphone sumWithValue1:50 andValue2:50];
+  NSLog(@"res = %i", res);
+
+对象存储细节
+  通过类创建对象  
+    1.开辟存储空间, 通过new方法创建对象会在堆内存中开辟一块存储空间
+    2.初始化所有属性
+    3.返回指针地址(栈内存中)
+    
+  创建对象的时候返回的地址其实就是类的第0个属性的地址
+  但是需要注意的是: 类的第0个属性并不是我们编写的_age, 而是一个叫做isa的属性
+  isa是一个指针, 占8个字节
+  
+  其实类也是一个对象, 也就意味着Person也是一个对象
+  平时我们所说的创建对象其实就是通过一个 类对象 来创建一个 新的对象
+  类对象是系统自动帮我们创建的, 里面保存了当前对象的所有方法
+  而实例对象是程序自己手动通过new来创建的, 而实例对象中有一个isa指针就指向了创建它的那个类对象
+
+  [p eat];表示给p所指向的对象发送一条eat消息,调用对象的eat方法,此时对象会顺着内部的isa指针找到存储于类中的方法,执行。
+  isa是对象中的隐藏指针,指向创建这个对象的类。
+  通过isa指针我们可以在运行的时候知道当前对象是属于那个Class（类）的 
+  如果是调用类方法,则会直接去类对象中查找方法,所以这也是为什么类方法的执行效率会比对象方法高的原因
+  因为不需要经由实例对象的isa指针去查找
+
+局部变量和全局变量以及成员变量的区别
+  成员变量
+    写在类声明的大括号中的变量, 我们称之为成员变量(属性, 实例变量)
+    成员变量只能通过对象来访问
+    注意: 成员变量不能离开类, 离开类之后就不是成员变量 \
+          成员变量不能在定义的同时进行初始化
+    存储: 堆(当前对象对应的堆的存储空间中)
+    存储在堆中的数据, 不会被自动释放, 只能程序员手动释放
+
+  全局变量
+    写在函数和大括号外部的变量, 我们称之为全局变量
+    作用域: 从定义的那一行开始, 一直到文件末尾
+    局部变量可以先定义在初始化, 也可以定义的同时初始化
+    存储: 静态区
+    程序一启动就会分配存储空间, 直到程序结束才会释放
+
+  局部变量
+    写在函数或者代码块中的变量, 我们称之为局部变量
+    作用域: 从定义的那一行开始, 一直到遇到大括号或者return
+    局部变量可以先定义再初始化, 也可以定义的同时初始化
+    存储: 栈
+    存储在栈中的数据有一个特点, 系统会自动给我们释放
+  
+函数和方法的区别
+  1. 函数属于整个文件, 方法属于某一个类
+    方法如果离开类就不行
+  2. 函数可以直接调用, 方法必须用对象或者类来调用
+    注意: 虽然函数属于整个文件, 但是如果把函数写在类的声明中会不识别
+  3. 不能把函数当做方法来调用, 也不能把方法当做函数来调用
+
+  方法的注意点:
+    1. 方法可以没有声明只有实现
+    2. 方法可以只有声明没有实现, 编译不会报错, 但是运行会报错
+      如果方法只有声明没有实现, 那么运行时会报: 
+      (类方法)reason: '+[Person demo]: unrecognized selector sent to class 0x100001140'
+      (对象方法)reason: '-[Person test]: unrecognized selector sent to instance 0x100400000'
+  
+  类也有一个注意点:
+    类可以只有实现没有声明
+    注意: 在开发中不建议这样写
+
+定义类时的常见错误
+  1.只有类的声明，没有类的实现
+  2.漏了@end
+  3. @interface和@implementation嵌套
+  4.成员变量没有写在括号里面
+  5.方法的声明写在了大括号里面
+  6.成员变量不能在{}中进行初始化、不能被直接拿出去访问
+  7.方法不能当做函数一样调用
+  8.OC方法只能声明在@interface和@end之间，只能实现在@implementation和@end之间。也就是说OC方法不能独立于类存在
+  9.C函数不属于类，跟类没有联系，C函数只归定义函数的文件所有
+  10.C函数不能访问OC对象的成员
+  11.低级错误：方法有声明，但是实现的时候写成了函数
+  12.OC可以没有@interface同样可以定义一个类
+
+结构体作为对象属性
+  因为结构体只能在定义的时候初始化,所以在oc中有两个方法设置
+  方法一: 强制转换
+    stu->_birthday = (Date){1986, 1, 15};
+  方法二:定义一个新的结构体,给d赋值,将d赋值给_birthday
+    Date d = {1986, 1, 15};
+    stu->_birthday = d;
+  方法三:分别赋值
+    stu->_birthday.year = 1986;
+    stu->_birthday.month = 1;
+    stu->_birthday.day = 15;
+
+匿名对象
+  无论有没有名字, 只要调用new方法都会返回对象的地址
+  每次new都会新开辟一块存储空间
+  [Person new]->_age = 30;
+  [Person new]->_name = @"LMJ";
+  [[Person new] say];
+
+  匿名对象的应用场景
+    1 当对象只需要使用一次的时候就可以使用匿名对象
+      [[Iphone new] brand];
+    2 匿名对象可以作为方法的参数(实参)
+      [p1 signal:[Iphone new]];
+
+封装getter和setter
+  如果某一个属性只提供了getter方法, 没有提供setter方法, 我们称这个属性为只读属性
+  如果某一个属性只提供了setter方法, 没有提供getter方法, 我们称这个属性为只写属性
+  如果某一个属性同时提供了setter方法和getter方法, 我们称这个属性为可读可写的属性
+  如果某一个属性没有提供了getter和setter,  我们称这个属性为私有属性
+  
+  setter方法:
+    作用: 设置成员变量的值
+    setter方法还有一个好处: 监听属性的变化
+    格式:
+    1. setter方法一定是对象方法
+    2. 一定没有返回值
+    3. 一定以set开头, 并且set后面跟上需要设置的成员变量的名称去掉下划线, 并且首字母大写
+    4. 一定有参数, 参数类型一定和需要设置的成员变量的类型一致, 并且参数名称就是成员变量的名称去掉下划线
+    - (void)setSize:(int)size;
+
+  getter方法:
+    作用: 获取成员变量的值
+    格式:
+    1. getter方法一定是对象方法
+    2.一定有返回值, 而且返回值一定和获取的成员变量的类型一致
+    3.方法名称就是获取的成员变量的名称去掉下划线
+    4. 一定没有参数
+    - (int)size;
+
+  如果给属性提供了getter和setter方法, 那么访问属性就又多了一种访问方式 , 点语法
+  点语法其实它的本质是调用了我们的setter和getter方法
+  点语法是一个编译器的特性, 会在程序翻译成二进制的时候将.语法自动转换为setter和getter方法
+  如果点语法在=号的左边, 那么编译器会自动转换为setter方法
+  如果点语法在=号的右边, 或者没有等号, 那么编译器就会自动转换为getter方法
+  点语法一般用于给成员变量赋值, 如果不是给成员变量赋值一般情况下不建议使用, 但是也可以使用
+
+self关键字
+  self不能离开类, 离开类之后没有任何意义
+  类方法中调用类方法除了可以使用类名调用以外, 还可以使用self来调用
+    [self openFlahlight];
+  self不仅仅可以调用我们的类方法, 还可以调用对象方法
+  如果self在对象方法中, 那么self就代表调用当前对象方法的那个对象
+  如果self在类方法中, 那么self就代表调用当前类方法的那个类
+  总结: 我们只用关注self在哪一个方法中 , 如果在类方法那么就代表当前类, 如果在对象方法那么就代表"当前调用该方法的对象"
+  注意:
+    self会自动区分类方法和对象方法, 如果在类方法中使用self调用对象方法, 那么会直接报错
+    不能在对象方法或者类方法中利用self调用当前self所在的方法,会造成死循环
+  使用场景:
+    可以用于在对象方法之间进行相互调用
+    可以用于在类方法之间进行相互调用
+    可以用于区分成员变量和局部变量同名的情况
+      self->cpu = cpu;
+
+继承
+  优点:
+    提高代码的复用性
+    可以让类与类之间产生关系, 正是因为继承让类与类之间产生了关系所以才有了多态
+  如果子类中有和父类中同名的方法, 那么我们称之为方法重写
+  继承中的方法调用顺序, 如果自己有就调用自己的, 如果自己没有就调用父类的
+  如果一直找到NSObject类都没有找到, 那么就会报错
+  在继承中除了对象方法可以重写, 类方法也可以重写
+  在继承中方法可以重写, 但是属性(成员变量)不能重写
+
+super关键字
+  利用super给父类的方法发送一个消息, 那么系统就会自动调用父类的方法
+  如果以后想在子类中调用父类的方法可以使用super
+  如果想在给父类方法进行扩展的同时保留父类的方法, 那么可以使用super调用父类同名的方法
+
+  [super carameWithFlahlightStatus:status];
+
+  super在类方法中, 一定会调用父类的类方法
+  super在对象方法中, 一定会调用父类的对象方法
+  可以利用super在任意方法中调用父类中的方法
+
+多态
+  父类指针指向子类对象
+  在编译的时候编译器只会检查当前类型对应的类中有没有需要调用的方法
+  在运行时,系统会自动判断a1的真实类型
+  在多态中, 如果想调用子类特有的方法必须强制类型转换为子类才能调用
+    Animal *a1 = [Dog new];
+    Dog *d1 = (Dog *)a1;
+    [d1 dogMethod];
+
+实例变量修饰符
+  @public
+  >可以在其它类中访问被public修饰的成员变量
+  >也可以在本类中访问被public修饰的成员变量
+  >可以在子类中访问父类中被public修饰的成员变量
+  
+  @private
+  >不可以在其它类中访问被private修饰的成员变量
+  >可以在本类中访问被private修饰的成员变量
+  >不可以在子类中访问父类中被private修饰的成员变量
+  
+  @protected
+  >不可以在其它类中访问被protected修饰的成员变量
+  >可以在本类中访问被protected修饰的成员变量
+  >可以在子类中访问父类中被protected修饰的成员变量
+  注意: 默认情况下所有的实例变量都是protected
+  
+  @package
+  >介于public和private之间的
+  如果是在其它包中访问那么就是private的
+  如果是在当前代码所在的包种访问就是public的
+  
+  实例变量修饰符作用域: 从出现的位置开始, 一直到下一个修饰符出现
+  如果没有遇到下一个实例变量修饰符, 那么就会修饰后面所有的实例变量
+
+description方法
+  如果通过%@打印对象就会调用-号开头的description方法
+  如果通过%@打印类对象就会调用+号开头的description方法
+  class注意c是小写, 只要给类发送class消息, 就会返回当前类的类对象
+    Class c = [Person class];
+    NSLog(@"当前对象对应的类 = %@", c);
+  只要利用%@打印某个对象, 系统内部默认就会调用父类的description方法
+    NSLog(@"person = %@", p);
+  调用该方法, 该方法会返回一个字符串, 字符串的默认格式 <类的名称: 对象的地址>
+  可以重写description方法, 返回我们需要打印的内容
+    - (NSString *)description
+    {
+      NSString *str = [NSString stringWithFormat:@"age = %i, name = %@, height = %f, weight = %f, tel = %@, email = %@", _age, _name, _height, _weight, _tel, _email];
+      return str;
+    }
+  在description方法中尽量不要使用self来获取成员变量
+  因为如果你经常在description方法中使用self, 可能已不小心就写成了 %@, self
+  如果在description方法中利用%@输出self会造成死循环
+    return [NSString stringWithFormat:@"%@", self]; // 死循环
+
+私有变量和私有方法
+  实例变量(成员变量)既可以在@interface中定义, 也可以在@implementation中定义
+  写在@implementation中的成员变量, 默认就是私有的成员变量, 并且和利用@private修饰的不太一样, 在@implementation中定义的成员变量在其它类中无法查看, 也无法访问
+  在@implementation中定义的私有变量只能在本类中访问
+
+  如果只有方法的实现, 没有方法的声明, 那么该方法就是私有方法
+  在OC中没有真正的私有方法,因为OC是消息机制,可以通过SEL来调用
+    [p performSelector:@selector(test)];
+
+property
+  @porperty是一个编译器指令
+  在Xocde4.4之前, 可以使用@porperty来代替getter/setter方法的声明
+  也就是说我们只需要写上@porperty就不用写getter/setter方法的声明
+  编译器只要看到@property, 就知道我们要生成某一个属性的getter/setter方法的声明
+    @property int age;
+  
+  从Xcode4.4以后apple对@property进行了一个增强(不再需要synthesize), 以后只要利用一个@property就可以同时生成setter/getter方法的声明和实现
+  没有告诉@property要将传入的参数赋值给谁, 默认@property会将传入的属性赋值给_开头的成员变量
+
+  @property有一个弊端: 它只会生成最简单的getter/setter方法的声明和实现, 并不会对传入的数据进行过滤
+  如果想对传入的数据进行过滤, 那么我们就必须重写getter/setter方法
+  如果不想对传入的数据进行过滤, 仅仅是提供一个方法给外界操作成员变量, 那么就可以使用@property
+
+  如果利用@property来生成getter/setter方法, 那么我们可以不写成员变量, 系统会自动给我们生成一个_开头的成员变量
+  注意: @property自动帮我们生成的成员变量是一个私有的成员变量, 也就是说是在.m文件中生成的, 而不是在.h文件中生成的
+
+  如果重写了setter方法, 那么property就只会生成getter方法
+  如果重写了getter方法, 那么property就只会生成setter方法
+  如果同时重写了getter/setter方法, 那么property就不会自动帮我们生成私有的成员变量
+
+  属性修饰符
+    @property(属性修饰符) 数据类型 变量名称;
+    readwrite: 代表既生成getter方法,也生成setter方法,默认情况下@property就是readwrite的
+      @property(readwrite) int age;
+    readonly: 代表只生成getter方法不生成setter方法
+      @property(readonly) NSString * name;
+    getter:
+      @property(getter=abc) double height;
+      会生成
+        - (void)setHeight:(double)height;
+        - (double)abc;
+      经常用于BOOL类型,一般情况下获取BOOL类型的属性的值, 我们都会将获取的方法名称改为isXXX
+        @property(getter=isMarried) BOOL married;
+    setter:
+      @property(setter=tiZhong:) double weight;
+      会生成
+        - (void)setTiZhong:(double)weight;
+        - (void)weight;
+
+synthesize(4.4之后就用不上了)
+  是一个编译器指令, 它可以简化我们getter/setter方法的实现
+  在@synthesize后面告诉编译器, 需要实现哪个@property生成的声明
+  告诉@synthesize, 需要将传入的值赋值给谁和返回谁的值给调用者
+    @synthesize age = _age;
+  如果在@synthesize后面没有告诉系统将传入的值赋值给谁, 系统默认会赋值给和@synthesize后面写得名称相同的成员变量
+
+id类型
+  id是一个数据类型, 并且是一个动态数据类型
+  既然是数据类型, 所以就可以用来
+  1.定义变量
+  2.作为函数的参数
+  3.作为函数的返回值
+
+  默认情况下所有的数据类型都是静态数据类型
+  静态数据类型的特点: 
+    在编译时就知道变量的类型, 
+    知道变量中有哪些属性和方法
+    在编译的时候就可以访问这些属性和方法, 
+    并且如果是通过静态数据类型定义变量, 如果访问了不属于静态数据类型的属性和方法, 那么编译器就会报错
+  
+  动态数据类型的特点:
+    在编译的时候编译器并不知道变量的真实类型, 只有在运行的时候才知道它的真实类型
+    并且如果通过动态数据类型定义变量, 如果访问了不属于动态数据类型的属性和方法, 编译器不会报错
+  
+  id == NSObject *  // 万能指针
+  id和NSObject *的区别: 
+    NSObject *是一个静态数据类型
+    id  是一个动态数据类型
+  
+  通过静态数据类型定义变量, 不能调用子类特有的方法
+  通过动态数据类型定义变量, 可以调用子类特有的方法
+  通过动态数据类型定义的变量, 可以调用私有方法
+
+  弊端: 由于动态数据类型可以调用任意方法, 所以有可能调用到不属于自己的方法, 而编译时又不会报错, 所以可能导致运行时的错误
+  应用场景: 多态, 可以减少代码量, 避免调用子类特有的方法需要强制类型转换
+  为了避免动态数据类型引发的运行时的错误, 一般情况下如果使用动态数据类型定义一个变量, 在调用这个对象的方法之前会进行一次判断, 判断当前对象是否能够调用这个方法
+    if ([obj isKindOfClass:[Student class]]) {
+      // isKindOfClass , 判断指定的对象是否是某一个类, 或者是某一个类的子类
+      [obj eat];
+    }
+    或者
+    if ([obj isMemberOfClass:[Student class]]) {
+      // isMemberOfClass : 判断指定的对象是否是当前指定的类的实例(不包含子类)
+      [obj eat];
+    }
+
+new实现原理
+  new做了三件事情
+    1.开辟存储空间  + alloc 方法
+    2.初始化所有的属性(成员变量) - init 方法
+    3.返回对象的地址
+  
+  alloc做了什么事情: 1.开辟存储空间 2.将所有的属性设置为0 3.返回当前实例对象的地址
+  init做了什么事情: 1.初始化成员变量, 但是默认情况下init的实现是什么都没有做 2.返回初始化后的实例对象地址
+  alloc返回的地址, 和init返回的地址是同一个地址
+  建议以后创建一个对象都使用alloc init, 这样可以统一编码格式
+    Person *p = [[Person alloc] init];
+
+构造方法
+  在OC中init开头的方法, 我们称之为构造方法
+  构造方法的用途: 用于初始化一个对象, 让某个对象一创建出来就拥有某些属性和值
+
+  重写init方法, 在init方法中初始化成员变量
+    注意: 重写init方法必须按照苹果规定的格式重写, 如果不按照规定会引发一些未知的错误
+    1.必须先初始化父类, 再初始化子类
+    2.必须判断父类是否初始化成功, 只有父类初始化成功才能继续初始化子类
+    3.返回当前对象的地址
+
+    - (instancetype)init
+    {
+        // 1.初始化父类
+        // 只要父类初始化成功 , 就会返回对应的地址, 如果初始化失败, 就会返回nil
+        // nil == 0 == 假 == 没有初始化成功
+        self = [super init];
+        // 2.判断父类是否初始化成功
+        if (self != nil) {
+            // 3.初始化子类
+            // 设置属性的值
+            _age = 6;
+        }
+        // 4.返回地址
+        return self;
+    }
+
+    简写方法
+      - (instancetype)init
+      {
+          // 注意: 不要把 = 号写为 ==
+          // 一定要将[super init]的返回值赋值给self
+          if (self = [super init]) {
+              // 初始化子类
+              _age = 6;
+          }
+          return self;
+      }
+
+  instancetype和id的区别   
+    instancetype == id == 万能指针 == 指向一个对象
+    id在编译的时候不能判断对象的真实类型
+    instancetype在编译的时候可以判断对象的真实类型
+    id和instancetype除了一个在编译时不知道真实类型, 一个在编译时知道真实类型以外, 还有一个区别
+    id可以用来定义变量, 可以作为返回值, 可以作为形参
+    instancetype只能用于作为返回值
+    注意: 以后但凡自定义构造方法, 返回值尽量使用instancetype, 不要使用id
+  
+  自定义构造方法
+    其实就是自定义一个init方法
+    1.一定是对象方法
+    2.一定返回id/instancetype
+    3.方法名称一定以init开头
+
+    一个类可以有0个或者多个自定义构造方法
+    自定义构造方法可以有1个或多个参数
+    自定义构造方法中的init后面的With的W一定要大写(语法上的硬性规定)
+    属性名称最好不要以new开头,可能会引发一些未知错误,方法也是
+
+    - (instancetype)initWithAge:(int)age;
+    - (instancetype)initWithName:(NSString *)name;
+    - (instancetype)initWithAge:(int)age andName:(NSString *)name;
+  
+类工厂方法
+  用于快速创建对象的类方法, 我们称之为类工厂方法
+  类工厂方法中主要用于 给对象分配存储空间和初始化这块存储空间
+
+  规范:
+  1.一定是类方法 +
+  2.方法名称以类的名称开头, 首字母小写
+  3.一定有返回值, 返回值是id/instancetype
+  
+  + (instancetype)personWithAge:(int)age
+  {
+      Person *p = [[Person alloc] init];
+      p.age = age;
+      return p;
+  }
+
+  自定义类工厂方法是苹果的一个规范, 一般情况下, 我们会给一个类提供自定义构造方法和自定义类工厂方法用于创建一个对象
+    [[NSString alloc] init];
+    [NSString string];
+    
+    [[NSString alloc] initWithString:<#(NSString *)#>];
+    [NSString stringWithString:<#(NSString *)#>];
+    
+    [[NSArray alloc] init];
+    [NSArray array];
+
+    [NSArray alloc] initWithObjects:<#(id), ...#>, nil
+    [NSArray arrayWithObjects:<#(id), ...#>, nil]
+
+  类工厂方法在继承中的注意点
+    注意: 以后但凡自定义类工厂方法, 在类工厂方法中创建对象一定不要使用类名来创建
+      一定要使用self来创建
+      self在类方法中就代表类对象, 到底代表哪一个类对象呢?
+      谁调用当前方法, self就代表谁
+    
+    + (instancetype)person
+    {
+        // return [[Person alloc] init]; 会出错
+        return [[self alloc] init];
+    }
+
+类的本质
+  类其实也是一个对象, 这个对象会在这个类第一次被使用的时候创建
+  只要有了类对象, 将来就可以通过类对象来创建实例对象
+  实例对象中有一个isa指针, 指向创建自己的类对象
+  
+  类对象中保存了当前对象所有的对象方法
+  当给一个实例对象发送消息的时候, 会根据实例对象中的isa指针去对应的类对象中查找
+
+  如何获取类对象
+    一个类再内存中只有一份类对象
+    [实例对象 class];  [类名 class];
+  
+  类对象的应用场景
+    用于创建实例对象
+      Class c1 = [p1 class];
+      Person *p3 = [[c1 alloc] init];
+      p3.age = 30;
+    用于调用类方法
+      [c1 test];
+
+  类的启动过程
+    load
+      只要程序启动就会将所有类的代码加载到内存中, 放到代码区
+      load方法会在当前类被加载到内存的时候调用, 有且仅会调用一次
+      如果存在继承关系, 会先调用父类的load方法, 再调用子类的load方法
+
+      一般不在load方法里面写东西,因为load方法是在程序一启动的时候调用的(早于main),这个时候自动释放池还没有创建,所以创建出来的对象需要手动释放
+    initialize
+      当当前类第一次被使用的时候就会调用(创建类对象的时候)
+      initialize方法在整个程序的运行过程中只会被调用一次, 无论你使用多少次这个类都只会调用一次
+      initialize用于对某一个类进行一次性的初始化
+      initialize和load一样, 如果存在继承关系, 会先调用父类的initialize再调用子类的initialize
+      因为继承的关系,所以initialize其实是可能被多次调用的(当子类调用时就会调用一次父类),所以建议在initialize方法内这么实现,避免多次调用
+        // 判断是否是当前类调用
+        if (self == [XMGNavigationViewController class]) {
+          ...
+        }
+      但是load不存在这个问题,因为load是在程序启动时就全部加载好了,运行时不会再调用到
+    以上两个方法都不可以手动调用
+
+SEL类型
+  SEL类型的第一个作用
+    配合对象/类来检查对象/类中有没有实现某一个方法
+      SEL sel = @selector(setAge:);
+      Person *p = [Person new];
+      // 判断p对象中有没有实现-号开头的setAge:方法
+      // 如果P对象实现了setAge:方法那么就会返回YES
+      // 如果P对象没有实现setAge:方法那么就会返回NO
+      BOOL flag = [p respondsToSelector:sel];
+    respondsToSelector注意点: 如果是通过一个对象来调用该方法那么会判断该对象有没有实现-号开头的方法
+    如果是通过类来调用该方法, 那么会判断该类有没有实现+号开头的方法
+      flag = [Person respondsToSelector:sel1];
+  SEL类型的第二个作用
+    配合对象/类来调用某一个SEL方法
+      SEL sel = @selector(demo);
+      Person *p = [Person new];
+      // 调用p对象中sel类型对应的方法
+      [p performSelector:sel];
+    withObject: 需要传递的参数
+    注意: 如果通过performSelector调用有参数的方法, 那么参数必须是对象类型,
+    也就是说方法的形参必须接受的是一个对象, 因为withObject只能传递一个对象
+      SEL sel1 = @selector(signalWithNumber:);
+      [p performSelector:sel1 withObject:@"13838383438"];
+
+      SEL sel2 = @selector(setAge:);
+      [p performSelector:sel2 withObject:@(5)];
+      NSLog(@"age = %i", p.age);
+    注意:performSelector最多只能传递2个参数
+      SEL sel3 = @selector(sendMessageWithNumber:andContent:);
+      [p performSelector:sel3 withObject:@"138383438" withObject:@"abcdefg"];
+  SEL类型的第三个作用
+    配合对象将SEL类型作为方法的形参 
+      - (void)makeObject:(id)obj andSel:(SEL)sel
+      {
+          [obj performSelector:sel];
+      }
+
+      Car *c = [Car new];
+      SEL sel = @selector(run);
+      
+      Person *p = [Person new];
+      [p makeObject:c andSel:sel];
+
+Category
+  通过分类给某一个类扩充方法, 也分为声明和实现两个部分
+  如果在分类中出现property那么只会生成get和set的定义,不会生成下划线成员变量和方法实现
+  分类的声明
+    ClassName: 需要给哪个类扩充方法
+    CategoryName: 分类的名称
+    NewMethod: 扩充的方法
+
+    @interface ClassName (CategoryName)
+    NewMethod; //在类别中添加方法
+    //不允许在类别中添加变量
+    @end
+
+  分类的实现
+    ClassName: 需要给哪个类扩充方法
+    CategoryName: 分类的名称
+    NewMethod: 扩充的方法
+
+    @implementation ClassName(CategoryName)
+    
+    NewMethod
+    ... ...
+    @end
+  
+  @interface Person (NJ)
+  // 扩充方法
+  - (void)playFootball;
+  - (void)playBasketball;
+  @end
+
+  @implementation Person (NJ)
+  // 实现扩充方法
+  - (void)playFootball
+  {
+      NSLog(@"%s", __func__);
+  }
+  - (void)playBasketball
+  {
+      NSLog(@"%s", __func__);
+  }
+  @end
+
+  注意点
+    1.分类是用于给原有类添加方法的, 它只能添加方法, 不能添加属性(成员变量)
+    2.分类中的@property, 只会生成setter/getter方法的声明, 不会生成实现以及私有的成员变量
+    3.可以在分类中访问原有类中.h中的属性
+    4.如果分类中有和原有类同名的方法, 会调用分类中的方法,同名方法调用顺序
+      1.分类
+      2.本类
+      3.父类
+      但在开发中尽量不要这样写
+    5.如果多个分类中都有和原有类中同名的方法, 那么调用该方法的时候执行谁由编译器决定
+      会执行最后一个参与编译的分类中的方法
+      在Build Phases -> Compile Sources中可以查看修改编译的顺序
+  
+  匿名分类(延展)
+    没有分类名称
+    为某个类扩充一些私有的成员变量和方法
+    写在原类的.m文件中
+
+    #import "Person.h"
+
+    @interface Person ()
+    {
+        int _age;
+    }
+    - (void)say;
+    @end
+
+    @implementation Person
+    - (void)say
+    {
+        NSLog(@"age = %i", _age);
+    }
+    @end
+
+  解决字典和数组中输出乱码的问题
+    给字典和数组添加一个分类，重写descriptionWithLocale方法，在该方法中拼接元素格式化输出
+    -(nonnull NSString *)descriptionWithLocale:(nullable id)locale
+  
+  如果分类只是重写原有类的方法,那么不需要导入分类头文件,甚至连头文件都可以不写,只要实现.m文件即可
+
+super&superClass&class区别
+  self:当前类
+  class:获取当前方法调用者的类
+  superclass:获取当前方法调用者的父类
+  super:仅仅是一个编译指示器,就是给编译器看的,不是一个指针
+      本质:只要编译器看到super这个标志,就会让当前对象去调用父类方法,本质还是当前对象在调用
+      [super description];背后会生成objc_msgSendSuper({self, class_getSuperclass(objc_getClass("Person"))}, sel_registerName("description"));

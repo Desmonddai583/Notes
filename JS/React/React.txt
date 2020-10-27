@@ -1,0 +1,842 @@
+React与vue.js的对比
+    React和Vue组件化对比
+        1. Vue组件化
+            - template： UI结构
+            - script： 业务逻辑和数据
+            - style： UI的样式
+        2. React如何实现组件化：在React中实现组件化的时候，根本没有像vue这样的模板文件，而是直接使用JS代码的形式，去创建任何你想要的组件；
+            - React中的组件，都是直接在 js 文件中定义的；
+            - React的组件，并没有把一个组件拆分为三部分（结构、样式、业务逻辑），而是全部使用JS来实现一个组件的；（也就是说：结构、样式、业务逻辑是混合在JS里面一起编写出来的）
+    虚拟DOM（Virtual Document Object Model）
+        DOM的本质是什么：就是用JS表示的UI元素
+        DOM和虚拟DOM的区别：
+            - DOM是由浏览器中的JS提供功能，所以我们只能使用浏览器提供的固定的API来操作DOM对象；
+            - 虚拟DOM：并不是由浏览器提供的，而是程序员手动模拟实现的，类似于浏览器中的DOM
+            - 两者之间的共同点和区别:
+                + 区别: 一个是浏览器自动创建的, 一个是我们自己创建的
+                + 共同点: 都是用来描述UI元素的
+        为什么要实现虚拟DOM?
+            - 文件夹排序问题
+                当部分数据发生变化的时候, 如果我们重新渲染整个界面会造成极大的性能资源浪费.
+                如果在排序的时候只有其中部分的数据发生了变化, 那么我们只需要更新部分界面即可,
+                这样就能大大的提升我们的性能
+            - 如何做到局部更新而不是整个更新?
+                这是就需要利用现有元素和过去的元素进行对比, 但是浏览器并没有提供这样的API, 所以我们可以自己创建一个虚拟DOM, 利用这个虚拟的DOM和原有的DOM进行对比即可
+        比较算法
+            - tree diff
+                新旧DOM树逐层对比的方式，就叫做 tree diff,每当我们从前到后，把所有层的节点对比完后，必然能够找到那些 需要被更新的元素；
+            - component diff
+                在对比每一层的时候，组件之间的对比，叫做 component diff;
+                当对比组件的时候，如果两个组件的类型相同，则暂时认为这个组件不需要被更新，如果组件的类型不同，则立即将旧组件移除，新建一个组件，替换到被移除的位置；
+            - element diff
+                在组件中每个元素之间也要进行对比，那么元素级别的对比，就叫做 element diff；
+            - key
+                key这个属性，可以把页面上的DOM节点和虚拟DOM中的对象，做一层关联关系；
+
+        http://ppt.baomitu.com/d/2afbd5b9#/24
+
+        无论是Vue还是React都有虚拟DOM的概念
+
+在webpack中使用React框架
+    1 npm install --save react react-dom
+    2 导入安装好的包
+        import React from 'react'
+        import ReactDom from 'react-dom'
+        Ract这个包的作用是专门用来创建React组件, 管理组件的生命周期等
+        ReactDom里面主要封装了和Dom操作相关的方法, 例如: 将组件添加渲染到界面上等
+
+    如何通过React这个包来创建组件
+        在React中并没有像Vue中那样提供了template,script,style等模板. 
+        在React中想要创建组件, 只能通过React包中提供的JS方法来创建
+
+        第一个参数:是一个字符串类型, 表示要创建元素的类型
+        第二个参数:是一个对象, 该对象用于存储创建元素的属性
+        第三个参数:指定被创建元素的子元素(内容),可传入多个参数,每个都会当做是子元素添加
+        let myH1 = React.createElement("h1",{},"我是标题");
+        let myDiv = React.createElement("div", {id:"myDiv", title:"abc"}, "我是div", myH1);
+
+    如何通过ReactDom这个包将创建好的组件渲染到界面上
+        第一个参数:需要渲染的组件
+        第二个参数:渲染到什么地方
+        ReactDom.render(myDiv, document.querySelector("#app"));
+
+    上面的方式用来创建复杂结构就会很麻烦,所以就引入了JSX
+
+JSX
+    JSX 是一个看起来很像 XML 的 JavaScript 语法扩展
+    优点：
+        JSX 执行更快，因为它在编译为 JavaScript 代码后进行了优化。
+        它是类型安全的，在编译过程中就能发现错误。
+        使用 JSX 编写模板更加简单快速。
+    
+    webpack不认 识JS中的HTML代码, 所以需要进一步的配置解析器
+        npm i @babel/preset-react -D
+        修改.babelrc文件, 添加@babel/preset-react
+    
+    JSX中的常见注意点:
+        1 由于class是ES6中的关键字, 所以在JSX中不能使用class给元素指定类名, 如果想要指定类名必须使用className
+        2 由于for是JS中的关键字, 所以在JSX中不能使用for绑定input, 如果需要绑定必须使用htmlfor
+        3 想在JSX中编写注释, 注释必须放到{}中
+    
+    let msg = "指趣学院";
+    let myId = "myDiv";
+    const myDiv = (<div id={myId} title="abc" className="box">
+        我是div
+        {
+            // 这里是标题
+        }
+        <h1>{msg}</h1>
+        {/* 这里是账号*/}
+        <label htmlFor="account">
+            账号:
+            <input type="text" id="account"/>
+        </label>
+    </div>);
+
+    ReactDom.render(myDiv, document.querySelector("#app"));
+
+定义组件
+    在React中如何创建组件有两种方式
+        通过ES5的构造函数来定义
+            通过构造函数创建组件, 构造函数中必须通过return返回一个值
+            这个返回值就是告诉外界组件中包含什么元素
+
+            function One() {
+                // 告诉外界组件中包含哪些内容
+                // return null;
+                return (<div className="header">
+                    <span>返回</span>
+                    <input type="text"/>
+                    <span>更多</span>
+                </div>);
+            }
+
+        ES6中提供了class关键字用于创建一个类, 有了类之后我们就可以通过类创建对象
+            通过class定义一个组件, class中必须包含一个叫做render的函数, 该函数用于返回组件的模板
+            class Two extends React.Component{
+                render(){
+                    return (<div className="footer">
+                        <span>友情链接</span>
+                        <span>版权</span>
+                        <span>备案信息</span>
+                    </div>);
+                }
+            }
+
+        ReactDom.render(<div>
+            <One />
+            <Two />
+        </div>, document.querySelector("#app"));
+    
+    通过构造函数定义组件和通过class定义组件区别
+        1. 通过构造函数定义组件, 只能通过props从外界获取数据, 不能在内部定义state
+        2. 通过class定义组件, 既能够从外界通过props获取数据, 也可以通过state定义内部私有数据
+        3. 通过构造函数定义组件, 必须明确添加props形参, 形参名称可以是任意的, 访问props可以直接访问
+        4. 通过class定义组件, 不用明确添加props, props的名称是固定的, 访问props必须通过this.props来访问
+        5. 通过构造函数定义组件, 直接返回组件模板即可, 里面不能添加其它的方法和属性(render/组件的生命周期函数)
+        6. 通过class定义组件, 必须在render方法中返回组件的模板, 在组件中可以添加其它方法和属性(组件的生命周期函数)
+    
+    正是因为有了这些区别, 所以React将组件分为了两类:
+        1 不能添加其它方法和属性的(不能添加state,不能监听生命周期方法), 我们称之为无状态组件
+        2 可以添加其它方法和属性的(能添加state,能监听生命周期方法),我们称之为有状态的组件
+    
+    无状态组件和有状态组件的应用场景:
+        1 如果需要存储自己的私有数据, 或者需要监听组件的生命周期, 那么就使用有状态的组件
+        2 如果不需要存储自己私有的数据, 组件中的数据都是外界传入的, 并且不需要监听组件的生命周期, 那么就使用无状态的组件
+        3 由于无状态的组件不用监听生命周期等方法, 所以性能会比有状态的稍微好一些
+
+数据传递
+    和Vue一样, 我们可以从父组件传递数据给子组件, 也可以从子组件传递数据给父组件
+    和Vue一样, 在React中父组件传递数据给子组件, 也是通过自定义属性的方式
+    如果父组件给子组件传递了参数, 那么我们可以给构造函数添加一个props的形参, 这个形参就是专门用于接收父组件传递过来的数据的
+
+    function Father() {
+        let obj = {
+            name: "zs",
+            age: 33,
+            gender: "male"
+        };
+        return (<div className="father">
+            {/*<Son name="lnj" age="13"/>*/}
+            <Son {...obj} />
+        </div>);
+    }
+
+    // 第一种方式
+    function Son(props) {
+        return (<div className="son">
+            <p>{props.name} --- {props.age}</p>
+        </div>);
+    }
+
+    // 第二种方式
+    class Son extends React.Component{
+        constructor(props){
+            super(props); // 必须写在构造函数的第一句
+        }
+        render(){
+            return (<div className="son">
+                {/*
+                如果通过class来定义组件, 那么父组件传递过来的数据不用手动指定
+                通过props来接收, 组件内部默认就有一个props属性, 默认就会用这个属性来接收
+                如果想明确通过props来接收, 也可以在构造函数中指定
+                通过构造函数指定的props的名称是可以修改的(e.g. prop1,prop2), 而通过class接收的props的名称是不可以修改的
+                */}
+                <p>{this.props.name} --- {this.props.age}</p>
+            </div>);
+        }
+    }
+
+    function App(){
+        return (<div>
+            <Father />
+        </div>)
+    }
+
+    ReactDom.render(<App />, document.querySelector("#app"));
+
+方法传递
+    React中如何注册事件
+        和普通JS一样, 可以通过行内方式来注册事件, React支持元素JS中几乎所有的事件
+        注意点:
+            1. 在React中给元素绑定事件的时候, 绑定的方法最好是箭头函数
+                并且绑定的时候前面的this不能省略
+            2. 如果绑定的方法是箭头函数, 那么函数中的this就是当前组件对象
+                如果绑定的方法是普通函数, 那么函数中的this是undefined
+                所以如果在函数中需要访问class中的其它属性或者方法, 那么普通函数就会有问题
+                如果非要在普通函数中使用this,那么可以在绑定函数的时候通过bind修改函数中的this
+
+    React中如何传递方法
+        和Vue一样, 也可以通过自定义属性的方式将父组件的方法传递给子组件
+        在React中无论父组件是传递数据给子组件还是传递方法给子组件都是通过props来接收
+    React中子组件如何传递数据给父组件
+        和Vue一样, 需要通过回调函数的方式来传递
+
+    class Father extends React.Component{
+        render(){
+            return (<div className="father">
+                <Son name="lnj123" parentFn={this.myFn}/>
+            </div>);
+        }
+        myFn = (data) =>{
+            // console.log(data);
+            alert("父组件中的方法" + data);
+        }
+    }
+
+    class Son extends React.Component{
+        constructor(props){
+            super(props);
+        }
+        render(){
+            return (<div className="son">
+                <p>{this.props.name}</p>
+                <button onClick={this.sonFn}>子组件按钮</button>
+            </div>);
+        }
+        sonFn = () =>{
+            // 调用父组件传递过来的方法
+            this.props.parentFn("孝敬老人的");
+        }
+    }
+    
+    class App extends React.Component{
+        render(){
+            return (<div>
+                <Father />
+            </div>);
+        }
+    }
+
+    ReactDom.render(<App />, document.querySelector("#app"));
+
+props默认值和类型检测
+    在封装组件的时候, 为了能够让我们的组件复用性更高, 一般情况下都不会将数组写死在组件的, 一般情况下组件中的数据都是通过使用者(父组件)传递过来的
+    这样做大大的提升了组件的复用性, 但是也带来了一定的问题.
+        例如组件中要使用某个数据但是调用者没有传递
+        例如组件中要使用的某个数据是int类型, 但是调用者传递的不是int类型
+    所以为了解决这个问题, React就推出了一套机制, 专门用于指定传入的默认值和传入数据的类型
+    如何定义外界传入数据的默认值
+        可以在class中定义一个静态对象, 这个对象有固定的名称
+        static defaultProps = {}
+    如何检测外界传入参数的数据类型
+        可以在class中定义一个静态对象, 这个对象有固定的名称
+        static propTypes = {}
+        注意点: React15.5将类型检测相关的方法独立到一个单独的包中的, 
+                所以想要检测, 必须安装一个包npm i prop-types -S
+    
+    import React from 'react'
+    import ReactDom from 'react-dom'
+    import ReactTypes from 'prop-types'
+
+    class Father extends React.Component{
+        render(){
+            return (<div className="father">
+                <Son age={13}/>
+            </div>);
+        }
+    }
+    class Son extends React.Component{
+        constructor(props){
+            super(props);
+        }
+        // 指定外界传入参数的默认值
+        static defaultProps = {
+            age: -1
+        }
+        // 检测外界传入数据的类型
+        static propTypes = {
+            age: ReactTypes.number
+        }
+        render(){
+            return (<div className="son">
+                <p>{this.props.age}</p>
+            </div>);
+        }
+    }
+    class App extends React.Component{
+        render(){
+            return (<div>
+                <Father />
+            </div>);
+        }
+    }
+
+    ReactDom.render(<App />, document.querySelector("#app"));
+
+组件私有数据state
+    在React中组件除了可以通过props接收外界传入的数据以外, 
+    还可以通过state定义组件内部的私有数据(相当于Vue组件中的data)
+    如何在组件中定义是有的数据
+        在构造函数中添加一个this.state = {}
+    组件内部的私有数据是可读可写的
+    外界传入的数据只能读不能写
+    在React中不推荐直接修改state中的值, 如果想修改state中的值, React提供了专门的方法
+        setState
+
+    class One extends React.Component{
+        constructor(props){
+            super(props);
+            // 定义组件的私有数据
+            this.state = {
+                msg: "指趣学院"
+            }
+        }
+        render(){
+            return (<div>
+                我是one组件
+                {/*访问组件内部的私有数据*/}
+                <p>{this.state.msg}</p>
+                <button onClick={this.myFn}>按钮1</button>
+                <p>{this.props.name}</p>
+                <button onClick={this.myFn2}>按钮2</button>
+            </div>);
+        }
+        myFn = () =>{
+            // this.state.msg = "知播渔教育";
+            // 在React中不推荐直接修改state中的值, 如果想修改state中的值, React提供了专门的方法
+            // this.setState({});
+            this.setState({
+                msg: "知播渔教育"
+            });
+        }
+
+        myFn2 = () =>{
+            // 会报错, 外界传入的数据只能读不能写
+            // this.props.name = "zq";
+        }
+    }
+
+    class App extends React.Component{
+        render(){
+            return (<div>
+                <One name={"lnj"}/>
+            </div>);
+        }
+    }
+
+    ReactDom.render(<App />, document.querySelector("#app"));
+
+    注意: React中绑定事件的时候, 回调函数后面不能添加(), 因为添加()之后, 解析的时候就会立刻执行
+    <a href="http://www.baidu.com" onClick={self.del(index)}>删除</a> // 这样写会立即执行
+    可以通过箭头函数来实现
+    <a href="http://www.baidu.com" onClick={eve => {self.del(index, eve)}}>删除</a>
+
+    在React由于没有指令的概念, 所以必须自己通过事件对象阻止默认行为
+        del = (index, eve) => {
+            ...
+            eve.preventDefault();
+        }
+
+双向数据绑定
+    在Vue中可以用v-model指令在表单 <input>、<textarea> 及 <select> 元素上创建双向数据绑定
+    和Vue一样, 在React中也可以让表单元素实现双向数据绑定, 
+    但是React中没有提供类似于v-model的指令(本质上React中就没有指令的概念)
+    需要通过监听事件(onChange等)来触发
+
+    class One extends React.Component{
+        constructor(props){
+            super(props);
+            this.state = {
+                msg: "指趣学院"
+            }
+        }
+        render() {
+            return (<div>
+                {/*在React中如果需要通过value给input指定默认数据, 那么必须明确这个数据是只读的还是可读可写的*/}
+                {/*<input type="text" value={this.state.msg} readOnly/>*/}
+                <input
+                    type="text"
+                    value={this.state.msg}
+                    onChange={this.change}
+                    ref={"account"}
+                />
+            </div>);
+        }
+        change = (event) => {
+            // 1.通过JS直接获取
+            // let inputEle = document.querySelector("input");
+            // console.log(inputEle.value);
+
+            // 2.和Vue一样, 可以通过ref获取
+            // console.log(this.refs.account.value);
+
+            // 3.React中事件被触发的时候系统会自动将事件对象传递给我们,
+            //   所以也可以通过事件对象获取到触发事件的元素
+            // console.log(event.target.value);
+            // 对于复杂对象可以通过assign方法用于赋值或者合并多个对象
+            // let person = Object.assign({}, this.state.person);
+            // person[key] = eve.target.value;
+            // this.setState({
+            //     person: person
+            // });
+
+            this.setState({
+                msg: event.target.value
+            });
+        }
+    }
+
+共享数据
+    如果传递数据层次太深, 一层一层的往下传递比较麻烦
+        class One extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"one"}>
+                    One组件
+                    <Two oneName={"lnj"} oneFn={this.myFn}/>
+                </div>);
+            }
+            myFn = () =>{
+                alert("One中的方法");
+            }
+        }
+        class Two extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"two"}>
+                    Two组件
+                    <Three twoName={this.props.oneName} twoFn={this.props.oneFn}/>
+                </div>);
+            }
+        }
+        class Three extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"three"}>
+                    Three组件
+                    <p>{this.props.twoName}</p>
+                    <button onClick={this.threeFn}>按钮</button>
+                </div>);
+            }
+            threeFn = () => {
+                this.props.twoFn();
+            }
+        }
+
+    React中也提供了两种解决方案
+        通过context上下文传递
+        通过Redux传递(相当于Vuex)
+
+        通过上下文传递数据
+            1 在父组件中定义一个名称叫做getChildContext的方法, 该方法返回一个对象, 这个对象就是需要共享的数据
+            2 在父组件中定义一个名称叫做childContextTypes的静态对象, 指定共享给子组件的数据是什么类型的
+            3 在子组件中定义一个名称叫做contextTypes的静态对象, 验证父组件共享数据的类型
+            4 在任意子组件中都可以通过this.context.共享数据名称来访问父组件中共享的数据
+        
+        class One extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"one"}>
+                    One组件
+                    <Two/>
+                </div>);
+            }
+            // 1.在父组件中定义getChildContext方法, 返回需要共享给子组件的数据
+            getChildContext(){
+                return {
+                    msg: "One中的msg",
+                    oneFn: this.myFn
+                }
+            }
+            // 2.在父组件中定义childContextTypes静态对象, 告诉子组件共享的数据是什么类型
+            static childContextTypes = {
+                msg: ReactTypes.string,
+                oneFn: ReactTypes.func
+            }
+
+            myFn = () => {
+                alert("one中的方法");
+            }
+        }
+        class Two extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"two"}>
+                    Two组件
+                    <p>{this.context.msg}</p>
+                    <Three/>
+                </div>);
+            }
+            // 3.验证父组件共享的数据类型
+            static contextTypes ={
+                msg: ReactTypes.string,
+                oneFn: ReactTypes.func
+            }
+        }
+
+        class Three extends React.Component{
+            constructor(props){
+                super(props);
+            }
+            render(){
+                return (<div className={"three"}>
+                    Three组件
+                    <p>{this.context.msg}</p>
+                    <button onClick={this.threeFn}>按钮</button>
+                </div>);
+            }
+            // 3.验证父组件共享的数据类型
+            static contextTypes ={
+                msg: ReactTypes.string,
+                oneFn: ReactTypes.func
+            }
+            threeFn = () =>{
+                // this.context.oneFn();
+                this.context.msg = "123456";
+            }
+        }
+
+封装组件
+    在React中将组件封装到一个单独的文件, 只需新建一个.js文件即可
+    单独封装的组件文件中必须导入react, 因为组件依赖于这个文件, 无论是通过构造函数创建还是通过class创建, 都需要导入
+    单独封装的组件文件的扩展可以是js,也可以是jsx. 但是在webpack中,如果扩展名是jsx,那么就必须手动配置一下loader, 改为.jsx?$
+        {
+            test: /\.jsx?$/,
+            use: 'babel-loader',
+            exclude: /node_modules/
+        }
+
+React设置样式
+    行内样式
+        1 直接赋值
+            return (<div className="one" style={{color: "red"}}>我是One组件</div>);
+        2 通过对象赋值
+            let obj = {
+                color: "blue",
+                background: "#000"
+            }
+
+            return (<div className="one" style={obj}>我是One组件</div>);
+    通过类名
+        .test{
+            width: 300px;
+            height: 300px;
+            background: red;
+        }
+
+        import './../css/index.css'
+
+        return (<div className="test">我是One组件</div>);
+    
+    在webpack中, 默认导入的样式都是全局样式,即使是在组件文件中导入
+    虽然我们可以通过给组件指定类名的方式来解决全局样式的问题
+    但是在企业开发中难免还是会和其它同事发生冲突, 所以需要使用其它的解决方案
+
+    可以使用css模块化的功能来实现区分,将样式变为局部样式, 而不是全局样式
+    过去在Vue中scope就可以实现局部样式, 但是React没有
+    可以通过import xxx from './xxx.css' 的方式开启CSS模块化, 但是默认情况下返回的是一个空对象
+        import oneStyle from './../css/one.css';
+        return (<div className={oneStyle.test}>我是One组件</div>);
+    想让CSS的模块化真正的有效果, 还必须修改webpack中的css-loader
+        {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader?modules']
+        }
+    通过CSS模块化的方式导入CSS之后, 只有通过导入对象.类名的方式设置的样式才会生效
+    系统会随机生成一个类名绑定给指定的元素, 随机生成名称的原因主要是为了解决名称冲突的问题
+    为了方便我们调试样式, 一般情况下开启CSS模块化之后, 还是手动指定生成的名称
+    修改webpack中的css-loader
+        {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader?modules&localIdentName=[name]_[local]-[hash:8]']
+        }
+
+条件渲染
+    class App extends React.Component{
+        constructor(props){
+            super();
+            this.state = {
+                /*false显示one, true显示two*/
+                flag : false
+            }
+        }
+        render(){
+            let content = null;
+            if(this.state.flag){
+                content = <Two/>
+            }else{
+                content = <One />
+            }
+
+            return (<div>
+                <button onClick={this.toggle}>切换</button>
+                {/*如果需要显示的组件不是特别复杂, 那么可以直接编写三目运算符*/}
+                {/*{this.state.flag ? <Two/> : <One />}*/}
+                { content }
+            </div>);
+        }
+        toggle = () =>{
+            this.setState({
+                flag : !this.state.flag
+            });
+        }
+    }
+
+列表渲染
+    class App extends React.Component{
+        constructor(props){
+            super(props);
+            this.state = {
+                list: ["张三", "李四", "王五", "指趣", "知播渔"]
+            }
+        }
+        render(){
+            // let content = [];
+            // this.state.list.forEach(function (item, index) {
+            //     content.push(<p key={index}>{index} --- {item}</p>)
+            // });
+            return (<div>
+                {/*{content}*/}
+                {
+                    /*数组的map方法会生成一个新的数据返回给我们
+                    * 这里就相当于将生成的新数组插入到模板中*/
+                    this.state.list.map(function (item, index) {
+                        return <p key={index}>{index} --- {item}</p>
+                    })
+                }
+            </div>);
+        }
+    }
+
+React生命周期
+    组件创建阶段：
+        在组件的一辈子中，只执行一次；
+        1. componentWillMount: 组件将要被挂载，此时还没有开始渲染虚拟DOM
+            componentWillMount(){
+                // 准备生成模板(虚拟DOM), 此时还没有真正的生成模块
+                // 但是实例的props和state已经可以使用了
+                // 也就是说这里是最早可以操作数据的地方
+                console.log("componentWillMount", this.props, this.state);
+            }
+        2. render：开始渲染真正的虚拟DOM，当render执行完，内存中就有了完整的虚拟DOM了
+            render(){
+                // 开始生成模板(虚拟DOM), 此时真正生成, 还没有生成完毕, 只有这个函数执行完毕, 才生成完毕
+                // 也就是说这这里还不能操作DOM元素
+                console.log("render", document.querySelector(".hello"));
+
+                // 7.运行期间生命周期方法
+                // 只要数据发生了改变,并且前面的生命周期方法返回的是true, 那么就会重新执行这个方法, 重新根据修改后的数据生成模板
+                // 注意点: 此时的props和state都是最新的
+                console.log(this.props, this.state);
+
+                return (<div className={"hello"}>
+                    {this.props.name}
+                    <button onClick={this.change}>按钮</button>
+                    </div>);
+            }
+        3. componentDidMount: 组件完成了挂载，此时组件已经显示到了页面上，当这个方法执行完，组件就进入了 运行中 的状态
+            componentDidMount(){
+                // 表示模板已经生成完毕, 并且已经挂载到界面上了
+                // 也就是说这里是最早能操作DOM元素的地方
+                console.log("componentDidMount", document.querySelector(".hello"));
+            }
+
+    组件运行阶段：
+        会根据组件的state和props的改变，有选择性的触发0次或多次；
+        4. componentWillReceiveProps: 组件将要接收新属性，此时，只要这个方法被触发，就证明父组件为当前子组件传递了新的属性值
+            componentWillReceiveProps(nextProps){
+                // 当父组件传递过来的数据发生变化的时候就会被触发
+                // 执行该方法的时候组件上的props还是旧的, 新的props会通过参数传递进来
+                console.log("ReceiveProps", this.props, nextProps);
+            }
+        5. shouldComponentUpdate: 组件是否需要被更新，此时组件尚未被更新，但是，state 和 props 肯定是最新的
+            shouldComponentUpdate(){
+                // 当父组件传递过来的数据发生变化或者当前组件私有state发生变化的时候就会触发
+                // 这个方法用于判断是否需要更新组件
+                // 这个方法必须返回true或者false
+                // false表示不更新组件, true表示更新组件
+                return true;
+            }
+        6. componentWillUpdate: 组件将要被更新，此时尚未开始更新，内存中的虚拟DOM树还是旧的
+            componentWillUpdate(nextProps, nextState){
+                // 当数据发生变化,并且shouldComponentUpdate返回true的时候, 就会执行这个方法
+                // 注意点: 执行该方法的时候组件中的state和props都还是旧的, 新的会通过参数传递过来 nextProps nextState
+                console.log(this.props, nextProps, this.state, nextState);
+            }
+        7. render: 此时又要重新根据最新的 state 和 props 重新渲染一棵内存中的 虚拟DOM树，当 render 调用完毕，内存中的旧DOM树，已经被新DOM树替换了！此时页面还是旧的
+        8. componentDidUpdate: 此时页面又被重新渲染了，state 和 虚拟DOM 和 页面已经完全保持同步
+            componentDidUpdate(){
+                // 执行该方法表示当前组件中的props和state已经是最新的, 并且界面也是最新的
+                console.log("component");
+            }
+
+    组件销毁阶段：
+        一辈子只执行一次
+        1. componentWillUnmount: 组件将要被卸载，此时组件还可以正常使用
+            componentWillUnmount(){
+                // 当组件将要被销毁的时候执行
+                // 一般会在这个方法中关闭一些IO操作, 保存当前界面的数据等
+            }
+    
+React路由
+    在React中如何使用路由
+        1 安装相关的包:
+            npm i react-router-dom -S
+        2 导入相关的组件
+            import {HashRouter, Route, Link, Redirect} from 'react-router-dom'
+
+            HashRouter: 路由容器, 只要被这个组件包裹, 那么被包裹的内容中就可以使用路由功能
+            Route: 相当于Vue中的router-view和VueRouter中的routes的结合体
+            Link:  相当于Vue中的 router-link, 用于切换路由地址
+            Redirect: 相当于Vue中VueRouter中routes的{ path: '/', redirect:'/onepage'}
+            BrowserRouter: 使用H5新增的API来设置路由地址, 和HashRouter不同的是HashRouter会将路由地址放到#后面, 而BrowserRouter不会将路由地址放到#后面
+
+    class App extends React.Component{
+        render(){
+            return (
+                <BrowserRouter>
+                    <div>
+                        <Link to={'/one'}>one</Link>&nbsp;&nbsp;
+                        <Link to={'/two'}>two</Link>
+                        {/*
+                            Switch的作用: 一旦有一个路由地址匹配到之后就不继续往下执行了
+                            也就是说可以保证被Switch包裹的所有路由只有一个会被执行
+                        */}
+                        <Switch>
+                            {/*用于告诉系统匹配到对应路由地址之后需要显示哪个组件
+                        当匹配到对应的路由之后, 就会利用对应的组件替换当前的Route
+                        特点: 只要没有匹配到对应的路由Route就不会显示*/}
+                            <Route path={"/one"} component={One}></Route>
+                            <Route path={"/two"} component={Two}></Route>
+
+                            {/*默认情况下Route都是模糊匹配, 只要有一点内容匹配到了, 就会算匹配到了
+                        如果想要使用严格的匹配, 那么需要添加 exact*/}
+                            <Redirect from={"/"} to={'/one'} exact></Redirect>
+                        </Switch>
+                    </div>
+                </BrowserRouter>
+            );
+        }
+    }
+
+    注意点:
+    如果使用BrowserRouter的话
+    刷新之后会出现 Cannot GET /two, 和服务端有关, 和我们当前编写的代码无关
+    在webpack中如何解决这个问题:
+        1. 在output中添加: publicPath: '/'
+        2. 在devServer中添加: historyApiFallback: true,
+
+    路由传递参数
+        1 通过Link或者NavLink设置路由地址的时候在路由地址后面添加/数据/数据
+            <NavLink to={'/two/lnj/33'}>显示two组件</NavLink>
+        2 通过Route指定传递参数的名称
+            <Route path={"/two/:name/:age"} component={Two} />
+        3 在组件中通过props获取路由传递过来的参数即可
+            console.log(this.props.match.params);
+        
+        class App extends React.Component{
+            render(){
+                /*1.利用HashRouter或者BrowserRouter包裹根组件*/
+                return (<BrowserRouter>
+                    <div>
+                        {/*2.利用Link设置路由地址*/}
+                        <NavLink to={'/one'}>显示one组件</NavLink>&nbsp;
+                        <NavLink to={'/two/lnj/33'}>显示two组件</NavLink>
+                        {/*3.利用Route监听路由变化, 显示对应的组件*/}
+                        <Switch>
+                            <Route path={"/one"} component={One} />
+                            {/*/:name相当于是一个占位符, 表示以后会传递一个name属性过来*/}
+                            <Route path={"/two/:name/:age"} component={Two} />
+                            <Redirect from={'/'} to={'/one'} />
+                        </Switch>
+                    </div>
+                </BrowserRouter>);
+            }
+        }
+    
+    子路由
+        class Two extends React.Component{
+            render(){
+                return (<div>
+                    2222Two界面2222
+                <div>
+                    <NavLink to={'/two/sub1'}>1111</NavLink>&nbsp;
+                    <NavLink to={'/two/sub2'}>2222</NavLink>
+                    <Switch>
+                        <Route path={'/two/sub1'} component={Sub1} />
+                        <Route path={'/two/sub2'} component={Sub2} />
+                        <Redirect from={'/two'} to={'/two/sub1'} />
+                    </Switch>
+                </div>
+                </div>);
+            }
+        }
+
+        class App extends React.Component{
+            render(){
+                return (<BrowserRouter>
+                    <div>
+                        <NavLink to={'/one'}>第一个界面</NavLink>&nbsp;
+                        <NavLink to={'/two'}>第2个界面</NavLink>
+                        <Switch>
+                            <Route path={'/one'} component={One} />
+                            <Route path={'/two'} component={Two} />
+                            <Redirect from={'/'} to={'/one'} />
+                        </Switch>
+                    </div>
+                </BrowserRouter>);
+            }
+        }
+
+react-cli
+    安装
+        npm i create-react-app -g
+    创建项目    
+        create-react-app 项目名称
+
+react-antdesign
+    安装
+        npm install antd --save
+    导入css
+        @import '~antd/dist/antd.css';

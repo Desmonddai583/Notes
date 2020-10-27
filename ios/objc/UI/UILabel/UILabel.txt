@@ -1,0 +1,12 @@
+常见属性
+  @property(nonatomic,copy) NSString *text; 显示的文字
+  @property(nonatomic,retain) UIFont *font; 字体
+  @property(nonatomic,retain) UIColor *textColor; 文字颜色
+  @property(nonatomic) NSTextAlignment textAlignment; 对齐模式（比如左对齐、居中对齐、右对齐） 
+  @property(nonatomic) NSInteger numberOfLines; 文字行数
+  @property(nonatomic) NSLineBreakMode lineBreakMode; 换行模式
+
+UIFont常见创建方法
+  + (UIFont *)systemFontOfSize:(CGFloat)fontSize;   系统默认字体
+  + (UIFont *)boldSystemFontOfSize:(CGFloat)fontSize;  粗体
+  + (UIFont *)italicSystemFontOfSize:(CGFloat)fontSize;  斜体

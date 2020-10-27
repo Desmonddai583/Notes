@@ -1,0 +1,40 @@
+#! /usr/bin/env node
+
+// 解析用户传递的参数
+const {
+  program
+} = require('commander');
+
+let config = {
+  '-p, --port <port>': {
+    description: 'set live-server port',
+    examples: 'zf-live-server -p 3000'
+  },
+  '-d, --directory <dir>': {
+    description: 'set live-server directory',
+    examples: 'zf-live-server -d d:'
+  }
+}
+const entries = (config, cb) => {
+  Object.entries(config).forEach(([key, option]) => {
+    cb(key, option)
+  });
+}
+entries(config, (key, option) => {
+  program.option(key, option.description);
+})
+program.name('zf-live-server')
+program.on('--help', function () {
+  console.log('Examples: ')
+  entries(config, (key, option) => {
+    console.log('  ' + option.examples)
+  });
+});
+let version = require('../package.json').version;
+program.version(version)
+let userConfig = program.parse(process.argv);
+
+
+// 启动服务
+const Server = require('../main.js');
+new Server(userConfig).start();

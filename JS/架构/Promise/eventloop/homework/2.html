@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 当我触发点击时 会先去执行click 事件 再去执行href跳转 -->
+    <a id="link" href="http://www.zhufengpeixun.cn">link</a>
+    <script>
+        let link = document.getElementById('link');
+        const nextTick = new Promise(resolve => {
+            link.addEventListener('click', resolve)
+            // (e) => {
+            //     // 会等待微任务执行完毕后 在跳转
+            //     // Promise.resolve().then(() => {
+            //     //     e.preventDefault();
+            //     // })
+            //     // setTimeout(() => {
+            //     //     e.preventDefault();
+            //     // }, 0);
+            // });
+        });
+        nextTick.then(event => {
+            event.preventDefault();
+            console.log('event.preventDefault()');
+        });
+        link.click(); // 会立即调用resolve
+
+        // todo...
+        //如果手动调用click事件， 当点击的时候 link.click();
+    </script>
+</body>
+
+</html>

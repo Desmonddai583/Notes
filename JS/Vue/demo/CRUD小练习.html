@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>28-Vue小练习</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .main{
+            margin: 100px 0;
+            background: red;
+            text-align: center;
+        }
+        table{
+            margin: 0 auto;
+            width: 500px;
+            background: #000;
+        }
+        th,td{
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="main">
+            <form action="#">
+                <label>
+                    学号
+                    <input type="text" v-model="newPerson.id">
+                </label>
+                <label>
+                    姓名
+                    <input type="text" v-model="newPerson.name">
+                </label>
+                <label>
+                    分数
+                    <input type="text" v-model="newPerson.score">
+                </label>
+                <label>
+                    查询
+                    <input type="text" v-model="keywords">
+                </label>
+                <button @click.prevent="add">添加</button>
+            </form>
+
+            <table>
+                <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>时间</th>
+                    <th>分数</th>
+                    <th>操作</th>
+                </tr>
+                <tr v-for="(user, index) in search()">
+                    <td>{{user.id}}</td>
+                    <!--<td>{{user.name}}</td>-->
+                    <td v-text="user.name"></td>
+                    <td>{{user.date | dateFormart('yyyy-MM-dd')}}</td>
+                    <td>{{user.score}}</td>
+                    <td><a href="http://www.it666.com" @click.prevent="del(user.id)">删除</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+<script src="js/vue.min.js"></script>
+<script>
+
+    Vue.filter("dateFormart", function (value, formartStr) {
+        // 1.根据传入的毫秒创建时间对象
+        var date = new Date(value);
+        // 2.获取年月日
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1 + "";
+        var day = date.getDate() + "";
+        var hours = date.getHours() + "";
+        var min = date.getMinutes() + "";
+        var sec = date.getSeconds() + "";
+        // 3.判断需要格式化的格式
+        if(formartStr && formartStr.toLowerCase() === 'yyyy-mm-dd'){
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        }else{
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${hours.padStart(2, "0")}:${min.padStart(2, "0")}:${sec.padStart(2, "0")}`;
+        }
+    });
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            persons: [
+                {
+                    id: 1,
+                    name: "lnj",
+                    score: 99,
+                    date: Date.now()
+                },
+                {
+                    id: 2,
+                    name: "zq",
+                    score: 45,
+                    date: Date.now()
+                },
+                {
+                    id: 3,
+                    name: "ls",
+                    score: 100,
+                    date: Date.now()
+                }
+            ],
+            newPerson: {id:"", name:"", score:"", date:Date.now()},
+            keywords: ""
+        },
+        methods: {
+            add: function () {
+                this.persons.push(this.newPerson);
+                this.newPerson = {id:"", name:"", score:"", date:Date.now()}
+            },
+            del: function (id) {
+                var self = this;
+                // 1.找到需要删除的元素
+                // this.persons.forEach(function (item, index) {
+                //     if(item.id === id){
+                //         self.persons.splice(index, 1);
+                //     }
+                // });
+
+                /*
+                findIndex从指定数组中查找满足条件元素的索引
+                 */
+                // 1.查找需要删除元素的索引
+               var index =  this.persons.findIndex(function (obj) {
+                    if(obj.id === id){
+                        return true;
+                    }
+                });
+               // 2.删除指定索引的元素
+               this.persons.splice(index, 1);
+            },
+            search: function () {
+                var self = this;
+                // 1.根据keywords从原始数据中查询满足条件的结果
+                var newArray = this.persons.filter(function (item) {
+                    if(item.name.includes(self.keywords)){
+                        return true;
+                    }
+                });
+                // 2.修改原始数据
+                // this.persons = newArray;
+                return newArray;
+            }
+        }
+    });
+</script>
+</body>
+</html>

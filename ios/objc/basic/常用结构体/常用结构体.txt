@@ -1,0 +1,11 @@
+NSPoint 保存坐标的
+  NSPoint等同于CGPoint
+  CGPoint point = NSMakePoint(10, 20);
+NSSize 保存尺寸的
+  NSSize等同于CGSize
+  CGSize size = NSMakeSize(100, 50);
+NSRect 保存坐标和尺寸
+  NSRect等同于CGRect
+  CGRect rect = NSMakeRect(10, 20, 100, 50);
+
+在开发中苹果推荐我们使用CG开头的结构体, 也就是说NS开头的结构体一般不用

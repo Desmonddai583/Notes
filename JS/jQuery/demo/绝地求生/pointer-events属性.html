@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>pointer-events</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box1{
+            width: 300px;
+            height: 300px;
+            background: red;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100px;
+        }
+        .box2{
+            width: 200px;
+            height: 200px;
+            background: green;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 150px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="box1"></div>
+<div class="box2"></div>
+<script>
+    var oBox1 = document.querySelector(".box1");
+    var oBox2 = document.querySelector(".box2");
+
+    oBox1.onmouseover = function () {
+        console.log("移入");
+    };
+    oBox1.onmouseout = function () {
+        console.log("移出");
+    };
+
+</script>
+</body>
+</html>

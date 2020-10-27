@@ -1,0 +1,38 @@
+字典转模型的过程最好封装在模型内部
+模型应该提供一个可以传入字典参数的构造方法
+  - (instancetype)initWithDict:(NSDictionary *)dict;
+  + (instancetype)xxxWithDict:(NSDictionary *)dict;
+
+字典转模型第三方框架
+  Mantle
+    所有模型都必须继承自MTModel
+  JSONModel
+    所有模型都必须继承自JSONModel
+  MJExtension
+    不需要强制继承任何其他类
+  设计框架需要考虑的问题
+    侵入性 侵入性大就意味着很难离开这个框架
+    易用性 比如少量代码实现N多功能
+    扩展性 很容易给这个框架增加新功能
+
+MJExtension
+  // 字典转模型
+  [XMGVideo mj_objectArrayWithKeyValuesArray:dictM[@"videos"]]; // 数组
+  [XMGVideo mj_objectWithKeyValues:attributeDict] // 字典
+
+  // 重命名模型属性的名称
+  // 这个方法需要在模型内部进行重写,有一定的代码侵入性
+  +(NSDictionary *)mj_replacedKeyFromPropertyName
+  {
+      // 设置字典中的id被模型中的ID替换
+      return @{
+              @"ID":@"id"  
+              };
+  }
+
+  // 这种重命名属性名称的方法，代码侵入性为零
+  [XMGVideo setupReplacedKeyFromPropertyName:^NSDictionary *{
+      return @{
+                @"ID":@"id"
+                };
+  }];

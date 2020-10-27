@@ -1,0 +1,44 @@
+<!--顶部的轮播图Start-->
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        <% for (var i = 0; i < pic_list.length; i ++) { %>
+        <div class="swiper-slide">
+            <img src="<%=pic_list[i].pic_url%>">
+        </div>
+        <% } %>
+    </div>
+    <!-- 如果需要分页器 -->
+    <div class="swiper-pagination"></div>
+</div>
+<!--顶部的轮播图End-->
+<!--商品描述Start-->
+<div class="details-info">
+    <p class="details-name"><%=name%></p>
+    <p class="details-price">
+        <span class="iconfont">&#xeb1e;</span>
+        <%=price%>
+    </p>
+    <div class="details-other">
+        <del class="details-original-price">
+            <span class="iconfont">&#xeb1e;</span>
+            <%=original_price%>
+        </del>
+        <p class="details-sales">
+            <span>销量</span>
+            <%=sales%>
+        </p>
+    </div>
+</div>
+<!--商品描述End-->
+<div class="details-content">
+    <div class="details-content-title">
+        <div class="title-left">商品详情</div>
+        <div class="title-right">评价</div>
+    </div>
+    <div class="details-content-line">
+        <div class="line"></div>
+    </div>
+    <div class="details-content-des">
+        <%- detail%>
+    </div>
+</div>

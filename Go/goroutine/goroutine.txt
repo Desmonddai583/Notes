@@ -1,0 +1,210 @@
+CSP vs. Actor
+    和Actor的直接通讯不同，CSP模式则是通过Channel进⾏通讯的，更松耦合⼀ 些
+    Go中channel是有容量限制并且独⽴于处理Groutine，⽽如Erlang，Actor模式 中的mailbox容量是⽆限的，接收进程也总是被动地处理消息
+
+runtime.Gosched() // 让出当前的执行权限,之后还会恢复执行
+runtime.Goexit() // 退出当前协程
+num := runtime.NumCPU() // 返回CPU个数
+// 设置同时可执行的最大CPU数,返回上一次设置的值
+// Go1.8之后,系统会自动设置为最大值
+num := runtime.GOMAXPROCS(1) 
+
+var lock = sync.Mutext{} // 创建一个互斥锁
+lock.Lock() // 添加锁(关门)
+...
+lock.Unlock() // 释放锁(开门)
+
+WaitGroup
+    var wg sync.WaitGroup 
+    for i := 0; i < 5000; i++ { 
+        wg.Add(1) 
+        go func() { 
+            defer func() { 
+                wg.Done() 
+            }() 
+            …
+        }()
+    } 
+    wg.Wait()
+
+channel和切片/字典非常相似,都可以用来存储数据,都需要make之后才能使用
+var myCh chan int
+// 创建一个容量为3,并且可以保存int类型数据的管道
+// 和切片不同,在切片中make函数的第二个参数表示的是切片的长度,第三个参数才是指定切片的容量
+// 但在管道中,make函数的第二个参数就是指定管道的容量,默认长度就是0
+myCh := make(chan int, 3) 
+myCh <- 被写入的数据 // 写入数据
+<- myCh // 读入数据
+len(myCh)
+cap(myCh)
+
+遍历管道
+如果被遍历的管道没有关闭,那么就会报错
+在企业开发中,一旦写完了数据,最好将管道关闭
+只要管道被关闭了,那么for range循环就不会报错了,就会自动结束了
+close(myCh)
+for v:= range myCh {
+    fmt.Println(v)
+}
+或者可以
+close(myCh)
+for {
+    // 如果被遍历的管道没有关闭,那么会报错
+    // 如果管道没有被关闭,那么会将true返回给ok,否则会将false返回给ok
+    if v, ok := <-myCh; ok {
+        fmt.Println(v)
+    } else {
+        break
+    }
+}
+
+管道关闭之后就不能往管道中写入数据了
+但是管道关闭之后还可以从管道中读取数据
+
+在主线程中操作管道,写满了再写会报错,没有数据去读取也会报错,但是如果在协程中有写的声明,那么即便主线程可能没有数据编译器也不会报错
+在协程中操作管道,如果写满了再写不会报错但是会阻塞,如果没有数据时就读取也不会报错但会阻塞
+
+主线程中没有缓冲的管道不能直接存储数据,也不能直接读取数据
+myCh := make(chan int, 0)
+myCh<-1 // 报错
+<-myCh // 报错
+主线程中想使用没有缓冲的管道,必须保证读和写同时存在,并且必须保证读和写是在不同的协程中,并且读必须写在写的前面
+如果是在协程中使用无缓冲的管道,那么就可以单个使用
+
+可以利用无缓冲的管道替代死循环
+myCh := make(chan int, 5)
+exitCh := make(chan bool)
+go func() {
+    for i := 0; i < 5; i++ {
+        myCh <- i
+    }
+    exitCh <- true
+}()
+<-exitCh
+
+默认情况下管都都是可读可写的双向管道
+创建单向管道
+    var myCh chan<- int; 只写管道
+    var myCh <-chan int; 只读管道
+双向管道可以转换为单向管道,但是单向管道不能转换为双向管道,单向的只读和只写也不能相互转换
+    var myCh chan int = make(chan int, 5)
+    var myCh2 <-chan int
+    myCh2 = myCh
+    var myCh3 chan<- int
+    myCh3 = myCh 
+
+    var myCh2 <-chan int = make(<-chan int, 5)
+    myCh2<-1 // 报错
+    var myCh3 chan<- int = make(chan<- int, 5)
+    myCh3 = myCh2 // 报错
+
+select类似于switch,主要用于处理异步IO操作,用于消费多个管道中的数据或超时处理(配合定时器)
+如果有多个case都可以运行，select会随机选出一个执行，其他不会执行
+如果没有可运行的case语句，且有default语句，那么就会执行default的动作,default case 可以确保发送不被阻塞
+如果没有可运行的case语句，且没有default语句，select将阻塞，直到某个case通信可以运行
+    select { 
+    case ret := <-retCh1:
+        t.Logf("result %s", ret) 
+    case ret :=<-retCh2:
+        t.Logf("result %s", ret) 
+    default:
+        t.Error(“No one returned”) 
+    }
+
+超时控制
+    select { 
+    case ret := <-retCh:
+        t.Logf("result %s", ret) 
+    case <-time.After(time.Second * 1):
+        t.Error("time out") 
+    }
+
+定时器
+type Timer struct {
+    c <-chan Time
+    ...
+}
+// 让系统在3秒之后往Timer结构体的C属性中写入当前时间
+// 让程序阻塞3秒,3秒之后再执行
+timer := time.NewTimer(time.Second * 3) // 返回的是结构体
+fmt.Println(<-timer.C)
+timer := timeAfter(time.Second * 3) // 返回的是可读的管道
+fmt.Println(<-timer)
+以上都是一次性的定时器,也就是只会执行一次
+
+周期性定时器
+ticker := time.NewTicker(time.Second * 2)
+for {
+    fmt.Println(<-ticker.C)
+}
+
+channel 的关闭
+    向关闭的 channel 发送数据，会导致 panic
+    v, ok <-ch; ok 为 bool 值，true 表示正常接受，false 表示通道关闭
+    所有的 channel 接收者都会在 channel 关闭时，⽴刻从阻塞等待中返回且上述 ok 值为 false。这个⼴播机制常被利⽤，进⾏向多个订阅者同时发送信号。 如：退出信号
+
+任务的取消
+    获取取消通知
+        func isCancelled(cancelChan chan struct{}) bool { 
+            select { 
+            case <-cancelChan:
+                return true 
+            default:
+                return false 
+            }
+        }
+    发送取消消息(1次只能取消一个任务)
+        func cancel_1(cancelChan chan struct{}) { 
+            cancelChan <- struct{}{} 
+        }
+    通过关闭 Channel 取消(同时取消所有任务)
+        func cancel_2(cancelChan chan struct{}) { 
+            close(cancelChan) 
+        }
+
+Context与关联任务的取消
+    根 Context：通过 context.Background () 创建
+    ⼦ Context：context.WithCancel(parentContext) 创建
+        ctx, cancel := context.WithCancel(context.Background())
+    当前 Context 被取消时，基于他的⼦ context 都会被取消
+    接收取消通知 <-ctx.Done()
+
+典型并发任务
+  仅执⾏⼀次
+    单例模式(懒汉式，线程安全)
+      var once sync.Once
+      var obj *SingletonObj
+
+      func GetSingletonObj() *SingletonObj {
+        once.Do(func() {
+          fmt.Println("Create Singleton obj.")
+          obj = &SingletonObj{}
+        })
+        return obj
+      }
+  sync.Pool 对象缓存
+    sync.Pool 对象获取
+      尝试从私有对象获取
+      私有对象不存在，尝试从当前 Processor 的共享池获取
+      如果当前 Processor 共享池也是空的，那么就尝试去其他 Processor 的共享池获取
+      如果所有⼦池都是空的，最后就⽤⽤户指定的 New 函数 产⽣⼀个新的对象返回    
+    sync.Pool 对象的放回
+      如果私有对象不存在则保存为私有对象
+      如果私有对象存在，放⼊当前 Processor ⼦池的共享池中
+    使⽤ sync.Pool
+      pool := &sync.Pool{
+        New: func() interface{} { 
+          return 0 
+        },
+      }
+
+      arry := pool.Get().(int) 
+      …
+      pool.Put(10)
+    sync.Pool 对象的⽣命周期
+      GC 会清除 sync.pool 缓存的对象
+      对象的缓存有效期为下⼀次GC 之前
+
+    适合于通过复⽤，降低复杂对象的创建和 GC 代价
+    协程安全，会有锁的开销
+    ⽣命周期受 GC 影响，不适合于做连接池等，需⾃⼰管理⽣命周期的资源的池化

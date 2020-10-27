@@ -1,0 +1,326 @@
+在ios当中提供了两个⽐较特殊的控制器.是专⻔给我们⽤来管理控制器⽤的
+  1. UINavigationController
+  2. UITabBarController
+
+控制器View的⽣命周期⽅法
+  控制器View加载完成时调⽤ 
+  - (void)viewDidLoad
+  控制器的View即将显⽰的时候调⽤ 
+  -(void)viewWillAppear:(BOOL)animated
+  控制器的View显⽰完成时调⽤ 
+  -(void)viewDidAppear:(BOOL)animated
+  将要布局控制器的View⾥⾯⼦控件的时候就会调⽤. 
+  -(void)viewWillLayoutSubviews
+  布局控制器View的⼦控件完成时调⽤ 
+  -(void)viewDidLayoutSubviews
+  控制器的View即将消失的时候调⽤. 
+  -(void)viewWillDisappear:(BOOL)animated
+  控制器的View完全消失的时候调⽤ 
+  -(void)viewDidDisappear:(BOOL)animated
+
+  ARC中
+  viewDidLoad->viewWillAppear->viewDidLayoutSubviews->viewDidLayoutSubviews>viewDidAppear->viewWillDisappear->viewDidDisappear
+  
+  ⾮ARC中
+    当前控制器的View即将被销毁的时候会调⽤
+    -(void)viewWillUnload
+    当前控制器的View被销毁的时候会调⽤
+    -(void)viewDidUnload
+
+    viewDidLoad->viewWillAppear->viewDidLayoutSubviews->viewDidLayoutSubviews->viewDidAppear-> viewWillDisappear->viewDidDisappear
+    ->接收到内存警告->viewWillUnload->释放View->viewDidUnload
+
+UINavigationController
+  导航控制器它是⼀个控制器,它肯定有⼀个⾃⼰的View
+  导航控制器的View当中,还有⼀个转⻔存放⼦控制器的View
+  导航控制器的View上⾯有两层:最外⾯那⼀层是⼀个导航条,导航条下⾯是⼀个存放⼦控制器的View
+  导航条的Y值是20,⾼度是44,但是我们看到的导航条有⼀个半透明的效果,它是从0位置开始的
+  它其实是导航条内部的⼀个⼦控件,它超过了导航条的⾼度,⼦控件超过⽗控件也是能够显⽰的
+
+  导航控制器的使⽤
+    1.初始化UINavigationController
+    2.设置UIWindow的rootViewController为UINavigationController
+    3.根据具体情况，通过push⽅法添加对应个数的⼦控制器
+
+  1.创建窗⼝ 
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  2.设置窗⼝根控制器
+    设置导航控制器为窗⼝的根控制器 给导航控制器添加⼦控制器.
+    RootViewController *vc = [[RootViewController alloc] init]; 
+    // initWithRootViewController⽅法底层会调⽤push⽅法
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc]; 
+    [nav pushViewController:vc animated:YES]; 
+    // 设置窗⼝根控制器
+    self.window.rootViewController = nav;
+  3.显⽰窗⼝
+    [self.window makeKeyAndVisible];
+
+  导航控制器必须要有⼀个根控制器
+  导航控制器当中有⼀个childsViewControllers数组,数组当中存放的都是导航控制器的⼦控制器
+  可以通过push⽅法给导航控制器添加⼦控制器
+    - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated;
+
+  跳转到下一个子控制器时,它自动的就有返回功能,而且自带侧边滑动返回功能.这些功能都是导航控制器自动完成的
+
+  在每⼀个控制器当中都能拿到它当前所在的导航控制器.因为当前的控制器是导航控制器的⼦控制器
+    TwoViewController *twoVC = [[TwoViewController alloc] init]; 
+    [self.navigationController pushViewController:twoVC animated:YES];
+  
+  将栈顶的控制器移除
+  - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
+
+  回到指定的子控制器,指定的控制器必须是导航控制器栈里面的控制器
+  - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
+
+  回到根控制器(栈底控制器）
+  - (NSArray *)popToRootViewControllerAnimated:(BOOL)animated;
+
+  设置导航条的内容,由栈顶控制器的NavgationItem决定
+  导航条上面的子控件位置由系统决定,我们自己只能决定控件的尺寸
+  导航控制器必须要有根控制器.目的设置导航条的内容
+  如果设置了导航条的标题, 那么下一个push的子控制器的返回按钮就是上一个控制器的标题
+  UINavigationItem有以下属性影响着导航栏的内容
+    左上角的返回按钮
+    @property(nonatomic,retain) UIBarButtonItem *backBarButtonItem;
+    中间的标题视图
+    @property(nonatomic,retain) UIView *titleView;
+    中间的标题文字
+    @property(nonatomic,copy)   NSString  *title;
+    左上角的视图
+    @property(nonatomic,retain) UIBarButtonItem *leftBarButtonItem;
+    右上角的视图
+    @property(nonatomic,retain) UIBarButtonItem *rightBarButtonItem;
+  可以设置左右的内容为多个Item
+    self.navigationItem.rightBarButtonItems = @[item,item1,item2];
+
+  手动调用segue
+    手动调用segue需要调用performSegueWithIdentifier方法
+
+    performSegueWithIdentifier底层实现
+      1. 到StoryBoard当中去查找有没有给定标识的segue.
+      2. 根据指定的标识,创建一个UIStoryboardSegue对象之后, 把当前的控制器,给它源控制器属性赋值(segue.sourceViewController).
+      3. UIStoryboardSegue对象,再去创建它的目标控制器.给UIStoryboardSegue的目标控制器属性(segue.destinationViewController)赋值
+      4. 调用当前控制器prepareForSegue:方法,告诉用户,当前的线已经准备好了.
+        prepareForSegue在准备跳转前调用,可以做一些传递数据
+        1.数据接收的控制器(destinationViewController)定义一个属性,来接收数据
+        2.数据的来源控制器要拿到数据接收的控制器.
+        3.给接收的控制器的接收数据的属性给它赋值.
+      5. [segue perform]
+          背后其实就是调用[segue.sourceViewController.navigationController pushViewController:segue.destinationViewController animated:YES];
+
+      注意:在目标控制器不能够直接重写属性的set⽅法给⾥⾯的⼦控制器赋值
+      因为控制器的View是懒加载的,在set⽅法当中,控制器的View还没有⽤到,它⾥⾯的⼦控件都还没有值. 
+      所以不能够在它的Set⽅法当中进⾏给控制器View的⾥⾯的⼦控制器赋值. 
+      我们⼀般都View加载完毕时(viewDidLoad),给控制器View内部的⼦控件进⾏赋值.
+    
+    逆向传递
+      1. 简单方案
+          逆向回来也是类似,在正向传递时,将控制器作为属性赋值给目标控制器,那么当目标控制器传值回来时就可以通过属性访问到源控制器并赋值
+          这⽅式弊端就是两个控制器关系过于紧密,容易造成循环引⽤,耦合性太强.所以在开发当中不会⽤这种⽅式
+      2. 代理实现⽅案
+          1.定义协议
+          2.设置代理属性
+          3.调⽤代理⽅法
+            if([self.delegate respondsToSelector:@selector(addViewController:contact:)]){ 
+              ContactItem *contactItem = [ContactItem itemWithName:self.nameTextF.text phoneNum:self.phoneTextF.text]
+              // 调⽤代理⽅法 
+              [self.delegate addViewController:self contact:contactItem]; 
+            }
+          4.源控制器在prepareForSegue的时候设置的代理为目标控制器
+            XMGAddViewController *addVC = segue.destinationViewController;
+            addVC.delegate = self;
+          5.源控制器实现协议⽅法 
+
+  设置导航条隐藏透明度
+    设置导航条透明度为0,没有效果,还是原来的样⼦
+      self.navigationController.navigationBar.alpha = 0;
+    原因是因为导航条上⾯那⼀块并不直接是导航条,它是导航条⾥⾯的⼀个⼦控件
+    
+    所以在这⾥我们可以考虑给它设置⼀个半透明的图⽚
+    在这⾥,有⼀个模式,必须要传默认UIBarMetricsDefault模式. 
+    在这⾥发现设为nil的时候,也没有效果,那是因为系统它做了⼀层判断. 
+    它会判断如果传⼊的系统图⽚为空的话,它才会帮你⽣成⼀个半透明的图⽚,设置导航条的背景图⽚
+      [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    那在这⾥传⼊⼀张空的图⽚,然后就有效果了.
+      [self.navigationController.navigationBar setBackgroundImage:[[UIImage alloc] init] forBarMetrics:UIBarMetricsDefault];
+    但是设置完后,发现有⼀根线,这根线其实是导航条的⼀个阴影.直接把它清空就⾏了.
+      [self.navigationController.navigationBar setShadowImage:[[UIImage alloc] init]];
+
+    这里要注意的是
+      UIBarMetricsDefault 此时控制器viewController的尺寸 {{0, 64}, {375, 603}}
+      UIBarMetricsCompact 此时控制器view的尺寸{{0, 0}, {375, 667}}
+      因为给导航设置背景图片只能用默认模式,所以控制器的view的尺寸是从64开始,高度= 屏幕的高度 - 64
+
+  统一设置左侧返回按钮
+    在NavController拦截所有的push操作,才能实现统一设置
+      - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated{
+          if (self.childViewControllers.count > 0) { // 非根控制器
+              // 设置导航条左侧返回按钮
+              viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageWithRenderingOriginalName:@"NavBack"] style:UIBarButtonItemStylePlain target:self action:@selector(back)];
+          }
+          [super pushViewController:viewController animated:animated];
+      }
+
+  实现滑动返回
+    如果自定义了导航条左侧的返回按钮就会出现不能滑动移除控制器的bug
+    如果要想既要定义返回按钮,又要实现滑动移除控制器需要将系统的手势代理清空
+      self.interactivePopGestureRecognizer.delegate = nil;
+    但是将系统的滑动移除手势清空当到达栈顶控制器的时候如果在向右滑动,就会出现bug,卡死
+      解决办法:当不是跟控制器的时候就清空代理,如果是跟控制器的话就设置为原来的值
+      用nav的代理方法判断是否为跟控制器
+        // 控制器显示完毕的时候调用
+        - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated{
+            if ([viewController isKindOfClass:[self.childViewControllers[0] class]]) { // 根控制器
+                self.interactivePopGestureRecognizer.delegate = self.popGestureDelegate;
+            }else{ // 非根控制器
+                self.interactivePopGestureRecognizer.delegate = nil;
+            }
+        }
+    
+  返回按钮的简单实现
+    如果想保留滑动又不想自定义
+    可以让系统的文字移出视野,导航控制器设置不了,我们可以设置他的模型
+      // 设置导航条的主题色
+      [bar setTintColor:[UIColor whiteColor]];
+      // 调整导航条左侧返回按钮的标题位置,移除到屏幕外面
+      UIBarButtonItem *item = [UIBarButtonItem appearanceWhenContainedIn:self, nil];
+      [item setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -64) forBarMetrics:UIBarMetricsDefault];
+  
+  滑动移除控制器全屏实现
+    系统已经做了从最左边滑动移除控制器
+    如果要实现从中间滑动移除控制器
+      自己添加手势
+        1.利用runtime取出系统的target名
+          // 1. 获取系统的手势
+          UIScreenEdgePanGestureRecognizer *gesture = self.interactivePopGestureRecognizer;
+          // 2. runtime只能动态获取当前类的所有属性,不能获取他的子类和父类的属性
+          // ivar 是属性
+          // Class是获取那个类的属性
+          // outCount 这个类下一共有多少个属性
+          unsigned int count = 0;
+          Ivar *ivars =  class_copyIvarList([UIGestureRecognizer class], &count);
+          NSLog(@"ivars %@",ivars);
+          for (int i = 0; i < count; i++) {
+          NSString *name =  @( ivar_getName(ivars[i]));
+            NSLog(@"%@",name); // _targets
+          }
+        2.获取系统的target
+          NSArray *targets =  [gesture valueForKeyPath:@"_targets"];
+          id gestureRecognizer = targets[0];
+          // 取到系统的target
+          id target = [gestureRecognizer valueForKeyPath:@"_target"];
+        3.添加全局手势
+          // 禁用系统的手势
+          self.interactivePopGestureRecognizer.enabled = NO;
+          UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:target action:@selector(handleNavigationTransition:)];
+          [self.view addGestureRecognizer:pan];
+      简单实现(通过代理取出对象)
+        // 取出对象
+        id target = self.interactivePopGestureRecognizer.delegate;
+        // 禁止系统的
+        self.interactivePopGestureRecognizer.enabled = NO;
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:target action:@selector(handleNavigationTransition:)];
+        [self.view addGestureRecognizer:pan];
+        
+      这个有bug,如果是根控制器再次滑动就会出现卡死的问题,解决方法
+        // 通过设置代理,监听代理的方法,当为非根控制器的时候就禁止滑动移除控制器手势
+        pan.delegate = self;
+        // 手势代理方法
+        // 代理方法返回no 表示不触发这个手势
+        - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+          // 只有非根控制器才能拥有滑动返回功能
+          return self.childViewControllers.count != 1;
+        }
+  
+  获取导航条标识
+    获取APP的导航条标识
+    appearance是一个协议, 只要遵守了这协议都有这方法
+    此时修改标识内部的内容会修改到app内所有的控件
+      UINavigationBar *bar =  [UINavigationBar appearance];
+
+    如果只获取某几个类(Class)的导航条标识
+      // 这里的self是类,在类方法中调用的
+      UINavigationBar *bar = [UINavigationBar appearanceWhenContainedIn:self,nil];
+      // iOS9以后新出的方法,这里self是对象,对象方法中调用
+      UINavigationBar *bar = [UINavigationBar appearanceWhenContainedInInstancesOfClasses:@[self]];
+
+UITabBarController
+  UITabBarController跟UINavigationController类似，UITabBarController也可以轻松地管理多个控制器. 
+  UITabBarController也是⼀个标题,只要看到底部有⼀个条,它就是UITabBarController.
+  UITabBarController它是⼀个控制器,所以它也有⾃⼰的View. 
+  它view内部的结构为⼀个专⻔存放⼦控制器View的View,和⼀个UITabBar条. 注意:UITabBar的⾼度为49.
+
+  使⽤步骤:
+    1.初始化UITabBarController
+    2.设置UIWindow的rootViewController为UITabBarController
+    3.根据具体情况，通过addChildViewController⽅法添加对应个数的⼦控制器
+      添加子控制器的⽅式
+        1. 添加单个⼦控制器 - (void)addChildViewController:(UIViewController *)childController
+        2. 设置⼦控制器数组 @property(nonatomic,copy) NSArray *viewControllers;
+
+      它默认会把第⼀个⼦控制器的View添加到UITabBarController存放⼦控制器的View当中
+
+      添加的所有⼦控制器都保存在TabBarController的childViewControllers数组当中, 所以添加的⼦控制器也不会被销毁
+
+      点击每⼀个UITabBar按钮, 它会先把当前控制器的View从TabBarController存放⼦控件View的View当中移除
+      只是移除view,⼦控制器还在数组当中,没有被移除
+      再把当前选中按钮对应的⼦控制器的View添加到TabBarController存放⼦控件View当中
+
+  UITabBarButton⾥⾯显⽰什么内容，由对应⼦控制器的tabBarItem属性决定
+    标题文字
+    @property(nonatomic,copy) NSString *title;
+    图标
+    @property(nonatomic,retain) UIImage *image;
+    选中时的图标
+    @property(nonatomic,retain) UIImage *selectedImage;
+    提醒数字
+    @property(nonatomic,copy) NSString *badgeValue;
+
+  ⾮主流框架的搭建
+    1.窗⼝的根控制器为⼀个导航控制器.
+    2.把UITabBarController设为导航控制器的根控制器.
+    3.给UITabBarController添加⼦控制器.
+    这种⽅式为⾮主流搭建⽅式.因为只有⼀个导航条,导航条的内容由栈顶控制器决定.也就只能设置TabBarController的导航条.TabBarController⾥⾯的⼦控制器没有导航条.不能够设置内容.
+  
+  主流框架的搭建:
+    1.窗⼝的根控制器为⼀个UITabBarController
+    2.把导航控制器添加给UITabBarController,成为UITabBarController的⼦控制器.
+    这样做的好处:每⼀个导航条的内容都由它栈顶控制器来决定.
+
+  页面跳转push时隐藏底部tabBar 
+    self.hidesBottomBarWhenPushed = YES;
+  
+  push之后隐藏系统的TabBar有两种方法
+    图形界面勾选属性
+    vc.hidesBottomBarWhenPushed
+
+    如果是自定义的tabbar,那么需要在viewWillApper里面移除tabBar的子控件
+    如果在viewDidLoad中设置,那么当执行到viewWillAppear时又会被默认覆盖掉
+      - (void)viewWillAppear:(BOOL)animated{
+        [super viewWillAppear:animated];
+        
+        for (UIView *view in self.tabBar.subviews) {
+          // 移除UITabBarButton
+          ...
+        }
+      }
+
+      移除UITabBarButton(私有的控件)的3种方法
+        1.将类名转换成字符串,对比前缀,如果前缀是以UITabBar开头的,我们就移除
+          NSString *classString = NSStringFromClass([view class]);
+          if ([classString hasPrefix:@"UITabBar"]) {
+              [view removeFromSuperview];
+          }
+        2.看一下这个类的父类是什么东西,子类敲不出来,看看父类能不能敲出来
+          if ([view isKindOfClass:[UIColor class]]) {
+              [view removeFromSuperview];
+          }
+        3.判断是不是我们自己添加的类,如果不是自己添加的类就移除
+          // UITabBarButton 是私有属性
+          for (UIView *view in self.tabBar.subviews) {
+            NSLog(@"%@",view);
+            // 逆向思维判断一下当前点控件是不是XMGTabBar,如果不是直接移除
+            if (![view isKindOfClass:[XMGTabBar class]]) {
+              [view removeFromSuperview];
+            }
+          }

@@ -1,0 +1,154 @@
+在iOS6之前，在GCD中凡是使用了带create和retain的函数在最后都需要做一次release操作(例如dispatch_release(group)),而主队列和全局并发队列不需要我们手动release
+当然了，在iOS6之后GCD已经被纳入到了ARC的内存管理范畴中，即便是使用retain或者create函数创建的对象也不再需要开发人员手动释放，我们像对待普通OC对象一样对待GCD就OK
+
+GCD基本使用
+  创建队列
+    /*
+    第一个参数:C语言的字符串,标签
+    第二个参数:队列的类型,传NULL的话默认是串行
+        DISPATCH_QUEUE_CONCURRENT:并发
+        DISPATCH_QUEUE_SERIAL:串行
+    */
+    //dispatch_queue_t queue = dispatch_queue_create("com.520it.download", DISPATCH_QUEUE_CONCURRENT);
+  获得全局并发队列
+    不同于创建,这个是使用GCD自带的队列
+    #define DISPATCH_QUEUE_PRIORITY_HIGH 2 // 高
+    #define DISPATCH_QUEUE_PRIORITY_DEFAULT 0 // 默认（中）
+    #define DISPATCH_QUEUE_PRIORITY_LOW (-2) // 低
+    #define DISPATCH_QUEUE_PRIORITY_BACKGROUND INT16_MIN // 后台
+    /*
+    第一个参数:优先级
+    第二个参数:保留供未来使用,用0即可
+    */
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  获得主队列
+    dispatch_queue_t queue = dispatch_get_main_queue();
+  异步函数
+    可以在新的线程中执行任务，具备开启新线程的能力
+    dispatch_async(queue, ^{
+      ...
+    });
+
+    /*
+    第一个参数:队列
+    第二个参数:参数
+    第三个参数:要调用的函数的名称
+    与dispatch_async区别:封装任务的方法(block--函数)
+    */
+    dispatch_async_f(dispatch_get_global_queue(0, 0), NULL, task);
+    void task(void *param)
+    {
+        NSLog(@"%s---%@",__func__,[NSThread currentThread]);
+    }
+  同步函数
+    只能在当前线程中执行任务，不具备开启新线程的能力
+    dispatch_sync(queue, ^{
+      NSLog(@"download1----%@",[NSThread currentThread]);
+    });
+
+函数队列组合
+  1 异步函数+并发队列：开启多条线程，并发执行任务
+  2 异步函数+串行队列：开启一条线程，串行执行任务
+  3 同步函数+并发队列：不开线程，串行执行任务
+  4 同步函数+串行队列：不开线程，串行执行任务
+  5 异步函数+主队列：不开线程，在主线程中串行执行任务
+  6 同步函数+主队列：不开线程，串行执行任务（注意死锁发生,只有在子线程中执行这个组合才不会死锁）
+
+要同步函数的执行的queue和外面的queue不一致,就不会出现死锁的现象
+这也是为什么同步函数+串行队列不会出现思索,虽然也用的是主线程,但是队列用的不是主线程队列,而是GCD创建的串行队列
+注意异步并发不代表一个任务就创建一个线程,这个是不受使用者控制,由GCD自动分配
+
+线程间通信
+  // 获取一个全局的队列
+  dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+  // 先开启一个线程，把下载图片的操作放在子线程中处理
+  dispatch_async(queue, ^{
+    // 下载图片
+    NSURL *url = [NSURL URLWithString:@"http://h.hiphotos.baidu.com/zhidao/pic/item/6a63f6246b600c3320b14bb3184c510fd8f9a185.jpg"];
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    UIImage *image = [UIImage imageWithData:data];
+    // 回到主线程刷新UI
+    dispatch_async(dispatch_get_main_queue(), ^{
+      self.imageView.image = image;
+    });
+  });
+
+常用函数
+  延迟执行
+    不使用GCD有两种方法
+      1. [self performSelector:@selector(task) withObject:nil afterDelay:2.0];
+      2. [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(task) userInfo:nil repeats:YES];
+    GCD方法
+      好处就是可以使用主队列以外的队列
+      dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+      /*
+      第一个参数:DISPATCH_TIME_NOW 从现在开始计算时间
+      第二个参数:延迟的时间 2.0 GCD时间单位:纳秒
+      第三个参数:队列
+      */
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), queue, ^{
+          NSLog(@"GCD----%@",[NSThread currentThread]);
+      });
+      
+  一次性代码
+    注意不能放到懒加载方法中  
+    应用场景:单例模式
+    //整个程序运行过程中只会执行一次
+    //onceToken用来记录该部分的代码是否被执行过
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+      ...
+    });
+
+  栅栏函数(控制任务的执行顺序）
+    注意栅栏函数不能使用全局并发队列
+    在栅栏函数前的并发任务会先执行完才会执行栅栏函数之后的并发任务
+    dispatch_barrier_async(queue, ^{
+        NSLog(@"--dispatch_barrier_async-");
+    });
+
+  快速迭代(开多个线程并发完成迭代操作,包括主线程也会参与）
+    /*
+    第一个参数:遍历的次数
+    第二个参数:队列(并发队列)
+    第三个参数:index 索引
+    */
+    dispatch_apply(subpaths.count, queue, ^(size_t index) {
+      ...
+    });
+
+  队列组
+    创建队列组
+      dispatch_group_t group = dispatch_group_create();
+
+    使用队列组的两种方法
+      1.
+        /*
+        1)封装任务
+        2)把任务添加到队列中
+        3)会监听任务的执行情况,通知group
+        */
+        dispatch_group_async(group, queue, ^{
+          NSLog(@"1----%@",[NSThread currentThread]);
+        });
+
+      2. 进入群组和离开群组
+          dispatch_group_enter|dispatch_group_leave必须成对使用
+          
+          dispatch_group_enter(group); //执行该函数后，后面异步执行的block会被gruop监听
+          dispatch_async(queue, ^{
+              NSLog(@"2----%@",[NSThread currentThread]);
+          
+              //离开群组
+              //异步block中，所有的任务都执行完毕，最后离开群组
+              dispatch_group_leave(group);
+          });
+    
+    拦截通知
+      队列组中的任务执行完毕之后，执行该函数
+      该方法本身也是异步的
+      dispatch_group_notify(dispatch_group_t group,dispatch_queue_t queue,dispatch_block_t block);
+    
+    等待
+      直到队列组中所有的任务都执行完毕之后才能执行该方法后面的代码
+      dispatch_group_wait(group, DISPATCH_TIME_FOREVER); //阻塞的

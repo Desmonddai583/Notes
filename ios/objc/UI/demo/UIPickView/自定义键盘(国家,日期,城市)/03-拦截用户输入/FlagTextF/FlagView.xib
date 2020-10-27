@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="F8m-ma-8lD" customClass="FlagView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="80"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i2Z-h7-Woj">
+                    <rect key="frame" x="0.0" y="0.0" width="141" height="80"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="141" id="qHX-um-BRA"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vAV-08-OHU">
+                    <rect key="frame" x="152" y="0.0" width="224" height="80"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="224" id="xU0-Ob-ogM"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="i2Z-h7-Woj" firstAttribute="leading" secondItem="F8m-ma-8lD" secondAttribute="leading" id="0lI-jQ-9Tn"/>
+                <constraint firstItem="i2Z-h7-Woj" firstAttribute="top" secondItem="F8m-ma-8lD" secondAttribute="top" id="K4L-1I-mj7"/>
+                <constraint firstItem="vAV-08-OHU" firstAttribute="top" secondItem="F8m-ma-8lD" secondAttribute="top" id="R8q-3K-nCw"/>
+                <constraint firstAttribute="bottom" secondItem="vAV-08-OHU" secondAttribute="bottom" id="kxT-3b-tjJ"/>
+                <constraint firstAttribute="bottom" secondItem="i2Z-h7-Woj" secondAttribute="bottom" id="tNA-sf-D0A"/>
+                <constraint firstAttribute="trailing" secondItem="vAV-08-OHU" secondAttribute="trailing" constant="-1" id="z3K-6z-GHN"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="iconImageV" destination="vAV-08-OHU" id="i5C-UD-a8b"/>
+                <outlet property="nameL" destination="i2Z-h7-Woj" id="jU0-oc-oaT"/>
+            </connections>
+            <point key="canvasLocation" x="290.5" y="47"/>
+        </view>
+    </objects>
+</document>

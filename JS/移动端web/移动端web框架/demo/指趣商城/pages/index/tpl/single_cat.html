@@ -1,0 +1,26 @@
+<div class="single_cat">
+    <div class="cat-title clearfix">
+        <div class="cat-title-center">
+            <span>-</span>
+            <span><%=name%></span>
+            <span>-</span>
+        </div>
+        <div class="cat-title-more f-right">
+            <a href="#">更多<span class="iconfont">&#xe64e;</span></a>
+        </div>
+    </div>
+    <div class="cat-content">
+        <ul class="cat-content-list">
+            <% for (var i = 0; i < goods_list.length; i ++) { %>
+            <li class="cat-list-item" goods-id="<%=goods_list[i].id%>">
+                <img src="<%=goods_list[i].pic_url%>">
+                <p class="cat-content-name"><%=goods_list[i].name%></p>
+                <p class="cat-content-price">
+                    <span class="iconfont">&#xeb1e;</span>
+                    <%=goods_list[i].price%>
+                </p>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,148 @@
+单元测试
+  1 添加测试依赖
+    将 test 或者 flutter_test加入依赖文件，默认创建的Flutter程序已经有了依赖
+  2 创建需要测试的类
+  3 创建测试文件
+    在test目录下（注意：不是lib目录下），创建一个测试文件
+    测试文件不会打包到最终的应用程序中
+    测试文件通常以 _test.dart 命名，这是 test runner 寻找测试文件的惯例
+    void main() {
+      test("Counter Class test", () {
+        // 1.创建Counter并且执行操作
+        final counter = Counter();
+        counter.increment();
+        // 2.通过expect来监测结果正确与否
+        expect(counter.value, 1);
+      });
+    }
+  4 整合多个测试
+    如果对同一个类或函数有多个测试，我们希望它们关联在一起进行测试，可以使用group
+    group("Counter Test", () {
+      test("Counter Default Value", () {
+        expect(Counter().value, 0);
+      });
+
+      test("Counter Increment test", () {
+        final counter = Counter();
+        counter.increment();
+        expect(counter.value, 1);
+      });
+
+      test("Counter Decrement test", () {
+        final counter = Counter();
+        counter.decrement();
+        expect(counter.value, -1);
+      });
+    });
+  5 执行测试结果
+    flutter test test/counter_test.dart
+
+Widget测试
+  1 添加测试依赖
+  2 创建测试Widget
+  3 编写测试代码
+    testWidgets：flutter_test中用于测试Widget的函数；
+    tester.pumpWidget：pumpWidget 方法会建立并渲染我们提供的 widget；
+    find：find() 方法来创建我们的 Finders；
+      findsNothing：验证没有可被查找的 widgets。
+      findsWidgets：验证一个或多个 widgets 被找到。
+      findsNWidgets：验证特定数量的 widgets 被找到。
+
+    testWidgets("KeywordWidget Test", (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(title: "demo", home: HYKeywords(["abc", "cba", "nba"]),));
+
+      final abcText = find.text("abc");
+      final cbaText = find.text("cba");
+      final icons = find.byIcon(Icons.people);
+
+      expect(abcText, findsOneWidget);
+      expect(cbaText, findsOneWidget);
+      expect(icons, findsNWidgets(2));
+    });
+
+集成测试
+  集成测试需要有两个大的步骤
+    发布一个可测试应用程序到真实设备或者模拟器上
+    利用独立的测试套件去驱动应用程序，检查仪器是否完好可用
+  
+  1 创建可测试应用程序
+  2 添加flutter_driver依赖
+    我们需要用到 flutter_driver 包来编写 集成测试，所以我们需要把 flutter_driver 依赖添加到应用pubspec.yaml 文件的 dev_dependencies 位置
+    dev_dependencies:
+      flutter_driver:
+        sdk: flutter
+      flutter_test:
+        sdk: flutter
+      test: any
+  3 创建测试文件
+    集成测试的程序和待测试的应用并不在同一个进程内，所以我们通常会创建两个文件
+      文件一：用于启动带测试的应用程序
+      文件二：编写测试的代码
+    可以将这两个文件放到一个文件中：test_driver
+      lib/
+        main.dart
+      test_driver/
+        app.dart
+        app_test.dart
+  4 编写安装应用代码
+    安装应用程序代码在app.dart中，分层两步完成：
+      让 flutter driver 的扩展可用
+      运行应用程序
+    test_driver/app.dart 文件中增加以下代码
+      import 'package:flutter_driver/driver_extension.dart';
+      import 'package:test_demo/main.dart' as app;
+
+      void main() {
+        // 开启DriverExtension
+        enableFlutterDriverExtension();
+
+        // 手动调用main函数, 启动应用程序
+        app.main();
+      }
+  5 编写集成测试代码
+    创建 SerializableFinders 定位指定组件
+    在 setUpAll() 函数中运行测试案例前，先与待测应用建立连接
+    测试重要场景
+    完成测试后，在 teardownAll() 函数中与待测应用断开连接
+
+    test_driver/app_test.dart 文件中增加以下代码
+      void main() {
+        group("Counter App Test", () {
+          FlutterDriver driver;
+
+          // 初始化操作
+          setUpAll(() async {
+            driver = await FlutterDriver.connect();
+          });
+
+          // 测试结束操作
+          tearDownAll(() {
+            if (driver != null) {
+              driver.close();
+            }
+          });
+
+          // 编写测试代码
+          final counterTextFinder = find.byValueKey('counter');
+          final buttonFinder = find.byValueKey('increment');
+
+          test("starts at 0", () async {
+            expect(await driver.getText(counterTextFinder), "0");
+          });
+
+          test("on tap click", () async {
+            await driver.tap(buttonFinder);
+
+            expect(await driver.getText(counterTextFinder), "1");
+          });
+        });
+      }
+  6 运行集成测试
+    启动安卓模拟器或者 iOS 模拟器，或者直接把 iOS 或 Android 真机连接到你的电脑上
+    在项目的根文件夹下运行下面的命令
+      flutter drive --target=test_driver/app.dart
+    这个指令的作用：
+      创建 --target 目标应用并且把它安装在模拟器或真机中
+      启动应用程序
+      运行位于 test_driver/ 文件夹下的 app_test.dart 测试套件 
+  

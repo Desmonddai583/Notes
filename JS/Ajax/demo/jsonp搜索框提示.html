@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="js/template-web.js"></script>
+</head>
+<body>
+<input type="text">
+<div class="content"></div>
+<script id="nj" type="text/html">
+    <ul>
+        <% for( var i = 0, len = s.length; i < len; i++){ %>
+        <li><%=s[i]%></li>
+        <% } %>
+    </ul>
+</script>
+<script>
+$(function () {
+    var timerId = null;
+    $("input").on("input", function () {
+        var word = this.value;
+        // 函数节流
+        clearTimeout(timerId);
+        timerId = setTimeout(function () {
+            // 拼接需要请求的路径
+            var myURL = "https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd="+ word;
+
+            $.ajax({
+                url: myURL,
+                type: "get",
+                dataType: "jsonp", // 告诉jQuery以jsonp形式来请求数据
+                jsonp:"cb",
+                success: function(msg){
+                    newItem(msg);
+                },
+                error: function (xhr) {
+                    alert(xhr.status);
+                }
+            });
+        }, 1000)
+    });
+    function newItem(data) {
+        // {q:"1",p:false,s:["12306","1688","163邮箱登陆登录","17173","1more","12306铁路客户服务中心","126网易邮箱","139邮箱登陆登录","135","189邮箱登陆"]}
+        console.log(data);
+
+        // 1.从服务器获取数据, 传递给模板引擎
+        var html = template('nj', data);
+        $(".content").html(html);
+    }
+});
+</script>
+</body>
+</html>

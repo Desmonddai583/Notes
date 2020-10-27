@@ -1,0 +1,67 @@
+//@import "base";
+
+#ms-banner{
+  left: 50%;
+  transform: translateX(-50%);
+  .carousel-control{
+    background: none;
+    width: auto;
+    span{
+      font-size: 40px;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.5);
+      color: #666;
+      border-radius: 50%;
+    }
+  }
+  .carousel-indicators{
+    li{
+      margin: 0;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border: 1px solid #000;
+    }
+    .active{
+      background: @baseColor;
+    }
+  }
+  .carousel-inner{
+    .carousel-caption{
+       color: @baseColor;
+      p{
+        margin: 2% 0;
+      }
+      .btn-link{
+        color: #fff;
+        background: @baseColor;
+      }
+    }
+    img{
+      width: 100%;
+    }
+  }
+  .banner-second-info{
+    left: unset;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 5%;
+    height: 200px;
+    bottom: unset;
+  }
+}
+#ms-banner{
+  .item{
+    div:last-child{
+      width: 100%;
+      padding: 15%;
+      text-align: center;
+      background: #e6e6e6;
+      p{
+        margin: 2% 0;
+      }
+    }
+  }
+}

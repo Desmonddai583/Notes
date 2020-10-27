@@ -1,0 +1,18 @@
+# Ref Doc
+https://docs.qq.com/doc/Bj82nN2bCtZL1Gutkw3gkXhO19IoYd3JQwgr3
+
+# Setup kubernetes
+kubeadm token list // 獲取集羣的token
+kubectl get cs // get component status
+kubectl get csr // 獲取證書情況
+
+# common cmd
+kubectl exec // 訪問pod下的某個container
+kubectl edit // 修改資源對象配置
+kubectl logs // 查看日志
+kubectl run -it test --image=busybox /bin/sh // runtime開一個pod並執行
+
+# cmd options
+--show-labels // 顯示資源的label
+-o yaml // 以yaml的方式顯示資源配置
+-o wide // 顯示node信息

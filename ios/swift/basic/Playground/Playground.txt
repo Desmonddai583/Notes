@@ -1,0 +1,45 @@
+Command + Shift + Enter：运行整个Playground
+Shift + Enter：运行截止到某一行代码
+
+在playground中展示视图或者控制器
+  import UIKit
+  import PlaygroundSupport
+
+  let view = UIView()
+  view.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+  view.backgroundColor = UIColor.red
+  PlaygroundPage.current.liveView = view
+
+  let imageView = UIImageView(image: UIImage(named: "logo"))
+  PlaygroundPage.current.liveView = imageView
+
+  let vc = UITableViewController()
+  vc.view.backgroundColor = UIColor.lightGray
+  PlaygroundPage.current.liveView = vc
+
+Playground的项目结构中sources文件夹用于放置代码,Resources用于放置图片等资源
+一个playground下面可以创建多个page(page类似于项目的概念)
+在目录中,如果是page以外的resources文件夹中的资源或是sources文件夹中的代码是可以被多个page共享的,
+如果是page中的,则只能在page内部使用
+
+Playground的注释支持markup语法（与markdown相似）
+开启markup渲染效果：Editor -> Show Rendered Markup
+注意：Markup只在Playground中有效
+  多行注释的markup需要另起一行写
+  /*:
+  # 学习Swift
+  ## 基础语法
+  - 变量
+  - 常量
+  ## 面向对象
+  1. 类
+  2. 属性
+  3. 方法
+  ## 汇编分析
+  
+  [苹果官方](https://www.apple.com)
+  */
+
+  page之间跳转
+  //: [下一页](@next)
+  //: [上一页](@previous)

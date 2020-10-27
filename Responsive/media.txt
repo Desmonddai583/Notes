@@ -1,0 +1,37 @@
+viewport
+1 理想视口
+  由设备厂商定义的
+2 布局视口
+  由浏览器厂商定义的
+3 视觉视口
+  一般没什么用
+
+我们能够调整的主要就是布局视口
+viewport的content中可以定义属性来描述视口
+width 视口的总宽
+height 视口的总高
+width和height的值如果设置为device-width和device-height就会使用理想视口大小
+user-scalable yes|no 是否允许用户缩放
+缩放的背后其实就是修改视口的宽高
+initial-scale 0.0-10.0 一开始的页面缩放级别
+minimum-scale 0.0-10.0 允许缩小到什么程度
+maximum-scale 0.0-10.0 允许放大到什么程度
+
+媒介查询
+@media type and (media-expr)
+
+type all|braille|embossed|print|screen....
+media-expr
+  width 设备显示区域的宽度
+  height 设备显示区域的高度
+  orientation 设备方向(portrait|landscape)
+  resolution 设备分辨率
+media-expr属性前面可以添加max-或者min-, e.g.
+  max-width:400px 代表小于等于400
+  min-width:400px 代表大于等于400
+上面的逻辑关键词除了and之外还可以是
+  not or only
+  only使用情况是有时候某些user-agent只支持媒介类型而不支持媒介属性
+  使用only就会要求两者都支持的才会触发
+
+媒介查询最后匹配的规则会覆盖掉前面的

@@ -1,0 +1,58 @@
+利用仿站小工具可以通过网址下载静态网页的工具
+马克鳗可以用来标注设计稿和测量
+
+一个页面中通常应该最多只有一个h1标签(和SEO有关)
+
+可以在head标签中加入 <base target="_blank">
+这样页面中的所有a标签都会默认在新页面中打开
+
+假链接的两种方式
+第一种点击后会自动回到网页的顶部,第二种则不会
+1. <a href="#">a1</a>
+2. <a href="javascript:">a2</a>
+
+锚点
+<h1 id="desmond">123</h1>
+<a href="#desmond">a1</a>
+
+定义列表 e.g.
+通过dt标签定义列表中的所有标题,然后再通过dd标签给每个标题添加描述信息
+一个dt可以没有对应的dd,也可以有多个对应的dd,但是不推荐这么用,推荐一个dt对应一个dd
+<dl>
+    <dt></dt> 
+    <dd></dd>
+</dl>
+一般用于:
+    1. 网站尾部的相关信息
+    2. 图文混排
+
+video标签的属性
+    src: 告诉video标签需要播放的视频地址
+    autoplay: 告诉video标签是否需要自动播放视频
+    controls: 告诉video标签是否需要显示控制条
+    poster: 告诉video标签视频没有播放之前显示的占位图片
+    loop: 告诉video标签循环播放视频. 一般用于做广告视频
+    preload: 告诉video标签预加载视频, 但是需要注意preload和autoplay相冲, 如果设置了autoplay属性, 那么preload属性就会失效
+    muted:告诉video标签视频静音
+    width/height: 和img标签中的一模一样
+
+    video标签的第二种格式
+    <video>
+        <source src="" type=""></source>
+        <source src="" type=""></source>
+        <source src="" type=""></source>
+    </video>
+    由于视频数据非常非常的重要, 所以五大浏览器厂商都不愿意支持别人的视频格式, 
+    所以导致了没有一种视频格式是所有浏览器都支持的这个时候W3C为了解决这个问题, 
+    所以推出了第二个video标签的格式
+    video标签的第二种格式存在的意义就是为了解决浏览器适配问题
+    video元素支持三种视频格式, 我们可以把这三种格式都通过source标签指定给video标签,
+    那么以后当浏览器播放视频时它就会从这三种中选择一种自己支持的格式来播放
+
+audio标签类似video也有两种格式
+
+marquee 跑马灯效果
+    direction: 设置滚动方向 left/right/up/down
+    scrollamount: 设置滚动速度, 值越大就越快
+    loop: 设置滚动次数, 默认是-1, 也就是无限滚动
+    behavior: 设置滚动类型 slide滚动到边界就停止, alternate滚动到边界就弹回

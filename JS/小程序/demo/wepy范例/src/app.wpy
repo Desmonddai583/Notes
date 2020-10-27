@@ -1,0 +1,47 @@
+<style lang="less">
+  /*用于存储原生小程序中app.wxss中的内容*/
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+</style>
+
+<script>
+import wepy from 'wepy'
+
+export default class extends wepy.app {
+  config = {
+    "pages":[
+      "pages/index/index",
+      "pages/logs/logs"
+    ],
+    "window":{
+      "backgroundTextStyle":"light",
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTitleText": "小程序",
+      "navigationBarTextStyle":"black",
+      "enablePullDownRefresh": true,
+    }
+  }
+  onLaunch () {
+    // 小程序初始化完成时触发，全局只触发一次
+    console.log("app onLaunch")
+  }
+  onShow(options) {
+    // 小程序启动，或从后台进入前台显示时触发
+    console.log("app onShow");
+  }
+  onHide() {
+    // 小程序从前台进入后台时触发
+    console.log("app onHide");
+  }
+  onError(msg) {
+    // 小程序发生脚本错误或 API 调用报错时触发
+    console.log("onError");
+  }
+}
+</script>

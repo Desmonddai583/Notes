@@ -1,0 +1,9 @@
+图片拉伸
+  通过代码拉伸
+    - (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets
+    或者
+    - (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets resizingMode:(UIImageResizingMode)resizingMode
+    或者
+    - (UIImage *)stretchableImageWithLeftCapWidth:(NSInteger)leftCapWidth topCapHeight:(NSInteger)topCapHeight
+  直接设置图片属性
+    见示例图

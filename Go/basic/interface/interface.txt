@@ -1,0 +1,82 @@
+接口
+专门用于定义函数的声明,也就是规定函数的形参,函数的返回值,函数的名称
+接口只负责声明方法,只能通过和某种数据类型绑定的方法来实现,不能通过函数来实现
+接口中不能出现同名的方法声明
+只要某个数据类型实现了接口中声明的所有方法,那么就说这个数据类型实现了这个接口
+只要一个数据类型实现了某个接口,那么就可以使用这个接口类型的变量来保存这个类型的数据
+只要一个数据类型实现了某个接口,那么保存这个类型的数据之后,就可以使用接口类型变量调用接口中的方法
+type 接口的名称 interface {
+    函数的声明
+}
+
+接口可以嵌套,但是也是不能嵌套自己
+type aer interface {
+    start()
+}
+type ber interface {
+    aer
+    end()
+}
+// 可以将超集接口变量赋值给子集接口变量,当然前提是实现了两个接口的所有方法
+// 但是不可以将子集赋值给超集
+var b ber = Phone{"aaa"}
+var a aer
+a = b 
+a.start()
+
+go中的空接口,相当于其他语言的Object类型,可以充当任何类型
+var value interface{}
+value = 1
+value = 3.14
+...
+
+空接口应用场景
+    可以让数组和字典保存不同类型的数据
+
+如果利用接口类型接受变量,那么接口类型的变量只能调用接口中定义的方法,不能调用数据类型中特有的方法和数据
+想要访问的话必须进行类型转换,将接口类型转换为数据类型
+1
+    cm, ok := in.(Computer) // 将接口变量in进行类型转换
+2  
+    switch cm := in.(type) {
+        case Computer:
+            cm.say()
+        default:
+            fmt.Println("不是Computer类型")
+    }
+
+go中可以通过type给某种类型起一个别名
+type 新类型名 原类型名
+type 新类型名=原类型名
+第一种方式代表定义了一个新的类型叫做'新类型名'
+第二种方式代表给原类型名起了一个别名叫做'新类型名'
+也就是说第一种方式定义的新类型和原类型在编译器看来是两个不同的类型
+但是第二种方式对编译器来说是同一种类型
+
+指针方法可以通过指针调用
+值方法可以通过值调用
+接收者是值的方法可以通过指针调用，因为指针会首先被解引用
+接收者是指针的方法不可以通过值调用，因为存储在接口中的值没有地址
+
+常用的系统接口
+    type Stringer interface {
+        String() string
+    }
+
+    type Interface interface {
+        Len() int
+        Less(i, j int) bool
+        Swap(i, j int)
+    }
+
+    type Reader interface {
+        Read(p []byte) (n int, err error)
+    }
+    
+    type Writer interface {
+        Write(p []byte) (n int, err error)
+    }
+
+    type error interface {
+        Error() string
+    }

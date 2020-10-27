@@ -1,0 +1,17 @@
+//
+//  main.m
+//  小码哥彩票
+//
+//  Created by xiaomage on 16/1/29.
+//  Copyright © 2016年 小码哥. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "AppDelegate.h"
+
+int main(int argc, char * argv[]) {
+//    NSLog(@"%s",__func__);
+    @autoreleasepool {
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+    }
+}

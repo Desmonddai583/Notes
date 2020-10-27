@@ -1,0 +1,88 @@
+获得主线程
+NSThread *mainThread = [NSThread mainThread];
+获得当前线程
+NSThread *currentThread  = [NSThread currentThread];
+判断主线程
+  // NSThread对象有一个number属性,主线程为1
+  // 方法背后其实就是判断number == 1, 
+  BOOL isMainThreadA = [NSThread isMainThread];
+  BOOL isMainThreadB = [currentThread isMainThread];
+
+创建线程(4种方式)
+  1.创建线程
+    特点：需要手动开启线程，可以拿到线程对象进行详细设置
+    /*
+    第一个参数:目标对象  self
+    第二个参数:方法选择器 调用的方法
+    第三个参数:前面调用方法需要传递的参数 nil
+    */
+    XMGThread *threadA = [[XMGThread alloc]initWithTarget:self selector:@selector(run:) object:@"ABC"];
+    //设置属性
+    threadA.name = @"线程A";
+    //设置优先级 取值范围 0.0 ~ 1.0 之间 最高是1.0 默认优先级是0.5
+    threadA.threadPriority = 1.0;
+    // 启动线程
+    [threadA start];
+
+  2.分离子线程,自动启动线程
+    特点：自动启动线程，无法对线程进行更详细的设置
+    /*
+    第一个参数：线程启动调用的方法
+    第二个参数：目标对象
+    第三个参数：传递给调用方法的参数
+    */
+    [NSThread detachNewThreadSelector:@selector(run:) toTarget:self withObject:@"分离子线程"];
+  
+  3.开启一条后台线程 
+    特点：自动启动线程，无法进行更详细设置
+    [self performSelectorInBackground:@selector(run:) withObject:@"开启后台线程"];
+  
+  4.通过自定义NSThread子类,重写main方法开启
+    创建线程,在XMGThread中重写main方法
+    XMGThread *thread = [[XMGThread alloc] init];
+    [thread start];
+
+
+线程的生命周期
+  当任务执行完毕之后线程被释放掉
+
+线程的状态
+  线程的各种状态：新建-就绪-运行-阻塞-死亡
+  常用的控制线程状态的方法
+    [NSThread exit];//退出当前线程
+    [NSThread sleepForTimeInterval:2.0];//阻塞线程
+    [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow:2.0]];//阻塞线程
+  注意：线程死了不能复生
+
+线程安全
+  多个线程访问同一块资源会发生数据安全问题
+  解决方案可以通过加互斥锁
+    锁:必须是全局唯一的
+    1.注意枷锁的位置
+    2.注意枷锁的前提条件,多线程共享同一块资源
+    3.注意加锁是需要代价的,需要耗费性能的
+    4.加锁的结果:线程同步
+
+  // 这里通常使用self,要保证这个对象是同一个才代表使用的是相同的锁
+  // 锁定1份代码只用1把锁，用多把锁是无效的
+  @synchronized(self){
+    需要加锁的代码
+  }
+
+  原子(atomic)和非原子(nonatomic)属性（是否对setter方法加锁）
+  atomic：线程安全，需要消耗大量的资源
+  nonatomic：非线程安全，适合内存小的移动设备
+  建议所有属性都声明为nonatomic，尽量避免多线程抢夺同一块资源，尽量将加锁、资源抢夺的业务逻辑交给服务器端处理，减小移动客户端的压力
+
+线程间通信
+  回到主线程刷新UI 3种方式
+  /*
+  第一个参数:回到主线程要调用哪个方法
+  第二个参数:前面方法需要传递的参数 此处就是image
+  第三个参数:是否等待
+  */
+  [self performSelectorOnMainThread:@selector(showImage:) withObject:image waitUntilDone:YES];
+  // 直接利用set方法,这样就不需要专门再实现一个方法
+  [self.imageView performSelectorOnMainThread:@selector(setImage:) withObject:image waitUntilDone:YES];
+  // 这个方法可以与非主线程通信
+  [self.imageView performSelector:@selector(setImage:) onThread:[NSThread mainThread] withObject:image waitUntilDone:YES];

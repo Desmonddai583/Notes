@@ -1,0 +1,25 @@
+监听事件
+  // 开始编辑
+  [self.textFlied addTarget:self action:@selector(tfEditingDidBegin) forControlEvents:UIControlEventEditingDidBegin];
+  // 结束编辑
+  [self.textFlied addTarget:self action:@selector(tfEditingDidEnd) forControlEvents:UIControlEventEditingDidEnd];
+  // 用户输入
+  [self.textFlied addTarget:self action:@selector(tfEditingChanged:) forControlEvents:UIControlEventEditingChanged];
+代理事件
+  // 开始编辑,(弹出键盘)became first responder
+  - (void)textFieldDidBeginEditing:(UITextField *)textField;
+  // 结束编辑
+  - (void)textFieldDidEndEditing:(UITextField *)textField;
+  // 是否允许⽂字改变 可用于拦截⽤户输⼊
+  // @param string 用户输入的文字
+  // @return YES:允许用户输入;NO:禁止用户输入
+  - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;
+  // 是否允许开始编辑 
+  - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField 
+  // 是否允许结束编辑.
+  - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
+
+退出键盘的方式
+  1 [self.textFlied endEditing:YES];
+  2 [self.textFlied resignFirstResponder]; // 辞去第一响应者 
+  3 [self.view endEditing:YES]; // 对controller下面的view发送endEditing消息,推荐使用这种,因为有时界面上的textfield可能很多,不知道是哪个

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!-- vue中的动画 （当dom 显示或者隐藏时 vue可以管理动画）v-for v-if v-show  -->
+        <transition name="fade">
+            <div style="width: 100px;height:100px;" class="box" v-show="isShow">
+            </div>
+        </transition>
+        <button @click="change">点我啊</button>
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el:'#app',
+            data(){
+                return {isShow:false}  
+            },
+            methods:{
+                change(){
+                    this.isShow = !this.isShow
+                }
+            }
+        })
+    </script>
+    <style>
+        .box{
+            background: red;
+        }
+        /*  定义颜色初始化时的状态 进入的一瞬间 */
+        .fade-enter{
+            background: blue;
+        }
+        .fade-enter-active{
+            transition: all 2s linear;
+        }
+        .fade-enter-to{
+            background: yellow;
+        }
+        /* 当动画结束之后 会去掉所有样式 */
+        /* 只是为了美感而生 没有实际意义 */
+        .fade-leave{ 
+            background: purple;
+        }
+        .fade-leave-active{
+            transition: all 2s linear;
+        }
+        .fade-leave-to{
+            background: blue;
+        }
+        /* 消失 */
+    </style>
+</body>
+</html>

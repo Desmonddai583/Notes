@@ -1,0 +1,197 @@
+block是一种数据类型
+inlineBlock 创建block的快捷键
+
+定义
+  指向函数的指针
+    // void代表指向的函数没有返回值
+    // ()代表指向的函数没有形参
+    // (*roseP)代表roseP是一个指向函数的指针
+    void (*roseP) ();
+    roseP = printRose;
+    roseP();
+
+  block和函数一样,可以没有返回值,也没有形参
+  也可以没有返回值有形参
+  也可以有返回值没有形参
+  也可以有返回值有形参
+  所以, 在定义一个block变量的时候, 也需要告诉该变量将来保存的代码有没有返回值和形参  
+  // 定义一个block变量
+  // void代表block将来保存的代码没有返回值
+  // ()代表block将来保存的代码没有形参
+  // (^roseBlock) 代表reseBlock是一个block变量, 可以用于保存一段block代码
+  void (^roseBlock) ();
+  // 如果block没有参数, 那么^后面的()可以省略
+  roseBlock = ^(){
+      printf("  {@} \n");
+      printf("   |  \n");
+      printf("  \\|/ \n");
+      printf("   | \n");
+  };
+  // 要想执行block保存的代码, 必须调用block才会执行
+  roseBlock();
+
+  有形参的例子
+    void (^roseBlock) (int);
+    roseBlock = ^(int num){
+        for (int i = 0; i < num; ++i) {
+            
+            printf("  {@} \n");
+            printf("   |  \n");
+            printf("  \\|/ \n");
+            printf("   | \n");
+        }
+    };
+    roseBlock(2);
+
+  更简洁的定义方式
+    int (^printBlock)(int)= ^int (int num){
+        for (int i=0; i<num; ++i) {
+            printf("--------\n");
+        }
+        return 1;
+    }
+    printBlock(2);
+
+  利用typedef给block起别名, 和指向函数的指针一样, block变量的名称就是别名
+    typedef int (^calculteBlock)(int , int);
+
+    calculteBlock sumBlock = ^(int value1, int value2){
+        return value1 + value2;
+    };
+
+    calculteBlock minusBlock = ^(int value1, int value2){
+        return value1 - value2;
+    };
+
+    sumBlock(20, 10);
+    minusBlock(20, 10);
+
+应用场景
+  1. 参数使用
+    当发现代码的前面和后面都是一样的时候, 这个时候就可以使用block
+    void goToWork(void (^workBlock)())
+    {
+        NSLog(@"起床");
+        NSLog(@"穿衣服");
+        NSLog(@"洗漱");
+        NSLog(@"喝早茶");
+        NSLog(@"驾车去上班");
+        
+        // 不一样
+        workBlock();
+        
+        NSLog(@"收拾东西");
+        NSLog(@"驾车回家");
+        NSLog(@"吃晚饭");
+        NSLog(@"洗澡");
+        NSLog(@"睡觉");
+    }
+
+    void goToWorkInDay1()
+    {
+        goToWork(^{
+            NSLog(@"认识新同事");
+        });
+    }
+
+    void goToWorkInDay2()
+    {
+        goToWork(^{
+            NSLog(@"熟悉公司代码");
+        });
+    }
+  2. Block传值(通过属性)
+  3. 保存代码
+  4. 返回值
+      可以用于实现链式编程思想
+      mgr.add(5).add(5).add(5).add(5);
+
+      - (CalculatorManager *(^)(int))add
+      {
+          return ^(int value){
+              _result += value;
+              
+              return self;
+          };
+      }
+
+内存管理
+  block是一个对象
+ 
+  如何判断当前文件是MRC,还是ARC
+    1. dealloc能否调用super,只有MRC才能调用super
+    2. 能否使用retain,release.如果能用就是MRC
+
+  ARC管理原则:只要一个对象没有被强指针修饰就会被销毁,默认局部变量对象都是强指针,存放到堆里面
+  MRC管理原则:MRC没有strong,weak,局部变量对象就是相当于基本数据类型
+            MRC给成员属性赋值,一定要使用set方法,不能直接访问下划线成员属性赋值,
+            因为set方法内部会调用retain和release方法,直接下划线复制就没有内存管理效果了
+
+  只要block没有引用外部局部变量,block放在全局区
+  MRC:
+    只要block引用外部局部变量,block放在栈里面
+    block只能使用copy,不能使用retain,使用retain,block还是在栈里面
+  ARC:
+    只要block引用外部局部变量,block放在堆里面
+    block使用strong.最好不要使用copy,因为copy会在调用set方法时调用copy方法,消耗额外性能
+
+变量传递
+  如果是局部变量,block是值传递
+  如果是静态变量,全局变量,__block修饰的变量,block都是指针传递
+
+注意事项
+  1.block中可以访问外面的变量
+    int a = 10;
+    void (^myBlock)() = ^{
+        NSLog(@"a = %i", a);
+    };
+    myBlock();
+  2.block中可以定义和外界同名的变量, 并且如果在block中定义了和外界同名的变量, 
+    在block中访问的是block中的变量
+  3.默认情况下, 不可以在block中修改外界变量的值
+    因为block中的变量和外界的变量并不是同一个变量
+    如果block中访问到了外界的变量, block会将外界的变量拷贝一份到堆内存中
+    因为block中使用的外界变量是copy的, 所以在调用之前修改外界变量的值, 不会影响到block中copy的值
+  4.如果想在block中修改外界变量的值, 必须在外界变量前面加上__block
+    此时如果在block中修改了外界变量的值, 会影响到外界变量的值
+    __block int a = 10;
+    NSLog(@"&a = %p", &a);
+    void (^myBlock)() = ^{
+        a = 50;
+        NSLog(@"&a = %p", &a);
+        NSLog(@"a = %i", a);
+    };
+    myBlock();
+
+    如果没有添加__block是值传递
+    如果加上__block之后就是地址传递, 所以可以在block中修改外界变量的值
+  5.默认情况下block存储在栈中, 如果对block进行一个copy操作( Block_copy(myBlock) ), block会转移到堆中
+    如果block在栈中, block中访问了外界的对象, 那么不会对对象进行retain操作
+    但是如果block在堆中, block中访问了外界的对象, 那么会对外界的对象进行一次retain
+  6.如果在block中访问了外界的对象, 一定要给对象加上__block, 只要加上了__block, 哪怕block在堆中, 也不会对外界的对象进行retain
+    如果是在ARC开发中就需要在前面加上__weak
+    // 如果在做iOS开发时, 在ARC中不这样写容易导致循环引用
+    Person *p = [[Person alloc] init];
+    __weak Person *weakP = p;
+
+block循环引用
+  // 此时会产生循环引用
+  // 会对里面所有外部强指针变量都强引用一次(self)
+  item11.operationBlock = ^{
+      UIViewController *vc = [[UIViewController alloc] init];
+      vc.title = @"dadfafd";
+      vc.view.backgroundColor = [UIColor yellowColor];
+      [self.navigationController pushViewController:vc animated:YES];
+  };
+  解决方案就是打断其中的一个强指针,就能解决循环引用问题,但是我们只能打断block里面的强指针,其他的强指针均不能打断
+    __weak XMGSettingTableViewController *weakSelf = self;
+    简写方式
+    // typeof(x) 动态根据x判断x的真实类型
+    __weak typeof(self) weakSelf = self;
+    或者
+    __unsafe_unretained typeof(self) weakSelf = self;
+
+  另外在block里面访问成员属性(即下划线开头属性),也会造成循环引用
+  成员属性最终转换成的代码self -> _groups,只不过是苹果把他屏蔽了
+  所以也需要依靠上面的解决方法处理
+    weakSelf.groups

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>94-高级排它</title>
+    <style>
+        .selected{
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<ul>
+    <li class="selected">我是第1个li</li>
+    <li>我是第2个li</li>
+    <li>我是第3个li</li>
+    <li>我是第4个li</li>
+    <li>我是第5个li</li>
+</ul>
+
+<script>
+    // 1.拿到需要操作的元素
+    var oLis = document.querySelectorAll("li");
+
+    //定义变量记录当前选中的索引
+    var currentIndex = 0;
+
+    // 2.给所有li注册事件
+    for(var i = 0, len = oLis.length; i < len; i++){
+        // 保证立即执行函数中的index和当前循环的i同步
+        (function (index) {
+            oLis[index].onmouseenter = function () {
+                // 排它
+                oLis[currentIndex].className = "";
+                // 选中当前的
+                this.className = "selected";
+                // 记录当前的索引
+                currentIndex = index;
+            }
+        })(i);
+    }
+</script>
+</body>
+</html>

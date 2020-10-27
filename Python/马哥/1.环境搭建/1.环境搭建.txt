@@ -1,0 +1,58 @@
+Pyenv
+  Python多版本管理工具
+    管理Python解释器
+    管理Python多版本
+    管理Python的虚拟环境
+  
+  安装
+    curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+    在~/.bash_proﬁle中追加
+      export PATH="/Users/desmonddai583/.pyenv/bin:$PATH" 
+      eval "$(pyenv init -)" 
+      eval "$(pyenv virtualenv-init -)"
+
+  pyenv install --list // 列出所有可用版本
+  pyenv update // 更新pyenv
+  pyenv install 3.5.3 // 在线安装指定版本
+  pyenv version // 显示当前的python版本
+  pyenv versions // 显示所有可用的python版本，和当前版本
+  pyenv install 3.5.3 -v // 使用缓存方式安装 在~/.pyenv目录下，新建cache目录，放入下载好的待安装版本的文件
+  pyenv global 3.5.3 // 全局设置版本
+  pyenv shell 3.5.3 // 会话设置 影响只作用于当前会话
+  pyenv local 3.5.3 // 本地设置 置从当前工作目录开始向下递归都继承这个设置
+  pyenv local --unset // 取消local设置
+
+  Virtualenv
+    因为刚才使用的Python环境都是一个公共的空间，如果多个项目使用不同Python版本开发，或者使用不同的 Python版本部署运行，
+    或者使用同样的版本开发的但不同项目使用了不同版本的库，等等这些问题都会带来冲突。最好的解决办法就是每一个项目独立运行自己的“独立小环境”中
+
+    pyenv virtualenv 3.5.3 mag353 // 使用python 3.5.3版本创建出一个独立的虚拟空间，真实目录在~/.pyenv/versions/下
+  
+pip
+  pip是Python的包管理工具，3.x的版本直接带了，可以直接使用
+  配置
+    mkdir ~/.pip
+    配置文件在~/.pip/pip.conf
+  pip install pkgname // 安装包
+  pip list // 查看安装的包
+  pip search pkgname // 查找包
+  pip freeze > requirement // 将当前包的版本锁定
+  pip install -r requirement // 从文件中读取对应包版本安装
+
+ipython
+  增强的Python Shell，自动补全、自动缩进、支持shell，增加了很多函数
+  pip install ipython
+
+  help(keyword) keyword可以是变量、对象、类名、函数名、方法名
+  或者
+  keyword?
+
+Jupyter
+  是基于WEB的交互式笔记本，其中可以非常方便的使用Python
+  安装Jupyter，也会依赖安装ipython的
+
+  pip install jupyter
+  jupyter notebook --ip=0.0.0.0 --no-browser
+  或者
+  jupyter notebook --ip=192.168.1.30 --port=8888
+  ss -tanl

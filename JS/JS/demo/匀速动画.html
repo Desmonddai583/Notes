@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>126-匀速动画</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 100px;
+            height: 100px;
+            background: red;
+            position: absolute;
+        }
+        .box1{
+            width: 500px;
+            height: 20px;
+            background: blue;
+        }
+    </style>
+</head>
+<body>
+<button class="btn1">开始到500</button>
+<button class="btn2">开始到250</button>
+<div></div>
+<script>
+
+    // 1.获取需要操作的元素
+    var oDiv = document.querySelector("div");
+    var oBtn1 = document.querySelector(".btn1");
+    var oBtn2 = document.querySelector(".btn2");
+
+    // 2.注册点击事件
+    oBtn1.onclick = function () {
+        linearAnimation(oDiv, {"left": 501, "width":"302", "top": "500"}, function () {
+            console.log("动画结束了");
+        });
+    };
+
+    oBtn2.onclick = function () {
+        linearAnimation(oDiv, {"left": 200, "width":"100", "top": "200"});
+    };
+
+    /**
+     * 匀速动画
+     * @param ele 需要获取的元素
+     * @param obj 动画属性对象
+     * @returns fn 动画执行完毕之后回调
+     */
+    function linearAnimation(ele, obj, fn) {
+        clearInterval(ele.timerId);
+
+        // 2.1开启定时器不断累加left的值
+        ele.timerId = setInterval(function () {
+            var flag = true;
+            for(var key in obj){
+                // 2.2获取元素开始的位置
+                var begin = parseInt(getStyleAttr(ele, key)) || 0;
+                // 2.3获取结束的位置
+                var target = obj[key];
+                // 2.4定义每次移动的步长
+                var step = (begin < target) ? 10 : -10;
+                // 2.5让元素动起来
+                ele.style[key] = begin + step + "px";
+                // 2.6添加结束条件
+                if(Math.abs(target - begin) > Math.abs(step)){
+                    flag = false;
+                }else if(Math.abs(target - begin) <= Math.abs(step)){
+                    ele.style[key] = target + "px";
+                }
+            }
+            if(flag){
+                clearInterval(ele.timerId);
+                if(fn){
+                    fn();
+                }
+            }
+        }, 10);
+    }
+
+    /**
+     * 获取样式兼容性的处理
+     * @param obj 需要获取的元素
+     * @param attr 需要获取的属性
+     * @returns {string} 获取到的值
+     */
+    function getStyleAttr(obj, attr) {
+        if(obj.currentStyle){
+            return obj.currentStyle[attr];
+        }else{
+            return window.getComputedStyle(obj, null)[attr];
+        }
+    }
+</script>
+</body>
+</html>

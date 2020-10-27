@@ -1,0 +1,17 @@
+<div class="topic">
+    <div class="topic-icon">
+        <img src="<%=update_list.topic.logo_1%>" alt="">
+    </div>
+    <div class="topic-content">
+        <div class="swiper-wrapper">
+            <% for (var i = 0; i < topic_list.length; i ++) { %>
+            <div class="swiper-slide">
+                <% for (var j = 0; j < topic_list[i].length; j ++) { %>
+                <img src="<%=update_list.topic.heated%>" alt="">
+                <%=topic_list[i][j].title%>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>

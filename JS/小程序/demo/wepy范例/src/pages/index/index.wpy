@@ -1,0 +1,90 @@
+<style lang="less" type="text/less" scoped>
+  .title{
+    width: 200px;
+    height: 50px;
+    background: red;
+    color: blue;
+    text-align: center;
+  }
+</style>
+
+<template>
+  <view class="title">我是标题</view>
+  <view>{{msg}}</view>
+  <navigator url="./../logs/logs">goto logs</navigator>
+  <button @tap="myFn">我是按钮</button>
+  <view>{{msgFormat}}</view>
+  <view>-------------------------------</view>
+  <!--
+  在wepy中传递参数和Vue一样, 父组件可以通过自定义属性传递, 子组件可以通过props接收
+  但是在wepy中数据传递分为两种, 一种是静态数据传递, 另一种是动态传递
+  静态传递只支持String类型, 动态传递支持任何类型
+  -->
+  <view>父组件的 {{title}}</view>
+  <button @tap="myFn2">我是按钮</button>
+  <One parentInfo="lnj" :parentTitle.sync="title"></One>
+  <view>-------------------------------</view>
+  <button @tap="myFn3">执行子组件的方法</button>
+  <Two></Two>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import One from './components/One'
+    import Two from './components/Two'
+    export default class Index extends wepy.page {
+        data={
+          msg: "指趣学院",
+          title: "我是标题"
+        };
+        // 对应每个界面的.json中的内容
+        config = {
+          "navigationBarTitleText": "程序大",
+        };
+        components = {
+          One: One,
+          Two: Two
+        };
+        // 声明页面wxml中标签的事件处理函数。
+       // 注意，此处只用于声明页面wxml中标签的bind、catch事件，自定义方法需以自定义方法的方式声明
+        methods = {
+          myFn(){
+            // console.log("监听到点击事件");
+            // wepy中设置数据不要使用this.setData({})
+            // 注意点: 访问data总共的数据直接使用this.数据名称即可
+            this.msg = "知播渔";
+          },
+          myFn2(){
+            // 默认情况下传递给子组件的数据不会随着父组件的改变而改变
+            // 如果想随着父组件的改变而改版, 那么需要在传递的时候加上.sync
+            this.title = "父组件修改的数据";
+          },
+          myFn3(){
+             // 会去所有后代组件中的events中查找名称叫做broadcast-event事件,并且执行
+            // this.$broadcast('broadcast-event', 2, 3, 4);
+
+            // 直接调用子组件方法
+            this.$invoke('Two', 'twoFn', 'lnj');
+          },
+        };
+        // 声明计算属性
+        computed = {
+            msgFormat(){
+              return this.msg.split("").reverse().join("");
+            }
+        };
+        // 声明数据watcher（详见后文介绍）
+        watch = {
+          "msg": function (newValue, oldValue) {
+            console.log(newValue, oldValue);
+          }
+        };
+        // 注意: 在wepy中父组件可以调用子组件的方法, 子组件也可以调用父组件的方法
+        events = {
+          'some-event': (p1, p2, p3, $event) => {
+            console.log(p1, p2, p3);
+            console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`);
+          }
+        };
+    }
+</script>

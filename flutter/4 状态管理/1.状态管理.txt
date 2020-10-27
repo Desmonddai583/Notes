@@ -1,0 +1,126 @@
+共享状态管理
+  InheritedWidget
+    InheritedWidget和React中的context功能类似，可以实现跨组件数据的传递
+    定义一个共享数据的InheritedWidget，需要继承自InheritedWidget
+      class HYDataWidget extends InheritedWidget {
+        finalint counter;
+        HYDataWidget({this.counter, Widget child}): super(child: child);
+        static HYDataWidget of(BuildContext context) {
+          return context.dependOnInheritedWidgetOfExactType();
+        }
+        @override
+        bool updateShouldNotify(HYDataWidget oldWidget) {
+          returnthis.counter != oldWidget.counter;
+        }
+      }
+    这里定义了一个of方法，该方法通过context开始去查找祖先的HYDataWidget
+    updateShouldNotify方法是对比新旧HYDataWidget，是否需要对更新相关依赖的Widget
+    在某个Widget中使用共享的数据，并且监听
+      lass _HYHomePageState extends State<HYHomePage> {
+        int data = 100;
+
+        @override
+        Widget build(BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text("InheritedWidget"),
+            ),
+            body: HYDataWidget(
+              counter: data,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    HYShowData()
+                  ],
+                ),
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () {
+                setState(() {
+                  data++;
+                });
+              },
+            ),
+          );
+        }
+      }
+  
+  Provider
+    Provider是目前官方推荐的全局状态管理工具，由社区作者Remi Rousselet 和 Flutter Team共同编写
+    在使用Provider的时候，我们主要关心三个概念
+      ChangeNotifier：真正数据（状态）存放的地方
+      ChangeNotifierProvider：Widget树中提供数据（状态）的地方，会在其中创建对应的ChangeNotifier
+      Consumer：Widget树中需要使用数据（状态）的地方
+    
+    Consumer的builder方法解析
+      参数一：context，每个build方法都会有上下文，目的是知道当前树的位置
+      参数二：ChangeNotifier对应的实例，也是我们在builder函数中主要使用的对象
+      参数三：child，目的是进行优化，如果builder下面有一颗庞大的子树，当模型发生改变的时候，我们并不希望重新build这颗子树，那么就可以将这颗子树放到Consumer的child中，在这里直接引入即可
+    
+    Provider.of的弊端
+      事实上，因为Provider是基于InheritedWidget，所以我们在使用ChangeNotifier中的数据时，我们可以通过Provider.of的方式来使用
+        Text("当前计数:${Provider.of<CounterProvider>(context).counter}",
+          style: TextStyle(fontSize: 30, color: Colors.purple),
+        )
+      但是更多时候我们还是要选择Consumer的方式,因为Consumer在刷新整个Widget树时，会尽可能少的rebuild Widget
+      Provider.of在接受到状态改变时，他所在的整个build方法会被重新调用,consumer则不会
+    
+    Selector
+      Consumer也会存在弊端
+      比如当点击了floatingActionButton时，我们在代码的两处分别打印它们的builder是否会重新调用；
+      我们会发现只要点击了floatingActionButton，两个位置都会被重新builder
+      但是floatingActionButton的位置有重新build的必要吗？没有，因为它是在操作数据，并没有展示
+      此时可以使用Selector来代替Consumer
+
+      floatingActionButton: Selector<CounterProvider, CounterProvider>(
+        selector: (ctx, provider) => provider,
+        shouldRebuild: (pre, next) => false,
+        builder: (ctx, counterPro, child) {
+          print("floatingActionButton展示的位置builder被调用");
+          return FloatingActionButton(
+            child: child,
+            onPressed: () {
+              counterPro.counter += 1;
+            },
+          );
+        },
+        child: Icon(Icons.add),
+      ),
+
+      Selector和Consumer对比，不同之处主要是三个关键点：
+        关键点1：泛型参数是两个
+          泛型参数一：我们这次要使用的Provider
+          泛型参数二：转换之后的数据类型，比如我这里转换之后依然是使用CounterProvider，那么他们两个就是一样的类型
+        关键点2：selector回调函数
+          转换的回调函数，你希望如何进行转换
+          S Function(BuildContext, A) selector
+          我这里没有进行转换，所以直接将A实例返回即可
+        关键点3：是否希望重新rebuild
+          这里也是一个回调函数，我们可以拿到转换前后的两个实例；
+          bool Function(T previous, T next);
+          因为这里我不希望它重新rebuild，无论数据如何变化，所以这里我直接return false；
+    
+      所以在某些情况下，我们可以使用Selector来代替Consumer，性能会更高
+
+    MultiProvider
+      多个Provider需要提供
+        可以是用多个Provider之间嵌套
+        但是不方便维护，扩展性也比较差
+        runApp(ChangeNotifierProvider(
+          create: (context) => CounterProvider(),
+          child: ChangeNotifierProvider(
+            create: (context) => UserProvider(),
+            child: MyApp()
+          ),
+        ));
+      使用MultiProvider
+        runApp(MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (ctx) => CounterProvider()),
+            ChangeNotifierProvider(create: (ctx) => UserProvider()),
+          ],
+          child: MyApp(),
+        ));

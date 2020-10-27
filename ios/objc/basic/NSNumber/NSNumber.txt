@@ -1,0 +1,11 @@
+将基本数据类型转换为对象类型
+  NSNumber *ageN = [NSNumber numberWithInt:age];
+  NSNumber *numberN = [NSNumber numberWithDouble:number];
+  NSNumber *valueN = [NSNumber numberWithInt:value];
+基本数据类型转换对象类型简写
+  如果传入的是变量那么必须在@后面写上(), 如果传入的常量, 那么@后面的()可以省略
+  NSNumber *temp = @(number);
+  NSNumber *temp  =@10.10;
+将对象类型转换为基本数据类型
+  int temp = [ageN intValue];
+  double temp = [numberN doubleValue];

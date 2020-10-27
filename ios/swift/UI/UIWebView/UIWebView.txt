@@ -1,0 +1,3 @@
+webview中调用js代码
+  let jsCode = "document.getElementById('userId').value='1606020376@qq.com';document.getElementById('passwd').value='haomage';"
+  webView.stringByEvaluatingJavaScriptFromString(jsCode)

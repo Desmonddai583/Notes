@@ -1,0 +1,48 @@
+for
+  for var in list
+  do
+    commands
+  done
+
+  for i in beijing shanghai nanjing
+  do  
+    echo "Province is $i"
+  done
+
+  for i in {01..20}
+  do
+    echo "number is $i"
+  done
+
+c语言风格for循环
+  for(( a = 1; a < 10; a++ ))
+  do
+    commands
+  done
+
+while
+  while command
+  do 
+    commands
+  done
+
+until
+  until command
+  do
+    commands
+  done
+
+循环语句中都可以加入break和continue
+  break num // num为1时跳出1层循环,2为2层循环,以此推类
+
+处理循环的输出
+  重定向至文件
+    for var in list
+    do
+      commands
+    done > file
+  管道
+    for var in list
+    do
+      commands
+    done | command

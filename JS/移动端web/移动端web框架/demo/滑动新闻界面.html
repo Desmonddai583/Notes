@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13-滑动新闻界面</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            /*注意点:
+            默认情况下移动端的元素就支持某些事件
+            但是在企业开发中, 一般情况下我们都是需要使用自己的事件,
+            而不是系统自带的事件
+            如果不清除系统自带的事件,
+            那么就有可能会导致我们添加的事件和系统添加的事件冲突
+            */
+            touch-action: none;
+        }
+        .container{
+            width: 100%;
+            position: relative;
+        }
+        .container .top-tab{
+            list-style: none;
+            width: 100%;
+            height: 40px;
+            background: #ccc;
+            display: flex;
+        }
+        .container .top-tab>li{
+            flex-grow: 1;
+            line-height: 40px;
+            text-align: center;
+        }
+        .container .top-tab>.active{
+            color: red;
+        }
+        .line{
+            display: inline-block;
+            width: 50%;
+            height: 3px;
+            background: red;
+            position: absolute;
+            left: 0;
+            top: 40px;
+        }
+        .bottom-content{
+            width: 200%;
+            display: flex;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+        .bottom-content>ul{
+            list-style: none;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .bottom-content>ul>li{
+            border-bottom: 1px solid #000;
+            line-height: 40px;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container">
+    <ul class="top-tab">
+        <li class="active left-btn">新闻</li>
+        <li class="right-btn">科技</li>
+    </ul>
+    <span class="line"></span>
+    <div class="bottom-content">
+        <ul>
+            <li>第一个界面的第1条新闻</li>
+            <li>第一个界面的第2条新闻</li>
+            <li>第一个界面的第3条新闻</li>
+            <li>第一个界面的第4条新闻</li>
+            <li>第一个界面的第5条新闻</li>
+            <li>第一个界面的第6条新闻</li>
+            <li>第一个界面的第7条新闻</li>
+            <li>第一个界面的第8条新闻</li>
+            <li>第一个界面的第9条新闻</li>
+            <li>第一个界面的第10条新闻</li>
+        </ul>
+        <ul>
+            <li>第一个界面的第1条新闻</li>
+            <li>第一个界面的第2条新闻</li>
+            <li>第一个界面的第3条新闻</li>
+            <li>第一个界面的第4条新闻</li>
+            <li>第一个界面的第5条新闻</li>
+            <li>第一个界面的第6条新闻</li>
+            <li>第一个界面的第7条新闻</li>
+            <li>第一个界面的第8条新闻</li>
+            <li>第一个界面的第9条新闻</li>
+            <li>第一个界面的第10条新闻</li>
+        </ul>
+    </div>
+</div>
+
+<script src="../js/zepto.js"></script>
+<script src="../js/event.js"></script>
+<script src="../js/fx.js"></script>
+<script src="../js/touch.js"></script>
+<script>
+    var oDiv = $(".bottom-content");
+    var currentIndex = 0;
+    // 1.给所有的tabitem添加点击事件
+   $(".top-tab>li").click(function () {
+       // 1.1设置当前点击的选中状态
+       $(this).addClass("active").siblings().removeClass("active");
+        // 1.2获取当前点击item的索引
+       currentIndex = $(this).index();
+       // 1.3让线条滚动
+       $(".line").animate({left: currentIndex * $(this).width() + "px"}, 1000);
+       oDiv.animate({left: -currentIndex * $(".bottom-content>ul").width() + "px"}, 1000);
+   });
+
+   // 2.给整个内容添加滑动事件监听
+    oDiv.swipeLeft(function () {
+        oDiv.animate({left: -$(".bottom-content>ul").width() + "px"}, 1000);
+        $(".right-btn").addClass("active").siblings().removeClass("active");
+        currentIndex++;
+        $(".line").animate({left: currentIndex * $(".left-btn").width() + "px"}, 1000);
+    });
+    oDiv.swipeRight(function () {
+        oDiv.animate({left: "0px"}, 1000);
+        $(".left-btn").addClass("active").siblings().removeClass("active");
+        currentIndex--;
+        $(".line").animate({left: currentIndex * $(".left-btn").width() + "px"}, 1000);
+    });
+</script>
+</body>
+</html>

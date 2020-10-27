@@ -1,0 +1,681 @@
+Dart最佳实践 http://dart.goodev.org/guides/language/effective-dart/usage
+
+Dart语言的入口也是main函数，并且必须显示的进行定义；
+Dart的入口函数main是没有返回值的；
+传递给main的命令行参数，是通过List<String>完成的，其中的每一个String都表示传递给main的一个参数；
+定义字符串的时候，可以使用单引号或双引号；
+每行语句必须使用分号结尾；
+
+定义变量
+  明确声明
+    变量类型 变量名称 = 赋值;
+    定义的变量可以修改值, 但是不能赋值其他类型
+  类型推导
+    var的使用
+      runtimeType用于获取变量当前的类型
+      var name = 'coderwhy';
+      name = 'kobe';
+      print(name.runtimeType)
+    dynamic的使用
+      通常情况下不使用dynamic, 因为类型的变量会带来潜在的危险
+    final&const的使用
+      final和const都是用于定义常量的, 也就是定义之后值都不可以修改
+      const在赋值时, 赋值的内容必须是在编译期间就确定下来的
+      final在赋值时, 可以动态获取, 比如赋值一个函数
+      const放在赋值语句的右边，可以共享对象，提高性能
+  var dynamic object 区别 
+    var和dynamic都可以自动推断类型，但是var的话一旦确定类型就不能改变，dynamic则可以改变
+    object是Dart对象的基类，当你定义：Object o=xxx；时这时候系统会认为o是个对象，你可以调用o的toString()和hashCode()方法
+    因为Object提供了这些方法，但是如果你尝试调用o.foo()时，静态类型检查会进行报错
+    所以dynamic与Object的最大的区别是在静态类型检查上
+
+数据类型  
+  数字类型
+    字符串和数字之间的转化
+    // 1.字符串转数字
+    var one = int.parse('111');
+    var two = double.parse('12.22');
+    // 2.数字转字符串
+    var num1 = 123;
+    var num2 = 123.456;
+    var num1Str = num1.toString();
+    var num2Str = num2.toString();
+    var num2StrD = num2.toStringAsFixed(2); // 保留两位小数
+  布尔类型
+    Dart中不能判断非0即真, 或者非空即真
+  字符串类型
+    Dart字符串是UTF-16编码单元的序列
+    可以使用三个单引号或者双引号表示多行字符串
+    字符串和其他变量或表达式拼接: 使用${expression}, 如果表达式是一个标识符, 那么{}可以省略
+  集合类型
+    List
+      定义
+        // List定义
+        // 1.使用类型推导定义
+        var letters = ['a', 'b', 'c', 'd'];
+        print('$letters ${letters.runtimeType}');
+
+        // 2.明确指定类型
+        List<int> numbers = [1, 2, 3, 4];
+        print('$numbers ${numbers.runtimeType}');
+      generate
+        List list4 = List.generate(3, (index) => index * 2);
+      遍历集合的方式
+        for (int i = 0; i < list.length; i++) {
+          print(list[i]);
+        }
+
+        for (var o in list) {
+          print(o);
+        }
+
+        list.forEach((val) {
+          print(val);
+        });
+    Set
+      定义
+        // Set的定义
+        // 1.使用类型推导定义
+        var lettersSet = {'a', 'b', 'c', 'd'};
+        print('$lettersSet ${lettersSet.runtimeType}');
+
+        // 2.明确指定类型
+        Set<int> numbersSet = {1, 2, 3, 4};
+        print('$numbersSet ${numbersSet.runtimeType}');
+    Map
+      定义
+        // Map的定义
+        // 1.使用类型推导定义
+        var infoMap1 = {'name': 'why', 'age': 18};
+        print('$infoMap1 ${infoMap1.runtimeType}');
+
+        // 2.明确指定类型
+        Map<String, Object> infoMap2 = {'height': 1.88, 'address': '北京市'};
+        print('$infoMap2 ${infoMap2.runtimeType}');
+      Map遍历
+        ages.forEach((k, v) {
+          print('$k $v');
+        });
+
+        Map ages2 = ages.map((k, v) {
+          //迭代生成一个新Map
+          return MapEntry(v, k);
+        });
+
+        for (var key in ages.keys) {
+          print('$key ${ages[key]}');
+        }
+    集合的常见操作
+      第一类，是所有集合都支持的获取长度的属性length
+      第二类, 是添加/删除/包含操作
+        对List来说，由于元素是有序的，它还提供了一个删除指定索引位置上元素的方法
+        // 添加/删除/包含元素
+        numbers.add(5);
+        numbersSet.add(5);
+        print('$numbers $numbersSet');
+
+        numbers.remove(1);
+        numbersSet.remove(1);
+        print('$numbers $numbersSet');
+
+        print(numbers.contains(2));
+        print(numbersSet.contains(2));
+
+        // List根据index删除元素
+        numbers.removeAt(3);
+        print('$numbers');
+      第三类，是Map的操作
+        由于它有key和value，因此无论是读取值，还是操作，都要明确是基于key的，还是基于value的，或者是基于key/value对的
+        // Map的操作
+        // 1.根据key获取value
+        print(infoMap1['name']); // why
+
+        // 2.获取所有的entries
+        print('${infoMap1.entries} ${infoMap1.entries.runtimeType}'); // (MapEntry(name: why), MapEntry(age: 18)) MappedIterable<String, MapEntry<String, Object>>
+
+        // 3.获取所有的keys
+        print('${infoMap1.keys} ${infoMap1.keys.runtimeType}'); // (name, age) _CompactIterable<String>
+
+        // 4.获取所有的values
+        print('${infoMap1.values} ${infoMap1.values.runtimeType}'); // (why, 18) _CompactIterable<Object>
+
+        // 5.判断是否包含某个key或者value
+        print('${infoMap1.containsKey('age')} ${infoMap1.containsValue(18)}'); // true true
+
+        // 6.根据key删除元素
+        infoMap1.remove('age');
+        print('${infoMap1}'); // {name: why}
+
+函数
+  函数的基本定义
+    如果函数中只有一个表达式, 那么可以使用箭头语法(arrow syntax)
+      // 只能是一个表达式, 不能是一个语句  
+      sum(num1, num2) => num1 + num2;
+  函数的参数问题
+    可选参数
+      可选参数可以分为 命名可选参数 和 位置可选参数
+      命名可选参数: {param1, param2, ...}
+        // 命名可选参数
+        printInfo1(String name, {int age, double height}) {
+          print('name=$name age=$age height=$height');
+        }
+
+        // 调用printInfo1函数
+        printInfo1('why'); // name=why age=null height=null
+        printInfo1('why', age: 18); // name=why age=18 height=null
+        printInfo1('why', age: 18, height: 1.88); // name=why age=18 height=1.88
+        printInfo1('why', height: 1.88); // name=why age=null height=1.88
+      位置可选参数: [param1, param2, ...]
+        // 定义位置可选参数
+        printInfo2(String name, [int age, double height]) {
+          print('name=$name age=$age height=$height');
+        }
+
+        // 调用printInfo2函数
+        printInfo2('why'); // name=why age=null height=null
+        printInfo2('why', 18); // name=why age=18 height=null
+        printInfo2('why', 18, 1.88); // name=why age=18 height=1.88
+      命名可选参数, 可以指定某个参数是必传的(使用@required)
+        // 命名可选参数的必须
+        printInfo3(String name, {int age, double height, @required String address}) {
+          print('name=$name age=$age height=$height address=$address');
+        }
+  参数默认值
+    只有可选参数才可以有默认值, 必须参数不能有默认值
+    // 参数的默认值
+    printInfo4(String name, {int age = 18, double height=1.88}) {
+      print('name=$name age=$age height=$height');
+    }
+  词法闭包
+    makeAdder(num addBy) {
+      return (num i) {
+        return i + addBy;
+      };
+    }
+    var adder2 = makeAdder(2);
+    print(adder2(10)); // 12   
+  返回值问题
+    所有函数都返回一个值。如果没有指定返回值，则语句返回null;隐式附加到函数体       
+
+运算符
+  除法、整除、取模运算
+    var num = 7;
+    print(num / 3); // 除法操作, 结果2.3333..
+    print(num ~/ 3); // 整除操作, 结果2;
+    print(num % 3); // 取模操作, 结果1;
+  ??=赋值操作
+    var name2 = null;
+    name2 ??= 'james'; 
+    print(name2); // 当name2初始化为kobe时，结果为kobe，当初始化为null时，赋值了james
+  条件运算符
+    var temp = null;
+    var name = temp ?? 'kobe';
+  级联语法：..
+    final p2 = Person()
+              ..name = "why"
+              ..run()
+              ..eat()
+              ..swim();
+  对于不确定是否为空的对象可以通过?.的方式来方位它的属性和方法以防止空异常如： a?.foo()
+
+流程控制
+  dart中不支持非空即真或者非0即真，必须有明确的bool类型
+
+  switch-case
+    每一个case语句，默认情况下必须以一个break结尾
+
+面向对象
+  在方法中通常使用属性时，会省略this，但是有命名冲突时，this不能省略
+
+  构造方法
+    命名构造方法
+      class Person {
+        String name;
+        int age;
+        Person.withArgments(String name, int age) {
+          this.name = name;
+          this.age = age;
+        }
+      }
+    初始化列表
+      class Point {
+        final num x;
+        final num y;
+        final num distance;
+        Point(this.x, this.y) : distance = sqrt(x * x + y * y);
+      }
+    重定向构造方法
+      在某些情况下, 我们希望在一个构造方法中去调用另外一个构造方法, 这个时候可以使用重定向构造方法
+      class Person {
+        String name;
+        int age;
+        Person(this.name, this.age);
+        Person.fromName(String name) : this(name, 0);
+      }
+    常量构造方法
+      在某些情况下，传入相同值时，我们希望返回同一个对象，这个时候，可以使用常量构造方法
+      class Person {
+        final String name;
+        const Person(this.name);
+      }
+      var p1 = const Person('why');
+      var p2 = const Person('why');
+      print(identical(p1, p2)); // true
+
+      注意一：拥有常量构造方法的类中，所有的成员变量必须是final修饰的
+      注意二: 为了可以通过常量构造方法，创建出相同的对象，不再使用 new关键字，而是使用const关键字，如果是将结果赋值给const修饰的标识符时，const可以省略
+    工厂构造方法
+      class Person {
+        String name;
+        static final Map<String, Person> _cache = <String, Person>{};
+        factory Person(String name) {
+          if (_cache.containsKey(name)) {
+            return _cache[name];
+          } else {
+            final p = Person._internal(name);
+            _cache[name] = p;
+            return p;
+          }
+        }
+        Person._internal(this.name);
+      }
+
+    综合例子
+      class Student extends Person {
+        //定义类的变量
+        String _school; //通过下划线来标识私有字段（变量）
+        String city;
+        String country;
+        String name;
+        static Student instance;
+
+        ///构造方法：
+        ///通this.school初始化自有参数
+        ///name,age交给父类进行初始化
+        ///city为可选参数
+        ///country设有默认参数
+        Student(this._school, String name, int age,
+            {this.city, this.country = 'China'})
+            //初始化列表：除了调用父类构造器，在子类构造器方法体之前，你也可以初始化实例变量，不同的初始化变量之间用逗号分隔开
+            : name = '$country.$city',
+              //如果父类没有默认构造方法（无参构造方法），则需要在初始化列表中调用父类构造方法进行初始化
+              super(name, age) {
+          //构造方法体不是必须的
+          print('构造方法体不是必须的');
+        }
+
+        //命名构造方法：[类名+.+方法名]
+        //使用命名构造方法为类实现多个构造方法
+        Student.cover(Student stu) : super(stu.name, stu.age) {
+          print('命名构造方法');
+        }
+
+        //命名工厂构造方法：factory [类名+.+方法名]
+        //它可以有返回值，而且不需要将类的final变量作为参数，是提供一种灵活获取类对象的方式。
+        //因为如果变量定义为final则在命名构造方法中一定要作为参数传入,而命名工厂构造方法则不需要
+        factory Student.stu(Student stu) {
+          return Student(stu._school, stu.name, stu.age,
+              city: stu.city, country: stu.country);
+        }
+      }
+
+      //工厂构造方法演示
+      class Logger {
+        static Logger _cache;
+
+        //  工厂构造方法：
+        //  不仅仅是构造方法，更是一种模式
+        //  有时候为了返回一个之前已经创建的缓存对象，原始的构造方法已经不能满足要求
+        //  那么可以使用工厂模式来定义构造方法
+        factory Logger() {
+          if (_cache == null) {
+            _cache = Logger._internal();
+          }
+          return _cache;
+        }
+
+        Logger._internal();
+
+        void log(String msg) {
+          print(msg);
+        }
+      }
+
+  setter和getter
+    class Dog {
+      String color;
+      String get getColor {
+        return color;
+      }
+      set setColor(String color) {
+        this.color = color;
+      }
+      Dog(this.color);
+    }
+  
+  类的继承
+    子类的构造方法在执行前，将隐含调用父类的无参默认构造方法（没有参数且与类同名的构造方法）
+    如果父类没有无参默认构造方法，则子类的构造方法必须在初始化列表中通过super显式调用父类的某个构造方法
+  
+  抽象类
+    抽象方法，必须存在于抽象类中。
+    抽象类是使用abstract声明的类。
+    抽象类不能实例化
+    抽象类中的抽象方法必须被子类实现, 抽象类中的已经被实现方法, 可以不被子类重写
+  
+  隐式接口
+    Dart中的接口比较特殊, 没有一个专门的关键字来声明接口
+    默认情况下，定义的每个类都相当于默认也声明了一个接口，可以由其他的类来实现(因为Dart不支持多继承)
+    abstract class Runner {
+      run();
+    }
+    abstract class Flyer {
+      fly();
+    }
+    class SuperMan implements Runner, Flyer {
+      @override
+      run() {
+        print('超人在奔跑');
+      }
+      @override
+      fly() {
+        print('超人在飞');
+      }
+    }
+  
+  mixins
+    mixins 是在多个类层次结构中重用代码的一种方式
+    要使用 mixins ，在 with 关键字后面跟一个或多个 mixin 的名字(用逗号分开)，并且with要用在extends关键字之后
+    mixins的特征：实现 mixin ，就创建一个继承 Object 类的子类(不能继承其他类)，不声明任何构造方法，不调用 super
+
+    mixin Runner {
+      run() {
+        print('在奔跑');
+      }
+    }
+    mixin Flyer {
+      fly() {
+        print('在飞翔');
+      }
+    }
+    // implements的方式要求必须对其中的方法进行重新实现
+    // class SuperMan implements Runner, Flyer {}
+    class SuperMain with Runner, Flyer {
+    }
+  
+  类成员和方法
+    在Dart中使用static关键字来定义
+
+枚举类型
+  枚举的定义
+    enum Colors {
+      red,
+      green,
+      blue
+    }
+  枚举的属性
+    index: 用于表示每个枚举常量的索引, 从0开始.
+    values: 包含每个枚举值的List.
+
+  注意一: 您不能子类化、混合或实现枚举。
+  注意二: 不能显式实例化一个枚举
+
+泛型
+  泛型方法的定义
+    T getFirst<T>(List<T> ts) {
+      return ts[0];
+    }
+
+库
+  库的使用
+    import '库所在的uri';
+
+    常见的库URI有三种不同的形式
+      来自dart标准版，比如dart:io、dart:html、dart:math、dart:core(但是这个可以省略)
+      使用相对路径导入的库，通常指自己项目中定义的其他dart文件
+      Pub包管理工具管理的一些库，包括自己的配置以及一些第三方的库，通常使用前缀package
+    
+    库文件中内容的显示和隐藏
+      如果希望只导入库中某些内容，或者刻意隐藏库里面某些内容，可以使用show和hide关键字
+        import 'lib/student/student.dart' show Student, Person;
+        import 'lib/student/student.dart' hide Person;
+    
+    库中内容和当前文件中的名字冲突
+      当各个库有命名冲突的时候，可以使用as关键字来使用命名空间
+      import 'lib/student/student.dart' as Stu;
+
+  库的定义
+    通常在定义库时，我们可以使用library关键字给库起一个名字
+      library math;
+
+  export关键字
+    如果库非常大，如何进行管理呢
+    将每一个dart文件作为库文件，使用export关键字在某个库文件中单独导入
+    
+    utils.dart中
+      library utils;
+
+      export "mathUtils.dart";
+      export "dateUtils.dart";
+  
+    import "lib/utils.dart";
+
+异步
+  Future
+    Future是dart:async包中的一个类，使用它时需要导入dart:async包，Future有两种状态
+      pending - 执行中；
+      completed - 执行结束，分两种情况要么成功要么失败；
+    
+    使用future.then获取future的值与捕获future的异常
+      Future<String> testFuture() {
+        //  throw new Error();
+        return Future.value('success');
+        //  return Future.error('error');
+      }
+
+      testFuture().then((s) {
+        print(s);
+      }, onError: (e) {
+        print('onError:');
+        print(e);
+      }).catchError((e) {
+        print('catchError:');
+        print(e);
+      });
+      如果catchError与onError同时存在，则会只调用onError；
+    
+    Future是异步的，如果我们要将异步转同步，那么可以借助async await来完成
+
+    future.whenComplete
+      有时候我们需要在Future结束的时候做些事情，我们知道then().catchError()的模式类似于try-catch，try-catch有个finally代码块，
+      而future.whenComplete就是Future的finally
+
+      Future.delayed(Duration(seconds: 3), () {
+        if (random.nextBool()) {
+          return 100;
+        } else {
+          throw 'boom!';
+        }
+      }).then(print).catchError(print).whenComplete(() {
+        print('done!');
+      });
+    
+    future.timeout
+      完成一个异步操作可能需要很长的时间，比如：网络请求，但有时我们需要为异步操作设置一个超时时间，那么，如何为Future设置超时时间呢
+
+      new Future.delayed(new Duration(seconds: 3), () {
+        return 1;
+      }).timeout(new Duration(seconds: 2)).then(print).catchError(print);
+
+  任务执行顺序
+    微任务队列
+      事件循环里面存在一个事件队列，在Dart中还存在另一个队列：微任务队列
+      微任务队列的优先级要高于事件队列
+      也就是说事件循环都是优先执行微任务队列中的任务，再执行 事件队列 中的任务
+
+      所有的外部事件任务都在事件队列中，如IO、计时器、点击、以及绘制事件等
+      而微任务通常来源于Dart内部，并且微任务非常少。这是因为如果微任务非常多，就会造成事件队列排不上队，会阻塞任务队列的执行
+    
+    在Dart的单线程中，代码到底是怎样执行
+      1、Dart的入口是main函数，所以main函数中的代码会优先执行；
+      2、main函数执行完后，会启动一个事件循环（Event Loop）就会启动，启动后开始执行队列中的任务；
+      3、首先，会按照先进先出的顺序，执行 微任务队列（Microtask Queue）中的所有任务；
+      4、其次，会按照先进先出的顺序，执行 事件队列（Event Queue）中的所有任务；
+
+    如何创建微任务
+      通过dart中async下的scheduleMicrotask来创建一个微任务
+        scheduleMicrotask(() {
+          print("Hello Microtask");
+        });
+    
+    Future中通常有两个函数执行体：
+      Future构造函数传入的函数体
+      then的函数体（catchError等同看待）
+
+      Future构造函数传入的函数体放在事件队列中
+      then的函数体要分成三种情况：
+        情况一：Future没有执行完成（有任务需要执行），那么then会直接被添加到Future的函数执行体后；
+        情况二：如果Future执行完后就then，该then的函数体被放到如微任务队列，当前Future执行完后执行微任务队列；
+        情况三：如果Future是链式调用，意味着then未执行完，下一个then不会执行；
+
+      // future_1加入到eventqueue中，紧随其后then_1被加入到eventqueue中
+      Future(() => print("future_1")).then((_) => print("then_1"));
+      // Future没有函数执行体，then_2被加入到microtaskqueue中
+      Future(() => null).then((_) => print("then_2"));
+      // future_3、then_3_a、then_3_b依次加入到eventqueue中
+      Future(() => print("future_3")).then((_) => print("then_3_a")).then((_) => print("then_3_b"));
+  
+    实例
+      main(List<String> args) {
+        print("main start");
+
+        Future(() => print("task1"));
+        
+        final future = Future(() => null);
+
+        Future(() => print("task2")).then((_) {
+          print("task3");
+          scheduleMicrotask(() => print('task4'));
+        }).then((_) => print("task5"));
+
+        future.then((_) => print("task6"));
+        scheduleMicrotask(() => print('task7'));
+
+        Future(() => print('task8'))
+          .then((_) => Future(() => print('task9')))
+          .then((_) => print('task10'));
+
+        print("main end");
+      }
+
+      1、main函数先执行，所以main start和main end先执行，没有任何问题；
+      2、main函数执行过程中，会将一些任务分别加入到EventQueue和MicrotaskQueue中；
+      3、task7通过scheduleMicrotask函数调用，所以它被最早加入到MicrotaskQueue，会被先执行；
+      4、然后开始执行EventQueue，task1被添加到EventQueue中被执行；
+      5、通过final future = Future(() => null);创建的future的then被添加到微任务中，微任务直接被优先执行，所以会执行task6；
+      6、一次在EventQueue中添加task2、task3、task5被执行；
+      7、task3的打印执行完后，调用scheduleMicrotask，那么在执行完这次的EventQueue后会执行，所以在task5后执行task4（注意：scheduleMicrotask的调用是作为task3的一部分代码，所以task4是要在task5之后执行的）
+      8、task8、task9、task10一次添加到EventQueue被执行；
+
+  多核CPU的利用 
+    Isolate的理解
+      我们已经知道Dart是单线程的，这个线程有自己可以访问的内存空间以及需要运行的事件循环；
+      我们可以将这个空间系统称之为是一个Isolate；
+      比如Flutter中就有一个Root Isolate，负责运行Flutter的代码，比如UI渲染、用户交互等等；
+
+      在 Isolate 中，资源隔离做得非常好，每个 Isolate 都有自己的 Event Loop 与 Queue
+        Isolate 之间不共享任何资源，只能依靠消息机制通信，因此也就没有资源抢占问题
+      
+      如果只有一个Isolate，那么意味着我们只能永远利用一个线程，这对于多核CPU来说，是一种资源的浪费
+
+    创建Isolate
+      main(List<String> args) {
+        Isolate.spawn(foo, "Hello Isolate");
+      }
+      void foo(info) {
+        print("新的isolate：$info");
+      }
+    
+    Isolate通信机制
+      我们需要新的Isolate进行计算，并且将计算结果告知Main Isolate（也就是默认开启的Isolate）；
+      Isolate 通过发送管道（SendPort）实现消息通信机制；
+      我们可以在启动并发Isolate时将Main Isolate的发送管道作为参数传递给它；
+      并发在执行完毕时，可以利用这个管道给Main Isolate发送消息；
+
+      main(List<String> args) async {
+        // 1.创建管道
+        ReceivePort receivePort= ReceivePort();
+        // 2.创建新的Isolate
+        Isolate isolate = await Isolate.spawn<SendPort>(foo, receivePort.sendPort);
+        // 3.监听管道消息
+        receivePort.listen((data) {
+          print('Data：$data');
+          // 不再使用时，我们会关闭管道
+          receivePort.close();
+          // 需要将isolate杀死
+          isolate?.kill(priority: Isolate.immediate);
+        });
+      }
+      void foo(SendPort sendPort) {
+        sendPort.send("Hello World");
+      }
+
+      上面的通信变成了单向通信，如果需要双向通信呢
+      Flutter提供了支持并发计算的compute函数，它内部封装了Isolate的创建和双向通信
+
+      main(List<String> args) async {
+        int result = await compute(powerNum, 5);
+        print(result);
+      }
+
+      int powerNum(int num) {
+        return num * num;
+      }
+
+垃圾回收
+  Flutter使用Dart作为开发语言和运行时机制，Dart一直保留着运行时机制，无论是在调试模式（debug）还是发布模式（release），但是两种构建方式之间存在很大的差异
+  在调试模型下，Dart将所有的管道（需要用到的所有配件）全部装载到设备上：运行时，JIT（the just-in-time）编译器/解释器（JIT for Android and interpreter for iOS），调试和性能分析服务
+  在发布模式下，会除去JIT编译器/解释器依然保留运行时，因为运行时是Flutter App的主要贡献者
+
+  Dart的运行时包括一个非常重要的组件：垃圾回收器，它主要的作用就是分配和释放内存，当一个对象被实例化（instantiated）或者变成不可达（unreachable）
+  在Flutter运行过程中，会有很多的Object。
+    在StatelessWidget在渲染前（其实上还有StatefulWidget），他们被创建出来。
+    当状态发生变化的时候，他们又会被销毁。
+    事实上，他们有很短的寿命（lifespan）。
+    当我们构建一个复杂的UI界面时，会有成千上万这样的Widgets
+  担心Dart的GC是没有任何事实根据的（没有必要），这是因为它分代（generational）架构和实现，可以让我们频繁创建和销毁对象有一个最优解。
+  在大多数情况下，我们只需要Flutter引擎按照它的方式创建和销毁这些Widgets即可
+
+  Dart的GC是分代的（generational）和由两个阶段构成：
+    the young space scavenger（scavenger针对年轻一代进行回收） and parallel mark sweep collectors（sweep collectors针对老一代进行回收）
+  事实上V8引擎也是这样的机制
+
+  调度安排（Scheduling）
+    为了让RG最小化对App和UI性能的影响，GC对Flutter引擎提供了hooks，hooks被通知，当Flutter引擎被侦测到这个App处于闲置的状态，并且没有用户交互的时候。
+    这就给了GC一个空窗期来运行它的手机阶段，并且不会影响性能。
+    垃圾收集器还可以在那些空闲间隔内进行滑动压缩（sliding compaction），从而通过减少内存碎片来最大程度地减少内存开销。
+  
+  阶段一：Young Space Scavenger
+    这个阶段主要是清理一些寿命很短的对象，比如StatelessWidget。当它处于阻塞时，它的清理速度远快于第二代的mark、sweep方式。并且结合调度，完成可以消除程序运行时的暂停现象
+    
+    本质上来讲，对象在内存中被分配一段连续的、可用的内存空间，直接被分配完为止。Dart使用bump pointer（注解：如果像malloc一样，维护free_list再分配，效率很低。）分配新的空间，处理过程非常快。
+    
+    分配了新对象的新空间，被为两部分，称之为semi spaces。一部分处于活动状态，另一部分处于非活动状态。
+    新对象分配在活动状态，一旦填充完毕，依然存活的Object，就会从活动状态copy到非活动状态，并且清除死亡的Object。
+    这个时候非活动状态变成了活动状态，上面的步骤一次重复。（注解：GC来完成上面的步骤）
+
+    为了确定哪些Object是存活的或死亡的，GC从根对象开始检测它们的应用。然后将有引用的Object（存活的）移动到非活动状态，直接所有的存活Object被移动。死亡的Object就被留下
+  
+  阶段二：Parallel Marking and Concurrent Sweeping
+    当对象达到一定的寿命（在第一阶段没有被GC回收），它们将被提升由第二代收集器管理的新内存空间：mark-sweep
+
+    这个阶段的GC有两个阶段：第一阶段，首先遍历对象图（the object graph），然后标记仍在使用的对象。第二阶段，将扫描整个内存，并且回收所有未标记的对象
+
+    这种GC机制在标记阶段会阻塞，有内存变化和UI线程也会被阻塞。但是由于短暂的对象在Young Space Scavenger阶段以及被处理，所有这个阶段非常少出现。
+    不过由于Flutter可以调用收集时间，影响的性能也会被降到最低
+
+    但是如果引用程序不遵守分代的机制，反而这种情况会经常发生。但是由于Flutter的Widget的机制，所有这种情况不经常发生
+
+  Isolate
+    Dart中的Isolate机制具有私有堆的概念，彼此是独立的。每个Isolate有自己单独的线程来运行，每个Isolate的GC不影响其他线程的性能。
+    使用Isolate是避免阻塞UI和减轻密集型任务的好方法（注解：耗时操作可以使用Isolate）

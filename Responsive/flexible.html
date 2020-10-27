@@ -1,0 +1,49 @@
+<!-- 
+    em 相對於父節點的font size的尺寸單位
+    rem 相對於根節點的font size的尺寸單位，一般都是用這個
+    假設將頁面分爲100份
+    x = 寬度 / 100
+    如果現在有一個div想讓它佔據顯示區域的一般，則
+    它的寬度就爲50x
+    而我們的rem就類似於這裏的x
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+        .logo {
+            background: red;
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+    <script>
+        var width = document.documentElement.clientWidth;
+        var radio = width / 7.5;
+        document.documentElement.style.fontSize = radio + 'px'
+    </script>
+</head>
+<body>
+    <!-- 
+        假設因爲經過計算這裏的fontsize爲50px
+        如果這裏渲染一個寬高各50px的div，背後其實就是1rem 
+    -->
+    <div class="logo">logo</div>
+</body>
+</html>
+
+<!-- 
+    如果使用flexible庫就可以做到上面的這種效果並且這個庫還有更多功能
+    比如自動調整子元素的fontsize等
+    github: https://github.com/amfe/lib-flexible/blob/2.0/index.js 
+-->

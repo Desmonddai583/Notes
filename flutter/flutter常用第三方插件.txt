@@ -1,0 +1,13 @@
+url_launcher 打开第三方应用
+image_picker 用于从图像库中获取照片，并使用相机拍摄新照片
+path_provider 获取文件路径
+transparent_image 实现一个简单的透明占位符,表示為Uint8List
+cached_network_image 图片缓存
+flutter_swiper 轮播图
+dio http请求
+json_serializable json序列化
+built_value json序列化
+shared_preferences 本地数据存储
+device_info 获取一些设备相关的信息
+flutter_screenutil 屏幕适配
+flutter_localizations 国际化

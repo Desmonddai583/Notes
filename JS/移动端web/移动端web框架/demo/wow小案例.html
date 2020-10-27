@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>22-wow基本使用</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.css">
+    <script src="../js/wow.min.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 400px;
+            height: 200px;
+            border: 1px solid #000;
+            margin: 100px auto;
+        }
+        .box>div{
+            width: 200px;
+            height: 200px;
+            background: red;
+        }
+        .box>div:nth-child(2){
+            background: blue;
+        }
+        .f-left{
+            float: left;
+        }
+        .r-right{
+            float: right;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow bounce"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="test f-left wow flip" data-wow-offset="600"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+<div class="box">
+    <div class="f-left wow slideInLeft"></div>
+    <div class="r-right wow slideInRight"></div>
+</div>
+
+
+<script>
+    /*
+    1.data-wow-offset 可以指定某个元素偏移多少才执行
+    框架内部计算偏移位的公式
+    偏移位 = 窗口高度 + 页面滚动高度 - 元素偏移位
+     */
+    new WOW().init();
+
+    $(window).on("scroll", function () {
+        // 1.获取窗口的高度
+        var vHeight = $(window).height();
+        // 2.获取页面滚动产生的高度
+        var scrollTop = $(window).scrollTop();
+        // console.log(vHeight, scrollTop);
+        // 3.获取元素偏移位
+        var offsetTop = $(".test").offset().top;
+        // 4.计算框架需要的偏移位
+        var wowOffset = vHeight + scrollTop - offsetTop;
+        console.log(wowOffset);
+    });
+</script>
+
+
+<script>
+    window.addEventListener('load', function (ev) {
+        var wow = new WOW(
+            {
+                boxClass:     'lnj',      // 需要执行动画的元素的 class (default is wow)
+                animateClass: 'animated', // animation.css 动画的 class (default is animated)
+                offset:       600,          // 距离可视区域多少开始执行动画 (default is 0)
+                mobile:       true,       // 是否在移动设备上执行动画 (default is true)
+                live:         true,       // 异步加载的内容是否有效 (default is true)
+                callback:     function(box) {
+                    // 每次动画启动时都会触发回调
+                    // 传入的参数是正在动画的DOM节点
+                },
+                scrollContainer: null // 滚动容器选择器，默认使用窗口
+            }
+        );
+        wow.init();
+    });
+</script>
+</body>
+</html>

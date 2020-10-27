@@ -1,0 +1,34 @@
+modal出来的View添加在窗⼝上⾯,并且会把之前的根控制器的View移除
+  [self presentViewController:twoVC animated:YES completion:^{  }];
+modal出来的哪个控制器.哪个控制器就可以给它disMiss掉
+  - (IBAction)close:(id)sender { 
+    [self dismissViewControllerAnimated:YES completion:nil]; 
+  }
+
+当⼀个控制器被销毁的时候,控制器的View是可以存在的. 
+当⼀个控制器被销毁的时候,控制器View上所有的业务逻辑都不能够处理
+对于调出modal的控制器来说,他背后其实有一个presentedViewController强引用指向modal的控制器,所以才可以让我们在modal控制器中调用dismiss
+
+⼿动实现modal效果
+  1.获取主窗⼝ 
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+  2.把modal出来的控制器添加到窗⼝上. 
+    [keyWindow addSubview:twoVC.view];
+  3.从下往上钻的动画,先把控制器的View的Y值设为屏幕的⾼度,⼀开始看不到的状态 
+    CGRect frame = twoVC.view.frame; 
+    frame.origin.y = [UIScreen mainScreen].bounds.size.height; 
+    twoVC.view.frame = frame; 
+  4.再通过⼀动画效果把Y值设为0.就有⼀种往上钻的动画了.
+    [UIView animateWithDuration:0.5 animations:^{ 
+      CGRect frame = twoVC.view.frame; 
+      frame.origin.y = 0; 
+      twoVC.view.frame = frame; 
+    } completion:^(BOOL finished) { 
+      [self.view removeFromSuperview]; 
+    }];
+  5.如果要能dismiss掉,那么需要有一个强指针指向当前modal的控制器
+    self.twoVC = twoVC;
+  
+当Modal时,默认被遮盖的view会被系统移除
+如果不希望移除,需要设置modalPresentationStyle为custom
+  popoverVc.modalPresentationStyle = UIModalPresentationStyle.custom

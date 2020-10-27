@@ -1,0 +1,270 @@
+函数格式
+  func是关键字,多个参数列表之间可以用逗号（,）分隔，也可以没有参数
+  使用箭头“->”指向返回值类型
+  如果函数没有返回值，返回值为Void.并且“-> 返回值类型”部分可以省略
+
+  func 函数名(参数列表) -> 返回值类型 {
+      代码块
+      return 返回值
+  }
+
+没有参数,没用返回值
+  func about() -> Void {
+      print("iphone6s plus")
+  }
+  或者
+  func about1() -> () {
+      print("iphone6s plus")
+  }
+  或者
+  func about2() {
+      print("iphone6s plus")
+  }
+
+有参数,没用返回值
+  func callPhone(phoneNum : String) {
+      print("打电话给\(phoneNum)")
+  }
+
+没用参数,有返回值
+  func readMessage() -> String {
+      return "吃饭了吗?"
+  }
+
+有参数,有返回值
+  func sum(num1 : Int, num2 : Int) -> Int {
+      return num1 + num2
+  }
+
+隐式返回
+  如果整个函数体是一个单一表达式，那么函数会隐式返回这个表达式
+  func sum(v1: Int, v2: Int) -> Int { 
+    v1 + v2 
+  } 
+  sum(v1: 10, v2: 20) // 30
+
+返回元组
+  实现多返回值
+  func calculate(v1: Int, v2: Int) -> (sum: Int, difference: Int, average: Int) { 
+    let sum = v1 + v2 
+    return (sum, v1 - v2, sum >> 1) 
+  }
+  let result = calculate(v1: 20, v2: 10) 
+  result.sum // 30 
+  result.difference // 10 
+  result.average // 15
+
+外部参数(参数标签)和内部参数
+  在函数内部可以看到的参数,就是内部参数
+  在函数外面可以看到的参数,就是外部参数
+  如果不想要外部参数,可以在参数名称前加_
+
+  // num1和a是外部参数的名称
+  func ride(num1 num1 : Int, a num2 : Int, _ num3 : Int) -> Int {
+      return num1 * num2 * num3
+  }
+  var result1 = ride(num1: 20, a: 4, 5)
+  
+函数重载
+  函数名相同
+  参数个数不同 || 参数类型不同 || 参数标签不同
+  返回值类型与函数重载无关
+  func sum(v1: Int, v2: Int) -> Int { 
+    v1 + v2 
+  }
+  // 参数个数不同
+  func sum(v1: Int, v2: Int, v3: Int) -> Int { 
+    v1 + v2 + v3 
+  }
+  // 参数类型不同
+  func sum(v1: Int, v2: Double) -> Double { 
+    Double(v1) + v2 
+  }
+  // 参数标签不同
+  func sum(_ v1: Int, _ v2: Int) -> Int { 
+    v1 + v2 
+  }
+
+  默认参数值和函数重载一起使用产生二义性时，编译器并不会报错（在C++中会报错）
+    func sum(v1: Int, v2: Int) -> Int { 
+      v1 + v2 
+    } 
+    func sum(v1: Int, v2: Int, v3: Int = 10) -> Int {
+      v1 + v2 + v3 
+    } 
+    // 会调用sum(v1: Int, v2: Int) 
+    sum(v1: 10, v2: 20)
+
+  可变参数、省略参数标签、函数重载一起使用产生二义性时,编译器可能会报错
+    func sum(v1: Int, v2: Int) -> Int { 
+      v1 + v2 
+    } 
+    func sum(_ v1: Int, _ v2: Int) -> Int { 
+      v1 + v2 
+    } 
+    func sum(_ numbers: Int...) -> Int { 
+      var total = 0 
+      for number in numbers { 
+        total += number 
+      } 
+      return total
+    } 
+    // error: ambiguous use of 'sum' 
+    sum(10, 20)
+
+默认参数
+  某些情况,如果没有传入具体的参数,可以使用默认参数
+  func makecoffee(type :String = "卡布奇诺") -> String {
+      return "制作一杯\(type)咖啡。"
+  }
+  let coffee1 = makecoffee("拿铁")
+  let coffee2 = makecoffee()
+
+  C++的默认参数值有个限制：必须从右往左设置。由于Swift拥有参数标签，因此并没有此类限制
+  但是在省略参数标签时，需要特别注意，避免出错
+    // 这里的middle不可以省略参数标签 
+    func test(_ first: Int = 10, middle: Int, _ last: Int = 30) {
+      ...
+    } 
+    test(middle: 20)
+
+可变参数
+  swift中函数的参数个数可以变化，它可以接受不确定数量的输入类型参数
+  它们必须具有相同的类型
+  我们可以通过在参数类型名后面加入（...）的方式来指示这是可变参数
+  一个函数最多只能有1个可变参数
+
+  func sum(numbers:Double...) -> Double {
+      var total: Double = 0
+      for number in numbers {
+          total += number
+      }
+      return total
+  }
+  sum(100.0, 20, 30)
+
+  紧跟在可变参数后面的参数不能省略参数标签
+    // 这里参数string不能省略标签 
+    func test(_ numbers: Int..., string: String, _ other: String) {
+      ...
+    } 
+    test(10, 20, 30, string: "Jack", "Rose")
+
+引用类型(指针的传递)
+  形参默认是let，也只能是let
+  默认情况下,函数的参数是值传递.如果想改变外面的变量,则需要传递变量的地址
+  Swift提供的inout关键字就可以实现
+
+  可变参数不能标记为inout
+  inout参数不能有默认值 
+  inout参数只能传入可以被多次赋值的(let或者像是40这样的字面量都是不行的)
+
+  // 指针传递
+  func swap1(inout a : Int, inout b : Int) {
+      let temp = a
+      a = b
+      b = temp
+  }
+  swap1(a: &a, b: &b)
+
+  如果传递给inout参数的是计算属性、有监听器的属性等内容,其本质并非引用传递
+
+内联函数（Inline Function）
+  如果开启了编译器优化（Release模式默认会开启优化），编译器会自动将某些函数变成内联函数
+  将函数调用展开成函数体
+
+  // 编译器会优化成print("test")
+  // 这里如果把debugger放在test()上,不会停下来,因为已经优化成print("test")
+  func test() {
+    print("test")
+  }
+  test()
+
+  哪些函数不会被内联？
+    函数体比较长
+    包含递归调用
+    包含动态派发(多态)
+
+  @inline
+    永远不会被内联（即使开启了编译器优化）
+      @inline(never) func test() { 
+        print("test") 
+      }
+    开启编译器优化后，即使代码很长，也会被内联（递归调用函数、动态派发的函数除外）
+      @inline(__always) func test() { 
+        print("test") 
+      }
+    
+    在Release模式下，编译器已经开启优化，会自动决定哪些函数需要内联，因此开发中基本没必要使用@inline
+
+函数类型
+  每一个函数都是有类型的，函数类型由形式参数类型、返回值类型组成
+  func test() { } // () -> Void 或者 () -> ()
+
+  func sum(a: Int, b: Int) -> Int { 
+    a + b 
+  } // (Int, Int) -> Int
+
+  定义变量 
+  var fn: (Int, Int) -> Int = sum 
+  fn(2, 3) // 5，调用时不需要参数标签
+
+  函数类型作为函数参数
+    func sum(v1: Int, v2: Int) -> Int { 
+      v1 + v2 
+    } 
+    func difference(v1: Int, v2: Int) -> Int {
+      v1 - v2 
+    } 
+    func printResult(_ mathFn: (Int, Int) -> Int, _ a: Int, _ b: Int) {
+      print("Result: \(mathFn(a, b))") 
+    } 
+    printResult(sum, 5, 2) // Result: 7 
+    printResult(difference, 5, 2) // Result: 3
+
+  函数类型作为函数返回值
+    返回值是函数类型的函数，叫做高阶函数（Higher-Order Function）
+    func next(_ input: Int) -> Int { 
+      input + 1 
+    } 
+    func previous(_ input: Int) -> Int {
+      input - 1 
+    } func forward(_ forward: Bool) -> (Int) -> Int {
+      forward ? next : previous 
+    } 
+    forward(true)(3) // 4 
+    forward(false)(3) // 2
+
+函数的嵌套使用
+  swift中函数可以嵌套使用
+  嵌套的函数只能在内部使用
+
+  let value = 55
+  func test() {
+      func demo() {
+          print("demo \(value)")
+      }
+      print("test")
+      demo()
+  }
+
+  如果想封装一些函数通过流程控制给外部调用时就可以使用函数嵌套
+    func forward(_ forward: Bool) -> (Int) -> Int { 
+      func next(_ input: Int) -> Int { 
+        input + 1 
+      } 
+      func previous(_ input: Int) -> Int { 
+        input - 1 
+      } 
+      return forward ? next : previous
+    } 
+    forward(true)(3) // 4 
+    forward(false)(3) // 2
+
+定义全局函数
+  只要在类之外声明的函数就都是全局函数
+  可以在其他文件中调用,也不需要import定义的那个swift文件
+
+枚举、结构体、类都可以定义方法
+  一般把定义在枚举、结构体、类内部的函数，叫做方法
+  注意方法不占用对象的内存,方法的本质就是函数,方法、函数都存放在代码段

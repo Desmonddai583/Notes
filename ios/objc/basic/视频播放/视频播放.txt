@@ -1,0 +1,8 @@
+//0.导入系统框架
+#import <MediaPlayer/MediaPlayer.h>
+//1.获取视频路径
+NSString *videoStr = [@"http://120.25.226.186:32812" stringByAppendingPathComponent:video.url];
+//2.创建一个视频播放器
+MPMoviePlayerViewController *vc = [[MPMoviePlayerViewController alloc]initWithContentURL:[NSURL URLWithString:videoStr]];
+//3.present播放控制器
+[self presentViewController:vc animated:YES completion:nil];

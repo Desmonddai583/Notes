@@ -1,0 +1,19 @@
+如果在调用系统某一个方法时,该方法最后有一个throws.说明该方法会抛出异常.
+如果一个方法会抛出异常,那么需要对该异常进行处理
+
+处理异常三种方式
+  方式一:try方式 程序员手动捕捉异常
+      do {
+          try NSJSONSerialization.JSONObjectWithData(jsonData, options: .MutableContainers)
+      } catch {
+          // error异常的对象
+          print(error)
+      }
+
+  方式二:try?方式(常用方式) 系统帮助我们处理异常,如果该方法出现了异常,则该方法返回nil.如果没有异常,则返回对应的对象
+      guard let anyObject = try? NSJSONSerialization.JSONObjectWithData(jsonData, options: .MutableContainers) else {
+          return
+      }
+  
+  方式三:try!方法(不建议,非常危险) 直接告诉系统,该方法没有异常.注意:如果该方法出现了异常,那么程序会报错(崩溃)
+      let anyObject = try! NSJSONSerialization.JSONObjectWithData(jsonData, options: .MutableContainers)

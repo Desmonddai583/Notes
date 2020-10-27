@@ -1,0 +1,25 @@
+NSTimer
+  @property (nonatomic, weak) NSTimer *timer;
+  // 返回⼀个⾃动开始执⾏任务的定时器
+  self.timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:sel selector:@selector(nextPage:) userInfo:@"123" repeats:YES];
+  // 关闭定时器
+  [self.timer invalidate];
+  // NSDefaultRunLoopMode(默认): 同一时间只能执行一个任务
+  // NSRunLoopCommonModes(公用): 可以分配一定的时间执行其他任务
+  // 作用:修改timer在runLoop中的模式为NSRunLoopCommonModes
+  // 目的:不管主线程在做什么操作,都会分配一定的时间处理定时器
+  [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+
+CADisplayLink
+  setNeedsDisplay底层会调⽤DrawRect⽅法重绘,但是它不是⽴⻢就进⾏重绘.
+  它仅仅是设置了⼀个重绘标志,等到下⼀次屏幕刷新的时候才会调⽤DrawRect⽅法.
+  使⽤CADisplayLink时,它的定时器⽅法就是屏幕每次刷新的时候就会调⽤(通常屏幕⼀秒钟刷新60次) 
+  它和setNeedsDisplay调⽤DrawRect⽅法的时机正好吻合,不会出间等待间隔.不会出现屏幕卡顿现象.
+  所以使用CADisplayLink不需要考虑时间间隔
+
+  使⽤CADisplayLink添加定时器
+    Target:哪个对象要监听⽅法.
+    selector:监听的⽅法名称.
+    CADisplayLink *link = [CADisplayLink displayLinkWithTarget:self selector:@selector(setNeedsDisplay)]; 
+    // 想要让CADisplayLink⼯作,必须得要把它添加到主运⾏循环.只要添加到主运⾏循环,跟模式没有关系
+    [link addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];

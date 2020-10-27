@@ -1,0 +1,21 @@
+关机：
+  halt
+  poweroff
+  init 0(centos下的命令)
+重启：
+  reboot
+    -f: 强制，不调用shutdown
+    -p: 切断电源
+  init 6(centos下的命令)
+关机或重启：
+  shutdown 
+    格式 shutdown [OPTION]...  TIME [MESSAGE]
+      -r: reboot
+      -h: halt
+      -c：cancel
+      TIME:
+        单位为分钟
+        无指定，默认相当于 +1
+        now: 立刻,相当于+0
+        +m: 相对时间表示法，几分钟之后；例如 +3
+        hh:mm: 绝对时间表示，指明具体时间

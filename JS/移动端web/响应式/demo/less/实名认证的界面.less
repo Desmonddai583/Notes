@@ -1,0 +1,75 @@
+*{
+  margin: 0;
+  padding: 0;
+  touch-action: none;
+}
+
+// 因为都是按照相同的分数来划分的, 所以就是一个等比的关系
+// 好比有一个大饼, 等比切4刀和有一个小饼也等比切4刀
+@media screen and (min-width: 320px){
+  html{
+    // 按照原始图片的分数来划分之后每一分占12.8px
+    font-size: 12.8px;
+  }
+}
+@media screen and (min-width: 375px){
+  html{
+    // 按照原始图片的分数来划分之后每一分占15px
+    font-size: 15px;
+  }
+}
+@media screen and (min-width: 414px){
+  html{
+    // 按照原始图片的分数来划分之后每一分占16.56px
+    font-size: 16.56px;
+  }
+}
+@media screen and (min-width: 750px){
+  html{
+    // 将原始图片等分为25分之后每一分占用30px
+    font-size: 30px;
+  }
+}
+
+.top{
+  width: 750/30rem; // 750/30 = 原始占用的分数, 原始占用的分数 * 当前每一分的大小
+  height: 670/30rem;
+  position: relative;
+  img{
+    width: 100%;
+  }
+  h3{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 80/30rem;
+  }
+}
+
+.middle, .bottom{
+  width: 430/30rem;
+  height: 290/30rem;
+  border: 1px dashed #ccc;
+  border-radius: 10/30rem;
+  margin: 0 auto;
+  padding: 10/30rem;
+  box-sizing: border-box;
+  position: relative;
+  img{
+    &:nth-child(1){
+      width: 410/30rem;
+      height: 270/30rem;
+    }
+    &:nth-child(2){
+      width: 84/30rem;
+      height: 84/30rem;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 70/30rem;
+    }
+  }
+}
+.bottom{
+  margin-top: 35/30rem;
+}

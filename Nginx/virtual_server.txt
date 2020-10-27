@@ -1,0 +1,33 @@
+单主机多服务配置
+  1 基于主机多IP(单网卡多IP)
+    1 添加网卡地址
+      ip a add 192.168.8.146/24 dev eth0
+    2 修改配置
+      server {
+        listen 192.168.8.140:80;
+        ...
+      }
+      server {
+        listen 192.168.8.146:80;
+        ...
+      }
+  2 基于多端口的方式
+    server {
+      listen 80;
+      ...
+    }
+
+    server {
+      listen 81;
+      ...
+    }
+  3 基于hostname的方式
+    server {
+      server_name  1.imoocc.com;
+      ...
+    }
+
+    server {
+      server_name  2.imoocc.com;
+      ...
+    }

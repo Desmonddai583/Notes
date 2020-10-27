@@ -1,0 +1,206 @@
+枚举定义
+  enum Direction { 
+    case north 
+    case south 
+    case east 
+    case west 
+  }
+  或者
+  enum Direction { 
+    case north, south, east, west 
+  }
+
+枚举类型的用法:类型.枚举的值或者直接.枚举
+  var dir = Direction.west 
+  dir = Direction.east 
+  dir = .north 
+  print(dir) // north
+
+关联值
+  有时会将枚举的成员值跟其他类型的关联存储在一起，会非常有用
+
+  enum Score { 
+    case points(Int) 
+    case grade(Character) 
+  }
+  var score = Score.points(96) 
+  score = .grade("A")
+  switch score { 
+    case let .points(i):
+      print(i, "points") 
+    case let .grade(i):
+      print("grade", i) 
+  } // grade A
+
+  必要时let也可以改为var
+  enum Date { 
+    case digit(year: Int, month: Int, day: Int) 
+    case string(String) 
+  } 
+  var date = Date.digit(year: 2011, month: 9, day: 10) 
+  date = .string("2011-09-10") 
+  switch date { 
+    case .digit(let year, let month, let day):
+      print(year, month, day) 
+    case let .string(value):
+      print(value) 
+  }
+
+  关联值举例
+    手机密码(数字或者手势)
+
+    enum Password { 
+      case number(Int, Int, Int, Int) 
+      case gesture(String) 
+    }
+
+    var pwd = Password.number(3, 5, 7, 8) 
+    pwd = .gesture("12369")
+
+    switch pwd { 
+      case let .number(n1, n2, n3, n4):
+        print("number is ", n1, n2, n3, n4) 
+      case let .gesture(str):
+        print("gesture is", str) 
+    }
+
+原始值
+  枚举成员可以使用相同类型的默认值预先关联，这个默认值叫做：原始值
+
+  enum Grade : String { 
+    case perfect = "A" 
+    case great = "B" 
+    case good = "C" 
+    case bad = "D" 
+  } 
+  print(Grade.perfect.rawValue) // A 
+  print(Grade.great.rawValue) // B 
+  print(Grade.good.rawValue) // C 
+  print(Grade.bad.rawValue) // D
+
+  隐式原始值
+    如果枚举的原始值类型是Int、String，Swift会自动分配原始值
+
+    enum Direction : String { 
+      case north = "north" 
+      case south = "south" 
+      case east = "east" 
+      case west = "west" 
+    }
+    等价于
+    enum Direction : String { 
+      case north, south, east, west 
+    }
+
+    enum Season : Int { 
+      case spring, summer, autumn, winter 
+    }
+    print(Season.spring.rawValue) // 0 
+    print(Season.summer.rawValue) // 1 
+    print(Season.autumn.rawValue) // 2 
+    print(Season.winter.rawValue) // 3
+
+    enum Season : Int { 
+      case spring = 1, 
+      summer, 
+      autumn = 4, 
+      winter 
+    }
+    print(Season.spring.rawValue) // 1 
+    print(Season.summer.rawValue) // 2 
+    print(Season.autumn.rawValue) // 4 
+    print(Season.winter.rawValue) // 5
+
+递归枚举
+  前面需要加indirect关键字
+
+  indirect enum ArithExpr { 
+    case number(Int) 
+    case sum(ArithExpr, ArithExpr) 
+    case difference(ArithExpr, ArithExpr) 
+  }
+  或者
+  enum ArithExpr { 
+    case number(Int) 
+    indirect case sum(ArithExpr, ArithExpr) 
+    indirect case difference(ArithExpr, ArithExpr) 
+  }
+
+  let five = ArithExpr.number(5) 
+  let four = ArithExpr.number(4) 
+  let two = ArithExpr.number(2) 
+  let sum = ArithExpr.sum(five, four) 
+  let difference = ArithExpr.difference(sum, two)
+
+  func calculate(_ expr: ArithExpr) -> Int {
+    switch expr { 
+      case let .number(value):
+        return value 
+      case let .sum(left, right):
+        return calculate(left) + calculate(right) 
+      case let .difference(left, right):
+        return calculate(left) - calculate(right) 
+    }
+  }
+  calculate(difference)
+
+MemoryLayout
+  可以使用MemoryLayout获取数据类型占用的内存大小,不只可以计算枚举,其他类型也可以
+
+  enum Password { 
+    case number(Int, Int, Int, Int) 
+    case other 
+  }
+  MemoryLayout<Password>.stride // 40, 分配占用的空间大小,必须为alignment的整数倍
+  MemoryLayout<Password>.size // 33, 实际用到的空间大小 32 + 1
+  MemoryLayout<Password>.alignment // 8, 对齐参数
+  var pwd = Password.number(9, 8, 6, 4) 
+  pwd = .other 
+  MemoryLayout.stride(ofValue: pwd) // 40 
+  MemoryLayout.size(ofValue: pwd) // 33 
+  MemoryLayout.alignment(ofValue: pwd) // 8
+
+  enum TestEnum {
+    case test1(Int, Int, Int) 
+    case test2(Int, Int) 
+    case test3(Int) 
+    case test4(Bool) 
+    case test5
+  }
+  var e = TestEnum.test1(1, 2, 3)
+  MemoryLayout.stride(ofValue: e) // 32
+  MemoryLayout.size(ofValue: e) // 25  24 + 1, 24用来存储关联值,1用来存储枚举成员值
+  MemoryLayout.alignment(ofValue: e) // 8
+
+  关联值和原始值的区别
+    因为关联值是由外部传入,所以关联值会将数据存储在枚举变量内存中,所以内存大小与关联值的大小有关
+    而原始值是固定死的,所以为了节省内存,swift背后只是用1个字节的标记赋值给枚举变量,真正获取值时再调用rawValue去取
+
+    enum Season : Int { 
+      case spring = 1, summer, autumn, winter 
+    }
+    MemoryLayout<Season>.stride // 1
+    MemoryLayout<Season>.size // 1
+    MemoryLayout<Season>.alignment // 1
+
+  如果只有一个case,那么size为0
+    enum TestEnum { 
+      case test 
+    } 
+    var t = TestEnum.test
+    MemoryLayout.stride(ofValue: t) // 1
+    MemoryLayout.size(ofValue: t) // 0
+    MemoryLayout.alignment(ofValue: t) // 1
+  
+  如果关联值情况并且只有一个case,那么不会多一个字节专门存储成员值
+    enum TestEnum { 
+      case test(Int) 
+    } 
+    var t = TestEnum.test(10)
+    MemoryLayout.stride(ofValue: t) // 8
+    MemoryLayout.size(ofValue: t) // 8
+    MemoryLayout.alignment(ofValue: t) // 8
+
+  总结枚举类型背后的存储规律是
+    1个字节存储成员值
+    N个字节存储关联值(N取占用内存最大的关联值),任何一个case的关联值都公用这N个字节

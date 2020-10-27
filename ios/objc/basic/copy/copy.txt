@@ -1,0 +1,166 @@
+利用一个源对象产生一个副本对象
+修改源对象的属性和行为，不会影响副本对象
+修改副本对象的属性和行为，不会影响源对象
+
+一个对象可以调用copy或mutableCopy方法来创建一个副本对象
+copy : 创建的是不可变副本(如NSString、NSArray、NSDictionary)
+mutableCopy :创建的是可变副本(如NSMutableString、NSMutableArray、NSMutableDictionary)
+
+使用copy功能的前提,需要遵守NSCopying协议，实现copyWithZone:方法
+使用mutableCopy的前提,需要遵守NSMutableCopying协议，实现mutableCopyWithZone:方法
+
+只要是拷贝出来的对象, 拷贝出来的对象中的内容和以前对象中的内容一致
+"一般"情况下拷贝会生成一个新的对象
+为什么会产生一个新的对象 
+  1.因为拷贝要求修改原来的对象不能影响到拷贝出来得对象
+    修改拷贝出来的对象也不能影响到原来的对象, 所以需要生成一个新的对象
+  2.由于以前的对象是一个不可变的对象, 而通过mutableCopy拷贝出来的对象必须是一个可变的对象, 
+    所以必须生成一个新的对象
+NSMutableString *copyStr = [srcStr mutableCopy];
+NSString *copyStr = [srcStr copy];
+
+如果是通过不可变对象调用了copy方法, 那么不会生成一个新的对象
+原因: 因为原来的对象是不能修改的, 拷贝出来的对象也是不能修改的
+既然两个都不能修改, 所以永远不能影响到另外一个对象, 那么已经符合需求
+所以: OC为了对内存进行优化, 就不会生成一个新的对象
+NSString *copyStr = [srcStr copy];
+
+正是因为调用copy方法有时候会生成一个新的对象, 有时候不会生成一个新的对象
+所以: 如果没有生成新的对象, 我们称之为浅拷贝, 本质就是指针拷贝
+    如果生成了新的对象, 我们称之为深拷贝, 本质就是会创建一个新的对象
+
+Copy内存管理
+  内存管理原则:
+  一次alloc 对应一次release
+  一次retain 对应一次 release
+  一次copy 对应一次release
+  有加就有减
+
+  如果是浅拷贝:不会生成新的对象,但是系统就会对原来的对象进行retain,
+  所以需要对原来的对象进行一次
+  
+  如果是深拷贝:会生成新的对象,系统不会对原来的对象进行retain,但是因为生成了新的对象,
+  所以我们需要对新的对象进行release
+
+  浅拷贝
+    char *cstr = "this is a c string";
+    NSString *str1 = [[NSString alloc] initWithUTF8String:cstr]; // 1
+    // 不会产生新对象, 会对原有对象进行一次retain
+    NSString *str2 = [str1 copy]; // 2
+    // 注意点: 如果是浅拷贝, 那么会对拷贝的对象进行一次retain, 那么我们就需要对拷贝出来的对象进行一次release
+    [str2 release]; // 1
+    [str1 release]; // 0
+
+  深拷贝
+    char *cstr = "this is a c string";
+    NSString *str1 = [[NSString alloc] initWithUTF8String:cstr]; // str1 1
+    // 会生成一个新的对象
+    NSMutableString *str2 = [str1 mutableCopy]; // str2 1
+    [str1 release]; // str1 0
+    [str2 release]; // str2 0
+
+Copy与Property
+  copy的第一个用途, 防止外界修改内部的数据
+    NSMutableString *temp = [NSMutableString stringWithFormat:@"lnj"];
+    Person *p = [[Person alloc] init];
+    p.name = temp;
+    // 问题: 修改了外面的变量, 影响到了对象中的属性
+    [temp appendString:@" cool"];
+
+    解决方法
+      @property (nonatomic, copy) NSString *name;
+      以后字符串属性都用copy
+    
+    不过因为字符串在实际开发中的赋值都是赋值不可变字符串,所以其实是可以使用strong的,
+    因为copy背后每次会先判断是不是不可变的字符串,是的话就不会做拷贝的动作,不是的话那就会做
+    所以会存在一定的性能损耗,所以如果确定赋值的都是不可变字符串,就可以使用strong
+  
+  copy的第二个用途,可以使用copy保存block, 这样可以保住block中使用的外界对象的命
+    block默认存储在栈中, 栈中的block访问到了外界的对象, 不会对对象进行retain
+    block如果在堆中, 如果在block中访问了外界的对象, 会对外界的对象进行一次retain
+
+    // 避免以后调用block的时候, 外界的对象已经释放了
+    Dog *d = [[Dog alloc] init]; // 1
+    Person *p = [[Person alloc] init];
+    p.pBlock = ^{
+        NSLog(@"%@", d);
+    };
+
+    // 如果狗在调用block之前释放了, 那么程序就会崩溃
+    [d release]; // 0
+    p.pBlock();
+    [p release];
+
+    解决方法
+      // 注意: 如果是block使用copy并不是拷贝, 而是转移(从栈到堆)
+      @property (nonatomic, copy) myBlock pBlock;
+
+      - (void)dealloc
+      {
+          // 只要给block发送一条release消息, block中使用到的对象也会收到该消息
+          Block_release(_pBlock);
+          NSLog(@"%s", __func__);
+          [super dealloc];
+      }
+
+  copy block之后引发循环引用
+    如果对象中的block又用到了对象自己, 那么为了避免内存泄露, 应该将对象修饰为__block
+    Person *p = [[Person alloc] init]; // 1
+    p.name = @"lnj";
+    p.pBlock = ^{
+        NSLog(@"name = %@", p.name); // 2
+    };
+    p.pBlock();
+    
+    [p release]; // 1
+
+    解决方法
+      替换
+      Person *p = [[Person alloc] init]; // 1
+      为
+      __block Person *p = [[Person alloc] init];
+
+自定义类实现copy
+  1.以后想让自定义的对象能够被copy只需要遵守NSCopying协议
+  2.实现协议中的- (id)copyWithZone:(NSZone *)zone
+  3.在- (id)copyWithZone:(NSZone *)zone方法中创建一个副本对象, 然后将当前对象的值赋值给副本对象即可
+
+    @interface Person : NSObject<NSCopying, NSMutableCopying>
+
+    - (id)copyWithZone:(NSZone *)zone
+    {
+        // 1.创建一个新的对象
+        Person *p = [[[self class] allocWithZone:zone] init];
+        
+        // 2.设置当前对象的内容给新的对象
+        p.age = _age;
+        p.name = _name;
+        
+        // 3.返回新的对象
+        return p;
+    }
+    - (id)mutableCopyWithZone:(NSZone *)zone
+    {
+        // 1.创建一个新的对象
+        Person *p = [[[self class] allocWithZone:zone] init];
+        
+        // 2.设置当前对象的内容给新的对象
+        p.age = _age;
+        p.name = _name;
+        
+        // 3.返回新的对象
+        return p;
+    }
+
+  如果想让子类在copy的时候保留子类的属性, 那么必须重写copyWithZone方法, 
+  在该方法中先调用父类创建副本设置值, 然后再设置子类特有的值
+    - (id)copyWithZone:(NSZone *)zone
+    {
+        // 1.创建副本
+        id obj = [super copyWithZone:zone];
+        // 2.设置数据给副本
+        [obj setHeight:_height];
+        
+        // 3.返回副本
+        return obj;
+    }

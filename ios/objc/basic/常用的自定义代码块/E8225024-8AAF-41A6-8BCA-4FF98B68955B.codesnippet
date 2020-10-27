@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDECodeSnippetCompletionPrefix</key>
+	<string>njClassWithDictImplementation</string>
+	<key>IDECodeSnippetCompletionScopes</key>
+	<array>
+		<string>ClassImplementation</string>
+	</array>
+	<key>IDECodeSnippetContents</key>
+	<string>+ (instancetype)&lt;#class#&gt;WithDict:(NSDictionary *)dict {
+    id obj = [[self alloc] init];
+    
+    [obj setValuesForKeysWithDictionary:dict];
+    
+    return obj;
+}</string>
+	<key>IDECodeSnippetIdentifier</key>
+	<string>E8225024-8AAF-41A6-8BCA-4FF98B68955B</string>
+	<key>IDECodeSnippetLanguage</key>
+	<string>Xcode.SourceCodeLanguage.Objective-C</string>
+	<key>IDECodeSnippetSummary</key>
+	<string>实现工厂方法</string>
+	<key>IDECodeSnippetTitle</key>
+	<string>实现工厂方法</string>
+	<key>IDECodeSnippetUserSnippet</key>
+	<true/>
+	<key>IDECodeSnippetVersion</key>
+	<integer>2</integer>
+</dict>
+</plist>

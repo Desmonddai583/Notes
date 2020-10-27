@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>95-全选和反选</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 500px;
+            border: 1px solid #000;
+            margin: 10px auto;
+        }
+        .box-top, .box-bottom{
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            background: #ccc;
+        }
+        input{
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+            margin-left: 20px;
+        }
+        .box-middle{
+            width: 100%;
+            background: pink;
+        }
+        ul{
+            list-style: none;
+        }
+        button{
+            width: 100%;
+            height: 100%;
+            font-size: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="box-top">
+        <input type="checkbox" id="all">
+        商品列表
+    </div>
+    <div class="box-middle">
+        <ul>
+            <li>
+                <input type="checkbox">
+                商品1
+            </li>
+            <li>
+                <input type="checkbox">
+                商品2
+            </li>
+            <li>
+                <input type="checkbox">
+                商品3
+            </li>
+            <li>
+                <input type="checkbox">
+                商品4
+            </li>
+            <li>
+                <input type="checkbox">
+                商品5
+            </li>
+            <li>
+                <input type="checkbox">
+                商品6
+            </li>
+            <li>
+                <input type="checkbox">
+                商品7
+            </li>
+        </ul>
+    </div>
+    <div class="box-bottom">
+        <button>反选</button>
+    </div>
+</div>
+
+<script>
+    // 1.拿到需要操作的元素
+    // 1.1拿到全选按钮
+    var oAll = document.querySelector("#all");
+    // 1.2拿到其它的按钮
+    var oItems = document.querySelectorAll(".box-middle input");
+    // 1.3拿到反选按钮
+    var reBtn = document.querySelector("button");
+    
+    // 2.定义变量记录当前时候是全选的
+    var allFlag = false; // 默认是不全选
+
+    // 3.给全选按钮添加事件
+    oAll.onclick = function () {
+
+        // 遍历所有的选中框, 设置选中状态
+        for(var i = 0, len = oItems.length; i < len; i++){
+            var item = oItems[i];
+            // 修改选中框的状态
+            item.checked = !allFlag;
+        }
+        // 记录当前是否是全选
+        allFlag = !allFlag;
+    };
+
+    // 4.给所有的选中框添加事件
+    for(var i = 0, len = oItems.length; i < len; i++){
+        var item = oItems[i];
+        item.onclick = change;
+    }
+
+    function change() {
+        // 监听点击事件的方法中拿到的是改变之后的状态
+        // console.log(this.checked);
+
+        // 检查有没有选中框是没有选中的, 如果有, 那么就改变全选的状态
+        for(var i = 0, len = oItems.length; i < len; i++){
+            var item = oItems[i];
+            // 如果有一个是没有选中的, 那么就把全选按钮的去掉
+            if(item.checked === false){
+                // 取消全选
+                oAll.checked = false;
+                allFlag = false;
+                return;
+            }
+        }
+        // 如果检查完了都没有出现没有选中的, 就把全选按钮勾上
+        oAll.checked = true;
+    }
+    
+    // 5.监听反选按钮的点击
+    reBtn.onclick = function () {
+        // 遍历取出所有选中框
+        for(var i = 0, len = oItems.length; i < len; i++) {
+            var item = oItems[i];
+            item.checked = !item.checked;
+            // 注意点: 添加的事件相关的方法也是可以手动调用的
+            item.onclick();
+        }
+    }
+</script>
+</body>
+</html>

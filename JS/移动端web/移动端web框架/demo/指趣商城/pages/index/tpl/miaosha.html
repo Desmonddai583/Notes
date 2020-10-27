@@ -1,0 +1,35 @@
+<div class="miaosha">
+    <div class="ms-title clearfix">
+        <div class="ms-title-left f-left">
+            <span class="iconfont">&#xe62d;</span>
+            <span>整点秒杀</span>
+            <span><%=miaosha.name%></span>
+        </div>
+        <div class="ms-title-time f-left">
+            <span class="ms-time-hour">00</span>:
+            <span class="ms-time-min">00</span>:
+            <span class="ms-time-sec">00</span>
+        </div>
+        <div class="ms-title-more f-right">
+            <a href="#">更多<span class="iconfont">&#xe64e;</span></a>
+
+        </div>
+    </div>
+    <div class="ms-content">
+        <ul class="ms-goods-list clearfix">
+            <% for (var i = 0; i < miaosha.goods_list.length; i ++) { %>
+            <li>
+                <img src="<%=miaosha.goods_list[i].pic%>">
+                <p class="ms-price">
+                    <span class="iconfont">&#xeb1e;</span>
+                    <%=miaosha.goods_list[i].miaosha_price%>
+                </p>
+                <p class="ms-origin-price">
+                    <span class="iconfont">&#xeb1e;</span>
+                    <%=miaosha.goods_list[i].price%>
+                </p>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</div>

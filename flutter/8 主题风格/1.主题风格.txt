@@ -1,0 +1,129 @@
+Theme分为：全局Theme和局部Theme
+
+全局Theme 
+  只需要向MaterialApp构造器传入 ThemeData 即可
+  如果没有设置Theme，Flutter将会使用预设的样式
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // 1.亮度: light-dark
+        brightness: Brightness.light,
+        // 2.primarySwatch: primaryColor/accentColor的结合体
+        primarySwatch: Colors.red,
+        // 3.主要颜色: 导航/底部TabBar
+        primaryColor: Colors.pink,
+        // 4.次要颜色: FloatingActionButton/按钮颜色
+        accentColor: Colors.orange,
+        // 5.卡片主题
+        cardTheme: CardTheme(
+          color: Colors.greenAccent,
+          elevation: 10,
+          shape: Border.all(width: 3, color: Colors.red),
+          margin: EdgeInsets.all(10)
+        ),
+        // 6.按钮主题
+        buttonTheme: ButtonThemeData(
+          minWidth: 0,
+          height: 25
+        ),
+        // 7.文本主题
+        textTheme: TextTheme(
+          title: TextStyle(fontSize: 30, color: Colors.blue),
+          display1: TextStyle(fontSize: 10),
+        )
+      ),
+      home: HYHomePage(),
+    );
+  }
+
+局部Theme
+  如果某个具体的Widget不希望直接使用全局的Theme，只需要在Widget的父节点包裹一下Theme即可
+    Widget build(BuildContext context) {
+      return Theme(
+        data: ThemeData(),
+        child: Scaffold(
+        ),
+      );
+    }
+  如果是主题基础之上进行修改
+    Widget build(BuildContext context) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          primaryColor: Colors.greenAccent
+        ),
+        child: Scaffold(
+        ),
+      );
+    }
+
+暗黑Theme适配
+  MaterialApp中有theme和dartTheme两个参数
+  开发中适配
+    在开发中，为了能适配两种主题（设置是更多的主题），我们可以封装一个AppTheme
+    1.公共的样式抽取成常量
+    2.封装一个亮色主题
+    3.封装一个暗黑主题
+  class AppTheme {
+    // 1.抽取相同的样式
+    staticconstdouble _titleFontSize = 20;
+    
+    // 2.亮色主题
+    staticfinal ThemeData lightTheme = ThemeData(
+      primarySwatch: Colors.pink,
+      primaryTextTheme: TextTheme(
+        title: TextStyle(
+          color: Colors.yellow,
+          fontSize: _titleFontSize
+        )
+      ),
+      textTheme: TextTheme(
+        body1: TextStyle(color: Colors.red)
+      )
+    );
+    
+    // 3.暗黑主题
+    staticfinal ThemeData darkTheme = ThemeData(
+      primaryColor: Colors.grey,
+      primaryTextTheme: TextTheme(
+        title: TextStyle(
+          color: Colors.white,
+          fontSize: _titleFontSize
+        )
+      ),
+      textTheme: TextTheme(
+        title: TextStyle(color: Colors.white),
+        body1: TextStyle(color: Colors.white70)
+      )
+    );
+  }
+  在MaterialApp中，可以决定使用哪一个主题
+    class MyApp extends StatelessWidget {
+      // This widget is the root of your application.
+      @override
+      Widget build(BuildContext context) {
+        return MaterialApp(
+          title: 'Flutter Demo',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          home: HYHomePage(),
+        );
+      }
+    }
+
+自定义字体
+  资源中导入
+    fonts:
+      - family: RubikMonoOne
+        fonts:
+          - asset: fonts/RubikMonoOne-Regular.ttf
+
+  将该字体应用到全局
+    theme: ThemeData(
+      fontFamily: 'RubikMonoOne',
+      .....
+    ),
+
+  局部使用
+    Text('切换主题abc',style: TextStyle(fontFamily: 'RubikMonoOne'),)

@@ -1,0 +1,290 @@
+继承（Inheritance）
+  值类型（枚举、结构体）不支持继承，只有类支持继承
+  没有父类的类，称为：基类
+  不过基类之上Swift还有个隐藏的基类：Swift._SwiftObject
+  可以参考Swift源码：https://github.com/apple/swift/blob/master/stdlib/public/runtime/SwiftObject.h
+  Swift并没有像OC、Java那样的规定：任何类最终都要继承自某个基类
+  子类可以重写父类的下标、方法、属性，重写必须加上override关键字
+
+内存结构
+  class Animal { 
+    var age = 0 
+  } 
+  class Dog : Animal {
+    var weight = 0 
+  } 
+  class ErHa : Dog {
+    var iq = 0 
+  }
+
+  let a = Animal() 
+  a.age = 10 
+  // 16(放类型信息+引用计数) + 8, 因为堆内存都是16的倍数所以为32
+  print(Mems.size(ofRef: a)) 
+
+  let d = Dog() 
+  d.age = 10 
+  d.weight = 20 
+  // 16(放类型信息+引用计数) + 16 = 32
+  print(Mems.size(ofRef: d)) 
+
+  let e = ErHa() 
+  e.age = 10 
+  e.weight = 20 
+  e.iq = 30 
+  // 16(放类型信息+引用计数) + 24, 因为堆内存都是16的倍数所以为48
+  print(Mems.size(ofRef: e))
+
+重写实例方法、下标
+  class Animal {
+    func speak() { 
+      print("Animal speak") 
+    } 
+    subscript(index: Int) -> Int {
+      return index 
+    }
+  }
+
+  var anim: Animal 
+  anim = Animal() 
+  // Animal speak 
+  anim.speak() 
+  // 6 
+  print(anim[6])
+
+  class Cat : Animal {
+    override func speak() { 
+      super.speak() 
+      print("Cat speak") 
+    } 
+    override subscript(index: Int) -> Int {
+      return super[index] + 1 
+    }
+  }
+
+  anim = Cat() 
+  // Animal speak 
+  // Cat speak 
+  anim.speak() 
+  // 7 
+  print(anim[6])
+
+重写类型方法、下标
+  被class修饰的类型方法、下标，允许被子类重写
+  被static修饰的类型方法、下标，不允许被子类重写
+
+  class Animal {
+    class func speak() { 
+      print("Animal speak") 
+    } 
+    class subscript(index: Int) -> Int {
+      return index 
+    }
+  } 
+  // Animal speak 
+  Animal.speak() 
+  // 6 
+  print(Animal[6])
+
+  class Cat : Animal {
+    override class func speak() { 
+      super.speak() 
+      print("Cat speak") 
+    } 
+    override class subscript(index: Int) -> Int {
+      return super[index] + 1 
+    }
+  } 
+  // Animal speak 
+  // Cat speak 
+  Cat.speak() 
+  // 7 
+  print(Cat[6])
+
+重写属性
+  子类可以将父类的属性（存储、计算）重写为计算属性
+  子类不可以将父类属性重写为存储属性
+  只能重写var属性，不能重写let属性
+  重写时，属性名、类型要一致
+  子类重写后的属性权限 不能小于 父类属性的权限
+    如果父类属性是只读的，那么子类重写后的属性可以是只读的、也可以是可读写的
+    如果父类属性是可读写的，那么子类重写后的属性也必须是可读写的
+  
+  class SubCircle : Circle {
+    override var radius: Int { 
+      set { 
+        print("SubCircle setRadius") 
+        super.radius = newValue > 0 ? newValue : 0 
+      } 
+      get { 
+        print("SubCircle getRadius") 
+        return super.radius 
+      }
+    } 
+    override var diameter: Int {
+      set { 
+        print("SubCircle setDiameter") 
+        super.diameter = newValue > 0 ? newValue : 0 
+      } get {
+        print("SubCircle getDiameter")
+        return super.diameter 
+      }
+    }
+  }
+
+重写类型属性
+  被class修饰的计算类型属性，可以被子类重写(存储属性不可以,因为存储属性本身就不可以被class修饰)
+  被static修饰的类型属性（存储、计算），不可以被子类重写
+
+  class SubCircle : Circle {
+    override static var diameter: Int { 
+      set { 
+        print("SubCircle setDiameter") 
+        super.diameter = newValue > 0 ? newValue : 0 
+      } 
+      get { 
+        print("SubCircle getDiameter") 
+        return super.diameter 
+      }
+    } 
+  }
+
+属性观察器
+  可以在子类中为父类属性（除了只读计算属性、let属性）增加属性观察器
+  1.
+    class Circle { 
+      var radius: Int = 1 
+    } 
+    class SubCircle : Circle { 
+      override var radius: Int { 
+        willSet { 
+          print("SubCircle willSetRadius", newValue)
+        } 
+        didSet { 
+          print("SubCircle didSetRadius", oldValue, radius) 
+        } 
+      }
+    } 
+    var circle = SubCircle() 
+    // SubCircle willSetRadius 10 
+    // SubCircle didSetRadius 1 10 
+    circle.radius = 10
+
+  2.
+    class Circle {
+      var radius: Int = 1 { 
+        willSet { 
+          print("Circle willSetRadius", newValue) 
+        } 
+        didSet { 
+          print("Circle didSetRadius", oldValue, radius) 
+        } 
+      }
+    } 
+    class SubCircle : Circle {
+      override var radius: Int { 
+        willSet { 
+          print("SubCircle willSetRadius", newValue) 
+        } 
+        didSet { 
+          print("SubCircle didSetRadius", oldValue, radius) 
+        } 
+      }
+    }
+    var circle = SubCircle() 
+    // SubCircle willSetRadius 10 
+    // Circle willSetRadius 10 
+    // Circle didSetRadius 1 10 
+    // SubCircle didSetRadius 1 10 
+    circle.radius = 10
+
+  3.
+    class Circle {
+      var radius: Int { 
+        set { 
+          print("Circle setRadius", newValue) 
+        } 
+        get { 
+          print("Circle getRadius") return 20 
+        }
+      }
+    } 
+    class SubCircle : Circle {
+      override var radius: Int { 
+        willSet { 
+          print("SubCircle willSetRadius", newValue) 
+        } 
+        didSet { 
+          print("SubCircle didSetRadius", oldValue, radius) 
+        } 
+      }
+    }
+    var circle = SubCircle() 
+    // Circle getRadius 
+    // SubCircle willSetRadius 10 
+    // Circle setRadius 10 
+    // Circle getRadius 
+    // SubCircle didSetRadius 20 20 
+    circle.radius = 10
+
+  4.
+    class Circle {
+      var radius: Int { 
+        set { 
+          print("Circle setRadius", newValue) 
+        } 
+        get { 
+          print("Circle getRadius") 
+          return 20 
+        }
+      }
+    } 
+    class SubCircle : Circle {
+      override var radius: Int { 
+        willSet { 
+          print("SubCircle willSetRadius", newValue) 
+        } 
+        didSet { 
+          print("SubCircle didSetRadius", oldValue, radius) 
+        } 
+      }
+    }
+  
+  5.
+    class Circle {
+      class var radius: Int { 
+        set { 
+          print("Circle setRadius", newValue) 
+        } 
+        get { 
+          print("Circle getRadius") 
+          return 20 
+        }
+      }
+    } 
+    class SubCircle : Circle {
+      override static var radius: Int { 
+        willSet { 
+          print("SubCircle willSetRadius", newValue) 
+        } 
+        didSet { 
+          print("SubCircle didSetRadius", oldValue, radius) 
+        } 
+      }
+    }
+    // Circle getRadius 
+    // SubCircle willSetRadius 10 
+    // Circle setRadius 10 
+    // Circle getRadius 
+    // SubCircle didSetRadius 20 20 
+    SubCircle.radius = 10
+
+final
+  被final修饰的方法、下标、属性，禁止被重写
+  被final修饰的类，禁止被继承
+
+多态背后调用原理
+  对象堆空间中头8个字节存储的是对象类型,其实就是一个地址指向另外一块内存(放在全局区),
+  这块内存中存放着它重写的方法和没重写的父类方法的地址(这些地址在该空间中有一个固定的偏移量)
+  所以当子类对象调用方法时,就可以顺着这个链找到应该执行的是父类还是子类自己的方法
+  这里注意创建同类型对象头8个字节指向的对象类型地址都是同一个

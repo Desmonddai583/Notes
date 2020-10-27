@@ -1,0 +1,8 @@
+URL中文转码问题
+  只有在url中包含中文才需要做处理,如果是在post body中则不需要
+  NSString *urlStr = @"http://120.25.226.186:32812/login2?username=小码哥&pwd=520it";
+  urlStr =  [urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
+多值参数如何设置请求路径
+  如果一个参数对应着多个值，那么直接按照"参数=值&参数=值"的方式拼接
+  http://120.25.226.186:32812/weather?place=Beijing&place=Guangzhou

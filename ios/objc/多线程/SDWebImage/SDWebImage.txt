@@ -1,0 +1,80 @@
+用于下载图片并自带缓存机制
+内部使用了NSCache类，使用和NSDictionary类似
+背后使用NSURLConnection发送网络请求下载图片,请求超时的默认时间15秒
+最大并发数量为6
+队列中任务的默认处理方式:FIFO 先进先出
+缓存文件的保存名称是通过拿到图片的URL路径,对该路径进行MD5加密获得的
+终端获取md5的命令 echo -n "url" | MD5
+  
+设置imageView的图片
+  [cell.imageView sd_setImageWithURL:[NSURL URLWithString:app.icon] placeholderImage:[UIImage imageNamed:@"placehoder"]];
+
+设置图片并计算下载进度
+  //下载并设置图片
+  /*
+    第一个参数：要下载图片的url地址
+    第二个参数：设置该imageView的占位图片
+    第三个参数：传一个枚举值，告诉程序你下载图片的策略是什么
+    第一个block块：获取当前图片数据的下载进度
+        receivedSize：已经下载完成的数据大小
+        expectedSize：该文件的数据总大小
+    第二个block块：当图片下载完成之后执行该block中的代码
+        image:下载得到的图片数据
+        error:下载出现的错误信息
+        SDImageCacheType：图片的缓存策略（不缓存，内存缓存，沙盒缓存）
+        imageURL：下载的图片的url地址
+    */
+  [cell.imageView sd_setImageWithURL:[NSURL URLWithString:app.icon] placeholderImage:[UIImage imageNamed:@"placehoder"] options:SDWebImageRetryFailed progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+      //计算当前图片的下载进度
+      NSLog(@"%.2f",1.0 *receivedSize / expectedSize);
+  } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+  }];
+
+只需要简单获得一张图片,不设置
+  [[SDWebImageManager sharedManager] downloadImageWithURL:[NSURL URLWithString:@"http://img4.duitang.com/uploads/blog/201310/18/20131018213446_smUw4.thumb.600_0.jpeg"] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+      NSLog(@"%f",1.0 * receivedSize / expectedSize);
+  } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+      //还是可以在此处设置得到图片
+      self.imageView.image = image;
+  }];
+
+不需要任何的缓存处理
+  //data:图片的二进制数据
+  [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:@"http://img4.duitang.com/uploads/blog/201310/18/20131018213446_smUw4.thumb.600_0.jpeg"] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+  } completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+      // 这里注意跟上面方法不同,这里的block是在子线程中执行,所以如果要更新UI,需要嵌套主线程通信
+      [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            self.imageView.image = image;
+      }];
+  }];
+
+播放Gif图片
+  /*
+  背后原理
+    1 把用户传入的gif图片->NSData
+    2 根据该Data创建一个图片数据源（NSData->CFImageSourceRef）
+    3 计算该数据源中一共有多少帧，把每一帧数据取出来放到图片数组中
+    4 根据得到的数组+计算的动画时间-》可动画的image
+      [UIImage animatedImageWithImages:images duration:duration];
+  */
+  UIImage *image = [UIImage sd_animatedGIFNamed:@"39e805d5ad6eddc4f80259d23bdbb6fd536633ca"];
+  self.imageView.image = image;
+
+获取图片类型
+  如何判断当前图片类型,方法背后其实就是判断图片二进制数据的第一个字节
+  NSString *typeStr = [NSData sd_contentTypeForImageData:imageData];
+
+系统级内存警告如何处理
+  当接收到内存警告之后,内部会自动清理内存缓存,背后是通过监听通知的方式清理缓存
+
+  手动清理
+    取消当前正在进行的所有下载操作
+      [[SDWebImageManager sharedManager] cancelAll];
+
+    清除缓存数据
+      cleanDisk：删除过期的文件数据，计算当前未过期的已经下载的文件数据的大小，如果发现该数据大小大于我们设置的最大缓存数据大小，那么程序内部会按照按文件数据缓存的时间从远到近删除，知道小于最大缓存数据为止。
+      clearMemory:直接删除文件，重新创建新的文件夹
+        [[SDWebImageManager sharedManager].imageCache cleanDisk];
+        [[SDWebImageManager sharedManager].imageCache clearMemory];
+
+      SDWebImage默认的缓存时间是1周

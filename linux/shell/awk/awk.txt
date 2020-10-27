@@ -1,0 +1,110 @@
+是一个文本处理工具,通常用于处理数据并生成结果报告
+两种语法格式
+    1. awk 'BEGIN{}pattern{commands}END{}'file_name
+    2. standard output | awk 'BEGIN{}pattern{commands}END{}'
+内置变量
+    $0					打印行所有信息
+    $1~$n				打印行的第1到n个字段的信息
+    NF	Number Field				处理行的字段个数,字段号从1开始
+    NR	Number Row					处理行的行号,行号从1开始
+    FNR	File Number Row				多文件处理时，每个文件单独记录行号
+    FS	Field Separator				字段分割符，不指定时默认以空格或tab键分割
+    RS	Row Separator				行分隔符，不指定时以回车分割\n
+    OFS	 Output Filed Separator		输出字段分隔符
+    ORS	 Output Row Separator		输出行分隔符
+    FILENAME			处理文件的文件名
+    ARGC				命令行参数个数
+    ARGV				命令行参数数组
+格式化输出之printf
+    格式符
+  %s		打印字符串
+  %d		打印10进制数
+  %f		打印浮点数
+  %x		打印16进制数
+  %o		打印8进制数
+  %e		打印数字的科学计数法格式
+  %c		打印单个字符的ASCII码
+修饰符
+  -		左对齐
+  +		右对齐
+  #		显示8进制在前面加0，显示16进制在前面加0x
+awk模式匹配
+    两种用法
+        1. RegExp
+        2. 运算符匹配
+            关系运算符匹配：
+                <			小于
+                >			大于
+                <=			小于等于
+                >=			大于等于
+                ==			等于
+                !=			不等于
+                ~			匹配正则表达式
+                !~			不匹配正则表达式
+            布尔运算符匹配：
+                ||			或
+                &&			与
+                !			非
+awk动作中的表达式
+    算数运算符
+        +				加
+        -				减
+        *				乘
+        /				除
+        %				取模
+        ^或**			乘方
+        ++x				在返回x变量之前，x变量加1
+        x++				在返回x变量之后，x变量加1
+        --x				在返回x变量之前，x变量减1
+        x--				在返回x变量之后，x变量减1
+awk动作中的条件及循环语句
+    条件语句：
+  if(条件表达式1)
+    动作
+  else if(条件表达式2)
+    动作
+  else
+    动作
+循环语句：
+  while循环:
+    while(条件表达式)
+      动作
+  do while循环:
+    do
+      动作
+    while(条件表达式)
+  for循环:
+    for(初始化计数器;计数器测试;计数器变更)
+      动作
+awk中的字符串函数
+    length(str)						计算长度
+    index(str1,str2)				返回在str1中查询到的str2的位置
+    tolower(str)					小写转换
+    toupper(str)					大写转换	
+    split(str,arr,fs)				分隔字符串，并保存到数组中
+    match(str,RE)					返回正则表达式匹配到的子串的位置
+    substr(str,m,n)					截取子串，从m个字符开始，截取n位。n若不指定，则默认截取到字符串尾
+    sub(RE,RepStr,str)				替换查找到的第一个子串
+    gsub(RE,RepStr,str)				替换查找到的所有子串
+awk中常用选项
+-v		定义或引用shell中的变量
+        awk -v num2="$num1" -v var1="$var" 'BEGIN{print num2,var1}'
+-f		指定awk命令文件
+-F		指定分隔符
+        awk -F: '{print $7}' /etc/passwd 
+-V		查看awk的版本号
+awk中数组的用法:
+    awk中数组下标是从1开始计数
+    在awk中，使用数组时，不仅可以使用1.2..n作为数组下标，也可以使用字符串作为数组下标
+    当使用1.2.3..n时，直接使用array[2]访问元素;需要遍历数组时，使用以下形式：
+        str="Allen Jerry Mike Tracy Jordan Kobe Garnet"
+        split(str,array)
+        for(i=1;i<=length(array);i++)
+            print array[i]
+    当使用字符串作为数组下标时，需要使用array[str]形式访问元素;遍历数组时，使用以下形式：
+        array["var1"]="Jin"
+        array["var2"]="Hao"
+        array["var3"]="Fang"
+        
+        for(a in array)
+            print array[a]

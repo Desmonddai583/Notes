@@ -1,0 +1,113 @@
+在Autolayout之前，有Autoresizing可以作屏幕适配，但局限性较大，有些任务根本无法完成(Autoresizing只能设置自身和父控件之间的关系)
+Autoresizing仅仅能解决子控件和父控件之间的相对关系问题
+相比之下，Autolayout的功能比Autoresizing强大很多
+Autolayout解决任何控件之间的相对关系问题
+
+Autolayout的2个核心概念
+  约束:通过给控件添加约束,来决定控件的位置和尺寸
+  参照:在添加约束时,是依照谁来添加(可以是父控件或者兄弟控件)
+
+Autolayout的警告和错误
+  警告
+    控件的frame不匹配所添加的约束, 比如
+    比如约束控件的宽度为100, 而控件现在的宽度是110
+  错误
+    缺乏必要的约束, 比如
+    只约束了宽度和高度, 没有约束具体的位置
+
+    两个约束冲突, 比如
+    1个约束控件的宽度为100, 1个约束控件的宽度为110
+
+自动布局的核心计算公式
+  obj1.property1 =（obj2.property2 * multiplier）+ constant value
+
+添加约束的规则
+  1. 对于两个同层级view之间的约束关系，添加到它们的父view上
+  2. 对于两个不同层级view之间的约束关系，添加到他们最近的共同父view上
+  3. 对于有层次关系的两个view之间的约束关系，添加到层次较高的父view上
+
+代码实现Autolayout
+  利用NSLayoutConstraint类创建具体的约束对象
+    // view1 ：要约束的控件
+    // attr1 ：约束的类型（做怎样的约束）
+    // relation ：与参照控件之间的关系
+    // view2 ：参照的控件
+    // attr2 ：约束的类型（做怎样的约束）
+    // multiplier ：乘数
+    // c ：常量
+    +(id)constraintWithItem:(id)view1 attribute:(NSLayoutAttribute)attr1 relatedBy:(NSLayoutRelation)relation toItem:(id)view2 attribute:(NSLayoutAttribute)attr2 multiplier:(CGFloat)multiplier constant:(CGFloat)c;
+
+  添加约束对象到相应的view上
+  - (void)addConstraint:(NSLayoutConstraint *)constraint;
+  - (void)addConstraints:(NSArray *)constraints;
+
+  代码实现Autolayout的注意点
+  要先禁止autoresizing功能，设置view的下面属性为NO
+    view.translatesAutoresizingMaskIntoConstraints = NO;
+  添加约束之前，一定要保证相关控件都已经在各自的父控件上
+  不用再给view设置frame
+
+VFL
+  VFL是苹果公司为了简化Autolayout的编码而推出的抽象语言
+
+  示例
+    H:[cancelButton(72)]-12-[acceptButton(50)]
+    canelButton宽72，acceptButton宽50，它们之间间距12
+
+    H:[wideView(>=60@700)]
+    wideView宽度大于等于60point，该约束条件优先级为700（优先级最大值为1000，优先级越高的约束越先被满足）
+
+    V:[redBox][yellowBox(==redBox)]
+    竖直方向上，先有一个redBox，其下方紧接一个高度等于redBox高度的yellowBox
+
+    H:|-10-[Find]-[FindNext]-[FindField(>=20)]-|
+    水平方向上，Find距离父view左边缘默认间隔宽度，之后是FindNext距离Find间隔默认宽度；再之后是宽度不小于20的FindField，它和FindNext以及父view右边缘的间距都是默认宽度。（竖线“|” 表示superview的边缘）
+
+  使用VFL来创建约束数组
+    // format ：VFL语句
+    // opts ：约束类型
+    // metrics ：VFL语句中用到的具体数值
+    // views ：VFL语句中用到的控件
+    + (NSArray *)constraintsWithVisualFormat:(NSString *)format options:(NSLayoutFormatOptions)opts metrics:(NSDictionary *)metrics views:(NSDictionary *)views;
+
+Autolayout的UILabel  
+  在没有Autolayout之前，UILabel的文字内容总是居中显示，导致顶部和底部会有一大片空缺区域
+  有Autolayout之后，UILabel的bounds默认会自动包住所有的文字内容，顶部和底部不再会有空缺区域
+  
+  步骤
+    设置宽度约束 <= 固定值
+    设置位置约束
+    不需要设置高度约束
+
+Autolayout的动画
+  在修改了约束之后，只要执行下面代码，就能做动画效果
+  [UIView animateWithDuration:1.0 animations:^{
+      [添加了约束的view的父控件 layoutIfNeeded]; // 强制刷新
+  }];
+
+Masonry
+  目前最流行的Autolayout第三方框架
+  用优雅的代码方式编写Autolayout
+  省去了苹果官方恶心的Autolayout代码
+  大大提高了开发效率
+
+  mas_equalTo和equalTo
+    默认情况下
+    mas_equalTo有自动包装功能，比如自动将20包装为@20
+    equalTo没有自动包装功能
+
+    如果添加了下面的宏，那么mas_equalTo和equalTo就没有区别
+    #define MAS_SHORTHAND_GLOBALS
+    注意这个宏一定要添加到#import "Masonry.h"前面
+
+  mas_width和width
+    默认情况下
+    width是make对象的一个属性，用来添加宽度约束用的，表示对宽度进行约束
+    mas_width是一个属性值，用来当做equalTo的参数，表示某个控件的宽度属性
+
+    如果添加了下面的宏，mas_width也可以写成width
+    #define MAS_SHORTHAND
+    mas_height、mas_centerX以此类推
+  
+  with和and
+    with和and两个方法都仅仅是为了提高可读性，可有可无

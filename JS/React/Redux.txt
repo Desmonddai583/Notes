@@ -1,0 +1,84 @@
+在React中使用Redux步骤:
+    1 安装相关的模块
+        npm i redux react-redux redux-thunk -S
+    2 导入相关模块
+        import {Provider} from 'react-redux'
+    3 利用Provider将根组件包裹起来
+        Provider组件的作用,是可以让被包裹的容器组件拿到state
+    4 给Provider设置store对象
+        import store from './store/index.js'
+
+        class App extends Component {
+            render() {
+                return (
+                    <Provider store={store}>
+                        <div className="App">
+                            根组件
+                            <One />
+                            <Two/>
+                        </div>
+                    </Provider>
+                    );
+            }
+        }
+    5 导入相关的模块, 创建store对象
+        createStore是redux中提供的用于创建stroe的函数
+            这个函数接收三个参数
+            第一个参数: Reducer数组
+            第二个参数: state
+            第三个参数: 中间件
+        import {createStore, applyMiddleware} from 'redux'
+        import thunk from 'redux-thunk'
+        import rootReducer from "./Reducers";
+
+        const initState = {};
+        // 生成一个可以异步处理的中间件
+        const middleware = [thunk];
+        // Store 就是保存数据的地方，你可以把它看成一个容器。整个应用只能有一个 Store
+        const store = createStore(rootReducer, initState, applyMiddleware(...middleware));
+    6 创建相关Reducer
+        const defaultState = {
+            items: []
+        };
+        function aReducer(state = defaultState, action) {
+            switch (action.type){
+                case GET_LIST:
+                    return{
+                        ...state,
+                        items: action.plyload
+                    }
+                default:
+                    return defaultState;
+            }
+        }
+    7 合成相关的Reducer
+        import {combineReducers} from 'redux'
+        const rootReducer = combineReducers({
+            aList: aReducer,
+            bList: bReducer,
+            cList: cReducer,
+        });
+    8 创建Action
+        export function aAction() {
+            return function (dispatch) {
+                dispatch({
+                    type: GET_LIST,
+                    plyload: 数据
+                });
+            }
+        }
+    9 通过connect让Action以及数据和组件绑定起来
+        const mapStateToProps = (state) => {
+            return {
+                aList: state.aList.items
+            }
+        };
+        // 第一个参数: 让数据和组件绑定
+        // 第二个参数: 让Action中的方法和组件绑定
+        export default connect(mapStateToProps, {getList})(One)
+
+    10 在组件中调用Action, 使用最新的数据
+        this.props.Action中的方法名称
+        this.props.aList
+
+        

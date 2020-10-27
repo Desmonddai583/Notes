@@ -1,0 +1,29 @@
+kubernetes提供了兩種hook，由kubelet發起
+1. PostStart
+    在容器創建之後立即執行，與entrypoint是異步的，所以不能保證hook在entrypoint之前執行
+    主要用於資源部署，環境準備等，如果hook花費太長事件以至於不能運行或者掛起，容器將不能達到running狀態
+2. PreStop
+    在容器終止之前立即被調用，它是阻塞同步的，所以必須在刪除容器的調用發出之前完成。
+    主要用於優雅關閉應用程序，通知其他系統等。
+    如果hook在執行期間掛起，Pod階段將停留在running狀態並且永遠不會達到failed狀態
+
+    當用戶請求刪除含有pod的資源對象時(例如deployment)，k8s爲了讓應用程序優雅關閉(即讓應用程序完成正在處理的請求後，在關閉軟件)，
+    k8s提供兩種信息通知:
+    1 默認k8s通知node執行docker stop命令，docker會先向容器中的PID爲1的進程發送系統信號SIGTERM，
+      然後等待容器中的應用程序終止執行，如果等待時間達到設定的超時時間，或者默認超時時間(30s),
+      會繼續發送SIGKILL的系統信號強行kill掉進程。
+    2 使用PreStop，它執行在發送終止信號之前
+
+    kubectl delete命令支持--grace-period=<seconds>選項用於覆蓋默認值，如果爲0代表強制刪除pod
+    k8s版本1.5之後如果設爲0還要多加一個--force選項
+    強制刪除一個pod是從集羣狀態還有etcd裏立刻刪除這個pod，當pod被強制刪除時，apiserver不會
+    等待來自pod所在節點上的kubelet的確認信息，就会立即将该pod从API server中移除，这时就可以创建跟原pod同名的pod了。
+    这时，在节点上的pod会被立即设置为terminating状态，不过在被强制删除之前依然有一小段优雅删除周期。
+
+如果上面兩個hook失敗，會殺死容器。所以hook應該盡可能輕量。
+除非一些特殊合理的情況，例如在停止容器之前預先保存狀態。
+
+實現hook有兩種方式
+1. Exec 用於執行一段特定的命令，要注意的是該命令消耗的資源會被計入容器
+2. HTTP 對容器上的特定的端點執行HTTP請求
+

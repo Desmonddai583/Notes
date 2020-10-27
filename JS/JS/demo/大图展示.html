@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>132大图展示</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 400px;
+            height: 400px;
+            border: 1px solid #000;
+            margin: 100px auto;
+            position: relative;
+        }
+        .mask{
+
+            background: rgba(255,0,0,0.3);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 200px;
+            display: none;
+        }
+        .big-box{
+            width: 400px;
+            height: 400px;
+            border: 1px solid #000;
+            position: absolute;
+            top: 0;
+            right: -410px;
+            overflow: hidden;
+            display: none;
+        }
+        .big-box img{
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="small-box">
+        <img src="images/small.jpg" alt="">
+        <span class="mask"></span>
+    </div>
+    <div class="big-box">
+        <img src="images/big.jpg" alt="">
+    </div>
+</div>
+<script>
+    // 1.获取需要操作的元素
+    var oBox = document.querySelector(".box");
+    var oMask = document.querySelector(".mask");
+    var oBigDiv = document.querySelector(".big-box");
+    var oImg = document.querySelector(".big-box>img");
+
+    // 2.给大盒子注册移入移出的事件
+    oBox.onmouseenter = function () {
+        oMask.style.display = "block";
+        oBigDiv.style.display = "block";
+    }
+    oBox.onmouseleave = function () {
+        oMask.style.display = "none";
+        oBigDiv.style.display = "none";
+    }
+    
+    // 3.给大盒子添加移动事件监听
+    oBox.onmousemove = function (event) {
+        event = event || window.event;
+        // 3.1获取鼠标在大盒子中的位置
+        var x = event.pageX - oBox.offsetLeft;
+        var y = event.pageY - oBox.offsetTop;
+
+        // 3.2让蒙版显示先鼠标的中间
+        x = x - oMask.offsetWidth / 2;
+        y = y - oMask.offsetHeight / 2;
+
+        // 3.3安全检验
+        x = x < 0 ? 0 : x;
+        y = y < 0 ? 0 : y;
+        var maxOffsetX = oBox.offsetWidth - oMask.offsetWidth;
+        var maxOffsetY = oBox.offsetHeight - oMask.offsetHeight;
+        x = x > maxOffsetX ? maxOffsetX : x;
+        y = y > maxOffsetY ? maxOffsetY : y;
+
+        // 3.4让蒙版跟着鼠标走
+        oMask.style.left = x + "px";
+        oMask.style.top = y + "px";
+
+        // 3.5计算图片移动的距离
+        // 蒙版移动的距离 / 蒙版最大能移动的距离 = 大图移动的距离 / 大图最大能移动的距离
+        // 大图移动的距离  = 蒙版移动的距离 / 蒙版最大能移动的距离 * 大图最大能移动的距离
+        var bigMaxOffsetX = oImg.offsetWidth - oBox.offsetWidth;
+        var bigMaxOffsetY = oImg.offsetHeight - oBox.offsetHeight;
+        var bigX = x / maxOffsetX * bigMaxOffsetX;
+        var bigY = y / maxOffsetY * bigMaxOffsetY;
+
+        oImg.style.left = -bigX + "px";
+        oImg.style.top = -bigY + "px";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+太绕了，不好理解
+cloudie
+直接卡死了
+行者无疆
+前30s走了6个人
+starry
+啥也不懂，啥也不敢问
+朱明圣
+超纲了
+行者无疆
+又走了1个
+Restart
+剩者为王
+naice 
+depid 不是++了么? 为啥是同一个
+永远乐观的面对未来
+能再用步骤的方式说下吗
+yu
+按照这个逻辑来看， 是data中的一个数据属性实例话一个watcher和dep吗
+☀_☀
+再走一下 debugger
+小北🎹
+每个属性只有一个dep吗？
+物语
+哦怪不得  freeze 以后就不依赖了
+在路上
+watcher中的id还没使用吧
+naice
+明白了
+Peak
+总共有四种关系 一对一 一对多 多对一 多对多 是吗
+纳诟灵
+一个属性修改了，其他属性没改，其他属性也会一起更新吗？
+东
+变量引用一次就有一个watcher 吗
+via
+dep主要的作用是什么到现在都没搞清楚，传下代码可以吗老师？
+☀_☀
+老师 再运行一下 debugger
+迷都
+咱现在是多个属性的dep对应了一个watcher吗？
+better_Man
+只要编译了就用到了Dep收集wather
+漫漫余生灬
+有触发到get，就会存入watcher到dep中(使用set去重)
+丹华抱一·鷇音子
+所有的watcher都是组件的渲染函数吗？
+yu
+可以这么理解吗？ 一个数据的属性对应一个dep， 但是watcher默认只会有一个，
+yu
+或者说一个组件会对应一个watcher?  vue2.0就是一个组件定义一个watcher
+Ethan
+有什么好处呢？ 组件及更新
+better_Man
+只要编译了就用到了Dep收集wather
+Peak
+notify通知watcher更新视图
+via
+1
+better_Man
+只要编译了就用到了Dep收集wather

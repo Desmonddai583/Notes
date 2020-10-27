@@ -1,0 +1,18 @@
+<div class="navbar">
+    <ul>
+        <% for (var i = 0; i < navs.length; i ++) { %>
+        <li>
+            <a href="/移动WEB开发/指趣商城<%=navs[i].url%>.html">
+                <% if(i === $imports.index) {%>
+                    <img src="<%=navs[i].active_icon%>">
+                    <p style="color:<%=navs[i].active_color%>"><%=navs[i].text%></p>
+                <% }else {%>
+                    <img src="<%=navs[i].icon%>">
+                    <p style="color:<%=navs[i].color%>"><%=navs[i].text%></p>
+                <% }%>
+
+            </a>
+        </li>
+        <% } %>
+    </ul>
+</div>

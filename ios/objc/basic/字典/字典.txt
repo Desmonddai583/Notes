@@ -1,0 +1,73 @@
+创建
+NSDictionary *dict = [NSDictionary dictionaryWithObject:@"lnj" forKey:@"name"];
+
+注意: key和value 是一一对应
+NSDictionary *dict = [NSDictionary dictionaryWithObjects:@[@"lnj", @"30", @"1.75"] forKeys:@[@"name", @"age", @"height"]];
+
+NSDictionary *dict = @{@"name":@"lnj", @"age":@"30", @"height":@"1.75"};
+
+NSDictionaryOfVariableBindings 
+    可以生成一个变量名到变量值映射的Dictionary
+    NSDictionary *views = NSDictionaryOfVariableBindings(button1, button2);
+    生成
+    @{ 
+    @"button1" : button1, 
+    @"button2" : button2 
+    }
+
+获取
+NSString *name = [dict objectForKey:@"name"];
+
+字典的遍历
+for (int i = 0; i < dict.count; ++i) {
+    // 获取字典中所有的key
+    NSArray *keys = [dict allKeys];
+    // 取出当前位置对应的key
+    NSString *key = keys[i];
+    NSString *value = dict[key];
+    NSLog(@"key = %@, value = %@", key, value);
+}
+
+for (NSString *key in dict) {
+    NSString *value = dict[key];
+    NSLog(@"key = %@, value = %@", key, value);
+}
+
+[dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    NSLog(@"key = %@, value = %@", key, obj);
+}];
+
+字典文件读写
+写
+    NSDictionary *dict = @{@"name":@"lnj", @"age":@"30", @"height":@"1.75"};
+    // XML 扩展名plist
+    [dict writeToFile:@"/Users/xiaomage/Desktop/info.plist" atomically:YES];
+
+读
+    // 注意: 字典和数组不同, 字典中保存的数据是无序的
+    NSDictionary *newDict = [NSDictionary dictionaryWithContentsOfFile:@"/Users/xiaomage/Desktop/info.plist"];
+
+NSMutableDictionary
+创建
+    NSMutableDictionary *dictM = [NSMutableDictionary  dictionary];
+添加
+    [dictM setObject:@"lnj" forKey:@"name"];
+    // 会将传入字典中所有的键值对取出来添加到dictM中
+    [dictM setValuesForKeysWithDictionary:@{@"age":@"30", @"height":@"1.75"}];
+获取
+    dictM[@"name"]
+删除
+    [dictM removeObjectForKey:@"name"];
+    [dictM removeObjectsForKeys:@[@"age", @"height"]];
+修改
+    如果利用setObject方法给同名的key赋值, 那么新值会覆盖旧值
+    [dictM setObject:@"88" forKey:@"age"];
+    // 以下方法等同于setObject,所以新值也会覆盖旧值
+    dictM[@"age"] = @"88";
+注意点
+    不能使用@{}来创建一个可变的字典
+    如果是不可变字典, 那么key不能相同
+    如果是不可变字典出现了同名的key, 那么后面的key对应的值不会被保存
+    如果是在可变字典中, 后面的会覆盖前面的
+    NSDictionary *dict = @{@"name":@"lmj", @"name":@"lnj"};
+    NSMutableDictionary *dictM = [NSMutableDictionary dictionaryWithObjects:@[@"lmj", @"lnj"] forKeys:@[@"name", @"name"]];

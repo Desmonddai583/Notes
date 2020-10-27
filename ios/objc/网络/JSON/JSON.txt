@@ -1,0 +1,52 @@
+如何查看复杂的JSON数据
+  方法一：
+      在线格式化http://tool.oschina.net/codeformat/json
+  方法二：
+      把解析后的数据写plist文件，通过plist文件可以直观的查看JSON的层次结构
+      [dictM writeToFile:@"/Users/文顶顶/Desktop/videos.plist" atomically:YES];
+
+OC对象和JSON数据格式之间的一一对应关系
+  {} -> 字典
+  [] -> 数组
+  "" -> 字符串
+  10/10.1 -> NSNumber
+  true/false -> NSNumber
+  null -> NSNull
+
+JSON对象->OC对象
+  /*
+  第一个参数: 要解析的JSON数据，是NSData类型也就是二进制数据
+  第二个参数: 解析JSON的可选配置参数
+  第三个参数: 错误信息
+  NSJSONReadingMutableContainers 解析出来的字典和数组是可变的
+  NSJSONReadingMutableLeaves 解析出来的对象中的字符串是可变的  iOS7以后有问题,不再使用
+  NSJSONReadingAllowFragments 被解析的JSON数据如果既不是字典也不是数组, 那么就必须使用这个
+  */
+  NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+
+OC对象->JSON对象
+  注意:并不是所有的OC对象都能转换为JSON
+      最外层必须是 NSArray or NSDictionary
+      所有的元素必须是 NSString, NSNumber, NSArray, NSDictionary, or NSNull
+      字典中所有的key都必须是 NSStrings类型的
+      NSNumbers不能死无穷大
+
+  NSDictionary *dictM = @{@"name":@"wendingding", @"age":@100, @"height":@1.72};
+  /*
+  注意：可以通过+ (BOOL)isValidJSONObject:(id)obj;方法判断当前OC对象能否转换为JSON数据
+        BOOL isValid = [NSJSONSerialization isValidJSONObject:strM];
+  具体限制：
+      1.obj 是NSArray 或 NSDictionay 以及他们派生出来的子类
+      2.obj 包含的所有对象是NSString,NSNumber,NSArray,NSDictionary或NSNull
+      3.字典中所有的key必须是NSString类型的
+      4.NSNumber的对象不能是NaN或无穷大
+  第一个参数：要转换成JSON数据的OC对象，这里为一个字典
+  第二个参数：NSJSONWritingPrettyPrinted对转换之后的JSON对象进行排版
+  */
+  NSData *data = [NSJSONSerialization dataWithJSONObject:dictM options:NSJSONWritingPrettyPrinted error:nil];
+  //打印查看Data是否有值
+  /*
+  第一个参数：要转换为STring的二进制数据
+  第二个参数：编码方式，通常采用NSUTF8StringEncoding
+  */
+  NSString *strM = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];

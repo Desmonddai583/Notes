@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-滑动侧边栏</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+        }
+        html,body{
+            width: 100%;
+            height: 100%;
+        }
+        #wrapper{
+            width: 85px;
+            height: 100%;
+            border: 1px solid #000;
+            position: relative;
+        }
+        #wrapper ul{
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+        #wrapper ul>li{
+            list-style: none;
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+
+</head>
+<body>
+<div id="wrapper">
+    <ul>
+        <li>热门推荐</li>
+        <li>指趣学院</li>
+        <li>手机数码</li>
+        <li>家用电脑</li>
+        <li>电脑办公</li>
+        <li>计生情趣</li>
+        <li>美妆护肤</li>
+        <li>个护清洁</li>
+        <li>汽车用品</li>
+        <li>京东超市</li>
+        <li>男装</li>
+        <li>男鞋</li>
+        <li>女装</li>
+        <li>女鞋</li>
+        <li>母婴童装</li>
+        <li>图书音像</li>
+        <li>运动户外</li>
+        <li>内衣配饰</li>
+        <li>食品生鲜</li>
+        <li>酒水饮料</li>
+        <li>家具家装</li>
+        <li>箱包手袋</li>
+        <li>钟表珠宝</li>
+        <li>玩具乐器</li>
+        <li>医疗保健</li>
+        <li>宠物生活</li>
+        <li>礼品鲜花</li>
+        <li>生活旅行</li>
+        <li>奢侈品</li>
+        <li>艺术邮币</li>
+        <li>二手商品</li>
+    </ul>
+</div>
+<script src="../js/iscroll.js"></script>
+<script>
+    var myScroll = new IScroll('#wrapper', {
+        mouseWheel: true, // 开启鼠标滚动滚动
+    });
+</script>
+</body>
+</html>

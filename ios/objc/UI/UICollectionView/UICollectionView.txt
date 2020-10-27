@@ -1,0 +1,103 @@
+UITableView重用机制,UICollectionView也有重用机制,他们两者最大的区别就是UITabeView不需要布局cell的位置,但是UICollectionView需要布局cell的位置
+系统已经给我们提供好了布局样式,其中我们最常用的布局样式是流水布局
+流水布局UICollectionView变宽,cell向上流,变窄向下流
+cell用法与tableviewCell类似
+UICollectionViewController内部有一个UIView,上面还有一个collectionView
+自定义cell需要添加到cell的contentView上面
+
+UICollectionView使用注意点
+  1.创建UICollectionView必须要有布局参数
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+  2.cell必须通过注册
+    [collectionView registerNib:[UINib nibWithNibName:NSStringFromClass([PhotoCell class])  bundle:nil] forCellWithReuseIdentifier:ID];
+  3.cell必须自定义,系统cell没有任何子控件
+
+属性
+  UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+  // 设置每个item大小
+  flowLayout.itemSize = [UIScreen mainScreen].bounds.size;
+  // 滚动方向(水平),默认是垂直滚动的
+  flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+  // items 和items之间的间距
+  flowLayout.minimumInteritemSpacing = 0;
+  // 行间距
+  flowLayout.minimumLineSpacing = 0;
+  // 修改滚动修改每一组的边距
+  flowLayout.sectionInset = UIEdgeInsetsMake(100, 20, 30, 40);
+  // 设置分页
+  self.collectionView.pagingEnabled = YES;
+  // 禁止弹框效果
+  self.collectionView.bounces = NO;
+  // 隐藏水平滚动条
+  self.collectionView.showsHorizontalScrollIndicator = NO;
+
+数据源方法
+  // 组数
+  - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+  // 每组个数
+  - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+  // 返回每组cell
+  - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+
+代理方法
+  // 滑动减速的时候调用
+  - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+
+自定义布局
+  如果想让cell尺寸不一样,就需要自定义布局
+
+  要了解5个方法
+    1. prepareLayout
+      // 什么时候调用:collectionView第一次布局,collectionView刷新的时候也会调用
+      // 作用:计算cell的布局,条件:cell的位置是固定不变
+      - (void)prepareLayout
+      {
+          [super prepareLayout];
+      }
+    2. collectionViewContentSize
+      // 计算collectionView滚动范围
+      - (CGSize)collectionViewContentSize{
+          return [super collectionViewContentSize];
+      }
+    3. - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds
+      // Invalidate:刷新
+      // 在滚动的时候是否允许刷新布局
+      - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds{
+          return YES;
+      }
+    4. - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity
+      // 什么时候调用:用户手指一松开就会调用
+      // 作用:确定最终偏移量
+      - (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity{
+          // 拖动比较快时有惯性缓冲所以 最终偏移量 不等于 手指离开时偏移量
+          // 最终偏移量
+          CGPoint targetP = [super targetContentOffsetForProposedContentOffset:proposedContentOffset withScrollingVelocity:velocity];
+          // 获取collectionView偏移量(即手指离开时偏移量)
+          NSLog(@"%@ %@",NSStringFromCGPoint(targetP),NSStringFromCGPoint(self.collectionView.contentOffset));
+          return CGPointZero;
+      }
+    5. - (nullable NSArray<__kindof UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect
+      // 作用:指定一段区域给你这段区域内cell的尺寸
+      // 可以一次性返回所有cell尺寸,也可以每隔一个距离返回cell
+      - (nullable NSArray<__kindof UICollectionViewLayoutAttributes *> *)layoutAttributesForElementsInRect:(CGRect)rect
+      {
+          // 根据传入的区域大小返回区域内cell的尺寸
+          NSArray *attrs = [super layoutAttributesForElementsInRect:CGRectMake(0, 0, MAXFLOAT, MAXFLOAT)];
+          return attrs;
+      }
+
+APP初始化时新特性页面循环利用解决方案
+  1.利用UIScrollView 添加4张imageView来实现
+    优点:实现起来简单
+    缺点:如果新特性界面较多,需要创建多个imageView
+  2.利用UITableView,将每个cell设置成和屏幕一样的大小,将tableView旋转来实现
+    缺点:tableView需要旋转操作,实现起来较复杂
+  3.模仿系统的重用机制,较难不要求掌握
+    缺点:操作复杂
+    1.利用UIScrollView和4个ImageView来实现
+    2.UIscrollView的contentSize为四个imageView的宽度
+    3.创建两个指针,一个reuse(重用)指针指向没有显示的imageView,一个center指针指向显示的imageView
+    4.当center指针消失在视野的时候,交换两个指针
+  4.利用UICollectionView实现
+    思路: 因为UICollectionview和tableView一样有重用机制,并且它能垂直滑动,也能水平滑动
+    优点: 有重用机制,并且能水平滑动

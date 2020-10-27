@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>fullpage基本使用</title>
+    <!--1.引入fullpage需要使用的文件-->
+    <link rel="stylesheet" href="css/fullpage.css">
+    <!--由于easings/fullpage都是jQuery的插件, 所以需要先引入jQuery-->
+    <script src="js/jquery-3.1.1.js"></script>
+    <script src="js/easings.js"></script>
+    <script src="js/fullpage.js"></script>
+    <style>
+        #myMenu{
+            position: fixed;
+            top: 50px;
+            left: 50px;
+            z-index: 999;
+            font-size: 30px;
+        }
+        .active{
+            background: deepskyblue;
+        }
+    </style>
+</head>
+<body>
+<!--2.搭建fullpage需要的结构-->
+<!--
+注意点:
+要求的结构指的是: 父元素必须有一个id叫做fullpage
+                  子元素必须有一个class叫做section
+只要满足了这个结构, 就可以实现全屏滚动
+但是: 并不是要求父元素一定要是div,子元素一定要是div
+-->
+<ul id="main">
+    <li class="section">Some section11111111111111111</li>
+    <li class="section">Some section22222222222222222</li>
+    <li class="section">Some section33333333333333333</li>
+    <li class="section">Some section44444444444444444</li>
+</ul>
+
+<ul id="myMenu">
+    <!--
+    如果需要自定义菜单, 那么有一个固定的格式
+    父元素的data-menuanchor=值
+    子元素必须是a标签, href=#值
+    也就是说父元素的值和子元素的值必须一致
+    -->
+    <li data-menuanchor="firstPage" class="active">
+        <a href="#firstPage">第一节</a>
+    </li>
+    <li data-menuanchor="secondPage">
+        <a href="#secondPage">第二节</a>
+    </li>
+    <li data-menuanchor="thirdPage">
+        <a href="#thirdPage">第三节</a>
+    </li>
+    <li data-menuanchor="fourthPage">
+        <a href="#fourthPage">第四节</a>
+    </li>
+</ul>
+<script>
+    $(function () {
+        // 1.最基本的使用
+        // $("#main").fullpage();
+
+        // 2.配置参数
+        $("#main").fullpage({
+            sectionsColor: ['#f00', '#0f0', '#00f', '#ff0'],
+            // loopBottom: true,
+            // loopTop: true,
+            // navigation: true, // 显示侧边栏导航
+            // navigationPosition: "left"
+            anchors: ['firstPage', 'secondPage', 'thirdPage', 'fourthPage'],
+            menu: '#myMenu',
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>106-轮播图基本结构搭建</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 670px;
+            height: 300px;
+            border: 1px solid #000;
+            margin: 50px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        .box .items{
+            list-style: none;
+            display: flex;
+            position: relative;
+        }
+        .box>p{
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .box>p>span{
+            display: inline-block;
+            width: 20px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            font-size: 30px;
+            color: #fff;
+            background: rgba(0,0,0,0.3);
+        }
+        .left{
+            float: left;
+        }
+        .right{
+            float: right;
+        }
+        .dots{
+            list-style: none;
+            width: 120px;
+            height: 20px;
+            background: rgba(0,0,0, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .dots>li{
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        .dots .selected{
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <ul class="items">
+        <li><img src="images/ad1.jpg" alt=""></li>
+        <li><img src="images/ad2.jpg" alt=""></li>
+        <li><img src="images/ad3.jpg" alt=""></li>
+        <li><img src="images/ad4.jpg" alt=""></li>
+    </ul>
+    <p>
+        <span class="left">&lt;</span>
+        <span class="right">&gt;</span>
+    </p>
+    <ul class="dots">
+        <li class="selected"></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<script src="js/tools.js"></script>
+<script>
+    window.onload = function() {
+        // 1.获取需要操作的元素
+        var oLeftBtn = document.querySelector(".left");
+        var oRightBtn = document.querySelector(".right");
+        var oUl = document.querySelector(".items");
+        var oItem = document.querySelector(".items>li");
+        var oDots = document.querySelector(".dots");
+
+        // 定义变量记录当前图片的索引
+        var currentIndex = 0;
+        // 定义变量记录每张图片的宽度
+        var itemWidth = oItem.offsetWidth;
+        // 2.添加点击事件
+        oRightBtn.onclick = function () {
+            oDots.children[currentIndex].className = "";
+            // 让当前索引递增
+            currentIndex++;
+            // 安全校验
+            if(currentIndex >= oUl.children.length){
+                currentIndex = 0;
+            }
+            // 修改UL的位置
+            // oUl.style.marginLeft = -currentIndex * itemWidth + "px";
+            linearAnimation(oUl, {"left": -currentIndex * itemWidth});
+
+            // 修改小圆点的选中状态
+            oDots.children[currentIndex].className = "selected";
+
+        };
+        oLeftBtn.onclick = function () {
+            oDots.children[currentIndex].className = "";
+            // 让当前索引递减
+            currentIndex--;
+            // 安全校验
+            if(currentIndex < 0){
+                currentIndex = oUl.children.length - 1;
+            }
+            // 修改UL的位置
+            // oUl.style.marginLeft = -currentIndex * itemWidth + "px";
+            linearAnimation(oUl, {"left": -currentIndex * itemWidth});
+            // 修改小圆点的选中状态
+            oDots.children[currentIndex].className = "selected";
+        };
+    }
+
+    /**
+     * 匀速动画
+     * @param ele 需要获取的元素
+     * @param obj 动画属性对象
+     * @returns fn 动画执行完毕之后回调
+     */
+     function linearAnimation(ele, obj, fn) {
+        clearInterval(ele.timerId);
+
+        // 2.1开启定时器不断累加left的值
+        ele.timerId = setInterval(function () {
+            var flag = true;
+            for(var key in obj){
+                // 2.2获取元素开始的位置
+                var begin = parseInt(getStyleAttr(ele, key)) || 0;
+                // 2.3获取结束的位置
+                var target = obj[key];
+                // 2.4定义每次移动的步长
+                var step = (begin < target) ? 10 : -10;
+                // 2.5让元素动起来
+                ele.style[key] = begin + step + "px";
+                // 2.6添加结束条件
+                if(Math.abs(target - begin) > Math.abs(step)){
+                    flag = false;
+                }else if(Math.abs(target - begin) <= Math.abs(step)){
+                    ele.style[key] = target + "px";
+                }
+            }
+            if(flag){
+                clearInterval(ele.timerId);
+                if(fn){
+                    fn();
+                }
+            }
+        }, 10);
+    }
+
+    /**
+     * 获取样式兼容性的处理
+     * @param obj 需要获取的元素
+     * @param attr 需要获取的属性
+     * @returns {string} 获取到的值
+     */
+    function getStyleAttr(obj, attr) {
+        if(obj.currentStyle){
+            return obj.currentStyle[attr];
+        }else{
+            return window.getComputedStyle(obj, null)[attr];
+        }
+    }
+</script>
+</body>
+</html>

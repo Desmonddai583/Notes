@@ -1,0 +1,15 @@
+监听事件
+  UISegmentedControl *s = [[UISegmentedControl alloc] initWithItems:@[@"123",@"234",@"456",@"567"]];
+  s.selectedSegmentIndex = 0;
+  [s addTarget:self action:@selector(sClick:) forControlEvents:UIControlEventValueChanged];
+
+设置背景图片
+  [segMentControl setBackgroundImage:[UIImage imageNamed:@"CPArenaSegmentBG"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+设置字体颜色
+  [segMentControl setTitleTextAttributes:@{
+                                          NSForegroundColorAttributeName : [UIColor whiteColor]
+                                          } forState:UIControlStateNormal];
+设置选中的索引
+  segMentControl.selectedSegmentIndex = 0;
+设置前景色
+  segMentControl.tintColor = [UIColor colorWithRed:0 green:142/255.0 blue:143/255.0 alpha:1];

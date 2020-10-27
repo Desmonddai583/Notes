@@ -1,0 +1,63 @@
+Flow 
+    facebook出品的JavaScript静态类型检查工具
+    Vue.js的源码利用了Flow做了静态类型检查
+
+    1. 安装flow包
+        npm install -g flow-bin 
+    2. 创建配置文件.flowconfig
+        flow init 
+    3. 编写代码
+        代码中需要加入/*@flow*/才会触发flow检查
+    4. 执行flow
+        flow
+
+    flow的两种工作方式
+        类型推断: 通过变量的使用上下文来推断出变量类型,然后根据这些推断来检查类型
+            /*@flow*/
+
+            function split(str) {
+                return str.split(' ')
+            }
+
+            split(11)
+        类型注释: 事先注释好我们期待的类型,Flow 会基于这些注释来判断
+            /*@flow*/
+
+            function add(x: number, y: number): number {
+                return x + y
+            }
+
+            add('Hello', 11)
+
+            数组
+                var arr: Array<number> = [1, 2, 3]
+            类和对象
+                class Bar {
+                    x: string;           // x 是字符串
+                    y: string | number | void;  // y 可以是字符串或者数字或者不传
+                    z: boolean;
+
+                    constructor(x: string, y: string | number | void) {
+                        this.x = x
+                        this.y = y
+                        this.z = false
+                    }
+                }
+
+                var bar: Bar = new Bar('hello', 4)
+
+                var obj: { a: string, b: number, c: Array<string>, d: Bar } = {
+                    a: 'hello',
+                    b: 11,
+                    c: ['hello', 'world'],
+                    d: new Bar('hello', 3)
+                }
+            Null
+                var foo: ?string = null // foo 可以为字符串，也可以为 null
+    
+    有时候我们想引用第三方库,或者自定义一些类型,但Flow并不认识,因此检查的时候会报错。
+    为了解决这类问题,Flow提出了一个libdef的概念,可以用来识别这些第三方库或者是自定义类型,而Vue也利用了这一特性
+    在Vue.js的主目录下有.flowconfig文件,它是Flow的配置文件
+    这其中的[libs]部分用来描述包含指定库定义的目录,默认是名为flow-typed的目录
+
+    

@@ -1,0 +1,26 @@
+secure_link模块作用
+    1. 指定并允许检查请求的链接的真实性以及保护资源免遭未经授权的访问
+    2. 限制链接生效周期
+
+1. secure_link experssion
+    context: http, server, location
+
+2. secure_link_md5 experssion
+    context: http, server, location
+
+location / {
+    // 获取请求的md5和expires参数的值
+    secure_link $arg_md5,$arg_expires;
+    // 将上面获取的值以下面产生的md5进行比较验证
+    secure_link_md5 "$secure_link_expires$uri imooc";
+
+    // 匹配不成功
+    if ($secure_link = "") {
+        return 403;
+    }
+
+    // 匹配不成功
+    if ($secure_link = "0") {
+        return 410;
+    }
+}

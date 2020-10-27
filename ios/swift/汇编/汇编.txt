@@ -1,0 +1,112 @@
+寄存器
+  信息存储
+运算器
+  信息处理
+控制器
+
+寄存器与内存
+  通常，CPU会先将内存中的数据存储到寄存器中，然后再对寄存器中的数据进行运算
+
+  假设内存中有块红色内存空间的值是3，现在想把它的值加1，并将结果存储到蓝色内存空间
+  CPU首先会将红色内存空间的值放到rax寄存器中：movq 红色内存空间, %rax
+  然后让rax寄存器与1相加：addq $0x1, %rax
+  最后将值赋值给内存空间：movq %rax, 蓝色内存空间
+
+汇编语言与机器语言一一对应，每一条机器指令都有与之对应的汇编指令
+汇编语言可以通过编译得到机器语言，机器语言可以通过反汇编得到汇编语言
+高级语言可以通过编译得到汇编语言\机器语言，但汇编语言\机器语言几乎不可能还原成高级语言
+
+汇编语言的种类  
+  8086汇编(16bit)
+  x86汇编(32bit)
+  x64汇编(64bit)
+  ARM汇编(嵌入式、移动设备)
+  ...
+
+  x86、x64汇编根据编译器的不同，有2种书写格式
+    Intel：Windows派系
+    AT&T ：Unix派系
+  
+  作为iOS开发最主要的汇编语言是
+    AT&T汇编 -> iOS模拟器 
+    ARM汇编 -> iOS真机设备
+
+常见汇编指令
+  寄存器命名
+    AT&T: %rax
+    Intel: rax
+  操作数顺序
+    将rax的值赋值给rdx
+    AT&T: movq %rax, %rdx
+    Intel: mov rdx, rax
+  常数\立即数
+    将3赋值给rax 
+    将0x10赋值给rax
+    AT&T: 
+      movq $3, %rax 
+      movq $0x10, %rax
+    Intel:
+      mov rax, 3 
+      mov rax, 0x10
+  内存赋值  
+    将0xa赋值给地址为rip + 0x1ff7的内存空间
+    AT&T: movq $0xa, 0x1ff7(%rip)
+    Intel: mov qword ptr [rip+0x1ff7], 0xa
+  取内存地址
+    将rbp – 0x18这个地址值赋值给rax
+    AT&T: leaq -0x18(%rbp), %rax
+    Intel: lea rax, [rbp – 0x18]
+  jmp指令
+    call和jmp写法类似
+    区别之处是call会配合retq一起使用,碰到retq就会跳回call之后的下一句指令
+    而jmp会在执行完之后接着执行完的指令继续执行,不会跳回
+    AT&T:
+      jmp *%rdx 
+      jmp 0x4001002 
+      jmp *(%rax)
+    Intel:
+      jmp rdx 
+      jmp 0x4001002 
+      jmp [rax]
+  操作数长度
+    AT&T指令后面都会跟一个单位(b,s,q等),是用来告诉存储的值会占用内存几个字节
+    而Intel则没有
+    b = byte (8-bit) 
+    s = short (16-bit integer or 32-bit floating point) 
+    w = word (16-bit) 
+    l = long (32-bit integer or 64-bit floating point) 
+    q = quad (64 bit) 
+    t = ten bytes (80-bit floating point)
+    AT&T:
+      movl %eax, %edx 
+      movb $0x10, %al 
+      leaw 0x10(%dx), %ax
+    Intel:
+      mov edx, eax 
+      mov al, 0x10 
+      lea ax, [dx + 0x10]
+  
+寄存器
+  有16个常用寄存器
+    %rax、%rbx、%rcx 、%rdx、%rsi、%rdi、%rbp、%rsp
+    %r8、%r9、%r10、%r11、%r12、%r13、%r14、%r15
+  
+  寄存器的具体用途
+    %rax, %rdx常作为函数返回值使用
+    %rdi、%rsi、%rdx、%rcx、%r8、%r9等寄存器常用于存放函数参数
+    %rsp、%rbp用于栈操作
+    %rip存储的是指令的地址,CPU要执行的下一条指令地址就存储在rip中
+  
+  寄存器兼容
+    x64汇编(64bit)最多可以存放8个字节,为了做到对之前4或2等字节的汇编语言兼容
+    但凡是%r开头的都是64bit的寄存器,%e开头的都是32bit的寄存器
+    ax,bx,cx都是16bit的, ah,al都是8bit的
+    背后x64会将低4个字节当做x86的寄存器使用,然后之后的都是以此推类
+
+内存地址格式为：0x4bdc(%rip)，一般是全局变量，全局区（数据段）
+内存地址格式为：-0x78(%rbp)，一般是局部变量，栈空间
+内存地址格式为：0x10(%rax)，一般是堆空间
+
+dyld_stub_binder
+  符号的延迟绑定通过dyld_stub_binder完成
+  常用于动态库调用时符号占位,绑定一次之后就会自动跳转到对应的地址而不会再经过dyld_stub_binder

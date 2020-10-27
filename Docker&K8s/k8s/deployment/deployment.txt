@@ -1,0 +1,23 @@
+Deployment與之前的rc比有什麼信德特性呢
+1. RC的全部功能：Deployment具备上面描述的RC的全部功能
+2. 事件和状态查看：可以查看Deployment的升级详细进度和状态
+3. 回滚：当升级Pod的时候如果出现问题，可以使用回滚操作回滚到之前的任一版本
+4. 版本记录：每一次对Deployment的操作，都能够保存下来，这也是保证可以回滚到任一版本的基础
+5. 暂停和启动：对于每一次升级都能够随时暂停和启动
+
+一个Deployment拥有多个Replica Set，而一个Replica Set拥有一个或多个Pod。
+一个Deployment控制多个rs主要是为了支持回滚机制，每当Deployment操作时，
+Kubernetes会重新生成一个Replica Set并保留，以后有需要的话就可以回滚至之前的状态。
+
+rollout history中记录的revision都和ReplicaSets一一对应。
+如果手动delete某个ReplicaSet，对应的rollout history就会被删除，也就是还说你无法回滚到这个revison了。
+
+kubectl rollout status deployment <deployment name> // 查看滾動更新狀態
+kubectl rollout pause deployment <deployment name> // 暫停滾動升級
+kubectl rollout resume deployment <deployment name> // 恢復繼續滾動升級
+kubectl rollout history deployment <deployment name> // 查看滾動升級歷史
+kubectl rollout history deployment <deployment name> --revision=3 // 查看某個revision信息
+kubectl rollout undo deployment <deployment name> // 回滾到最近一個版本
+kubectl rollout undo deployment <deployment name> --to-revision=3 // 回滾到指定版本
+
+在apply deployment時加上--record=true，在調用history時就可以看到change cause

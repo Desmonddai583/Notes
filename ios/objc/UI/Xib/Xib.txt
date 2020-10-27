@@ -1,0 +1,22 @@
+Xib和storyboard对比
+  共同点：
+    都用来描述软件界面
+    都用Interface Builder工具来编辑
+    本质都是转换成代码去创建控件
+  不同点
+    Xib是轻量级的，用来描述局部的UI界面
+    Storyboard是重量级的，用来描述整个软件的多个界面，并且能展示多个界面之间的跳转关系
+
+Xib的加载
+  方法1(推荐使用)
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"xib文件名" owner:nil options:nil]
+
+  方法2
+    UINib *nib = [UINib nibWithNibName:@"xib文件名" bundle:nil];
+    NSArray *views = [nib instantiateWithOwner:nil options:nil];
+
+xib使用注意事项:
+  1 如果一个view从xib中加载,会调用initWithCoder: 和 awakeFromNib,不会调用init和initWithFrame:方法
+    所以如果想用代码添加一些子控件, 就不能用[xxx alloc] init] 和 [xxx alloc] initWithFrame:]创建,得在 initWithCoder: 和 awakeFromNib 创建
+  2 如果一个xib经常被使用,应该提供快速构造类方法
+  3 如果子控件是从xib中创建,那么在initWithCoder中是处于未唤醒状态,所以如果添加xib中创建的子控件的子控件就需要在awakeFromNib中创建

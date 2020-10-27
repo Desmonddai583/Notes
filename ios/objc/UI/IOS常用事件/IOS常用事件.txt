@@ -1,0 +1,171 @@
+触摸事件
+加速计事件
+远程控制事件
+
+继承了UIResponds的对象我们称它为响应者对象
+UIApplication、UIViewController、UIView都继承自UIResponder
+因此它们都是响应者对象，都能够接收并处理事件
+
+触摸事件
+  一根或者多根手指开始触摸view
+  - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+  一根或者多根手指在view上移动,随着手指的移动，会持续调用该方法
+  - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
+  一根或者多根手指离开view
+  - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+  触摸结束前，某个系统事件(例如电话呼入)会打断触摸过程，系统会自动调用view的下面方法
+  - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
+
+加速计事件
+  - (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event;
+  - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event;
+  - (void)motionCancelled:(UIEventSubtype)motion withEvent:(UIEvent *)event;
+
+远程控制事件
+  - (void)remoteControlReceivedWithEvent:(UIEvent *)event;
+
+UITouch
+  当用户用一根手指触摸屏幕时，会创建一个与手指相关联的UITouch对象
+  一根手指对应一个UITouch对象
+  UITouch的作用
+    保存着跟手指相关的信息，比如触摸的位置、时间、阶段
+  当手指移动时，系统会更新同一个UITouch对象，使之能够一直保存该手指在的触摸位置
+  当手指离开屏幕时，系统会销毁相应的UITouch对象
+  提示：iPhone开发中，要避免使用双击事件
+
+  UITouch的属性
+    触摸产生时所处的窗口
+    @property(nonatomic,readonly,retain) UIWindow *window;
+    触摸产生时所处的视图
+    @property(nonatomic,readonly,retain) UIView *view;
+    短时间内点按屏幕的次数，可以根据tapCount判断单击、双击或更多的点击
+    @property(nonatomic,readonly) NSUInteger tapCount;
+    记录了触摸事件产生或变化时的时间，单位是秒
+    @property(nonatomic,readonly) NSTimeInterval timestamp;
+    当前触摸事件所处的状态
+    @property(nonatomic,readonly) UITouchPhase phase;
+      UITouchPhaseBegan（触摸开始）
+      UITouchPhaseMoved（接触点移动）
+      UITouchPhaseStationary（接触点无移动）
+      UITouchPhaseEnded（触摸结束）
+      UITouchPhaseCancelled（触摸取消）
+
+  UITouch的方法
+    - (CGPoint)locationInView:(UIView *)view;
+    返回值表示触摸在view上的位置
+    这里返回的位置是针对view的坐标系的（以view的左上角为原点(0, 0)）
+    调用时传入的view参数为nil的话，返回的是触摸点在UIWindow的位置
+
+    - (CGPoint)previousLocationInView:(UIView *)view;
+    该方法记录了前一个触摸点的位置
+
+UIEvent
+  每产生一个事件，就会产生一个UIEvent对象
+  UIEvent：称为事件对象，记录事件产生的时刻和类型
+
+  常见属性
+    事件类型
+    @property(nonatomic,readonly) UIEventType     type;
+      UIEventTypeTouches
+      UIEventTypeMotion
+      UIEventTypeRemoteControl
+    @property(nonatomic,readonly) UIEventSubtype  subtype;
+      // available in iPhone OS 3.0
+      UIEventSubtypeNone                              = 0,
+      // for UIEventTypeMotion, available in iPhone OS 3.0
+      UIEventSubtypeMotionShake                       = 1,
+      // for UIEventTypeRemoteControl, available in iOS 4.0
+      UIEventSubtypeRemoteControlPlay                 = 100,
+      UIEventSubtypeRemoteControlPause                = 101,
+      UIEventSubtypeRemoteControlStop                 = 102,
+      UIEventSubtypeRemoteControlTogglePlayPause      = 103,
+      UIEventSubtypeRemoteControlNextTrack            = 104,
+      UIEventSubtypeRemoteControlPreviousTrack        = 105,
+      UIEventSubtypeRemoteControlBeginSeekingBackward = 106,
+      UIEventSubtypeRemoteControlEndSeekingBackward   = 107,
+      UIEventSubtypeRemoteControlBeginSeekingForward  = 108,
+      UIEventSubtypeRemoteControlEndSeekingForward    = 109,
+    事件产生的时间
+    @property(nonatomic,readonly) NSTimeInterval  timestamp;
+
+  一次完整的触摸过程，会经历3个状态：
+    触摸开始：- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+    触摸移动：- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+    触摸结束：- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+    触摸取消（可能会经历）：- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+  一次完整的触摸过程中，只会产生一个事件对象，4个触摸方法都是同一个event参数
+  如果两根手指同时触摸一个view，那么view只会调用一次touchesBegan:withEvent:方法，touches参数中装着2个UITouch对象
+  如果这两根手指一前一后分开触摸同一个view，那么view会分别调用2次touchesBegan:withEvent:方法，并且每次调用时的touches参数中只包含一个UITouch对象
+  根据touches中UITouch的个数可以判断出是单点触摸还是多点触摸
+
+事件传递
+  发生触摸事件后，系统会将该事件加入到一个由UIApplication管理的事件队列中
+  UIApplication会从事件队列中取出最前面的事件，并将事件分发下去以便处理，通常，先发送事件给应用程序的主窗口（keyWindow）
+  主窗口会在视图层次结构中找到一个最合适的视图来处理触摸事件，这也是整个事件处理过程的第一步
+    如何找到最合适的控件来处理事件？
+      自己是否能接收触摸事件？
+      触摸点是否在自己身上？
+      从后往前遍历子控件，重复前面的两个步骤,注意是从后往前
+      如果没有符合条件的子控件，那么就自己最适合处理
+  找到合适的视图控件后，就会调用视图控件的touches方法来作具体的事件处理
+
+  触摸事件的传递是从父控件传递到子控件
+    1.当一个控件如果它的父控件不能够接收事件,那么它里面子控件也是不能接收事件的  userInteractionEnabled = NO
+    2.当一个控件隐藏的时候,它里面的子控件也跟着隐藏 hidden = YES
+    3.当一个控件透明的时候,它里面的子控件也跟着透明 alpha = 0.0 ~ 0.01
+
+    UIImageView的userInteractionEnabled默认就是NO，因此UIImageView以及它的子控件默认是不能接收触摸事件的
+
+  hitTest
+    作用:寻找最适合的View
+    参数:当前手指所在的点.产生的事件
+    返回值:返回谁, 谁就是最适合的View.
+    什么时候用调用:只要一个事件,传递给一个控件时, 就会调用这个控件的hitTest方法
+    -(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+
+  pointInside
+    作用:判断point在不在方法调用者上
+    point:必须是方法调用者的坐标系
+    什么时候调用:hitTest方法底层会调用这个方法,判断点在不在控件上.
+    -(BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event{
+      return YES;
+    }
+
+  hitTest底层实现:
+    1.判断当前能不能接收事件
+      if(self.userInteractionEnabled == NO || self.hidden == YES || self.alpha <= 0.01) return nil;
+    2.判断触摸点在不在当前的控件上
+      if(![self pointInside:point withEvent:event]) return nil;
+    3.从后往前遍历自己的子控件
+      int count = (int)self.subviews.count;
+      for (int i = count - 1; i >= 0;i-- ) {
+          UIView *childV = self.subviews[i];
+          // 把当前坐标系上的点转换成子控件坐标系上的点.
+          CGPoint childP = [self convertPoint:point toView:childV];
+          // 判断自己的子控件是不是最适合的View
+          UIView *fitView = [childV hitTest:childP withEvent:event];
+          如果子控件是最适拿的View,直接返回
+            if (fitView) {
+                return fitView;
+            }
+        }
+    4.自己就是最适合的View
+      return self.
+
+事件响应
+  用户点击屏幕后产生的一个触摸事件，经过一系列的传递过程后，会找到最合适的视图控件来处理这个事件,
+  找到最合适的视图控件后,就会调用控件的touches方法来作具体的事件处理
+  那这些touches方法的默认做法是将事件顺着响应者链条向上传递，将事件交给上一个响应者进行处理
+
+  如何去寻找上一个响应者?
+    1.如果当前的View是控制器的View,那么控制器就是上一个响应者.
+    2.如果当前的View不是控制器的View,那么它的父控件就是上一个响应者.
+    3.在视图层次结构的最顶级视图，如果也不能处理收到的事件或消息，则其将事件或消息传递给window对象进行处理
+    4.如果window对象也不处理，则其将事件或消息传递给UIApplication对象
+    5.如果UIApplication也不能处理该事件或消息，则将其丢弃
+
+事件传递响应完整过程
+  1.先将事件对象由上往下传递(由父控件传递给子控件)，找到最合适的控件来处理这个事件。
+  2.调用最合适控件的touches….方法
+  3.如果调用了[super touches….];就会将事件顺着响应者链条往上传递，传递给上一个响应者
+  4.接着就会调用上一个响应者的touches….方法

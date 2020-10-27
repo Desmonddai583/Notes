@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>85-表单校验</title>
+    <style>
+        .bg{
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<form action="http://www.it666.com">
+    <input type="text" placeholder="请输入账号">
+    <input type="password" placeholder="请输入密码">
+    <input type="submit" value="注册">
+</form>
+
+<script>
+    /*
+    需求:
+    1.账号和密码必须大于等于6位小于10位
+    2.如果账号密码的长度不够就改变input输入框的背景颜色
+    3.如果用户输入的账号或者密码不符合需求, 那么就不能提交
+     */
+    // 1.拿到需要操作的元素
+    var oUserName = document.querySelector("input[type=text]");
+    var oPassword = document.querySelector("input[type=password]");
+    var oSubmit = document.querySelector("input[type=submit]");
+    // 2.给注册按钮添加事件
+    oSubmit.onclick = function () {
+        // 3.获取用户名的值, 判断是否满足条件
+        if(oUserName.value.length < 6 ||
+            oUserName.value.length > 10){
+            console.log("abc");
+            // 修改背景颜色
+            oUserName.style.backgroundColor = "red";
+            // oUserName.className = "bg";
+            // 注意点:
+            // 表单中的submit也有默认的事件的实现
+            return false;
+        }else{
+            oUserName.style.backgroundColor = "#fff";
+        }
+        // 3.获取密码的值, 判断是否满足条件
+        if(oPassword.value.length < 6 ||
+            oPassword.value.length > 10){
+            oPassword.style.backgroundColor = "red";
+            return false;
+        }else{
+            oPassword.style.backgroundColor = "#fff";
+        }
+    }
+</script>
+</body>
+</html>

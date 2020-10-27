@@ -1,0 +1,241 @@
+body{
+    background: #f8f8f8 url("../images/bg.jpg") no-repeat center top;
+}
+
+/*头部*/
+.header{
+    width: 100%;
+    height: 120px;
+    /*background-color: red;*/
+}
+.header .header_in{
+    width: 980px;
+    height: 100%;
+    margin: 0 auto;
+    /*background-color: gold;*/
+    padding-top: 22px;
+    box-sizing: border-box;
+}
+.header .header_in>h1{
+    width: 173px;
+    height: 75px;
+
+}
+.header .header_in>h1>a{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    background: url("../images/logo.jpg");
+}
+/***************************头部E****************************/
+
+/*导航*/
+.nav{
+    width: 980px;
+    height: 60px;
+    margin: 0 auto;
+}
+.nav>span:first-child{
+    float: left;
+    display: inline-block;
+    width: 20px;
+    height: 60px;
+    background: url("../images/nav-left.jpg") no-repeat;
+}
+.nav>span:last-child{
+    float: right;
+    display: inline-block;
+    width: 20px;
+    height: 60px;
+    background: url("../images/nav-right.jpg") no-repeat;
+}
+.nav>ul{
+    float: left;
+    width: 940px;
+    height: 60px;
+    background: url("../images/nav-center.jpg");
+}
+.nav>ul>li{
+    float: left;
+    width: 104px;
+    height: 45px;
+    text-align: center;
+    line-height: 45px;
+    background: url("../images/nav-line.jpg") no-repeat right center;
+}
+.nav>ul>li:last-child{
+    background: none;
+}
+.nav>ul>li:hover a{
+    border-bottom: 1px solid #fff;
+}
+.nav>ul>li>a{
+    color: #fff;
+}
+/***************************导航E****************************/
+
+/*广告*/
+.banner{
+    width: 980px;
+    height: 382px;
+    margin: 0 auto;
+}
+/***************************广告E****************************/
+
+/*内容*/
+.content{
+    width: 980px;
+    height: 302px;
+    margin: 0 auto;
+}
+.content .content_top{
+    width: 100%;
+    height: 92px;
+    background: #fff;
+}
+.content .content_top>ul{
+    width: 100%;
+    height: 100%;
+    padding:7px 7px 0 7px;
+    box-sizing: border-box;
+}
+.content .content_top>ul>li{
+    float: left;
+    width: 236px;
+    height: 84px;
+    background: url("../images/con-top-item.jpg") no-repeat;
+    margin-right: 7px;
+}
+.content .content_top>ul>li:last-child{
+    margin-right:0;
+}
+
+.content .content_top>ul>li>a{
+    margin-top: 5px;
+    margin-left: 5px;
+    display: block;
+    width: 100%;
+    height:30px;
+    background: url("../images/con-top-spirit.jpg") no-repeat;
+}
+.content .content_top>ul>li:nth-child(2) a{
+    background-position: 0 -30px;
+}
+.content .content_top>ul>li:nth-child(3) a{
+    background-position: 0 -60px;
+}
+.content .content_top>ul>li:nth-child(4) a{
+    background-position: 0 -90px;
+}
+.content .content_top>ul>li>p{
+    margin-left: 50px;
+}
+
+
+.content .content_bottom{
+    width: 100%;
+    height: 210px;
+    background: url("../images/con-down-bg.jpg");
+
+}
+.content .content_bottom>div>div:first-child{
+    height: 70px;
+    padding: 10px;
+    box-sizing: border-box;
+    /*background-color: red;*/
+}
+.content .content_bottom .con_title_left{
+    float: left;
+}
+.content .content_bottom .con_title_right{
+    float: right;
+}
+.content .content_bottom>div>div:last-child{
+    height: 140px;
+    padding: 10px;
+    box-sizing: border-box;
+    /*background-color: deeppink;*/
+}
+
+.content .content_bottom_one{
+    float: left;
+    display: inline-block;
+    width: 323px;
+    height: 210px;
+    background: url("../images/con-down-line.jpg") no-repeat right center;
+}
+.content_bottom_one .con_bom_down>dl>dt{
+    float: left;
+    height: 120px;
+    margin-right: 10px;
+}
+.content_bottom_one .con_bom_down>dl>dd{
+    line-height: 20px;
+}
+
+.content .content_bottom .content_bottom_two{
+    float: left;
+    display: inline-block;
+    width: 407px;
+    height: 210px;
+    background: url("../images/con-down-line.jpg") no-repeat right center;
+}
+.content_bottom_two .con_bom_down>ul>li{
+    float: left;
+    margin-right: 8px;
+    text-align: center;
+}
+.content_bottom_two .con_bom_down img{
+    border: 1px solid #ccc;
+}
+
+
+.content .content_bottom .content_bottom_three{
+    float: left;
+    display: inline-block;
+    width: 250px;
+    height: 210px;
+}
+.content_bottom_three .con_bom_down>p{
+    line-height: 20px;
+}
+/***************************内容E****************************/
+
+/*底部导航*/
+.sub_nav {
+    width: 980px;
+    height: 34px;
+    margin: 0 auto;
+    text-align: center;
+    line-height: 34px;
+    background-color: #b4b4b4;
+}
+.sub_nav>a{
+    color: #fff;
+}
+    /***********************底部导航E*************************/
+
+/*底部*/
+.footer{
+    width: 100%;
+    height: 86px;
+    background-color: #f3f3f3;
+}
+.footer .footer_in{
+    width: 980px;
+    height: 100%;
+    margin: 0 auto;
+    /*background-color: darkgray;*/
+}
+.footer .footer_in>p{
+    float: left;
+    margin-top: 20px;
+    line-height: 25px;
+}
+.footer .footer_in>h2>a{
+    float: right;
+    width: 108px;
+    height: 48px;
+    margin-top: 20px;
+    background: url("../images/footer_logo.jpg");
+}

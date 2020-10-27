@@ -1,0 +1,180 @@
+小文件下载
+  1. 使用NSDta直接加载网络上的url资源（不考虑线程）
+    //1.确定资源路径
+    NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/resources/images/minion_01.png"];
+    //2.根据URL加载对应的资源
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    //3.转换并显示数据
+    UIImage *image = [UIImage imageWithData:data];
+    self.imageView.image = image;
+  2. 使用NSURLConnection发送异步请求下载文件资源
+    //1.确定请求路径
+    NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/resources/images/minion_01.png"];
+    //2.创建请求对象
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    //3.使用NSURLConnection发送一个异步请求
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+        //4.拿到并处理数据
+        UIImage *image = [UIImage imageWithData:data];
+        self.imageView.image = image;
+    }];
+  3. 使用NSURLConnection设置代理发送异步请求的方式下载文件
+    //1.确定请求路径
+    NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/resources/videos/minion_01.mp4"];
+    //2.创建请求对象
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    //3.使用NSURLConnection设置代理并发送异步请求
+    [NSURLConnection connectionWithRequest:request delegate:self];
+
+    //当接收到服务器响应的时候调用，该方法只会调用一次
+    -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+    {
+        //创建一个容器，用来接收服务器返回的数据
+        self.fileData = [NSMutableData data];
+        //获得当前要下载文件的总大小（通过响应头得到）
+        NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+        self.totalLength = res.expectedContentLength;
+        NSLog(@"%zd",self.totalLength);
+        //拿到服务器端推荐的文件名称
+        self.fileName = res.suggestedFilename;
+    }
+    //当接收到服务器返回的数据时会调用
+    //该方法可能会被调用多次
+    -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+    {
+        //拼接每次下载的数据
+        [self.fileData appendData:data];
+        //计算当前下载进度并刷新UI显示
+        self.currentLength = self.fileData.length;
+        NSLog(@"%f",1.0* self.currentLength/self.totalLength);
+        self.progressView.progress = 1.0* self.currentLength/self.totalLength;
+    }
+    //当网络请求结束之后调用
+    -(void)connectionDidFinishLoading:(NSURLConnection *)connection
+    {
+        //文件下载完毕把接受到的文件数据写入到沙盒中保存
+        //1.确定要保存文件的全路径
+        //caches文件夹路径
+        NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *fullPath = [caches stringByAppendingPathComponent:self.fileName];
+        //2.写数据到文件中
+        [self.fileData writeToFile:fullPath atomically:YES];
+        NSLog(@"%@",fullPath);
+    }
+
+    //当请求失败的时候调用该方法
+    -(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+    {
+        NSLog(@"%s",__func__);
+    }
+
+大文件下载
+  边接收数据边写入文件以解决内存越来越大的问题
+
+  -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+  {
+      //0.获得当前要下载文件的总大小（通过响应头得到）
+      NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+      self.totalLength = res.expectedContentLength;
+      NSLog(@"%zd",self.totalLength);
+      //创建一个新的文件，用来当接收到服务器返回数据的时候往该文件中写入数据
+      //1.获取文件管理者
+      NSFileManager *manager = [NSFileManager defaultManager];
+      //2.拼接文件的全路径
+      //caches文件夹路径
+      NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+      NSString *fullPath = [caches stringByAppendingPathComponent:res.suggestedFilename];
+      self.fullPath  = fullPath;
+      //3.创建一个空的文件
+      [manager createFileAtPath:fullPath contents:nil attributes:nil];
+  }
+  -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+  {
+      //1.创建一个用来向文件中写数据的文件句柄
+      //注意当下载完成之后，该文件句柄需要关闭，调用closeFile方法
+      //NSFileHandle写入数据会自动从尾部累加,但是如果关闭之后重新创建就会从头部开始,所以这个情况下需要调用seekToEndOfFile
+      NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:self.fullPath];
+      //2.设置写数据的位置(追加)
+      [handle seekToEndOfFile];
+      //3.写数据
+      [handle writeData:data];
+      //4.计算当前文件的下载进度
+      self.currentLength += data.length;
+      NSLog(@"%f",1.0* self.currentLength/self.totalLength);
+      self.progressView.progress = 1.0* self.currentLength/self.totalLength;
+  }
+  -(void)connectionDidFinishLoading:(NSURLConnection *)connection
+  {
+      //1.关闭文件句柄
+      [self.handle closeFile];
+      self.handle = nil;
+      
+      NSLog(@"connectionDidFinishLoading");
+      NSLog(@"%@",self.fullPath);
+  }
+
+大文件断点下载
+  在下载文件的时候不再是整块的从头开始下载，而是看当前文件已经下载到哪个地方，
+  然后从该地方接着往后面下载.可以通过在请求对象中设置请求头实现
+
+  // 创建请求对象
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+  // 设置下载文件的某一部分
+  // 只要设置HTTP请求头的Range属性, 就可以实现从指定位置开始下载
+  /*
+  表示头500个字节：Range: bytes=0-499
+  表示第二个500字节：Range: bytes=500-999
+  表示最后500个字节：Range: bytes=-500
+  表示500字节以后的范围：Range: bytes=500-
+  */
+  NSString *range = [NSString stringWithFormat:@"bytes=%zd-",self.currentLength];
+  [request setValue:range forHTTPHeaderField:@"Range"];
+
+  //获得当前要下载文件的总大小（通过响应头得到）
+  NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+  //注意点：res.expectedContentLength获得是本次请求要下载的文件的大小（并非是完整的文件的大小）
+  //因此：文件的总大小 == 本次要下载的文件大小+已经下载的文件的大小
+  self.totalLength = res.expectedContentLength + self.currentLength;
+  //判断当前是否已经下载过，如果当前文件已经存在，那么直接返回
+  if (self.currentLength >0) {
+      return;
+  }
+
+输出流
+  使用输出流也可以实现和NSFileHandle相同的功能
+
+  //1.创建一个数据输出流
+  /*
+    第一个参数：二进制的流数据要写入到哪里
+    第二个参数：采用什么样的方式写入流数据，如果YES则表示追加，如果是NO则表示覆盖
+    */
+  NSOutputStream *stream = [NSOutputStream outputStreamToFileAtPath:fullPath append:YES];
+  或者
+  NSOutputStream *stream = [[NSOutputStream alloc]initWithURL:[NSURL fileURLWithPath:[self fullPath]] append:YES];
+
+  //只要调用了该方法就会往文件中写数据
+  //如果文件不存在，那么会自动的创建一个
+  [stream open];
+  self.stream = stream;
+
+  //2.当接收到数据的时候写数据
+  //使用输出流写数据
+  /*
+    第一个参数：要写入的二进制数据
+    第二个参数：要写入的数据的大小
+    */
+  [self.stream write:data.bytes maxLength:data.length];
+
+  //3.当文件下载完毕的时候关闭输出流
+  //关闭输出流
+  [self.stream close];
+  self.stream = nil;
+
+使用多线程下载文件思路
+  1 开启多条线程，每条线程都只下载文件的一部分（通过设置请求头中的Range来实现）
+  2 创建一个和需要下载文件大小一致的文件，判断当前是那个线程，根据当前的线程来判断下载的数据应该写入到文件中的哪个位置。
+  （假设开5条线程来下载10M的文件，那么线程1下载0-2M，线程2下载2-4M一次类推，当接收到服务器返回的数据之后应该先判断当前线程是哪个线程，假如当前线程是线程2，那么在写数据的时候就从文件的2M位置开始写入）
+  3 代码相关：使用NSFileHandle这个类的seekToFileOfSet方法，来向文件中特定的位置写入数据。
+  4 技术相关
+      a.每个线程通过设置请求头下载文件中的某一个部分
+      b.通过NSFileHandle向文件中的指定位置写数据

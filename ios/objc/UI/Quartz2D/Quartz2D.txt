@@ -1,0 +1,305 @@
+Quartz 2D是一个二维绘图引擎，同时支持iOS和Mac系统
+Quartz2D的API是纯C语言的,Quartz2D的API来自于Core Graphics框架
+Quartz 2D能完成的工作
+  绘制图形 : 线条\三角形\矩形\圆\弧等
+  绘制文字
+  绘制\生成图片(图像)
+  读取\生成PDF
+  截图\裁剪图片
+  自定义UI控件
+
+图形上下文
+  是一个CGContextRef类型的数据
+  保存绘图信息、绘图状态
+  决定绘制的输出目标（绘制到什么地方去？）
+  输出目标可以是PDF文件、Bitmap或者显示器的窗口上
+  
+Quartz2D提供了以下几种类型的Graphics Context：
+  Bitmap Graphics Context
+  PDF Graphics Context
+  Window Graphics Context
+  Layer Graphics Context
+  Printer Graphics Context
+
+自定义view
+  1.要先自定定UIView
+  2.实现DrawRect方法
+  3.在DrawRect方法中取得跟View相关联的上下文(只有在drawRect:方法中才能取得跟view相关联的图形上下文)
+  4.绘制路径(描述路径长什么样).
+  5.把描述好的路径保存到上下文(即:添加路径到上下文)
+  6.把上下文的内容渲染到View
+
+  drawRect
+    调用时间
+      当view第一次显示到屏幕上时（被加到UIWindow上显示出来）
+      调用view的setNeedsDisplay或者setNeedsDisplayInRect:时
+    
+    在drawRect:方法中取得上下文后，就可以绘制东西到view上
+    View内部有个layer（图层）属性，drawRect:方法中取得的是一个Layer Graphics Context，因此，绘制的东西其实是绘制到view的layer上去了
+    View之所以能显示东西，完全是因为它内部的layer
+
+Quartz2D绘图的代码步骤  
+  获取跟View相关联的上下文
+  CGContextRef ctx = UIGraphicsGetCurrentContext();
+  绘制路径
+  UIBezierPath *path = [UIBezierPath bezierPath];
+  设置起点
+  [path moveToPoint:CGPointMake(10, 125)];
+  [path addLineToPoint:CGPointMake(200, 125)];
+  把路径添加到上下文
+  CGContextAddPath(ctx,path.CGPath);
+  把上下文的内容渲染到View上面.	
+  CGContextStrokePath(ctx);
+
+删除路径
+  [self.path removeAllPoints];
+
+Quartz2D的内存管理
+  使用含有“Create”或“Copy”的函数创建的对象，使用完后必须释放，否则将导致内存泄露
+  使用不含有“Create”或“Copy”的函数获取的对象，则不需要释放
+  如果retain了一个对象，不再使用时，需要将其release掉
+  可以使用Quartz 2D的函数来指定retain和release一个对象。
+  例如，如果创建了一个CGColorSpace对象，则使用函数CGColorSpaceRetain和CGColorSpaceRelease来retain和release对象。
+  也可以使用Core Foundation的CFRetain和CFRelease。注意不能传递NULL值给这些函数
+
+利用UIKit封装的上下文进行画图
+  直接使用[path stroke]
+  它底层的实现,就是获取上下文,拼接路径,把路径添加到上下文,渲染到View
+
+设置线宽
+CGContextSetLineWidth(ctx, 20);
+设置线段的连接样式
+CGContextSetLineJoin(ctx, kCGLineJoinRound);
+添加顶角样式
+CGContextSetLineCap(ctx, kCGLineCapRound);
+设置线的颜色
+[[UIColor redColor] setStroke]; 或者 [[UIColor redColor] setFill]
+可以直接使用[[UIColor redColor] set],会自己判断使用stroke或是fill
+
+常用拼接路径函数
+  新建一个起点
+  - (void)moveToPoint:(CGPoint)point;
+  画曲线
+  - (void)addQuadCurveToPoint:(CGPoint)endPoint controlPoint:(CGPoint)controlPoint;
+  添加新的线段到某个点
+  - (void)addLineToPoint:(CGPoint)point;
+  添加一个矩形
+  + (instancetype)bezierPathWithOvalInRect:(CGRect)rect;
+  添加一个圆角矩形
+  + (instancetype)bezierPathWithRoundedRect:(CGRect)rect cornerRadius:(CGFloat)cornerRadius;
+  添加一个椭圆
+  + (instancetype)bezierPathWithOvalInRect:(CGRect)rect;
+  添加一个圆弧
+  Center:圆心
+  radius:圆的半径
+  startAngle:起始角度
+  endAngle:终点角度
+  clockwise:Yes顺时针,No逆时针
+  注意:startAngle角度的位置是从圆的最右侧为0度.
+  + (instancetype)bezierPathWithArcCenter:(CGPoint)center radius:(CGFloat)radius startAngle:(CGFloat)startAngle endAngle:(CGFloat)endAngle clockwise:(BOOL)clockwise;
+  添加一个扇形
+    画扇形的方法为:先画一个圆孤再添加一个一根线到圆心,然后关闭路径.关闭路径就会自动从路径的终点到路径的起点封闭起下
+    用填充的话,它会默认做一个封闭路径,从路径的终点到起点. 
+      [path fill];
+
+UIKit绘图
+  UIKit给我们提供画图的⽅法底层也是分为四步.所以也必须在drawRect⽅法当中去写
+
+  画⽂字
+    NSString *str = @"⼩码哥⼩码哥"; 
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary]; 
+    // 设置字体 
+    dict[NSFontAttributeName] = [UIFont systemFontOfSize:50]; 
+    // 设置⽂字颜⾊ 
+    dict[NSForegroundColorAttributeName] = [UIColor redColor]; 
+    // 设置⽂字描边宽度 
+    dict[NSStrokeWidthAttributeName] = @2; 
+    // 设置⽂字搭边的颜⾊ 
+    dict[NSStrokeColorAttributeName] = [UIColor blueColor]; 
+    // 设置阴影 
+    NSShadow *shadow = [[NSShadow alloc] init]; 
+    // 设置阴影的偏移量 
+    shadow.shadowOffset = CGSizeMake(10, 10); 
+    // 设置阴影的颜⾊ 
+    shadow.shadowColor = [UIColor greenColor]; 
+    // 设置阴影的模糊程度 
+    shadow.shadowBlurRadius = 3; 
+    dict[NSShadowAttributeName] = shadow; 
+    // drawAtPoint:将⽂字画到哪⼀个点. 描述⽂字的属性:⽂字⼤⼩,颜⾊...这些属性都是通过字典来描述的.
+    [str drawAtPoint:CGPointZero withAttributes:dict];
+    或者
+    // drawInRect与drawAtPoint区别: drawInRect会⾃动换⾏,drawAtPoint不会⾃动换⾏.
+    [str drawInRect:self.bounds withAttributes:dict];
+  
+  画图⽚
+    // 加载图⽚ 
+    UIImage *image = [UIImage imageNamed:@"001"]; 
+    // 设置裁剪区域 超过裁剪区域以外的东⻄都会被裁剪掉 注意:这个⽅法必须要在绘制之前设置. 
+    UIRectClip(CGRectMake(0, 0, 50, 50)); 
+    // 平铺绘制 
+    [image drawAsPatternInRect:self.bounds];
+    // 在指定的点开始绘画图⽚，这个点就是图⽚的做上⾓顶点 绘制出来的图⽚跟加载的图⽚原始尺⼨⼀样⼤.
+    [image drawAtPoint:CGPointZero]; 
+    或者
+    // 会把加载的图⽚绘制到传⼊的rect区域内,填充整个区域. 
+    [image drawInRect:rect]; 
+  
+  快速的⽤矩形去填充⼀个区域 
+      UIRectFill(rect);
+
+常用绘制路径函数
+  Mode参数决定绘制的模式
+  void CGContextDrawPath(CGContextRef c, CGPathDrawingMode mode)
+  绘制空心路径
+  void CGContextStrokePath(CGContextRef c)
+  绘制实心路径
+  void CGContextFillPath(CGContextRef c)
+
+图形上下文栈的操作
+  上下⽂状态栈为内存中的⼀块区域,它⽤来保存前上下⽂当的状态. 我们获取的图层上下⽂当中其实两块区域,⼀个是存放添加的路径,⼀个是⽤来保存⽤户设置 的状态, 这些状态包括线条的颜⾊,线宽等.
+  当我们把上下⽂的内容渲染到View上⾯的时候, 它会⾃动将设置的所有上下⽂状态运⾏到保存的路径上⾯显⽰到View上⾯
+  我们可以利⽤上下⽂状态栈的⽅式,在设置状态之前,把之前的状态保存到上下⽂状态栈⾥⾯. 下⼀次想要再使⽤之前的状态时, 可以从上下⽂状态当中取出之前保存的上下⽂状态
+
+  将当前的上下文copy一份,保存到栈顶(那个栈叫做”图形上下文栈”)
+  void CGContextSaveGState(CGContextRef c)
+  将栈顶的上下文出栈,替换掉当前的上下文
+  void CGContextRestoreGState(CGContextRef c)
+
+矩阵操作
+  利用矩阵操作，能让绘制到上下文中的所有路径一起发生变化
+  缩放
+  void CGContextScaleCTM(CGContextRef c, CGFloat sx, CGFloat sy)
+  旋转
+  void CGContextRotateCTM(CGContextRef c, CGFloat angle)
+  平移
+  void CGContextTranslateCTM(CGContextRef c, CGFloat tx, CGFloat ty)
+
+图⽚添加⽔印
+  添加⽔印它最终是⽣成了⼀个新的图⽚.
+  ⽣成图⽚要⽤到了图⽚上下⽂.不需要再去⾃定义View,之前⼀直在⾃定义View,是因为要拿跟View相关联的上下⽂. 
+  跟View相关联的上下⽂是系统⾃动帮我们创建的,所以不需要我们⾃⼰⼿动创建,但是图⽚上下⽂需要我们⾃⼰去⼿动创建.还需要我们⾃⼰⼿动去关闭
+
+  步骤
+    开启⼀个和原始图⽚⼀样的图⽚上下⽂. 
+      UIImage *image = [UIImage imageNamed:@"⼩⻩⼈"];
+    把原始图⽚先绘制到图⽚上下⽂. 
+      size:要开启⼀个多⼤的图⽚上下⽂.
+      opaque:不透明度,当为YES为不透明, 为NO的时候透明, 
+      scale:是否需要缩放. 
+      UIGraphicsBeginImageContextWithOptions(image.size, YES, 0);
+    把要添加的⽔印(⽂字,logo)等绘制到图⽚上下⽂. 
+      [image drawAtPoint:CGPointZero blendMode:kCGBlendModeNormal alpha:1];
+      NSString *str = @"⼩码哥"; 
+      [str drawAtPoint:CGPointMake(20, 400) withAttributes: @{NSFontAttributeName:[UIFont systemFontOfSize:50], NSForegroundColorAttributeName: [UIColor colorWithRed:255/255.0 green:0 blue:0 alpha:0.3]}];
+    从上下⽂中取出⼀张图⽚.
+      UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    关闭图⽚上下⽂.
+      UIGraphicsEndImageContext(); 
+      self.imageV.image = newImage;
+
+带有边框的图片裁剪  
+  1.假设边框宽度为BorderW
+  2.开启的图片上下文的尺寸就应该是原始图片的宽高分别加上两倍的BorderW,这样开启的目的是为了不让原始图片变形.
+  3.在上下文上面添加一个圆形填充路径.位置从0,0点开始,宽高和上下文尺寸一样大.设置颜色为要设置的边框颜色.
+  4.继续在上下文上面添加一个圆形路径,这个路径为裁剪路径.
+    它的x,y分别从BorderW这个点开始.宽度和高度分别和原始图片的宽高一样大.
+    将绘制的这个路径设为裁剪区域.
+  5.把原始路径绘制到上下文当中.绘制的位置和是裁剪区域的位置相同,x,y分别从border开始绘制.
+  6.从上下文状态当中取出图片.
+  7.关闭上下文状态.
+
+截屏
+  把UIView的东西绘制到图片上下文当中,生成一张新的图片.
+  注意:UIView上的东西是不能直接画到上下文当中的.
+  UIView之所以能够显示是因为内部的一个层(layer),所以我要把层上的东西渲染到UIView上面的.
+  直接调用layer的renderInContext:方法
+  renderInContext:带有一个参数, 就是要把图层上的内容渲染到哪个上下文.
+  
+  具体实现
+    1.开启一个图片上下文
+    UIGraphicsBeginImageContextWithOptions(self.view.bounds.size, NO, 0);
+    获取当前的上下文.
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    2.把控制器View的内容绘制上下文当中.
+    [self.view.layer renderInContext:ctx];
+    3.从上下文当中取出图片
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    4.关闭上下文.
+    UIGraphicsEndImageContext();
+
+图片截屏
+  手指在屏幕上移动的时
+  添加一个半透明的UIView,
+  然后开启一个上下文把UIView的frame设置成裁剪区域.把图片显示的图片绘制到上下文当中,生成一张新的图片
+  再把生成的图片再赋值给原来的UImageView.
+
+  具体实现
+    1.给图片添加一个手势,监听手指在图片上的拖动,添加手势时要注意,UIImageView默认是不接事件的.
+      要把它设置成能够接收事件
+    2.监听手指的移动.手指移动的时候添加一个UIView，
+      x,y就是起始点,也就是当前手指开始的点.
+      width即是x轴的偏移量,
+      高度即是Y轴的偏移量.
+      UIView的尺寸位置为CGrect(x,y,witdth,height);
+      
+      计算代码为:
+      CGFloat offSetX = curP.x - self.beginP.x;
+      CGFloat offsetY = curP.y - self.beginP.y;
+      CGRect rect = CGRectMake(self.beginP.x, self.beginP.y, offSetX, offsetY);
+      UIView只需要添加一次,所以给UIView设置成懒加载的形式,
+      保证只有一个.每次移动的时候,只是修改UIView的frame.
+    3.开启一个图片上下文,图片上下文的大小为原始图片的尺寸大小.使得整个屏幕都能够截屏.
+      利用UIBezierPath设置一个矩形的裁剪区域.
+      然后把这个路径设置为裁剪区域.
+      把路径设为裁剪区域的方法为:
+      [path addClip];
+    4.把图片绘制到图片上下文当中
+      由于是一个UIImageView上面的图片,所以也得需要渲染到上下文当中.
+      要先获取当前的上下文,
+      把UIImageView的layer渲染到当前的上下文当中.
+      CGContextRef ctx = UIGraphicsGetCurrentContext();
+      [self.imageV.layer renderInContext:ctx];
+    5.取出新的图片,重新赋值图片.
+      UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+      self.imageV.image = newImage;
+    6.关闭上下文,移除上面半透明的UIView
+      UIGraphicsEndImageContext();
+      [self.coverView removeFromSuperview];
+
+图片擦除
+  弄两个不同的图片.上面一张, 下面一张.
+  添加手势,手指在上面移动,擦除图片.
+  擦除前要先确定好擦除区域.
+  假设擦除区域的宽高分别为30.
+  那点当前的擦除范围应该是通过当前的手指所在的点来确定擦除的范围,位置.
+  那么当前擦除区域的x应该是等于当前手指的x减去擦除范围的一半,同样,y也是当前手指的y减去高度的一半.
+  
+  有了擦除区域,要让图片办到擦除的效果,首先要把图片绘制到图片上下文当中, 在图片上下文当中进行擦除.
+  之后再生成一张新的图片,把新生成的这一张图片设置为上部的图片.那么就可以通过透明的效果,看到下部的图片了.
+  
+  第一个参数, 要擦除哪一个上下文
+  第二人参数,要擦除的区域.
+  CGContextClearRect(ctx, rect);
+  
+  具体实现
+    1 确定擦除的范围
+      CGFloat rectWH = 30;
+      获取手指的当前点.curP
+      CGPoint curP = [pan locationInView:pan.view];
+      CGFloat x = curP.x - rectWH * 0.5;
+      CGFloat y = curP.y - rectWH * 0.5;
+      CGRect rect = CGRectMake(x, y,rectWH, rectWH);
+    2 把图片绘制到上下文
+      UIGraphicsBeginImageContextWithOptions(self.imageView.bounds.size, NO, 0);
+    3 获取当前的上下文
+      CGContextRef ctx = UIGraphicsGetCurrentContext();
+    4 把上面一张图片绘制到上下文.
+      [self.imageView.layer renderInContext:ctx];
+    5 再绘上下文当中图片进行擦除.
+      CGContextClearRect(ctx, rect);
+    6 生成一张新图片
+      UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    7 再把新的图片给重新负值
+      self.imageView.image = newImage;
+    8 关闭上下文.
+      UIGraphicsEndImageContext();

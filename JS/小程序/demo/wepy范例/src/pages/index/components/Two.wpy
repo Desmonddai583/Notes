@@ -1,0 +1,32 @@
+<style lang="less" type="text/less" scoped>
+
+</style>
+
+<template>
+  <view>我是第二个组件</view>
+  <button @tap="sendMessage">执行父组件的事件</button>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class Two extends wepy.component {
+
+        methods = {
+          sendMessage(){
+            // 会去所有祖先组件中的events中查找名称叫做some-event的事件,并且执行
+            // this.$emit('some-event', 1, 2, 3);
+          },
+          twoFn(name){
+            console.log("twoFn", name);
+          }
+        };
+        events = {
+          'broadcast-event': (p1, p2, p3, $event) => {
+            console.log(p1, p2, p3);
+            console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`);
+          },
+        };
+
+    }
+</script>

@@ -1,0 +1,84 @@
+利用KVC进行简单赋值
+  XMGPerson *person = [[XMGPerson alloc] init];
+  [person setValue:@"王五" forKey:@"name"];
+  [person setValue:@"19" forKeyPath:@"money"]; // kvc会自动转换类型
+
+利用KVC进行综合赋值
+  XMGPerson *person = [[XMGPerson alloc] init];
+  person.dog = [[XMGDog alloc] init];
+  [person setValue:@"旺财" forKeyPath:@"dog.name"];
+
+利用KVC修改类的私有成员变量
+  XMGPerson *person = [[XMGPerson alloc] init];
+  // 这里也可以使用age,kvc会智能的去查找,如果发现没有age就会去找_age
+  [person setValue:@"88" forKeyPath:@"_age"]; 
+
+字典转模型
+  开发中是不建议使用setValuesForKeysWithDictionary
+  1 字典中的key必须在模型的属性中找到
+  2 如果模型中带有模型,setValuesForKeysWithDictionary不好使
+    // 背后其实就类似以下代码这要暴力赋值,所以处理不了模型中带有模型的情况
+    [person setValue: @{
+                      @"name" : @"wangcai",
+                      @"price" : @8
+                      } forKeyPath:@"dog"];
+  应用场景: 简单的字典转模型 ---> 如果对于复杂的字典需要使用框架 (MJExtention)
+
+  XMGPerson *person = [[XMGPerson alloc] initWithDict:dict];
+  NSDictionary *dict = @{
+    @"name" : @"wangcai",
+    @"price" : @8
+  }
+  [person setValuesForKeysWithDictionary:dict];
+
+forKey和forKeyPath区别
+  1 forKeyPath 包含了所有 forKey 的功能
+  2 forKeyPath 进行内部的点语法,层层访问内部的属性(综合赋值时使用forKeyPath)
+  3 注意: key值一定要在属性中找到
+
+取值
+  XMGPerson *person = [[XMGPerson alloc] init];
+  person.name = @"张三";
+  person.money = 12332;
+  NSLog(@"%@ --- %.2f", [person valueForKeyPath:@"name"], [[person valueForKey:@"money"] floatValue]);
+
+把模型转成字典
+  XMGPerson *person = [[XMGPerson alloc] init];
+  person.name = @"lurry";
+  person.money = 21.21;
+  
+  NSDictionary *dict = [person dictionaryWithValuesForKeys:@[@"name", @"money"]];
+
+取出数组中所有模型的某个属性值
+  XMGPerson *person1 = [[XMGPerson alloc] init];
+  person1.name = @"zhangsan";
+  person1.money = 12.99;
+  
+  XMGPerson *person2 = [[XMGPerson alloc] init];
+  person2.name = @"zhangsi";
+  person2.money = 22.99;
+  
+  XMGPerson *person3 = [[XMGPerson alloc] init];
+  person3.name = @"wangwu";
+  person3.money = 122.99;
+  
+  NSArray *allPersons = @[person1, person2, person3];
+  NSArray *allPersonName = [allPersons valueForKeyPath:@"name"];
+
+kvc底层原理
+  通过KVC,调⽤对象的[item setValuesForKeysWithDictionary:dict] 
+  setValuesForKeysWithDictionary:底层实现 便利字典当中的所有Key Value值,给对应的key,value赋值 
+    [dict enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL * _Nonnull stop) { 
+      [item setValue:obj forKeyPath:key];
+    }];
+  setValue:forKeyPath:的底层实现
+    1.它会调⽤这个属性的set⽅法.
+    2.如果没有set⽅法,它会去判断有没有跟key值同名的成员属性.如果有,就直接赋 值,icon = obj.
+    3.如果没有,那么它还会去判断有没有跟key值名相同带有下划线的成员属性,如果有,就直 接赋值,_icon = obj.
+    4.如果都没有,就直接报错.找不到对应的成员属性,setValue:forUndefinedKey:报找不到的错误
+  
+  假设希望kvc传入UIImage对象,就需要重写属性的set方法
+    - (void)setIcon:(NSString *)icon{
+      UIImage *image = [UIImage imageNamed:icon];
+      _icon = image; 
+    }

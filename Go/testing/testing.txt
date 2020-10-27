@@ -1,0 +1,170 @@
+go test . 测试当前目录下的test
+test所在文件必须以_test.go结尾
+test方法都以Test开头并且会传一个*testing.T
+
+Fail, Error: 该测试失败，该测试继续，其他测试继续执⾏
+FailNow, Fatal: 该测试失败，该测试中⽌，其他测试继续执⾏
+
+断⾔库
+	https://github.com/stretchr/testify
+
+获取代码测试覆盖率
+go test -coverprofile=c.out
+go tool cover -html=c.out
+
+测试当前目录下的benchmark测试
+函数名必须是BenchmarkZzz形式，要使用*testing.B参数
+go test -bench . -benchmem
+
+性能分析
+	常⻅分析指标
+		Wall Time 運行的絕對時間
+		CPU Time
+		Block Time
+		Memory allocation
+		GC times/time spent
+
+	安装 graphviz
+		brew install graphviz
+	将 $GOPATH/bin 加⼊ $PATH
+		Mac OS: 在 .bash_profile 中修改路径
+	安装 go-torch(1.1之后内置不需安装)
+		go get github.com/uber/go-torch
+		下载并复制 flamegraph.pl （https://github.com/brendangregg/FlameGraph）⾄ $GOPATH/bin 路径下
+		将 $GOPATH/bin 加⼊ $PATH
+
+	通过⽂件⽅式输出 Proﬁle
+		灵活性⾼，适⽤于特定代码段的分析
+		通过⼿动调⽤ runtime/pprof 的 API
+		API 相关⽂档 https://studygolang.com/static/pkgdoc/pkg/runtime_pprof.htm
+		go tool pprof [binary] [binary.prof]
+
+		//创建输出文件
+		f, err := os.Create("cpu.prof")
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+
+		// 获取系统信息
+		if err := pprof.StartCPUProfile(f); err != nil { //监控cpu
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+
+		// 主逻辑区，进行一些简单的代码运算
+		x := [row][col]int{}
+		fillMatrix(&x)
+		calculate(&x)
+
+		f1, err := os.Create("mem.prof")
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		runtime.GC()                                       // GC，获取最新的数据信息
+		if err := pprof.WriteHeapProfile(f1); err != nil { // 写入内存信息
+			log.Fatal("could not write memory profile: ", err)
+		}
+		f1.Close()
+
+		f2, err := os.Create("goroutine.prof")
+		if err != nil {
+			log.Fatal("could not create groutine profile: ", err)
+		}
+
+		if gProf := pprof.Lookup("goroutine"); gProf == nil {
+			log.Fatal("could not write groutine profile: ")
+		} else {
+			gProf.WriteTo(f2, 0)
+		}
+		f2.Close()
+	
+	通过 HTTP ⽅式输出 Proﬁle
+		简单，适合于持续性运⾏的应⽤
+		在应⽤程序中导⼊ import _ "net/http/pprof"，并启动 http server 即可
+		http://<host>:<port>/debug/pprof/
+		go tool pprof http://<host>:<port>/debug/pprof/profile?seconds=10 （默认值为30秒）
+		go-torch -seconds 10 http://<host>:<port>/debug/pprof/proﬁle
+
+	运行pprof后会进入一个交互的命令行
+	go test -bench . -cpuprofile cpu.out
+	go tool pprof cpu.out
+
+	在pprof中输入web就可以看到cpu使用的分布图
+	由于该图是svg，所以需要安装一个graphviz工具
+	图中方框越大线越粗就代表cpu使用越高
+
+	执行go doc会显示当前包下的文档
+	go doc后面可以跟一些包下面相关的类型，接口，函数等
+	godoc -http :6060  开启一个go doc的web服务
+	会包括gopath和goroot下的包
+
+	在_test.go文件下面可以添加示例代码方法用来在doc中显示
+	示例方法以Example开头后面接函数名 参看queue_test.go
+	函数后面需要加注释表示expect的output信息, e.g.
+	Output:
+	1
+	2
+	false
+	3
+	true
+	go test时，Example方法也会被加入test case中
+
+在Test方法第一行加上t.SkipNow()就可以暂时先pass当前测试用例
+但是注意一定只能放在第一行
+
+通过t.Run可以用来执行subtests,做到控制test的输出以及test的顺序
+func TestPrint(t *testing.T) {
+	   t.Run("a1", func(t *testing.T) {fmt.Println("a1")})
+	   t.Run("a2", func(t *testing.T) {fmt.Println("a2")})
+	   t.Run("a3", func(t *testing.T) {fmt.Println("a3")})
+}
+
+使用TestMain作为初始化test,并且使用m.Run()来调用其他tests可以完成一些初始化操作的testing
+如果使用了TestMain但是没有调用m.Run则除了TestMain之外的其他tests都不会执行
+func TestMain(m *testing.M) {
+	fmt.Println("test main first")
+	m.Run()
+}
+
+benchmark測試時需要注意被测函数要求总能在一个时间达到running time的稳态
+以下例子由于无法达到稳态所以benchmark永远都不会结束
+func testAaa(n int) int {
+	for n > 0 {
+		n--
+	}
+	return n
+}
+func BenchmarkTestAaa(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		aaa(n)
+	}
+}
+
+func BenchmarkConcatStringByAdd(b *testing.B) { 
+	//与性能测试⽆关的代码 
+	b.ResetTimer() 
+	for i := 0; i < b.N; i++ { 
+		//测试代码 
+	} 
+	b.StopTimer()
+	//与性能测试⽆关的代码
+}
+
+BDD in Go
+	https://github.com/smartystreets/goconvey
+
+	Convey("Given 2 even numbers", t, func() {
+		a := 3
+		b := 4
+
+		Convey("When add the two numbers", func() {
+			c := a + b
+
+			Convey("Then the result is still even", func() {
+				So(c%2, ShouldEqual, 0)
+			})
+		})
+	})
+
+	启动 WEB UI
+		$GOPATH/bin/goconvey

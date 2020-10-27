@@ -1,0 +1,2004 @@
+Vue基本结构
+    <!--1. 引入Vue框架-->
+    <script src="js/vue.js"></script>
+
+    <!--这个被Vue实例控制的区域, 就是MVVM中的V(View)-->
+    <div id="app">
+        <!--{{}}就是过去学习的模板引擎中插入值的语法
+            代表从Model中获取msg的值, 将这个值插入到P标签中
+        -->
+        <p>{{ msg }}</p>
+    </div>
+
+    <script>
+        // 2. 创建一个Vue实例对象
+        // 这个实例对象就是MVVM中的VM(V和M通讯的对象/调度者)
+        var vm = new Vue({
+            // el就是告诉Vue实例对象, 将来要控制页面上的哪个区域
+            el: '#app',
+            // data就是告诉Vue被控制的区域中有哪些数据
+            // 这里的data就是MVVM中的M(数据)
+            data: {
+                msg: '指趣学院'
+            }
+        });
+    </script>
+
+Vue单向和双向数据绑定
+    1. 什么是数据的单向绑定?
+        将Model中的数据渲染到界面上 Model-->VM-->View
+        默认就是单向绑定, 并且只要数据发生变化, 界面就会自动发生变化
+        通过数据驱动界面的更新和展示
+
+    2. 什么是数据的双向绑定?
+        将Model中的数据渲染到界面上 Model-->VM-->View
+        将界面上更新的数据重新保存到Model中 View-->VM-->Model
+    
+    在Vue中只有表单元素能够创建双向的绑定
+    你可以用v-model指令在表单 <input>、<textarea>及<select> 元素上创建双向数据绑定
+    v-model="需要绑定的数据", 只要这样写完之后数据就可以从Model-->View, 也可以从View-->Model
+
+    <div id="app">
+        <p>{{msg}}</p>
+        <input type="text" v-model="msg">
+    </div>
+
+Vue常用指令
+    Vue提供了一套v-前缀开头的特殊特性(HTML属性, 类似于src/style/id/class)
+    可以让Vue对一个DOM元素做各种操作
+
+    v-once
+        只渲染元素和组件一次
+        应用场景: 不想让View随着Model的变化而变化, 就可以使用v-once
+
+        <div id="app">
+            <!--只会被渲染一次, 不会随着Model的变化而变化-->
+            <p v-once>原始数据: {{msg}}</p>
+            <!--会被渲染N次, 只要Model变化就会重新渲染-->
+            <p>非原始数据: {{msg}}</p>
+            <input type="text" v-model="msg">
+        </div>
+
+    v-cloak
+        这个指令保持在元素上直到关联实例结束编译
+        和CSS规则如[v-cloak] { display: none }一起用时
+
+        Vue绑定数据的过程
+            1. 显示原始的界面
+            2. vue会根据data中的数据, 和控制区域中编写的模板来生成HTML
+            3. 将生成的HTML渲染到界面上
+            正是因为有这么一个过程, 所以在还未完成模板编译和渲染的时候, 用户会看到原始界面
+
+        <style>
+            [v-cloak] { display: none }
+        </style>
+        <div id="app">
+            <p v-cloak>{{msg}}</p>
+        </div>
+    
+    v-text-html
+        v-text: 相当于js中的innerText
+        v-html: 相当于js中的innerHTML
+
+        <!--插值: 会将Model中指定的数据插入到指定的位置,不会覆盖其它的内容-->
+        <p>+++++{{msg1}}++++++</p>
+        <!--v-text: 会利用Model中指定的数据覆盖原有的数据-->
+        <p v-text="msg1">原始数据</p>
+        <!--v-html: 会利用Model中指定的数据覆盖原有的数据并会解析HTML-->
+        <p v-html="msg2">原始数据</p>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg1: '指趣学院',
+                msg2: '<span>我是span</span>'
+            }
+        });
+    
+    v-if
+        根据表达式的真假来添加或者删除元素
+        格式: v-if="条件表达式"
+        特点:
+            1. 如果条件表达式为假, 根本就不会创建这个元素
+            2. 条件表达式的值除了可以从Model中获取以外, 还可以编写js代码, 只要是返回true/false的表达式即可
+
+        <p v-if="true">显示</p>
+        <p v-if="show">显示</p>
+        <p v-if="age > 18">显示</p>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院',
+                show: true,
+                hide: false,
+                age: 19
+            }
+        });
+
+    v-else
+        v-else指令不能单独出现, 必须配合v-if使用
+        在配合v-if使用的时候, 必须紧随其后, 中间不能插入其它语句
+        v-if后面需要跟上条件表达式, v-else后面不需要跟上任何内容
+
+        <p v-if="age > 18">大于18岁</p>
+        <!--<p>我是插入的内容</p> 此时就会报错-->
+        <p v-else>小于等于18岁</p>
+
+    v-else-if
+        注意点和v-else一样
+        前面必须是v-if或者v-else-if
+        中间不能被打断, 不能插入其它的数据
+
+        <p v-if="score >= 90">优秀</p>
+        <p v-else-if="score >= 70">良好</p>
+        <p v-else-if="score >= 60">及格</p>
+        <p v-else>努力</p>
+
+    v-show
+        根据表达式之真假值，切换元素的display CSS属性
+        v-show和v-if的用于控制元素显示或者隐藏的区别
+            v-show: 无论是否显示都会创建元素(因为是通过元素display样式来控制的)
+            v-if:   不显示就不会创建
+        应用场景: v-if由于每次显示都会重新创建, 所以性能消耗会稍微大一些
+        如果企业开发中一个元素需要频繁的切换显示状态, 那么建议使用v-show
+
+        <p v-show="show">我是段落111111</p>
+        <p v-show="hide">我是段落222222</p>
+        <p v-show="age > 18">我是段落33333</p>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院',
+                show: true,
+                hide: false,
+                age: 19
+            }
+        });
+    
+    v-for
+        基于源数据多次渲染元素或模板块
+        类似于JS中的forin循环
+        可以遍历: 数组/对象/字符串/整数
+
+        <li v-for="(value, index) in list">index = {{index}}, value = {{value}}</li>
+        <li v-for="(value, index) in [2, 4, 6, 8, 10]">index = {{index}}, value = {{value}}</li>
+        
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院',
+                list: [1, 3, 5, 7, 9]
+            }
+        });
+
+        遍历对象
+        <li v-for="(value, key) in user">key={{key}}, value={{value}}</li>
+        <li v-for="(value, index) in list">id={{value.id}}, name={{value.name}}, gender={{value.gender}}</li>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院',
+                user: {
+                    id: 1,
+                    name: "lnj",
+                    gender: "male"
+                },
+                list: [
+                    {
+                        id: 1,
+                        name: "lnj",
+                        gender: "male"
+                    },
+                    {
+                        id: 2,
+                        name: "zq",
+                        gender: "female"
+                    }
+                ]
+            }
+        });
+
+        遍历字符串/整数
+        <li v-for="(value, index) in msg">{{value}}</li>
+        <li v-for="(value, index) in 'abcdefg'">{{value}}</li>
+        <li v-for="(value, index) in 10">{{value}}</li>
+        
+        v-for中的key
+            <ul>
+                <!--
+                    在企业开发中, 尽量给所有通过v-for渲染出来的元素都添加:key
+                    用于解决元素复用出现的数据混乱问题
+                -->
+                <li v-for="(item, index) in list" :key="item.id">
+                    <input type="checkbox">
+                    {{item.id}} --- {{item.name}}
+                </li>
+            </ul>
+
+    v-bind
+        用于将数据绑定到HTML属性上
+        Mustache语法不能作用在HTML的属性上
+        格式: v-bind:属性名称="绑定的数据"
+        简写: :属性名称="绑定的值"
+        特点:
+        Mustache语法可以在数据的前后添加其它数据
+        v-bind:中可以写合法的JS表达式
+
+        <div id="app">
+            <input type="text" v-bind:value="msg">
+            <input type="text" :value="msg">
+            <input type="text" :value="msg2 + 1">
+        </div>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院',
+                msg2: 7
+            }
+        });
+
+        用于设置样式(给class绑定数据)
+            1. :class="['类名']"
+                注意点: 类名必须用单引号括起来
+                <p :class="['color', 'size', 'active']">我是段落2</p>
+            2. 数组中也可以编写合法的JS表达式(三目) -->  flag ? 'active': ''
+                <p :class="['color', 'size', flag ? 'active': '']">我是段落2</p>
+            3. 表达式可以利用对象来替代  --> {'active': flag}  --> 企业开发推荐
+                key: 就是类名 (类名必须用单引号括起来)
+                值: 就是条件
+                <p :class="['color', 'size',  {'active': flag}]">我是段落2</p>
+            4. 直接通过对象来替代数组
+                <p :class="{'color': true, 'size': false, 'active': true}">我是段落2</p>
+            5. 通过数组一次性绑定多个对象
+                <p :class="[styles1, styles2]">我是段落2</p>
+
+            let vm = new Vue({
+                el: '#app',
+                data: {
+                    msg: '指趣学院',
+                    flag: true,
+                    styles1: {  // 企业开发推荐
+                        'color': true,
+                        'size': true,
+                    },
+                    styles2: {
+                        'active': false
+                    }
+                }
+            });
+        
+            6. 直接绑定style
+                注意点: 属性名称如果包含-, 那么必须用单引号括起来
+
+                <p :style="{color: 'purple', 'font-size': '80px', background: 'red'}">我是段落2</p>
+                <p :style="style1">我是段落3</p>
+                <p :style="[style1, style2]">我是段落4</p>
+
+                let vm = new Vue({
+                    el: '#app',
+                    data: {
+                        msg: '指趣学院',
+                        style1: {
+                            color: 'purple',
+                            'font-size': '80px',
+                        },
+                        style2: {
+                            background: 'red',
+                        }
+                    },
+
+                });
+
+    v-on
+        用于给指定的元素绑定事件
+        格式: v-on:事件名称="事件被触发回调函数的名称"
+        简写格式: @事件名称="事件被触发回调函数的名称"
+
+        <div id="app">
+            <button v-on:click="alert('it666');">我是按钮</button>
+            <button v-on:click="myFn">我是按钮</button>
+            <button @click="myFn">我是按钮</button>
+        </div>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            /*告诉Vue将来控制区域中可以使用哪些方法(函数)*/
+            methods: {
+                myFn: function () {
+                    alert("itzb.com");
+                }
+            }
+        });
+
+        修饰符
+            .once - 只触发一次回调
+            .prevent - 调用event.preventDefault()
+            .stop - 调用event.stopPropagation()
+            .self - 只当事件是从侦听器绑定的元素本身触发时才触发回调
+            .capture - 添加事件侦听器时使用capture模式
+
+            <!--默认情况下事件可以被反复执行-->
+            <button @click="myFn">我是按钮</button>
+
+            <!--只要添加.once, 那么绑定的事件只能被执行一次-->
+            <button @click.once="myFn">我是按钮</button>
+
+            <!--如果想阻止默认行为, 那么直接在事件名称后面加上.prevent-->
+            <a href="http://www.it666.com" @click.prevent="myFn">我是a标签</a>
+
+            <!--.stop用于阻止事件冒泡, 给谁添加, 谁就不会继续冒泡-->
+            <div class="gFather" @click="myFn3">
+                <div class="father" @click.stop="myFn2">
+                    <div class="son" @click="myFn1"></div>
+                </div>
+            </div>
+
+            <!--.self不会阻止事件冒泡, 但是会跳过当前冒泡, 只有当前元素被触发才会执行对应的方法-->
+            <div class="gFather" @click="myFn3">
+                <div class="father" @click.self="myFn2">
+                    <div class="son" @click="myFn1"></div>
+                </div>
+            </div>
+
+            <div class="gFather" @click.capture="myFn3">
+                <div class="father" @click.capture="myFn2">
+                    <div class="son" @click.capture="myFn1"></div>
+                </div>
+            </div>
+
+        v-on:注意点:
+            1. 绑定的方法名称可以写(), 也可以不写()
+            2. 绑定方法名称的时候, 可以给方法传递参数
+            3. 如果在methods定义的方法中想访问data中的数据, 必须加上this
+
+            <button @click="myFn('lnj')">我是按钮</button>
+
+            let vm = new Vue({
+                el: '#app',
+                data: {
+                    msg: '指趣学院'
+                },
+                methods: {
+                    myFn: function (data) {
+                        alert(this.msg + data);
+                    }
+                }
+            });
+
+        按键修饰符
+            1. keyup用于监听键盘按键事件
+            2. 自定义键盘修饰符
+            
+            <!--监听系统提供的按键-->
+            <!--<input type="text" @keyup.enter="myFn">-->
+            <!--监听自定义的按钮-->
+            <!--<input type="text" @keyup.113="myFn">-->
+            <input type="text" @keyup.f2="myFn">
+
+            Vue.config.keyCodes.f1 = 112
+            Vue.config.keyCodes.f2 = 113;
+
+            let vm = new Vue({
+                el: '#app',
+                data: {
+                    msg: '指趣学院'
+                },
+                methods: {
+                    myFn: function () {
+                        alert("被执行了");
+                    }
+                }
+            });
+
+    自定义全局指令
+        可以通过Vue.directive("指令名称", {});来自定义指令
+            第一个参数: 指令名称
+                注意点: 这里指定的名称不用加上v-, Vue会自动添加
+            第二个参数: 是一个对象, 对象中有很多Vue自带的方法, 会在特殊的时机自动执行
+        
+        bind：只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置
+        inserted：被绑定元素插入父节点时调用 
+
+        <div id="app">
+            <input type="text" value="lnj" v-focus>
+        </div>
+
+        Vue.directive("focus", {
+            /*
+            bind: 此时仅仅代表DOM元素以及被加载到内存了, 但是还没有渲染到界面上
+            第一个参数: 绑定指令的那个元素, 是一个原生的JS对象
+            */
+            // bind: function (el) {
+            //     // 只有元素已经被渲染到界面上,才能聚焦,所以此时不会触发聚焦效果
+            //     el.focus();
+            // }
+            inserted: function (el) {
+                el.focus();
+            }
+        });
+
+        <!--给自定义指令传递参数, 需要使用单引号括起来-->
+        <p v-color="'blue'">我是段落</p>
+
+        Vue.directive("color", {
+            /*
+            bind: 此时仅仅代表DOM元素以及被加载到内存了, 但是还没有渲染到界面上
+            第一个参数: 绑定指令的那个元素, 是一个原生的JS对象
+            第二个参数: 系统会传递一个对象给我们, 对象中保存了指令的名称/传递的参数等
+            */
+            bind: function (el, binding) {
+                // 元素对应的事件不能在bind生命周期函数中设置
+                // 元素对应的样式可以在bind生命周期函数中设置
+                // 事件只有被添加(渲染)到界面上,才能执行
+                // 样式只要元素上已经设置了对应的样式, 在添加(渲染)到界面上时候就会自动渲染
+                // el.style.color = "red";
+                // console.log(binding.name);
+                // console.log(binding.value);
+                el.style.color = binding.value;
+            }
+        });
+
+    自定义局部指令
+        全局的指令在所有vm控制的区域中都可以使用
+        局部的指令只能在局部所在的vm控制的区域中使用
+
+        自定义了一个全局的指令
+        Vue.directive("color", {
+            bind: function (el, binding) {
+                el.style.color = binding.value;
+            }
+        });
+
+        let vm2 = new Vue({
+            el: '#app2',
+            data: {
+                msg: '指趣学院'
+            },
+            定义一些局部的指令, 这些指令只能在vm2控制的区域中使用
+            directives: {
+                /*
+                // "指令的名称": 对象
+                "size": {
+                    bind: function (el, binding) {
+                        el.style.fontSize = binding.value + "px";
+                    }
+                }
+                */
+                "size": function (el, binding) {
+                    el.style.fontSize = binding.value + "px";
+                }
+            }
+        });
+
+Vue计算属性
+    <!--
+    1. {{javascript表达式}}
+    2. 虽然模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护
+    3. 应用场景: 对于任何复杂逻辑，你都应当使用计算属性
+    -->
+    <!--注意点: 计算属性是一个属性, 不是一个函数, 所以使用的时候不能添加()-->
+    <p>{{msgFormat}}</p>
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            msg1: 666,
+            msg2: "abcdefg"
+        },
+        /*可以在Vue实例对象的computed中定义计算属性*/
+        computed: {
+            // 定义了一个名称叫做msgFormat的计算属性, 这是一个getter方法
+            msgFormat: function () {
+                return this.msg2.split('').reverse().join('');
+            }
+        }
+    });
+
+    Vue计算属性和函数区别
+        1. 通过函数也可以封装需要处理的代码拿到数据渲染数据, 通过计算属性也可以封装需要处理的代码拿到数据渲染数据
+        2. 函数是没有缓存的, 每次获取都会执行一次函数, 再将执行结果返回给调用者
+        3. 计算属性只要参与计算的数据没有发生变化, 那么只有第一次会执行并且将执行的结果缓存起来, 下一次访问的时候直接返回缓存的结果
+        4. 也就是说函数的效率低(每次都要重新计算), 计算属性的效率高(数据没有变化, 只有第一次计算)
+        5. 应用场景: 如果数据不会频繁的发生变化, 那么推荐使用计算属性
+
+Vue自定义全局过滤器
+    过滤器
+        Vue.js允许你自定义过滤器，可被用于一些常见的文本格式化。
+        过滤器可以用在两个地方：双花括号插值和v-bind 表达式
+    自定义全局过滤器的格式:
+        Vue.filter("过滤器的名称",fn);
+        第一个参数: 过滤器的名称
+        第二个参数: 过滤器对应的方法
+        注意点: 方法默认就有一个参数, 这个参数就是过滤器前面的值
+    如何使用过滤器
+        {{msg | 过滤器的名称}}
+        默认情况下就会将|前面的值传递给过滤器的方法
+        默认情况插入值和绑定值都会使用过滤器过滤之后的数据来填充内容
+
+    注意点: 过滤器可以连续使用
+
+    <p>{{msg | msgFormat | msgFormat2}}</p>
+
+    Vue.filter("msgFormat", function (value) {
+        return value.replace(/学院/g, "大学");
+    });
+    Vue.filter("msgFormat2", function (value) {
+        return value.replace(/大学/g, "幼儿园");
+    });
+
+Vue自定义局部过滤器
+    <div id="app2">
+        <p>{{msg | msgFormat2}}</p>
+    </div>
+
+    let vm2 = new Vue({
+        el: '#app2',
+        data: {
+            msg: '指趣学院, 知播渔学院, 南江学院'
+        },
+        filters:{
+            // 2.定义一个局部的过滤器, 只能在当前vm控制的区域中使用
+            msgFormat2 : function (value) {
+                return value.replace(/学/g, "静");
+            }
+        }
+    });
+
+    注意点: 无论是全局的过滤器还是局部的过滤器除了有默认的参数以外, 还可以传递额外的其它参数
+    <p>{{date | dateFormart('yyyy-MM-dd')}}</p>
+    Vue.filter("dateFormart", function (value, formartStr) {
+        ...
+    }
+
+Vue生命周期
+    1. 什么是生命周期?
+        顾名思义, 从生到死的过程. 从Vue实例创建、运行、到销毁.
+    2. 关注点: 生命周期方法
+        Vue从生到死的过程中, 伴随着各种各样的事件，这些事件会自动触发一些方法，这些方法我们统称为生命周期方法
+        PS: 生命周期钩子 = 生命周期函数 = 生命周期事件
+    3. Vue生命周期方法分类
+        1. 创建期间的生命周期方法
+            beforeCreate:
+            created:
+            beforeMount:
+            mounted:
+        2. 运行期间的生命周期方法
+            beforeUpdate:
+            updated:
+        3. 销毁期间的生命周期方法
+            beforeDestroy:
+            destroyed：
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            msg: '指趣学院'
+        },
+        methods: {
+            say: function () {
+                console.log("say");
+            }
+        },
+        beforeCreate: function () {
+            // 执行beforeCreate的时候, 表示Vue实例刚出生, 还没有任何的内容
+            // data/methods都没有初始化
+            // console.log(this.msg);
+            // this.say();
+            // console.log(this.say);
+        },
+        created: function () {
+            // 执行created的时候, 表示Vue实例已经初始化好了部分内容, data/methods
+            // 现在vue实例中最早访问到data/methods, 只有在这个方法才能访问
+            // console.log(this.msg);
+            // this.say();
+        },
+        beforeMount: function () {
+            // 执行beforeMount的时候, 表示已经根据数据编译好了模板, 但是还没有渲染到界面上
+            // console.log(document.querySelector("p").innerText);
+            // console.log(document.querySelector("p").innerHTML);
+        },
+        mounted: function () {
+            // 执行mounted的时候, 表示模板已经渲染到界面上了
+            // 此时此刻可以对界面进行其他的操作了
+            console.log(document.querySelector("p").innerText);
+            console.log(document.querySelector("p").innerHTML);
+        },
+        beforeUpdate: function() {
+            // 只要data中的数据发生了变化就会执行
+            // 执行beforeUpdate的时候, data中的数据已经是最新的了, 但是还没有更新界面上的数据
+            // console.log(this.msg);
+            // console.log(document.querySelector("p").innerText);
+            // console.log(document.querySelector("p").innerHTML);
+        },
+        updated: function () {
+            // 只要data中的数据发生了变化就会执行
+            // 执行updated的时候, data中的数据已经是最新的了, 并且界面上的数据也被更新了, 也是最新的了
+            console.log(this.msg);
+            console.log(document.querySelector("p").innerText);
+            console.log(document.querySelector("p").innerHTML);
+        }
+        beforeDestroy: function () {
+            // 执行beforeDestroy的时候, 表示Vue实例即将销毁, 但是还未销毁, 实例中的数据等还可以使用
+            // 最后能使用Vue实例的地址
+        },
+        destroyed: function () {
+            // 执行destroyed的时候, 表示Vue实例已经完全销毁, 实例中的任何内容都不能被使用了
+        }
+    });
+
+Vue动画
+    使用类名
+        想给单个元素添加VUE的动画效果,
+        1. 必须把需要执行动画的元素放到Vue提供的transition组件(现在理解为标签)中
+        2. 通过Vue提供的类名设置过渡/动画相关的操作.v-enter, .v-leave-to
+            v-enter: 进入之前, 此时还未开始动画
+            v-leave-to: 离开之后, 此时动画已经结束
+            .v-enter, .v-leave-to {
+                opacity: 0;
+                transform: translateX(500px);
+            }
+        3. 通过Vue提供的类名设置过渡/动画相关的时长.v-enter-active, .v-leave-active
+            v-enter-active/v-leave-active: 动画过程
+            .v-enter-active, .v-leave-active {
+                transition: all 5s;
+            }
+        4. 只要放到transition组件中的元素显示或者隐藏状态发生了改变, Vue就会自动添加过渡/动画
+
+        /*
+        这里的one就是我们在transition中通过name指定的名称
+        以前v-xxx, one-xxx
+        */
+        .one-enter, .one-leave-to {
+            opacity: 0;
+            transform: translateX(500px);
+        }
+        .one-enter-active, .one-leave-active {
+            transition: all 5s;
+        }
+        .two-enter, .two-leave-to {
+            opacity: 0;
+            transform: translateY(500px);
+        }
+        .two-enter-active, .two-leave-active {
+            transition: all 5s;
+        }
+
+        <button @click="toggle()">切换</button>
+
+        <transition name="one">
+            <div v-show="flag"></div>
+        </transition>
+
+        <transition name="two">
+            <div v-show="flag"></div>
+        </transition>
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+            flag: true
+            },
+            methods: {
+                toggle(){
+                    this.flag = !this.flag;
+                }
+            }
+        });
+    
+    使用animate库
+        <link rel="stylesheet" href="css/animate.css">
+
+        <button @click="toggle()">切换</button>
+
+        <!--
+        enter-active-class="指定进入的时候绑定的动画类名"
+        eave-active-class="指定离开的时候绑定的动画类名"
+        注意:
+        如果元素默认就是显示的, 那么第一次不会触发动画
+        如果想第一次就触发, 那么可以再添加一个appear属性
+        -->
+        <transition
+            enter-active-class="animated wobble"
+            leave-active-class="animated bounceOutRight"
+            appear
+        >
+            <div v-show="flag"></div>
+        </transition>
+
+    列表动画
+        .v-enter, .v-leave-to {
+            opacity: 0;
+            transform: translateY(200px);
+        }
+        .v-enter-active, .v-leave-active {
+            transition: all 1s;
+        }
+        /*以下是固定写法, 能够实现列表中某个条目离开的时候, 后续的条目也同时动画上来*/
+        .v-move{
+            transition: all 1s;
+        }
+        .v-leave-active{
+            position: absolute;
+        }
+
+        <form action="#">
+            <label>id
+                <input type="text" v-model="id">
+            </label>
+            <label>名称
+                <input type="text" v-model="name">
+            </label>
+            <button @click="add()">添加</button>
+        </form>
+        <!--<ul>-->
+            <!--
+            列表过渡不能使用transition, 必须使用transition-group
+            <transition>中需要执行动画的元素不会做任何的包装
+            transition-group中需要执行动画的元素默认都会添加到一个span标签中
+            可以通过tag特性更换为其他元素
+            -->
+            <transition-group appear tag="ul">
+                <li
+                    v-for="(item, index) in list"
+                    @click="del(index) "
+                    :key="item.id"
+                >{{item.id}} --- {{item.name}}</li>
+            </transition-group>
+        <!--</ul>-->
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                name: '',
+                id: '',
+                list: [
+                    {
+                        id: 1,
+                        name: "黄忠"
+                    },
+                    {
+                        id: 2,
+                        name: "鲁班"
+                    },
+                    {
+                        id: 3,
+                        name: "虞姬"
+                    },
+                    {
+                        id: 4,
+                        name: "孙尚香"
+                    },
+                    ]
+            },
+            methods: {
+                add(){
+                    var obj = {id: this.id, name: this.name};
+                    this.list.push(obj);
+                    this.id = this.name = '';
+                },
+                del(index){
+                    this.list.splice(index, 1);
+                }
+            }
+        });
+
+Vue组件
+    在前端开发中组件就是把一个很大的界面拆分为多个小的界面
+    每一个小的界面就是一个组件
+
+    拆分组件可以简化Vue实例的代码，提高复用性
+
+    创建步骤
+        1. 创建组件构造器
+        2. 注册已经创建好的组件
+        3. 使用注册好的组件
+    
+    <!--3.使用注册好的组件-->
+    <div id="app">
+        <news></news>
+    </div>
+
+    // 1.创建组件构造器
+    // 1.1 Vue.extend
+    let Profile =  Vue.extend({
+        // 注意点: 组件模板只能有一个根元素
+        // 一般情况下在企业开发中, 我们会将所有模板都放到一个div中
+        template: `
+           <div>
+                <img src='images/fbb.jpg'>
+                <p>我是描述信息</p>
+           </div>
+        `
+    });
+    // 1.2 对象方式
+    let Profile =  {
+        template: `
+           <div>
+                <img src='images/fbb.jpg'>
+                <p>我是描述信息</p>
+           </div>
+        `
+    };
+    // 1.3 直接放入Vue.component中
+    Vue.component('news', {
+        template: `
+           <div>
+                <img src='images/fbb.jpg'>
+                <p>我是描述信息</p>
+           </div>
+        `
+    });
+
+    // 2.注册已经创建好的组件
+    // 第一个参数: 组件的名称(将来就可以通过这个名称使用这个组件)
+    // 第二个参数: 组件构造器
+    // 第二个参数: 如果传递的不是一个组件构造器而是一个对象, 那么系统会自动传递给组件构造器, 自动生成
+    Vue.component('news', Profile);
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            msg: '指趣学院'
+        }
+    });
+
+    组件模板
+        1. script标签方式
+            <!--1.通过script标签来创建组件模板-->
+            <script id="mytpl" type="text/html">
+                <div>
+                    <img src="images/fbb.jpg" alt="">
+                    <p>冰冰凉</p>
+                </div>
+            </script>
+
+            Vue.component("news", {
+                // 过去是在这里直接编写模板
+                // 现在是通过ID取查找对应的模板
+                template: '#mytpl'
+            });
+        2. Vue自带的template标签
+            <template id="mytpl">
+                <div>
+                    <img src="images/fbb.jpg" alt="">
+                    <p>已经冰冰凉</p>
+                </div>
+            </template>
+
+            Vue.component("news", {
+                template: '#mytpl'
+            });
+
+    局部模板
+        <template id="mytpl2">
+            <div>
+                <input type="date">
+                <p>今天是黄道吉日</p>
+            </div>
+        </template>
+
+        let vm2 = new Vue({
+            el: '#app2',
+            data: {
+                msg: '指趣学院'
+            },
+            // 用于注册一个局部的组件(子组件)
+            components: {
+                // key就是注册的组件的名称
+                // value就是以前传递给 Vue.component的那个对象
+                "mydate": {
+                    template: '#mytpl2'
+                }
+            }
+        });
+    
+    组件中的data和method
+        <template id="mytpl">
+            <div>
+                <img src="images/fbb.jpg" alt="">
+                <p @click="say()">{{info}}</p>
+            </div>
+        </template>
+
+        Vue.component("news", {
+            template: '#mytpl',
+            /*
+            自己创建的组件中也可以添加方法和数据
+            */
+            methods: {
+                say(){
+                    alert("自定义组件的方法");
+                }
+            },
+            data: function () {
+                return {
+                    info: "子组件中的数据"
+                }
+            }
+            // 只有vm中才可以通过这种方式定义数据
+            // data: {
+            //     info: "子组件中的数据"
+            // }
+        });
+
+        // vm也相当于是一个大的组件(根组件)
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            methods: {
+                myFn(){
+                    alert("VM中的方法");
+                }
+            }
+        });
+
+        为什么自定义组件的data必须是一个方法,而且要返回一个对象
+        为了避免组件复用的使用, 大家使用的都是同一份数据, 导致数据混乱
+        如果是在一个函数中返回一个对象, 那么每次使用组件都会创建一份新的数据和当前的组件绑定, 多个组件中的数据不会相互影响
+
+    组件切换
+        <news v-if="flag"></news>
+        <photo v-else></photo>
+
+        <template id="news">
+            <div>
+                <ul>
+                    <li v-for="(value, index) in list">{{value}}</li>
+                </ul>
+            </div>
+        </template>
+
+        <template id="photo">
+            <div>
+                <img :src="url" alt="">
+            </div>
+        </template>
+
+        Vue.component('news', {
+            template: '#news',
+            data(){
+                return {
+                    list: ['新闻1', '新闻2', '新闻3']
+                }
+            }
+        });
+        Vue.component('photo', {
+            template: '#photo',
+            data(){
+                return {
+                    url: 'images/fbb.jpg'
+                }
+            }
+        });
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                flag: true
+            }
+        });
+    
+    动态组件
+        通过v-if和v-else-if/v-else确实能够切换组件
+        但是如果需要切换的组件比较多的话, 那么使用v-if系列就不太合适了
+
+        在Vue中如果想实现组件的切换, 那么可以使用Vue预先提供的一个组件
+        <component v-bind:is="name"></component>
+        name就是需要显示的组件的名称
+
+        <component :is="name"></component>
+
+        <template id="news">
+            <div>
+                <ul>
+                    <li v-for="(value, index) in list">{{value}}</li>
+                </ul>
+            </div>
+        </template>
+
+        <template id="photo">
+            <div>
+                <img :src="url" alt="">
+            </div>
+        </template>
+
+        Vue.component('news', {
+            template: '#news',
+            data(){
+                return {
+                    list: ['新闻1', '新闻2', '新闻3']
+                }
+            }
+        });
+        Vue.component('photo', {
+            template: '#photo',
+            data(){
+                return {
+                    url: 'images/fbb.jpg'
+                }
+            }
+        });
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                flag: true,
+                name: 'news'
+            },
+            methods: {
+                change() {
+                    if(this.name === 'news'){
+                        this.name = 'photo';
+                    }else{
+                        this.name = 'news';
+                    }
+                }
+            }
+        });
+
+    组件切换动画
+        .v-enter, .v-leave-to {
+            opacity: 0;
+            transform: translateX(500px);
+        }
+        .v-enter-active, .v-leave-active {
+            transition: all 5s;
+        }
+
+        <button @click="change()">切换</button>
+        <!--
+        <transition> 的默认行为 - 进入和离开同时发生
+        同时生效的进入和离开的过渡不能满足所有要求，所以 Vue 提供了 过渡模式
+        -->
+        <transition mode="out-in">
+            <component :is="name"></component>
+        </transition>
+
+    父子组件
+        可以将默认的Vue实例就看做是一个组件(根组件)
+        所有通过components属性添加的组件, 都是当前组件的子组件
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            components: {
+                photo: {
+                    template:'#photo',
+                    data(){
+                        return {
+                            url: "images/fbb.jpg",
+                            info: "已经冰冰凉"
+                        }
+                    }
+                }
+            }
+        });
+
+        使用
+        <template id="parent">
+            <div>
+                <img :src="url" alt="">
+                <p>{{info}}</p>
+                <!--这个组件只能在parent中使用-->
+                <child></child>
+            </div>
+        </template>
+        <template id="child">
+            <div>
+                <p>{{msg}}</p>
+            </div>
+        </template>
+
+        // 1.注册组件(全局组件)
+        Vue.component("parent", {
+            template: '#parent',
+            data: function () {
+                return {
+                    url: "images/fbb.jpg",
+                    info: "准备洗白白"
+                }
+            },
+            // 给当前的组件注册一个子组件
+            // 这个组件只能在parent中使用
+            components: {
+                child: {
+                    template: '#child',
+                    data: function () {
+                        return {
+                            msg: "子组件的数据"
+                        }
+                    }
+                }
+            }
+        });
+    
+        父子组件数据传递
+            1. 子组件中没有存储任何的数据
+            2. 在Vue中子组件是不能够直接访问父组件的数据的
+                如果子组件想访问父组件的数据, 那么必须从父组件中传递过来
+            3. 父组件传递子组件数据的步骤:
+                1. 父组件在使用子组件的使用, 通过v-bind:自定义属性名称="父组件数据值"的形式将数据传递给子组件
+                2. 子组件必须通过props的属性来接收, props是一个对象
+                    props: ['自定义属性名称']
+                3. 子组件中就可以通过 自定义属性名称 拿到父组件传递过来的数据了
+
+            <div id="app">
+                <photo :parenturl="url" :parentinfo="info"></photo>
+            </div>
+
+            <template id="photo">
+                <div>
+                    <img :src="parenturl">
+                    <p>{{parentinfo}}</p>
+                </div>
+            </template>
+
+            let vm = new Vue({
+                el: '#app',
+                // 父组件的数据
+                data: {
+                    msg: '指趣学院',
+                    url: "images/fbb.jpg",
+                    info: "已经冰冰凉"
+                },
+                components: {
+                    photo: {
+                        template:'#photo',
+                        // 接收父组件传递过来的数据
+                        props: ['parenturl', 'parentinfo']
+                    }
+                }
+            });
+
+        父子组件方法传递
+            默认情况下不能在子组件中使用父组件中定义的方法
+                子组件要想使用父组件的方法,必须从父组件传递过来
+
+            从父组件传递方法到子组件步骤
+                1. 父组件在使用子组件的使用,通过v-on:自定义事件名称="父组件方法"的形式将方法传递给子组件
+                2. 给子组件添加自己的方法,实现自己的方法
+                3. 通过this.$emit(自定义事件名称)方法调用父组件传递过来的方法
+
+            <div id="app">
+                <button @click="say()">按钮</button>
+                <!--1.使用子组件的时候讲父组件的方法传递给子组件-->
+                <photo @parentsay="say"></photo>
+            </div>
+
+            <template id="photo">
+                <div>
+                    <img :src="url">
+                    <!--2.给子组件添加自己的方法-->
+                    <p @click="childFn()">{{info}}</p>
+                </div>
+            </template>
+
+            let vm = new Vue({
+                el: '#app',
+                // 父组件的数据
+                data: {
+                    msg: '指趣学院',
+                },
+                methods: {
+                    say(){
+                        alert("父组件中的方法");
+                    }
+                },
+                components: {
+                    photo: {
+                        template:'#photo',
+                        methods: {
+                            childFn(){
+                                this.$emit('parentsay');
+                            }
+                        },
+                        data(){
+                            return {
+                                url: "images/fbb.jpg",
+                                info: "已经冰冰凉"
+                            }
+                        }
+                    }
+                }
+            });
+        
+        子组件给父组件传递数据
+            在Vue中子组件要想传递数据给父组件, 就是通过父组件传递方法, 执行父组件传递的方法的形式
+
+            <div id="app">
+                <button @click="say()">按钮</button>
+                <!--1.使用子组件的时候讲父组件的方法传递给子组件-->
+                <photo @parentsay="say"></photo>
+            </div>
+
+            <template id="photo">
+                <div>
+                    <img :src="url">
+                    <!--2.给子组件添加自己的方法-->
+                    <p @click="childFn()">{{info}}</p>
+                </div>
+            </template>
+
+            let vm = new Vue({
+                el: '#app',
+                // 父组件的数据
+                data: {
+                    msg: '指趣学院',
+                },
+                methods: {
+                    //当子组件调用这个方法的时候, 就可以通过方法的形参将需要传递的数据传递给我们了
+                    say(data){
+                        alert("父组件中的方法" + data);
+                    }
+                },
+                components: {
+                    photo: {
+                        template:'#photo',
+                        methods: {
+                            childFn(){
+                                // $emit第一个参数是父组件传递过来的方法名称
+                                // $emit第二个参数是给方法传递参数
+                                this.$emit('parentsay', "子组件传递过来的数据");
+                            }
+                        },
+                        data(){
+                            return {
+                                url: "images/fbb.jpg",
+                                info: "已经冰冰凉"
+                            }
+                        }
+                    }
+                }
+            });
+        
+        多层组件之间的数据传递
+            注意点:
+                这个知识点作为了解, 默认情况下孙子想使用爷爷的数据, 必须从爷爷一层一层的往下传递 : 爷爷-->爸爸-->儿子-->使用
+                注意: 在企业开发中, 不会这样使用, 因为太繁琐了, 也不利于我们管理
+            <div id="app">
+                <h1>{{msg}}</h1>
+                <one :parentmsg="msg"></one>
+            </div>
+
+            <template id="one">
+                <div>
+                    <H2>{{parentmsg}}</H2>
+                    <two :onemsg="parentmsg"></two>
+                </div>
+            </template>
+            <template id="two">
+                <H3>{{onemsg}}</H3>
+            </template>
+
+            // 孙子组件
+            let two = {
+                template:'#two',
+                props: ['onemsg']
+            };
+
+            // 儿子组件
+            let one = {
+                template: '#one',
+                components: {
+                    two: two
+                },
+                props:['parentmsg']
+            };
+
+            let vm = new Vue({
+                el: '#app',
+                data: {
+                    msg: '指趣学院'
+                },
+                components: {
+                    one: one
+                }
+            });
+
+    Vue渲染组件的第二种方式
+        <div id="app">
+            <p>我是前面</p>
+            <!--<tpl></tpl>-->
+            <p>我是后面</p>
+        </div>
+
+        <template id="tpl">
+            <div>
+                <h1>我是标题2222</h1>
+            </div>
+        </template>
+
+        let tpl = {
+            template: '#tpl'
+        };
+
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            // 第一种方式
+            // 添加子组件
+            // 可以在父组件中通过标签的形式来使用
+            // 会添加到父组件指定的位置
+            // components: {
+            //     tpl: tpl
+            // }
+
+            // 第二种方式
+            // 渲染组件
+            // 不可以在父组件中通过标签的形式来使用
+            // 会利用return返回的值, 替换整个el指定的元素
+            // render: function (createElement) {
+            //     let html = createElement(tpl);
+            //     return html;
+            // }
+            render: c => c(tpl)
+        });
+
+Vuex
+    vuex是Vue配套的公共数据管理工具, 它可以把一些共享的数据保存到Vuex中
+    方便整个程序中任何的组件中都能够很方便的使用
+
+    注意点:
+        vuex是为了共享数据而生的, 所有组件都可以访问vuex中保存的数据
+        但是一定要记住只有需要共享的数据, 我们才放到vuex中来保存
+        如果是不需要共享的数据还是放到组件的data中保存
+
+    如何使用Vuex
+        1.导入vuex
+        2.通过new Vuex.Store();创建数据仓库对象
+        3.通过数据仓库的state属性保存需要共享的数据
+        4.将数据仓库对象绑定到vm上
+        5.通过this.$store.state.***来访问共享的数据
+    
+    <div id="app1">
+        <!--<h1>{{ this.$store.state.msg }}</h1>-->
+        <h1>{{ $store.state.msg }}</h1>
+        <one></one>
+    </div>
+    <div id="app2">
+        <p>{{$store.state.msg}}</p>
+    </div>
+
+    <script src="js/vue.js"></script>
+    <!--引入vuex包, 需要在vue.js后面引入-->
+    <script src="js/vuex.js"></script>
+
+    <template id="one">
+        <div>
+            <H2>{{$store.state.msg}}</H2>
+            <two></two>
+        </div>
+    </template>
+    <template id="two">
+        <H3>{{$store.state.msg}}</H3>
+    </template>
+
+    // 创建一个创库
+    let stroe = new Vuex.Store({
+        // Vuex中的state可以理解为组件中的data
+        state: {
+            msg: "指趣学院"
+        }
+    });
+
+    // 孙子组件
+    let two = {
+        template:'#two',
+    };
+
+    // 儿子组件
+    let one = {
+        template: '#one',
+        components: {
+            two: two
+        },
+    };
+
+    let vm1 = new Vue({
+        el: '#app1',
+        components: {
+            one: one
+        },
+        // 将数据仓库绑定到vm上,
+        // 这样所有vm中的组件都可以使用数据仓库中保存的数据了
+        store: stroe
+    });
+    let vm2 = new Vue({
+        el: '#app2',
+        components: {
+            one: one
+        },
+        store: stroe
+    });
+
+    注意点
+        在企业开发中不要直接修改数据仓库中的数据
+        这种做法违背了Vuex的设计思想, 也不利于我们维护代码
+        this.$store.state.num += 1;
+
+        想要修改state中的数据, 需要调用数据仓库中mutations中定义的方法
+        调用格式: this.$store.commit("方法的名称");
+        注意点: commit最多支持两个参数
+                第一个参数是需要执行的mutations中的方法名称
+                第二个参数是传递给mutations钟方法的额外参数
+        this.$store.commit("increment", "lnj");
+
+        上面这种格式是不是和父元素传递方法给子元素, 然后子元素执行父元素传递的方法很像
+            this.$emit("方法名称");
+
+        let store = new Vuex.Store({
+            // 存储需要共享的数据
+            state: {
+                num: 0
+            },
+            // 存储修改共享数据的方法
+            // 所有修改state中数据的操作都要定义到这里面
+            mutations: {
+                // mutations中的所有方法都有一个默认的参数, 就是state
+                increment(state, name){
+                    console.log(name);
+                    state.num += 1;
+                },
+                subtract(state){
+                    state.num -= 1;
+                }
+            }
+        });
+
+    store中的计算属性
+    let store = new Vuex.Store({
+        ...
+        // 可以理解为就是组件中的计算属性, 也会缓存, 只有数据发生变化才会重新计算
+        getters: {
+            optionNum(state){
+                console.log("执行getters方法");
+                return "当前的值是------:" + state.num;
+            }
+        }
+    });
+
+Vue特殊特性-ref
+    <div id="app">
+        <button @click="myfn">按钮</button>
+        <p ref="myppp">我是段落</p>
+        <photo ref="myphoto"></photo>
+    </div>
+
+    <template id="photo">
+        <img src="images/fbb.jpg" alt="">
+    </template>
+
+    let photo = {
+        template:'#photo',
+        data(){
+            return {
+                info: "组件中的数据"
+            }
+        },
+        methods: {
+            say(){
+                console.log("组件中的方法");
+            }
+        }
+    };
+
+    let vm = new Vue({
+        el: '#app',
+        components: {
+            photo: photo
+        },
+        methods:{
+            myfn(){
+                // 在Vue中不推荐这种做法, Vue的优势尽量减少直接操作DOM
+                // Vue能够帮助我们减少不必要的DOM操作,解放了用户的双手，让程序员可以更多的时间去关注`业务逻辑`
+                // console.log(document.querySelector("p").innerText);
+
+                // 以下是Vue推荐的格式
+                // this.$refs是Vue提供的一个全局对象
+                // 只要给元素的标签或者自定义的组件添加ref='name'之后就会自动放到this.$refs当中
+                // 我们可以通过this.$refs.name的形式拿到需要操作的DOM元素
+                // 注意点:
+                // 如果ref='name'是添加给了原生DOM元素, 那么拿到的就是原生的DOM元素
+                // 如果ref='name'是添加给了自定义的组件, 那么拿到的就是组件对象
+                // console.log(this.$refs.myppp.innerText);
+                console.log(this.$refs.myphoto.info);
+                this.$refs.myphoto.say();
+            }
+        }
+    });
+
+Vue插槽
+    匿名插槽
+        <div id="app">
+            <tmpl>
+                <!--会将在组件中添加的数据放到模板中的slot组件对应的位置-->
+                <img src="images/fbb.jpg" alt="">
+                <p>已经冰冰凉</p>
+            </tmpl>
+        </div>
+
+        <template id="tmpl">
+            <div>
+                <div>我是头部</div>
+                <!--
+                匿名插槽, 表示一个占位符, 不知道现在需要存放的内容
+                将需要存放的内容交给使用者来确定
+                -->
+                <slot></slot>
+                <!--
+                注意点: 如果模板中有多个slot组件, 那么会将使用者传递的数据拷贝多份,
+                有多少个slot组件就会拷贝几份, 然后替换到slot组件对应的位置
+                -->
+                <slot></slot>
+                <div>我是底部</div>
+            </div>
+        </template>
+
+        let tmpl = {
+            template:'#tmpl'
+        };
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            components: {
+                tmpl: tmpl
+            }
+        });
+
+    具名插槽
+        <div id="app">
+            <tmpl>
+                <div slot="header">我是头部</div>
+                <img slot="content" src="images/fbb.jpg" >
+                <div slot="footer">我是新增的底部</div>
+            </tmpl>
+        </div>
+
+        <template id="tmpl">
+            <div>
+                <slot name="header">头部默认数据</slot>
+                <slot name="content">中间的默认数据</slot>
+                <slot name="footer">底部的默认数据</slot>
+            </div>
+        </template>
+
+Vue路由
+    对于单页面应用程序来说, 主要通过URL的hash来实现不同页面的切换(URL后面#)
+    哈希对应我们访问网页默认不会有任何的副作用(HTTP请求中不会包含hash)
+    在单页面的应用程序中通过hash的改变来实现切换页面, 这种方式我们就称之为路由
+
+    注意点: 前端的路由的概念和后端的路由的概念不太一样
+
+    使用Vue提供的路由
+        1. 导入Vue路由对应的js文件
+        2. 定义路由的组件
+        3. 通过路由组件, 定义路由
+        4. 通过路由配置创建路由对象
+        5. 将路由对象注册到vm当中
+
+    <div id="app">
+        <!--这里编写a标签的目的是为了修改URL的hash值-->
+        <!--Vue中不推荐这么写-->
+        <!--<a href="#/onepage">显示one界面</a>-->
+        <!--<a href="#/twopage">显示two界面</a>-->
+
+        <!-- 使用 router-link 组件来导航. -->
+        <!-- Vue中推荐使用这种方式 -->
+        <!-- 通过传入 `to` 属性指定链接. -->
+        <!-- <router-link> 默认会被渲染成一个 `<a>` 标签 -->
+        <router-link to="/onepage">显示one界面</router-link>
+        <router-link to="/twopage">显示two界面</router-link>
+
+        <!-- 路由出口 -->
+        <!-- 路由匹配到的组件将渲染在这里 -->
+        <router-view></router-view>
+    </div>
+
+    <template id="one">
+        <div>我是第一个界面</div>
+    </template>
+    <template id="two">
+        <div>我是第二个界面222222</div>
+    </template>
+
+    <script src="js/vue.js"></script>
+    <script src="js/vue-router.js"></script>
+    
+    // 1. 定义 (路由) 组件
+    let one = {
+        template:'#one'
+    };
+    let two = {
+        template:'#two'
+    };
+
+    // 2.通过路由组件, 定义路由
+    const routes = [
+        // path表示需要监听的路由地址
+        // 例如: path: '/onepage', 那么将来URL如果是
+        // http://www.it666.com#/onepage
+        // 就会自动显示one这个组件
+        // component监听到对应路由地址之后需要显示的组件名称
+        { path: '/onepage', component: one },
+        { path: '/twopage', component: two }
+    ];
+
+    // 3.创建路由对象
+    const router = new VueRouter({
+        routes // (缩写) 相当于 routes: routes
+    });
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            msg: '指趣学院'
+        },
+        router: router
+    });
+
+    可以通过配置路由选项来实现显示默认界面
+    配置重定向的属性
+    path: '/', redirect:'默认显示的路由地址'
+        const routes = [
+            { path: '/', redirect:'/onepage'},
+            { path: '/onepage', component: one },
+            { path: '/twopage', component: two }
+        ];
+
+    router-link默认是按照a标签来渲染, 但是也可以指定用什么标签来渲染
+        <router-link to="/onepage" tag="button">显示one界面</router-link>
+
+    添加选中时的样式
+        1. 通过覆盖router-link-active类来实现选中状态自定义
+            .router-link-active{
+                background: red;
+            }
+        2. Vue中推荐创建自己的选中属性,这个属性会替代router-link-active(html中就不会有router-link-active这个类名了)
+            .my-active{
+                background: blue;
+            }
+
+            const router = new VueRouter({
+                routes: routes, // (缩写) 相当于 routes: routes
+                linkActiveClass: "my-active"
+            });
+
+    添加路由过渡与动画
+        .v-enter, .v-leave-to {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        .v-enter-active, .v-leave-active {
+            transition: all 1s;
+        }
+
+        <transition mode="out-in">
+            <router-view></router-view>
+        </transition>
+
+    路由传参
+        <!--在指定路由地址的时候可以通过?key=value&key=value的形式来传递参数-->
+        <!--添加参数之后不会影响到路由配置文件的判断-->
+        <router-link to="/onepage?id=666&name=lnj">显示one界面</router-link>
+        <router-link to="/twopage/777/lnj">显示two界面</router-link>
+
+        let one = {
+            template:'#one',
+            created(){ // 组件的生命周期的方法
+                // console.log(this.$route);
+                // console.log(this.$route.query);
+                // console.log(this.$route.query.id);
+                // console.log(this.$route.query.name);
+            }
+        };
+
+        let two = {
+            template:'#two',
+            created(){
+                console.log(this.$route.params);
+                console.log(this.$route.params.id);
+                console.log(this.$route.params.name);
+            }
+        };
+
+        const routes = [
+            { path: '/', redirect:'/onepage'},
+            { path: '/onepage', component: one },
+            /*/:id相当于是一个占位符, 表示以后会传递一个id属性过来*/
+            { path: '/twopage/:id/:name', component: two }
+        ];
+    
+    嵌套路由
+        <div id="app">
+            <router-link to="/onepage" tag="button">显示one界面</router-link>
+
+            <transition mode="out-in">
+                <router-view></router-view>
+            </transition>
+        </div>
+
+        <template id="one">
+            <div>
+                <h3>我是第一个界面</h3>
+                <!--第一个界面中的路由导航-->
+                <router-link to="/onepage/sub1page">显示one的第一个子界面</router-link>
+                <router-link to="/onepage/sub2page">显示one的第二个子界面</router-link>
+                <!--第一个界面中的路由出口-->
+                <router-view></router-view>
+            </div>
+        </template>
+
+         <template id="sub1">
+            <div>第一个子界面</div>
+        </template>
+        <template id="sub2">
+            <div>第222222个子界面</div>
+        </template>
+
+        const routes = [
+            { path: '/', redirect:'/onepage'},
+            {
+                path: '/onepage',
+                component: one,
+                children: [
+                    /*注意点: 子路由的path前面不用加/
+                    * 会自动匹配/onepage/sub1page
+                    * */
+                    { path: 'sub1page', component: sub1 },
+                    { path: 'sub2page', component: sub2 },
+                ]
+            }
+        ];
+    
+    命名视图
+        <div id="app">
+            <router-view name="left" class="left-view"></router-view>
+            <router-view name="right" class="right-view"></router-view>
+        </div>
+
+        const routes = [
+            {
+                path: '/',
+                components: {
+                    left: one,
+                    right: two
+                }
+            },
+        ];
+
+    监听路由变化
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '指趣学院'
+            },
+            router: router,
+            watch: {
+                '$route.path': function (newValue, oldValue) {
+                    console.log(newValue, oldValue);
+                }
+            }
+        });
+
+Vue实例中的watch属性
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            num : 0,
+            value: 0,
+            result: 0
+        },
+        // 监听指定数据的变化, 当某个数据发生变化时候需要进行一些操作, 我们就可以使用watch属性
+        watch: {
+            "num": function (newValue, oldValue) {
+                // console.log(this.num);
+                // console.log(newValue, oldValue);
+                this.result = parseInt(this.num) + parseInt(this.value);
+            },
+            "value": function (newValue, oldValue) {
+                this.result = parseInt(this.num) + parseInt(this.value);
+            }
+        }
+    });
+
+Vue-cli
+    vue-cli是vue官方提供的脚手架工具, 
+    默认已经帮我们搭建好了一套利用webpack开发vue的项目结构
+    时时编译入口JS文件, 存储到内容中, 处理图片/CSS/LESS.... 都已经配置好了
+
+    安装Vue-cli
+        npm i -g vue
+        npm i -g vue-cli
+        vue --version  检查是否安装成功
+
+    在需要生成Vue项目结构的文件夹中打开终端执行如下指令
+        vue init webpack 项目名称
+
+    通过Vue-cli生成的项目结构解读
+        build文件夹: 存储了webpack的相关配置文件(已经配置好了, 一般不需要修改)
+        config文件夹:  存储了webpack的相关配置文件(已经配置好了, 可能需要微调)
+        node_modules文件夹: 存储了依赖的相关的包
+        src文件夹: 代码文件夹
+        |----assets文件夹: 存储项目中自己的一些静态文件(图片/css/js)
+        |----components文件夹: 存储项目中的自定义组件
+        |----router文件夹: 存储Vue路由
+        |----App.vue:根组件
+        |----main.js:入口js文件
+        static: 存储第三方的静态资源(图片/css/js)
+        index.html: 首页
+    
+    在Vue文件中
+        1. 默认情况下style中编写的样式都是全局有效的
+            如果想让当前组件的style中编写的样式只对当前组件有效,
+            那么需要在style标签上添加一个scoped属性
+            <style scoped>
+        2. 如果想使用less/sacss/stylus/
+            1. 安装对应的预解析器(npm i less)
+            2. 给style标签添加一个lang属性
+            <style scoped lang="less">
+
+企业利用Vue开发的步骤:
+    1. 初始化项目: vue init webpack 项目名称
+    2. 简单的修改配置文件:  修改端口, 自动打开...
+    3. 删除默认项目中多余的代码和文件
+    4. 再进一步的搭建项目结构
+    5. 进一步的修改src文件夹
+        src
+        |----api文件夹: 存放一些和后台交互文件
+        |----assets文件夹: 存放一些自己的静态文件(全局图片/CSS/JS)
+        |----components文件夹: 存放非路由组件
+        |----pages文件夹: 存放路由组件
+        |----filter文件夹: 存放自定义过滤器
+        |----router文件夹: 存放路由
+        |----store文件夹: 存放Vuex
+        |----App.vue: 根组件
+        |----main.js: 入口JS文件
+        static: 存放第三方的静态文件
+    6 项目技术选型:
+        1 基础结构:Vue+Vuex+VueRouter
+        2 网络请求:axios
+        3 CSS预处理器: Sass LESS Stylus Postcss
+            PostCss
+                PostCss是使用NodeJS编写的一款css预处理工具, 类似于sass/less/stylus等预处理工具
+                但是它本身没有太多牛X的功能, 但是它又相当于一个插件平台, 围绕这个平台有很多优秀的插件
+
+                Vue-cli默认给我们集成进来的postcss-url: 就是用于处理url路径的.
+                                        autoprefixer: 就是自动添加浏览器适配的前缀
+                                        cssnano: 自动帮我们优化压缩CSS代码
+        4 导入清空默认样式的resetcss文件, 导入basecss文件
+            import '../static/css/reset.css'
+            import './assets/css/base.css'
+        5 导入fastclick处理移动端的点击事件(延迟100~300毫秒的)
+            npm i fastclick -S
+            import FastClick from 'fastclick'
+            FastClick.attach(document.body);
+        6 如何做适配: 媒体查询/em/rem/vw/js来处理  -> vw
+            相关文章:
+                https://github.com/amfe/lib-flexible
+                https://www.w3cplus.com/mobile/lib-flexible-for-html5-layout.html
+                https://www.w3cplus.com/mobile/vw-layout-in-vue.html
+                https://www.cnblogs.com/nzbin/p/5744672.html
+            1 安装px转换vw相关的postcss插件
+                npm i postcss-aspect-ratio-mini postcss-px-to-viewport postcss-write-svg postcss-cssnext cssnano --S
+                npm i cssnano-preset-advanced --save-dev
+
+                1. postcss-px-to-viewport
+                    自动将项目中的px转换为vm, 也就是说用了这插件, 编写CSS样式的时候就可以直接按照750设计图片标注的大小来编写了, 插件会自动了转换为vw,实现不同视口大小的等比缩放
+                2. postcss-aspect-ratio-mini
+                    主要用来处理img/iframe/video等元素的自适应问题, 让元素根据宽高比自动计算出容器大小, 实现等比缩放
+                3. postcss-write-svg
+                    插件主要用来处理移动端1px的解决方案。该插件主要使用的是border-image和background来做1px的相关处理
+                4. postcss-cssnext
+                    https://www.cnblogs.com/nzbin/p/5744672.html
+            2 修改.postcssrc.js配置文件
+                module.exports = {
+                    "plugins": {
+                        // 主要功有是解决@import引入路径问题。
+                        "postcss-import": {},
+                        // 相关配置可以点击这里。该插件主要用来处理文件，比如图片文件、字体文件等引用路径的处理
+                        "postcss-url": {},
+                        // 用来自动处理浏览器前缀的一个插件
+                        // "autoprefixer": {}
+                        "postcss-aspect-ratio-mini": {},
+                        "postcss-write-svg": { utf8: false },
+                        //由于cssnext和cssnano都具有autoprefixer,事实上只需要一个，所以把默认的autoprefixer删除掉
+                        "postcss-cssnext": {},
+                        "postcss-px-to-viewport": {
+                            // 视口宽度，对应的是我们设计稿的宽度，一般是750
+                            viewportWidth: 750,
+                            // 视口高度，根据750设备的宽度来指定，一般指定1334，也可以不配置
+                            viewportHeight: 1334,
+                            // 指定`px`转换为视窗单位值的小数位数
+                            unitPrecision: 2,
+                            // 指定需要转换成的视窗单位，建议使用vw
+                            viewportUnit: 'vw',
+                            // 指定不转换为视窗单位的类，可以自定义，可以无限添加,建议定义一至两个通用的类名
+                            selectorBlackList: [],
+                            // 小于或等于`1px`不转换为视口单位，你也可以设置为你想要的值
+                            minPixelValue: 1,
+                            // 允许在媒体查询中转换`px`
+                            mediaQuery: false,
+                        },
+                        "cssnano": {
+                            "cssnano-preset-advanced": {
+                                zindex: false,
+                                autoprefixer: false
+                            },
+                        }
+                    }
+                }
+            3 编写CSS的时候直接按照750设计图片编写px即可
+        7 导入项目快捷图标
+            注意点, 在Vue中如果需要设置网页快捷图标, 需要将图标放到static目录中
+
+mintui
+    安装
+        npm i mint-ui -S
+    main.js中
+        1. 导入框架
+            这种用法会将整个框架都导入进行, 打包到部署的项目中, 性能不是很好
+            import MintUI from 'mint-ui'
+            import 'mint-ui/lib/style.css'
+
+            Vue.use(MintUI);
+
+            在vue文件中
+                <mt-button type="danger" @click.nativ="myfn">danger</mt-button>
+
+        2. mintui还提供了另外的一种使用方式, 按需导入
+            先安装插件
+                npm install babel-plugin-component -D
+
+            .babelrc中新增
+                "plugins": ["transform-vue-jsx", "transform-runtime", ["component", [
+                    {
+                    "libraryName": "mint-ui",
+                    "style": true
+                    }
+                ]]]
+
+            import { Tabbar, TabItem } from 'mint-ui';
+        
+            Vue.component(Tabbar.name, Tabbar);
+            Vue.component(TabItem.name, TabItem);
+
+            <mt-tabbar v-model="selected">
+                <mt-tab-item id="商城">
+                    <img slot="icon" src="@/assets/nav-icon-index.png">
+                    商城
+                </mt-tab-item>
+                <mt-tab-item id="分类">
+                    <img slot="icon" src="@/assets/nav-icon-cat.png">
+                    分类
+                </mt-tab-item>
+            </mt-tabbar>
+
+            <script>
+                export default {
+                    name: 'App',
+                    data(){
+                        return {
+                        selected: "商城" // 默认选中商城,与id一致
+                        }
+                    },
+                    methods: {
+                        myfn(){
+                        alert("我被点击了");
+                        }
+                    }
+                }
+            </script>

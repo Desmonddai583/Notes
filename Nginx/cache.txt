@@ -1,0 +1,63 @@
+1. proxy_cache path ...
+    context: http
+
+2. proxy_cache zone | off;
+    default: proxy_cache off;
+    context: http, server, location
+
+3. proxy_cache_valid [code ...] time; // 缓存周期
+    context: http, server, location
+
+4. proxy_cache_key string; // 缓存的维度
+    default: proxy_cache_key $scheme$proxy_host$request_uri;
+    context: http, server, location
+
+5. ngx_cache_purge // 清楚指定缓存,第三方模块
+
+6. proxy_no_cache string ...; // 配置哪一些url不会去缓存
+    context: http, server, location
+
+7. slice size; // 大文件分片请求
+    // 好处是每个子请求收到的数据都会形成一个独立文件,一个请求断了,其他请求不受影响,所以即使有一个失败也会基于现有的再次请求,而不会全部重新请求
+    // 不好处是当文件很大或者slice很小时,可能会导致文件描述符耗尽等情况
+    default: slice 0;
+    context: http, server, location
+
+// levels代表目录分级方式
+// keys_zone用来对应下面配置的空间并且设置空间大小
+// max_size控制缓存目录大小
+// inactive设置当缓存在指定时间内没有被使用就清理掉
+// use_temp_path设置用来存放临时文件的路径,一般建议关掉
+upstream imooc {
+    server 116.62.103.228:8001;
+    server 116.62.103.228:8002;
+    server 116.62.103.228:8003;
+}
+proxy_cache_path /opt/app/cache levels=1:2 keys_zone=imooc_cache:10m max_size=10g inactive=60m use_temp_path=off;
+server {
+    if ($request_uri ~ ^/(url3|login|register|password\/reset)) {
+        set $cookie_nocache 1;
+    }
+
+    location / {
+        proxy_cache imooc_cache;
+        proxy_pass http://imooc;
+        proxy_cache_valid 200 304 12h;
+        proxy_cache_valid any 10m;
+        proxy_cache_key $host$uri$is_args$args;
+        proxy_no_cache $cookie_nocache $arg_nocache $arg_comment;
+        proxy_no_cache $http_pragma $http_authorization;
+        add_header  Nginx-Cache "$upstream_cache_status"; // 在客户端的头信息中就可以看到缓存是否命中
+        
+        // 如果返回错误的status code就直接跳下一个upstream
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+    }
+}
+
+通过日志分析缓存命中率
+log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" "$http_x_forwarded_for"'
+                  ' "$upstream_cache_status"';
+>/var/log/nginx/test_proxy.access.log // 置空日志文件
+awk '{if($NF=="\"HIT\""){hit++}}END{printf "%.2f",hit/NR}' /var/log/nginx/test_proxy.access.log

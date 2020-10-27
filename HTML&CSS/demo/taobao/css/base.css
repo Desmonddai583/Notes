@@ -1,0 +1,142 @@
+/*对Reset Css补充*/
+blockquote,body,button,dd,dl,dt,fieldset,form,h1,h2,h3,h4,h5,h6,hr,input,legend,li,ol,p,pre,td,textarea,th,ul{margin:0;padding:0}
+/*设置整个网站的字体和字体大小*/
+body{
+    font-family:"\5FAE\8F6F\96C5\9ED1";
+    font-size: 12px;
+    color: #666;
+    background: #f4f4f4;
+}
+/*对a标签的补充*/
+a{
+    text-decoration: none;
+    color: #666;
+    font-size: 12px;
+}
+/*整站的版心*/
+.div-in{
+    width: 1190px;
+    height: 100%;
+    margin: 0 auto;
+}
+/*字体图标相关的样式*/
+/*声明字体图标*/
+@font-face {
+    font-family: 'iconfont';
+    src: url('../fonts/iconfont.eot');
+    src: url('../fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/iconfont.woff') format('woff'),
+    url('../fonts/iconfont.ttf') format('truetype'),
+    url('../fonts/iconfont.svg#iconfont') format('svg');
+}
+/*定义使用iconfont的样式*/
+.iconfont{
+    font-family:"iconfont" !important;
+    font-size:12px;font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+}
+/*全局公用的淘宝色*/
+.t_color1{
+    color: #f22e00 !important;
+}
+.t_color2{
+    color: #FF5400 !important;
+}
+.w_color{
+    color: #fff;
+}
+/*定义公共的工具类*/
+.fl{
+    float: left;
+}
+.fr{
+    float: right;
+}
+/*清除浮动的工具类*/
+.clearfix{
+    overflow: hidden;
+}
+
+/*头部Start------------------------------*/
+.header{
+    width: 100%;
+    height: 105px;
+    /*
+    前面35px不渐变, 显示纯颜色
+    从35px到35px由灰色渐变为紫色
+    35px以后也不渐变, 显示纯色
+    */
+    background: linear-gradient(to bottom, #f5f5f5 35px, #4c174d 35px);
+}
+.header .header-top{
+    height: 35px;
+    line-height: 35px;
+}
+.header .header-login li:nth-child(1){
+    color: #3C3C3C;
+}
+.header .header-top li{
+    list-style: none;
+    float: left;
+    margin-right: 10px;
+}
+.header .header-top li:hover a{
+    color: #FF5400;
+}
+.header .header-bottom{
+    height: 70px;
+}
+/*头部End------------------------------*/
+/*底部Start------------------------------*/
+.footer{
+    width: 100%;
+    height: 250px;
+    background: #fff;
+}
+.footer .footer-top{
+    width: 100%;
+    height: 70px;
+    line-height: 70px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+.footer .footer-top ul{
+    width: 1005px;
+    overflow: hidden;
+}
+.footer .footer-top li{
+    list-style: none;
+    float: left;
+    margin-right: 10px;
+    line-height: 30px;
+}
+.footer .footer-top li:hover a{
+    color: #FF5400;
+}
+
+.footer .footer-bottom p a{
+    margin-right: 10px;
+    line-height: 30px;
+}
+.footer .footer-bottom p span{
+    font-size: 10px;
+    color: #9c9c9c;
+}
+.footer .footer-bottom p a:hover{
+    color: #FF5400;
+}
+.footer .footer-bottom p i{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("../images/icons.jpg") no-repeat;
+    background-position: -860px 0;
+    vertical-align: middle;
+}
+.footer .footer-bottom img{
+    width: 95%;
+    margin-left: -10px;
+}
+/*底部End------------------------------*/

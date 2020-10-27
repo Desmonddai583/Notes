@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>131-登录框效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html,body{
+            width: 100%;
+            height: 100%;
+            background: #ccc;
+        }
+        p{
+            line-height: 40px;
+            text-align: center;
+            background: blue;
+        }
+        .login{
+            width: 500px;
+            height: 300px;
+            background: purple;
+            position: absolute;
+            /*top: 50%;*/
+            /*left: 50%;*/
+            /*transform: translateX(-50%) translateY(-50%);*/
+            left: 200px;
+            top: 200px;
+            z-index: 999;
+            cursor: move;
+            display: none;
+        }
+        .login>span{
+            width: 50px;
+            height: 50px;
+            background: red;
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+        }
+        .mask{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 666;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<p>点击登录</p>
+<a href="http://www.it666.com">我是官网</a>
+<div class="login">
+    <!--<img src="images/login.png" alt="">-->
+    <span></span>
+</div>
+<div class="mask"></div>
+<script>
+    // 1.获取需要操作的元素
+    var oP = document.querySelector("p");
+    var oLogin = document.querySelector(".login");
+    var oMask = document.querySelector(".mask");
+    var oClose = document.querySelector(".login>span");
+
+    // 2.给登录按钮注册点击事件
+    oP.onclick = function () {
+        // 显示登录框
+        oLogin.style.display = "block";
+        oMask.style.display = "block";
+    };
+    oClose.onclick = function () {
+        // 显示登录框
+        oLogin.style.display = "none";
+        oMask.style.display = "none";
+    }
+
+    // 实现拖拽
+    // 1.监听登录框的按下的事件
+    oLogin.onmousedown = function (event) {
+        event = event || window.event;
+        // 1.获取鼠标在盒子中点击的位置
+        var x = event.pageX - this.offsetLeft;
+        var y = event.pageY - this.offsetTop;
+        // alert("x = "+ x + ", y = "+ y);
+        oLogin.onmousemove = function (event) {
+            event = event || window.event;
+            this.style.left = event.pageX - x + "px";
+            this.style.top = event.pageY - y + "px";
+        }
+    }
+    oLogin.onmouseup = function () {
+        oLogin.onmousemove = null;
+    }
+</script>
+</body>
+</html>

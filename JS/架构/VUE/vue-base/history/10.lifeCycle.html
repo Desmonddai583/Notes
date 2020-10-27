@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        {{msg}}
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        // vue的初始化过程中 会让用户传入很多函数,会在不同的时间点被调用
+
+        // 生命周期中都会有this 指向的是当前实例
+        // 生命周期是同步执行的
+
+        // 父组件先进行 beforeCreate  created  beforeMount render
+        // 渲染子组件 beforeCreate created beforeMount mounted
+        // mounted
+
+        // _init方法 
+        Vue.mixin({ //  globalApi 里有
+            beforeCreate(){
+                console.log('初始化前的公共逻辑1')
+            },
+            data(){
+                return {aa:'hello xx'}
+            },
+            methods:{
+                fn(){
+
+                }
+            },
+            mounted(){
+                console.log('混合的')
+            }
+        })
+       
+        // 抽离公共方法 + 编写插件  vuex  vue-router   this.$router
+        // 导致这个方法来源不知道怎么来的  问题 Vue3.0 compositionApi 来解决这个问题
+        // ajax 应该在哪里发请求 (异步请求一定是在 mounted 之后才会执行)
+        // 如果开发的是前端vue项目 mounted中
+        // 服务端渲染的vue 不支持 mounted 在服务器中没有dom概念
+        let vm = new Vue({
+            el:'#app',
+            // [beforeCreate,beforeCreate]
+            beforeCreate(){ // 创建前
+                // 初始化之前 没有进行数据观测 只是调用了初始化父子关系 及 内部的事件
+                // 一般情况下会混入公共逻辑 Vue.mixin
+                console.log('before Create',this);
+            },
+            created(){ // 没有真实的挂载元素 只是初始化数据 无法获取到dom元素的 
+                console.log('created',this);
+            },
+            beforeMount(){ // 在第一次调用render之前执行
+                console.log('before mount')
+            },
+            render(h){
+                console.log('render')
+                return h('div',this.msg+this.aa)
+            },
+            // [mounted,mounted]
+            mounted(){ // 创建出真实的dom 替换掉老的节点  vm.$el 替换掉el
+                // vm.$el  渲染的真实dom
+                console.log('挂载完成');
+            },
+            // beforeUpdate(){ // 可以做一些合并更新的操作
+            //     console.log('更新前')
+            // },
+            // updated(){ // 不要在更新数据了
+            //     console.log('更新后')
+            // },
+            beforeDestroy(){ // 做自定义事件的解绑 $off 可以去取消dom的事件绑定  定时器的清理
+                console.log('销毁前')
+            },
+            destroyed(){ // 基本用不到 
+                console.log('销毁完成')
+            },
+            data(){
+                return {msg:'hello'}
+            }
+        })
+        vm.msg = 'world'
+        vm.$destroy(); // 手动销毁 只是移除监听
+    </script>
+</body>
+</html>

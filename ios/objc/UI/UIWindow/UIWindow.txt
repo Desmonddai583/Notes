@@ -1,0 +1,56 @@
+UIWindow是一种特殊的UIView，通常在一个app中至少有一个UIWindow
+iOS程序启动完毕后，创建的第一个视图控件就是UIWindow，接着创建控制器的view，最后将控制器的view添加到UIWindow上，于是控制器的view就显示在屏幕上了
+一个iOS程序之所以能显示到屏幕上，完全是因为它有UIWindow,也就说，没有UIWindow，就看不见任何UI界面
+
+添加UIView到UIWindow中两种常见方式
+  1. - (void)addSubview:(UIView *)view;
+    直接将view添加到UIWindow中，但并不会理会view对应的UIViewController
+  2. @property(nonatomic,retain) UIViewController *rootViewController;
+    自动将rootViewController的view添加到UIWindow中，负责管理rootViewController的生命周期
+
+常用方法
+  // 让当前UIWindow变成keyWindow（主窗口）
+  - (void)makeKeyWindow;
+  
+  // 让当前UIWindow变成keyWindow，并显示出来
+  - (void)makeKeyAndVisible; 
+
+  // 在本应用中打开的UIWindow列表，这样就可以接触应用中的任何一个UIView对象(平时输入文字弹出的键盘，就处在一个新的UIWindow中)
+  [UIApplication sharedApplication].windows
+
+  // 用来接收键盘以及非触摸类的消息事件的UIWindow，而且程序中每个时刻只能有一个UIWindow是keyWindow。如果某个UIWindow内部的文本框不能输入文字，可能是因为这个UIWindow不是keyWindow
+  [UIApplication sharedApplication].keyWindow
+
+  // 获得某个UIView所在的UIWindow
+  view.window
+
+如果有main.storyboard时
+  1. 如果有Main,它会加载Main.storyBoard.
+  2. 先创建一个窗口
+  3. 把Main.storyBoard.箭头指向的控制器,设为窗口的根控制器.
+  4. 显示窗口(把窗口的根控制器的View,添加到窗口)
+
+如果没有指定Main话, 那这个时候就需要我们⼿动的去创建窗⼝
+  1.创建窗⼝,要有窗⼝显⽰,必须要有强引⽤.窗⼝也是控件,要想展⽰出来.必须得要有尺⼨. 
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  2.创建控制器 会把控制器的View添加到窗⼝上.并且有⼀个旋转的功能. 
+    UIViewController *vc = [[UIViewController alloc] init]; 
+    vc.view.backgroundColor = [UIColor redColor];
+  3.设置控制器为窗⼝的根控制器 
+    self.window.rootViewController = vc;
+  4.显⽰窗⼝ 
+    [self.window makeKeyAndVisible];
+    makeKeyAndVisible的底层实现
+      1.让窗⼝成为显⽰状态. 
+        窗⼝默认是隐藏的. hidden = yes. 
+        底层做的事件就是: self.window.hidden = NO;
+      2.把控制器的View添加到窗⼝上⾯. 
+        [self.window addSubView:rootVC.view]; 
+      3.把当前窗⼝设置成应⽤程序的主窗⼝ 
+        application.keyWindow获得应⽤程序的主窗⼝
+
+在程序当中,状态栏和键盘,他们背后都是⼀个窗⼝
+
+window的层级
+  UIWindowLevelNormal < UIWindowLevelStatusBar < UIWindowLevelAlert
+  self.window.windowLevel = UIWindowLevelNormal

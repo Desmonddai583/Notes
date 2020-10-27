@@ -1,0 +1,48 @@
+HTTPS（全称：Hyper Text Transfer Protocol over Secure Socket Layer），是以安全为目标的HTTP通道，简单讲是HTTP的安全版。
+即HTTP下加入SSL层，HTTPS的安全基础是SSL，因此加密的详细内容就需要SSL。 它是一个URI scheme（抽象标识符体系），句法类同http:体系。用于安全的HTTP数据传输。
+https:URL表明它使用了HTTP，但HTTPS存在不同于HTTP的默认端口及一个加密/身份验证层（在HTTP与TCP之间）。
+
+HTTPS和HTTP的区别主要为以下四点：
+  一、https协议需要到ca申请证书，一般免费证书很少，需要交费。
+  二、http是超文本传输协议，信息是明文传输，https 则是具有安全性的ssl加密传输协议。
+  三、http和https使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。
+  四、http的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比http协议安全。
+
+1）HTTPS的主要思想是在不安全的网络上创建一安全信道，并可在使用适当的加密包和服务器证书可被验证且可被信任时，对窃听和中间人攻击提供合理的保护。
+2）HTTPS的信任继承基于预先安装在浏览器中的证书颁发机构（如VeriSign、Microsoft等）（意即“我信任证书颁发机构告诉我应该信任的”）。
+3）因此，一个到某网站的HTTPS连接可被信任，如果服务器搭建自己的https 也就是说采用自认证的方式来建立https信道，这样一般在客户端是不被信任的。
+4）所以我们一般在浏览器访问一些https站点的时候会有一个提示，问你是否继续
+
+NSURLSession来封装网络请求
+  /*
+  只要请求的地址是HTTPS的, 就会调用这个代理方法
+  我们需要在该方法中告诉系统, 是否信任服务器返回的证书
+  Challenge: 挑战 质问 (包含了受保护的区域)
+  protectionSpace : 受保护区域
+  NSURLAuthenticationMethodServerTrust: 证书的类型是 服务器信任
+  */
+  - (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
+  {
+      // NSLog(@"didReceiveChallenge %@", challenge.protectionSpace);
+      // 判断服务器返回的证书类型, 是否是服务器信任
+      if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+          NSLog(@"调用了里面这一层是服务器信任的证书");
+          /*
+          NSURLSessionAuthChallengeDisposition 如何处理证书，有以下4种
+            NSURLSessionAuthChallengeUseCredential = 0,                     使用证书
+            NSURLSessionAuthChallengePerformDefaultHandling = 1,            忽略证书(默认的处理方式)
+            NSURLSessionAuthChallengeCancelAuthenticationChallenge = 2,     忽略书证, 并取消这次请求
+            NSURLSessionAuthChallengeRejectProtectionSpace = 3,             拒绝当前这一次, 下一次再询问
+          */
+          // NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
+          NSURLCredential *card = [[NSURLCredential alloc]initWithTrust:challenge.protectionSpace.serverTrust];
+          completionHandler(NSURLSessionAuthChallengeUseCredential , card);
+      }
+  }
+
+AFN框架来封装网络请求
+  不需要做任何额外的操作，AFN内部已经做了处理
+
+  设置对无效的证书处理(非正规的证书,有些网站使用自己签发的证书,不是买的))
+    manager.securityPolicy.allowInvalidCertificates = YES;  // 是否接受无效的证书
+    manager.securityPolicy.validatesDomainName = NO; // 关闭域名验证

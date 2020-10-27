@@ -1,0 +1,47 @@
+1 webView是有缺点的，会导致内存泄露，而且这个问题是它系统本身的问题。
+2 手机上面的safai其实就是用webView来实现的
+3 现在的开发并不完全是原生的开发，而更加倾向于原生+Html5的方式
+4 webView是OC代码和html代码之间进行交互的桥梁
+
+基本使用
+  NSURL *url = [NSURL URLWithString:@"http://www.baidu.com"];
+  [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+
+网页操控相关方法
+  [self.webView goBack];      回退
+  [self.webView goForward];   前进
+  [self.webView reload];      刷新
+  [self.webView stopLoading]; 停止加载
+
+常用的属性设置
+  self.goBackBtn.enabled = webView.canGoBack; // 是否能够前进
+  self.fowardBtn.enabled = webView.canGoForward; // 是否能够回退
+  webView.loading; // 是否正在加载中
+  self.webView.scalesPageToFit = YES; // 设置网页自动适应
+  self.webView.dataDetectorTypes = UIDataDetectorTypeAll; // 设置检测网页中的格式类型以便用户可以长按触发一些选项,all表示检测所有类型包括超链接、电话号码、地址等。
+  self.webView.scrollView.contentInset = UIEdgeInsetsMake(50, 0, 0, 0); // UIWebView内部包着一个UIScrollView
+
+相关代理方法
+  //每当将加载请求的时候调用该方法，返回YES 表示加载该请求，返回NO 表示不加载该请求
+  //可以在该方法中拦截请求
+  -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+  {
+      return ![request.URL.absoluteString containsString:@"dushu"];
+  }
+
+  //开始加载网页，不仅监听我们指定的请求，还会监听内部发送的请求(因为一个网页中可能包含多个请求)
+  -(void)webViewDidStartLoad:(UIWebView *)webView
+
+  //网页加载完毕之后会调用该方法
+  -(void)webViewDidFinishLoad:(UIWebView *)webView
+
+  //网页加载失败调用该方法
+  -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+
+加载沙盒资源
+  NSURL *url = [[NSBundle mainBundle] URLForResource:@"text.html" withExtension:nil];
+  [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+
+加载本地资源
+  NSURL *url = [NSURL fileURLWithPath:@"/Users/xiaomage/Desktop/07-NSURLSession.pptx"];
+  [self.webView loadRequest:[NSURLRequest requestWithURL:url]];

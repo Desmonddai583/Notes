@@ -1,0 +1,57 @@
+生成密钥和CA证书
+    1. 安装openssl
+    2. 通过nginx -v确保nginx下有编译http_ssl_module
+    3. 生成key密钥
+        openssl genrsa -idea -out desmond.key 1024
+    4. 生成证书签名请求文件(csr文件)
+        openssl req -new -key desmond.key -out desmond.csr
+    5. 生成证书签名文件(CA文件)
+        openssl x509 -req -days 3650 -in desmond.csr -signkey desmond.key -out desmond.crt
+
+1. ssl on | off
+    default: ssl off
+    context: http, server
+
+2. ssl_certificate file
+    context: http, server
+
+3. ssl_certificate_key file
+    context: http, server
+
+server {
+    listen 443;
+    server_name desmond.imooc.io;
+    ssl on;
+    ssl_certificate /etc/nginx/ssl_key/desmond.crt;
+    ssl_certificate_key /etc/nginx/ssl_key/desmond.key;
+}
+
+配置苹果要求的openssl后台https服务
+    1. 安装1.0.2以上版本的openssl
+    2. 通过nginx -v确保nginx下有编译http_ssl_module
+    3. 生成key密钥
+        openssl genrsa -idea -out desmond.key 1024
+    4. 生成证书签名文件(CA文件) (加了nodes就可以不需要给凭证设置密码,这样每次重启nginx就不需要输一次密码)
+        openssl req -days 36500 -x509 -sha256 -nodes -newkey rsa:2048 -keyout desmond.key -out desmond-apple.crt
+
+server {
+    listen 443;
+    server_name desmond.imooc.io;
+    ssl on;
+    ssl_certificate /etc/nginx/ssl_key/desmond-apple.crt;
+    ssl_certificate_key /etc/nginx/ssl_key/desmond.key;
+}
+
+如何将一个原来有密码的key文件转成无密码的
+openssl rsa -in ./desmondcold.key -out ./desmond_nopass.key
+
+https服务优化
+    1. 激活keepalive长链接
+    2. 设置ssl session缓存
+
+server {
+    keepalive_timeout 100;
+    ssl on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+}

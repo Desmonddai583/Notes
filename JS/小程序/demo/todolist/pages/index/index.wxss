@@ -1,0 +1,27 @@
+.header{
+  display: flex;
+  align-items: center;
+  background: #ccc;
+}
+.header input{
+  border: 1px solid #000;
+}
+.header button{
+   outline: none;
+   height: 100%;
+}
+
+.content{
+  background: #ccc;
+}
+.content .item{
+   display: flex;
+   border: 1px solid #000;
+}
+.content .item text{
+  flex: 1
+}
+.content .item icon{
+  flex: 1;
+  color: blue;
+}

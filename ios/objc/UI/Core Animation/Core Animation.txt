@@ -1,0 +1,182 @@
+Core Animation可以用在Mac OS X和iOS平台。
+Core Animation的动画执行过程都是在后台操作的，不会阻塞主线程。
+要注意的是，Core Animation是直接作用在CALayer上的，并非UIView
+
+UIView与核⼼动画
+  核⼼动画只能添加到CALayer, 核⼼动画⼀切都是假象，并不会改变真实的值。
+  如果需要与⽤户交互就使⽤UIView的动画. 不需要与⽤户交互可以使⽤核⼼动画
+  在转场动画中，核⼼动画的类型⽐较多，根据⼀个路径做动画，只能⽤核⼼动画（帧动画）
+  核心动画支持动画组：同时做多个动画
+
+核心动画中所有类都遵守CAMediaTiming
+CAAnaimation是个抽象类，不具备动画效果，必须用它的子类才有动画效果
+  CAAnimationGroup和CATransition才有动画效果，
+    CAAnimationGroup是个动画组，可以同时进行缩放，旋转
+    CATransition是转场动画，界面之间跳转都可以用转场动画。
+  CAPropertyAnimation也是个抽象类，本身不具备动画效果，只有子类才有
+    CABasicAnimation和CAKeyframeAnimation
+    CABasicAnimation基本动画，做一些简单效果
+    CAKeyframeAnimation帧动画，做一些连续的流畅的动画
+
+使用步骤:
+  1.首先得有CALayer
+  2.初始化一个CAAnimation对象，并设置一些动画相关属性
+  3.通过调用CALayer的addAnimation:forKey:方法，增加CAAnimation对象到CALayer中，这样就能开始执行动画了
+  4.通过调用CALayer的removeAnimationForKey:方法可以停止CALayer中的动画
+
+属性
+  duration：动画的持续时间
+  repeatCount：重复次数，无限循环可以设置HUGE_VALF或者MAXFLOAT
+  repeatDuration：重复时间
+  removedOnCompletion：默认为YES，代表动画执行完毕后就从图层上移除，图形会恢复到动画执行前的状态。如果想让图层保持显示动画执行后的状态，那就设置为NO，不过还要设置fillMode为kCAFillModeForwards
+  fillMode：决定当前对象在非active时间段的行为。比如动画开始之前或者动画结束之后
+    kCAFillModeRemoved 这个是默认值，也就是说当动画开始前和动画结束后，动画对layer都没有影响，动画结束后，layer会恢复到之前的状态
+    kCAFillModeForwards 当动画结束后，layer会一直保持着动画最后的状态 
+    kCAFillModeBackwards 在动画开始前，只需要将动画加入了一个layer，layer便立即进入动画的初始状态并等待动画开始。
+    kCAFillModeBoth 这个其实就是上面两个的合成.动画加入后开始之前，layer便处于动画初始状态，动画结束后layer保持动画最后的状态
+  beginTime：可以用来设置动画延迟执行时间，若想延迟2s，就设置为CACurrentMediaTime()+2，CACurrentMediaTime()为图层的当前时间
+  timingFunction：速度控制函数，控制动画运行的节奏
+    kCAMediaTimingFunctionLinear（线性）：匀速，给你一个相对静态的感觉
+    kCAMediaTimingFunctionEaseIn（渐进）：动画缓慢进入，然后加速离开
+    kCAMediaTimingFunctionEaseOut（渐出）：动画全速进入，然后减速的到达目的地
+    kCAMediaTimingFunctionEaseInEaseOut（渐进渐出）：动画缓慢的进入，中间加速，然后减速的到达目的地。这个是默认的动画行为。
+  delegate：动画代理
+
+代理方法
+  核⼼动画代理⽅法⽐较特殊.它不需要遵守协议,它背后其实是NSObject的⼀个分类.也称它是⾮常式协议.直接实现它的⽅法就可以了
+  - (void)animationDidStart:(CAAnimation *)anim;
+  - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag;
+
+动画的暂停和恢复
+  -(void)pauseLayer:(CALayer*)layer
+  -(void)resumeLayer:(CALayer*)layer
+
+CAPropertyAnimation
+  两个子类：
+    CABasicAnimation
+    CAKeyframeAnimation
+  
+  属性  
+    通过指定CALayer的一个属性名称为keyPath(NSString类型),并且对CALayer的这个属性的值进行修改，达到相应的动画效果。
+    比如，指定@“position”为keyPath，就修改CALayer的position属性的值，以达到平移的动画效果
+
+  CABasicAnimation
+    属性
+      fromValue：keyPath相应属性的初始值
+      toValue：keyPath相应属性的结束值
+
+    随着动画的进行，在长度为duration的持续时间内，keyPath相应属性的值从fromValue渐渐地变为toValue
+    keyPath内容是CALayer的可动画Animatable属性
+    如果fillMode=kCAFillModeForwards同时removedOnComletion=NO，那么在动画执行完毕后，图层会保持显示动画执行后的状态。
+    但在实质上，图层的属性值还是动画执行前的初始值，并没有真正被改变。
+
+    CABasicAnimation *anim = [CABasicAnimation animation]; 
+    // 图层有那些属性,这⾥才能写那些属性.
+    anim.keyPath = @"transform.scale"; 
+    anim.toValue = @0.5; 
+    // 告诉动画完成的时候不要移除 
+    anim.removedOnCompletion = NO; 
+    // 保存动画最前⾯的效果.
+    anim.ﬁllMode = kCAFillModeForwards; 
+    // 动画的执⾏次数
+    anim.repeatCount = MAXFLOAT;
+    // 动画的时⻓.
+    anim.duration = 1;
+    // 自动反转(怎么样去 怎么样回来)
+    anim.autoreverses = YES;
+    // 把动画添加到层上⾯.
+    [_redView.layer addAnimation:anim forKey:nil];
+
+  CAKeyframeAnimation
+    CABasicAnimation只能从一个数值（fromValue）变到另一个数值（toValue），而CAKeyframeAnimation会使用一个NSArray保存这些数值
+    CABasicAnimation可看做是只有2个关键帧的CAKeyframeAnimation
+
+    属性
+      values：上述的NSArray对象。里面的元素称为“关键帧”(keyframe)。动画对象会在指定的时间（duration）内，依次显示values数组中的每一个关键帧
+      path：可以设置一个CGPathRef、CGMutablePathRef，让图层按照路径轨迹移动。path只对CALayer的anchorPoint和position起作用。如果设置了path，那么values将被忽略
+      keyTimes：可以为对应的关键帧指定对应的时间点，其取值范围为0到1.0，keyTimes中的每一个时间值都对应values中的每一帧。如果没有设置keyTimes，各个关键帧的时间是平分的
+
+    // 创建帧动画 
+    CAKeyframeAnimation *anim = [CAKeyframeAnimation animation]; 
+    // 设置动画属性为旋转 
+    anim.keyPath = @"transform.rotation"; 
+    // 设置属性值为多个属性 
+    anim.values = @[@(angle2radio(-5)),@(angle2radio(5)),@(angle2radio(-5))]; 
+    // 设置动画执⾏次数 anim.repeatCount = MAXFLOAT; 
+    // 添加动画 
+    [_imageView.layer addAnimation:anim forKey:nil];
+
+    UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(50, 50, 100, 100)]; 
+    [path addLineToPoint:CGPointMake(200, 500)]; 
+    // 把路径设为动画的属性 
+    anim.path = path.CGPath;
+    // 添加动画 
+    [_imageView.layer addAnimation:anim forKey:nil];
+
+CATransition
+  能够为层提供移出屏幕和移入屏幕的动画效果。iOS比Mac OS X的转场动画效果少一点
+  UINavigationController就是通过CATransition实现了将控制器的视图推入屏幕的动画效果
+  注意:转场动画要和转场代码写在同⼀个⽅法当中才有动画效果
+
+  属性
+    type：动画过渡类型
+    subtype：动画过渡方向
+    startProgress：动画起点(在整体动画的百分比)
+    endProgress：动画终点(在整体动画的百分比)
+
+  //  创建转场动画 
+  CATransition *anim = [CATransition animation]; 
+  //  设置转场类型 
+  anim.type = @"cube"; anim.duration = 1; 
+  // 设置转场的⽅向 
+  anim.subtype = kCATransitionFromLeft; 
+  // 设置动画的开始位置 
+  anim.startProgress = 0.5; 
+  // 设置动画的结束位置 
+  anim.endProgress =0.8; 
+  //添加动画
+  [_imageV.layer addAnimation:anim forKey:nil];
+
+  UIView进⾏转场动画
+    使⽤UIView转场的类型⽐较少
+
+    单视图
+      [UIView transitionWithView:self.imageV duration:1 
+      options:UIViewAnimationOptionTransitionFlipFromRight
+      animations:^{ 
+        转场代码 
+      } completion:^(BOOL ﬁnished) { 
+        动画执⾏完毕时调⽤.
+      }]; 
+    双视图
+      + (void)transitionFromView:(UIView *)fromView
+      toView:(UIView *)toView duration:(NSTimeInterval)duration 
+      options:(UIViewAnimationOptions)options 
+      completion:(void (^)(BOOL finished))completion;
+
+CAAnimationGroup
+  可以保存一组动画对象，将CAAnimationGroup对象加入层后，组中所有动画对象可以同时并发运行
+  不需要每次都去添加动画,设置动画完成时的属性. 
+  只需要把要执⾏的动画,添加到动画组的animations数组当中即可, 
+  最后把组动画添加到层上⾯,就会⾃动执⾏数组当中的动画. 动画完成时设置的属性也只需要设置⼀次.
+
+  属性
+    animations：用来保存一组动画对象的NSArray
+    默认情况下，一组动画对象是同时运行的，也可以通过设置动画对象的beginTime属性来更改动画的开始时间
+
+  // 创建组动画 
+  CAAnimationGroup *group = [CAAnimationGroup animation];
+  // 平移 
+  CABasicAnimation *anim = [CABasicAnimation animation]; 
+  anim.keyPath = @"position.y"; 
+  anim.toValue = @400;
+  // 缩放 
+  CABasicAnimation *scaleAnim = [CABasicAnimation animation]; 
+  scaleAnim.keyPath = @"transform.scale"; 
+  scaleAnim.toValue = @0.5; 
+  // 设置动画组属性 
+  group.animations = @[anim,scaleAnim];
+  group.removedOnCompletion = NO; 
+  group.ﬁllMode = kCAFillModeForwards; 
+  // 添加组动画 
+  [self.redView.layer addAnimation:group forKey:nil];

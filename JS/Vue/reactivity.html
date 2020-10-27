@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    {{a.school}}
+</div>
+<script src="node_modules/vue/dist/vue.js"></script>
+<script>
+    // vue会循环data中的数据（数据劫持） 依次的增加getter和setter
+    let vm = new Vue({
+        el:'#app',
+        data:{
+            a:{} // 1.school:''
+        }
+    });
+    // 使用变量时 先要初始化，否则新加的属性不会导致页面刷新
+    // Vue.set = vm.$set
+    vm.$set(vm.a,'school',1); //2.此方法可以给对象添加响应式的数据变化
+    // 3.替换原对象
+    //vm.a = {school:'zfpx',age:8,address:'xxx'}
+</script>
+</body>
+</html>
+
+
+<!-- For Array -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    {{arr}}
+</div>
+<script src="node_modules/vue/dist/vue.js"></script>
+<script>
+    let vm = new Vue({
+        el:'#app',
+        data:{
+            arr:[1,2,3,4,5]
+        }
+    }); // 去改变数组中的某一项是监控不到的,也不能使用改变数组长度的方法
+    // 错误：vm.arr[0] = 100; vm.arr.length -=2;
+    // 变异方法：pop push shift unshift sort reserve splice
+    vm.arr = vm.arr.map(item=>item*=3);//filter map
+</script>
+</body>
+</html>

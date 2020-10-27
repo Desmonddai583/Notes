@@ -1,0 +1,339 @@
+/*首页侧边栏开始--------------------------------------*/
+/*侧边栏的整体布局*/
+#myMenu{
+    list-style: none;
+    width: 42px;
+    height: 936px;
+    background: url("../images/item.png") no-repeat;
+    position: fixed;
+    left: 50px;
+    top: 115px;
+    display: none;
+}
+/*侧边栏的每一个选项*/
+#myMenu li{
+    width: 25px;
+    height: 49px;
+    line-height: 49px;
+    position: absolute;
+    overflow: hidden;
+}
+#myMenu li a{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+#myMenu li b{
+    font-size: 14px;
+    line-height: 49px;
+    font-weight: bold;
+    color: #fff;
+    margin-right: 10px;
+}
+#myMenu li div{
+    width: 165px;
+    height: 49px;
+    line-height: 32px;
+    margin-left: 10px;
+    background:url("../images/icons.png") no-repeat;
+    background-position: -115px 0;
+}
+#myMenu li div span{
+    font-size: 16px;
+    margin-left: 15px;
+    color: #fff;
+}
+/*每一个侧边栏定位*/
+#myMenu li:nth-child(1){
+    display: none;
+}
+#myMenu li:nth-child(6){
+    display: none;
+}
+#myMenu li:nth-child(2){
+    left: 40px;
+    top: 35px;
+}
+#myMenu li:nth-child(3){
+    left: 40px;
+    top: 240px;
+}
+#myMenu li:nth-child(4){
+    left: 40px;
+    top: 445px;
+}
+#myMenu li:nth-child(5){
+    left: 40px;
+    top: 650px;
+}
+/*每一个侧边栏的选中状态*/
+#myMenu .active{
+    width: 300px;
+    transition: width 0.5s;
+}
+#myMenu .active b{
+    color: #e69800;
+}
+#myMenu .active i{
+    color: #e69800;
+}
+/*侧标签上一页按钮*/
+.forword{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 42px;
+    height: 42px;
+}
+/*首页侧边栏结束--------------------------------------*/
+/*全局小鼠标开始--------------------------------------*/
+.mouse{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+
+    width: 24px;
+    height: 78px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: -86px 0;
+    z-index: 999;
+}
+/*全局小鼠标结束--------------------------------------*/
+
+/*全局小圆点开始--------------------------------------*/
+.dot{
+    width: 100px;
+    height: 100px;
+    position: relative;
+}
+.dot>span{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    width: 25px;
+    height: 25px;
+    line-height: 22px;
+    text-align: center;
+    color: orange;
+    font-size: 22px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 999;
+}
+.dot>b{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    width: 25px;
+    height: 25px;
+    background: #fff;
+    border-radius: 50%;
+}
+.dot>b:nth-child(1){
+    animation:myDD1 1s infinite;
+}
+.dot>b:nth-child(2){
+    animation:myDD2 1s infinite;
+}
+@keyframes myDD1 {
+    from{
+        opacity: 0.8;
+        transform: translateX(-50%) translateY(-50%) scale(1);
+    }
+    to{
+        opacity: 0.0;
+        transform: translateX(-50%) translateY(-50%) scale(2);
+    }
+}
+@keyframes myDD2 {
+    from{
+        opacity: 0.8;
+        transform: translateX(-50%) translateY(-50%) scale(1);
+    }
+    to{
+        opacity: 0.0;
+        transform: translateX(-50%) translateY(-50%) scale(3);
+    }
+}
+/*全局小圆点结束--------------------------------------*/
+
+/*第一屏开始------------------------------------------*/
+.s1{
+    background: url("../images/bg_header.jpg") no-repeat center center;
+    background-size: cover;
+    position: relative;
+}
+.s1 .play{
+    position: absolute;
+    top: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.s1 .play>a{
+    display: inline-block;
+    width: 81px;
+    height: 81px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: 0 0;
+}
+.s1 .logo-b{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 50px;
+}
+.s1 video{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/*第一屏结束------------------------------------------*/
+/*第二屏开始------------------------------------------*/
+.s2{
+    position: relative;
+    background: url("../images/bg_section1.jpg") no-repeat center center;
+    background-size: cover;
+}
+.s2 .s2-title{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    color: #fff;
+}
+.s2 .s2-title>div{
+    width: 540px;
+    height: 199px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: -793px -217px;
+}
+.s2 .s2-dot{
+    position: absolute;
+    left: 60%;
+    bottom: 30%;
+}
+/*第二屏结束------------------------------------------*/
+/*第二屏开始------------------------------------------*/
+ .s3{
+    position: relative;
+    background: url("../images/bg_section2.jpg") no-repeat center center;
+    background-size: cover;
+}
+.s3 .s3-title{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    color: #fff;
+}
+.s3 .s3-title>div{
+    width: 540px;
+    height: 199px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: -248px -217px;
+}
+.s3 .s3-dot{
+    position: absolute;
+    left: 60%;
+    bottom: 30%;
+}
+/*第二屏结束------------------------------------------*/
+/*第三屏开始------------------------------------------*/
+.s4{
+    position: relative;
+}
+.s4 .s4-title{
+    width: 727px;
+    height: 81px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: 0 -425px;
+
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    pointer-events: none; //禁用当前元素的所有事件
+}
+/*底部天气*/
+.s4 .s4-bottom{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100px;
+    z-index: 999;
+}
+.s4 .s4-bottom li{
+    list-style: none;
+    float: left;
+    margin-right: 200px;
+    width: 255px;
+    text-align: center;
+}
+.s4 .s4-bottom li>div{
+    width: 108px;
+    height: 78px;
+    background: url("../images/icons.png") no-repeat;
+    background-position: 0 -768px;
+    margin: 0 auto;
+}
+.s4 .s4-bottom li>span{
+     display: inline-block;
+     width: 50px;
+     margin: 10px 0;
+     border-bottom: 2px solid #e59800;
+ }
+.s4 .s4-bottom li>p{
+    line-height: 30px;
+    color: #e59800;
+}
+/*实现hover动画结构*/
+.s4 .s4-imgs{
+    list-style: none;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.s4 .s4-imgs>li{
+    float: left;
+    width: 33%;
+    height: 100%;
+    transition: all .3s ease 0s;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+.s4 .s4-imgs>li:nth-child(2){
+    width: 34%;
+}
+.s4 .s4-imgs>li>img{
+    opacity: 0.6;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    transition: all 1s ease .3s;
+}
+.s4 .s4-imgs .s4-img1>img{
+    left: -150px;
+}
+.s4 .s4-imgs .s4-img2>img{
+    left:50%;
+    margin-left: -600px;
+}
+.s4 .s4-imgs .s4-img3>img{
+    right: -150px;
+}
+/*第三屏结束------------------------------------------*/
+
+.footer{
+    width: 100%;
+    height: 161px;
+    background: deepskyblue;
+    font-size: 100px;
+    text-align: center;
+}

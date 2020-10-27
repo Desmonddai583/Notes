@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>87-客服效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 103px;
+            background: url("images/icon.png");
+        }
+        div img{
+            width: 150px;
+            position: absolute;
+            right: -160px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <img src="images/qrcode.png" alt="">
+</div>
+
+<script>
+    // 1.获取到客服div
+    var oDiv = document.querySelector("div");
+    var oImg = document.querySelector("div>img");
+    // 2.给客服div添加鼠标移入移出的事件
+    oDiv.onmouseenter = function () {
+        // 移入, 显示二维码
+        oImg.style.display = "block";
+    }
+    oDiv.onmouseleave = function () {
+        // 移出, 隐藏二维码
+        oImg.style.display = "none";
+    }
+
+    // 作业: 实现it666.com的客服菜单
+</script>
+</body>
+</html>

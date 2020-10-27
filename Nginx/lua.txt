@@ -1,0 +1,79 @@
+注释
+    --  行注释
+    --[[
+        块注释
+    --]]
+
+lua中除了nil和false是false,其他皆为true
+
+lua中的变量默认都是全局变量
+
+Nginx配置lua环境
+    1. 下载安装LuaJIT(一个lua的解释器)
+    2. 下载ngx_devel_kit和lua-nginx-module并解压
+    3. 重新编译nginx加上上面两个module
+
+灰度发布
+    1. 安装并启动memcached
+        memcached -p11211 -u nobody -d
+    2. 下载lua-resty-memcached模块并解压放到lua系统库路径下
+    3. 使用lua配置nginx conf
+        server {
+            location /hello {
+                default_type 'text/plain';
+                // content_by_lua用来执行lua代码
+                content_by_lua 'ngx.say("hello, lus")';
+            }
+
+            location /myip {
+                default_type 'text/plain';
+                content_by_lua '
+                    clientIP = ngx.req.get_headers()["x_forwarded_for"]
+                    ngx.say("IP:", clientIP)
+                    ';
+            }
+
+            location / {
+                default_type "text/html";
+                content_by_lua_file /opt/app/lua/dep.lua;
+            }
+
+            location @sc_server {
+                proxy_pass http://127.0.0.1:9090;
+            }
+
+            locatoin @gray_server {
+                proxy_pass http://127.0.0.1:8080
+            }
+        }
+
+        dev.lua
+
+        clientIP = ngx.req.get_headers()["X-Real-IP"]
+        if clientIP == nil then
+            clientIP = ngx.req.get_headers()["x_forwarded_for"]
+        end
+        if clientIP == nil then
+            clientIP = ngx.var.remote_addr
+        end
+            local memcached = require "resty.memcached"
+            local memc, err = memcached:new()
+            if not memc then
+                ngx.say("failed to instantiate memc: ", err)
+                return
+            end
+            local ok, err = memc:connect("127.0.0.1", 11211)
+            if not ok then
+                ngx.say("failed to connect: ", err)
+                return
+            end
+            local res, flags, err = memc:get(clientIP)
+            if err then
+                ngx.say("failed to get clientIP ", err)
+                return
+            end
+            if  res == "1" then
+                ngx.exec("@gray_server")
+                return
+            end
+            ngx.exec("@sc_server")

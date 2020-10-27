@@ -1,0 +1,19 @@
+// 创建虚拟机并安装docker，这里使用的是virtualbox
+docker-machine create -d virtualbox test
+// 连接到一台远程的docker host
+docker-machine create -d generic --generic-ip-address=123.123.123.123 --generic-ssh-user=root --generic-ssh-key ~/.ssh/id_rsa dev
+
+// 让当前shell中的本地docker client连接到远程test上面的docker engine
+// 关于当前使用的docker client和server信息可以通过docker version查看
+eval $(docker-machine env test)
+
+docker-machine ls
+docker-machine status test
+docker-machine stop test
+docker-machine start test
+docker-machine rm test
+docker-machine url test // 获取test中docker host expose的tcp端口
+docker-machine ssh test // ssh进入test
+docker-machine config test // 查看test的配置信息
+docker-machine inspect test // 查看test更详细的信息
+docker-machine ip test // 获取test的ip地址

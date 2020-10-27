@@ -1,0 +1,14 @@
+Linux的两种时钟
+  系统时钟：由Linux内核通过CPU的工作频率进行的
+  硬件时钟：主板
+
+date  显示和设置系统时间
+  date +%s   
+  date -d @1509536033
+
+hwclock，clock: 显示硬件时钟
+  -s, --hctosys 以硬件时钟为准，校正系统时钟
+  -w, --systohc 以系统时钟为准，校正硬件时钟
+
+时区：/etc/localtime
+显示日历：cal –y 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>88-淘宝商品展示</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 430px;
+            height: 530px;
+            border: 1px solid #000;
+            margin: 50px auto;
+        }
+        .box ul{
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .box>ul li{
+            width: 84px;
+            height: 84px;
+            padding: 2px;
+            line-height: 84px;
+            box-sizing: border-box;
+            background: red;
+        }
+        .li-hover{
+            padding: 0 !important;
+            border: 2px solid #000;
+        }
+        .box>ul img{
+            width: 80px;
+            vertical-align: top;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <img src="images/pic1.jpg" alt="">
+    <ul>
+        <li><img src="images/pic1.jpg" alt=""></li>
+        <li><img src="images/pic2.jpg" alt=""></li>
+        <li><img src="images/pic3.jpg" alt=""></li>
+        <li><img src="images/pic4.jpg" alt=""></li>
+        <li><img src="images/pic5.jpg" alt=""></li>
+    </ul>
+</div>
+
+<script>
+    // 1.获取所有需要操作的元素
+    var oBigImg = document.querySelector("div>img");
+    var oItems = document.querySelectorAll("ul>li");
+    // 2.给所有的li注册输入移入的事件
+    /*
+    for(var i = 0, len = oItems.length; i < len; i++){
+        var item = oItems[i];
+        item.onmouseenter = change;
+    }
+    */
+    myEach(oItems, function (ele) {
+        ele.onmouseenter = change;
+    });
+    function change() {
+        // 3.将当前移入的小图设置给大图片
+        // 3.1拿到当前移入的小图片
+        var obj = this.lastElementChild || this.lastChild;
+        // 3.2将小图设置给大图片
+        oBigImg.src = obj.src;
+
+        // 4.取消非当前选中
+        // 在JS中如果让当前的选中, 其它的不选中, 我们称之为排他思想
+        /*
+        for(var i = 0, len = oItems.length; i < len; i++){
+            var obj = oItems[i];
+            obj.className = "";
+        }
+        */
+        myEach(oItems, function (ele) {
+            ele.className = "";
+        });
+        // 5.给当前的Li添加一个边框
+        this.className = "li-hover";
+    }
+
+
+     // 封装遍历元素的方法
+    // oItems.forEach(function (ele) {
+    //     console.log(ele);
+    // });
+    function myEach(eles, fn) {
+        for(var i = 0, len = oItems.length; i < len; i++){
+            var obj = oItems[i];
+           fn(obj);
+        }
+    }
+
+</script>
+</body>
+</html>

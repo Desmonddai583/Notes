@@ -1,0 +1,8 @@
+Shell 是Linux系统的用户界面，提供了用户与内核进行交互操作的一种接口。它接收用户输入的命令并把它送入内核去执行 
+shell也被称为LINUX的命令解释器（command interpreter） 
+shell是一种高级程序设计语言
+
+显示当前使用的shell
+  echo $SHELL
+显示当前系统使用的所有shell
+  cat /etc/shells

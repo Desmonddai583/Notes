@@ -1,0 +1,25 @@
+//
+//  01-项目当中常见的文件(撑握).pch
+//  01-项目当中常见的文件(撑握)2
+//
+//  Created by xiaomage on 16/1/14.
+//  Copyright © 2016年 小码哥. All rights reserved.
+//
+//原理：工程在编译过程当中，把PCH文件当中的所有内容导入到工程当中所有文件当中。
+
+#ifdef __OBJC__
+
+#define ScreenW  [UIScreen mainScreen].bounds.size.width
+#import "UIView+frame.h"
+
+#ifdef DEBUG
+//友情提示：谁记谁SB
+#define XMGLOG(...) NSLog(__VA_ARGS__)
+
+#else 
+
+#define XMGLOG(...)
+
+#endif
+
+#endif

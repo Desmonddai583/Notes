@@ -1,0 +1,101 @@
+FROM
+尽可能使用当前官方仓库作为你构建镜像的基础。
+推荐使用Alpine镜像，因为它被严格控制并保持最小尺寸（目前小于 5 MB），但它仍然是一个完整的发行版
+
+LABEL
+你可以给镜像添加标签来帮助组织镜像、记录许可信息、辅助自动化构建等。每个标签一行，由 LABEL 开头加上一个或多个标签对
+e.g.
+LABEL vendor=ACME\ Incorporated \
+      com.example.is-production="" \
+      com.example.version="0.0.1-beta" \
+      com.example.release-date="2015-02-12"
+
+RUN
+为了保持 Dockerfile 文件的可读性，以及可维护性，建议将长的或复杂的 RUN 指令用反斜杠\分割成多行
+  1 apt-get
+    不要使用RUN apt-get upgrade或dist-upgrade，如果基础镜像中的某个包过时了，你应该联系它的维护者。如果你确定某个特定的包，比如 foo，需要升级，使用apt-get install -y foo就行，该指令会自动升级foo包
+    
+    永远将RUN apt-get update和apt-get install组合成一条RUN声明,如果不放在一起的话，由于缓存的原因不会再跑一次update导致后面包可能安装失败或是版本过低
+    
+    使用RUN apt-get update && apt-get install -y可以确保你的Dockerfiles每次安装的都是包的最新的版本，而且这个过程不需要进一步的编码或额外干预。这项技术叫作cache busting(缓存破坏)。你也可以显示指定一个包的版本号来达到cache-busting，这就是所谓的固定版本
+    e.g.
+    RUN apt-get update && apt-get install -y \
+        package-bar \
+        package-baz \
+        package-foo=1.3.*
+    固定版本会迫使构建过程检索特定的版本，而不管缓存中有什么。这项技术也可以减少因所需包中未预料到的变化而导致的失败
+
+    清理掉apt缓存 var/lib/apt/lists 可以减小镜像大小。
+    e.g.
+    RUN apt-get update && apt-get install -y \
+    aufs-tools \
+    s3cmd=1.1.* \
+    && rm -rf /var/lib/apt/lists/*
+    官方的Debian和Ubuntu镜像会自动运行apt-get clean，所以不需要显式的调用apt-get clean
+
+CMD
+CMD指令用于执行目标镜像中包含的软件和任何参数。CMD几乎都是以CMD ["executable", "param1", "param2"...]的形式使用
+
+EXPOSE
+EXPOSE指令用于指定容器将要监听的端口。因此，你应该为你的应用程序使用常见的端口
+
+ENV
+为了方便新程序运行，你可以使用ENV来为容器中安装的程序更新PATH环境变量。
+例如使用ENV PATH /usr/local/nginx/bin:$PATH来确保CMD ["nginx"]能正确运行
+
+ADD & COPY
+虽然ADD和COPY功能类似，但一般优先使用COPY。因为它比ADD更透明。COPY只支持简单将本地文件拷贝到容器中，而ADD有一些并不明显的功能（比如本地tar提取和远程URL支持）。因此，ADD的最佳用例是将本地tar文件自动提取到镜像中，例如ADD rootfs.tar.xz。
+如果你的Dockerfile有多个步骤需要使用上下文中不同的文件。单独COPY每个文件，而不是一次性的COPY所有文件，这将保证每个步骤的构建缓存只在特定的文件变化时失效
+
+为了让镜像尽量小，最好不要使用ADD指令从远程URL获取包，而是使用curl和wget。这样你可以在文件提取完之后删掉不再需要的文件来避免在镜像中额外添加一层
+尽量避免下面的用法
+ADD http://example.com/big.tar.xz /usr/src/things/
+RUN tar -xJf /usr/src/things/big.tar.xz -C /usr/src/things
+RUN make -C /usr/src/things all
+而是应该使用下面这种方法
+RUN mkdir -p /usr/src/things \
+    && curl -SL http://example.com/big.tar.xz \
+    | tar -xJC /usr/src/things \
+    && make -C /usr/src/things all
+上面使用的管道操作，所以没有中间文件需要删除
+对于其他不需要 ADD 的自动提取功能的文件或目录，你应该使用 COPY
+
+ENTRYPOINT
+ENTRYPOINT的最佳用处是设置镜像的主命令，允许将镜像当成命令本身来运行（用CMD提供默认选项）
+例如，下面的示例镜像提供了命令行工具s3cmd:
+ENTRYPOINT ["s3cmd"]
+CMD ["--help"]
+现在直接运行该镜像创建的容器会显示命令帮助：
+docker run s3cmd
+或者提供正确的参数来执行某个命令：
+docker run s3cmd ls s3://mybucket
+这样镜像名可以当成命令行的参考
+
+VOLUME
+VOLUME指令用于暴露任何数据库存储文件，配置文件，或容器创建的文件和目录。强烈建议使用VOLUME来管理镜像中的可变部分和用户可以改变的部分
+
+USER
+如果某个服务不需要特权执行，建议使用USER指令切换到非root用户。
+先在Dockerfile中使用类似RUN groupadd -r postgres && useradd -r -g postgres postgres的指令创建用户和用户组
+在镜像中，用户和用户组每次被分配的UID/GID都是不确定的，下次重新构建镜像时被分配到的UID/GID可能会不一样。如果要依赖确定的UID/GID，你应该显示的指定一个UID/GID
+
+你应该避免使用sudo，因为它不可预期的TTY和信号转发行为可能造成的问题比它能解决的问题还多。如果你真的需要和sudo类似的功能（例如，以root权限初始化某个守护进程，以非root权限执行它），你可以使用gosu(https://github.com/tianon/gosu)。
+最后，为了减少层数和复杂度，避免频繁地使用USER来回切换用户
+
+WORKDIR
+为了清晰性和可靠性，你应该总是在WORKDIR中使用绝对路径。另外，你应该使用WORKDIR来替代类似于RUN cd ... && do-something的指令，后者难以阅读、排错和维护
+
+ONBUILD
+格式：ONBUILD <其它指令>
+ONBUILD是一个特殊的指令，它后面跟的是其它指令，比如RUN, COPY等，而这些指令，在当前镜像构建时并不会被执行。只有当以当前镜像为基础镜像，去构建下一级镜像的时候才会被执行
+e.g.
+基础镜像
+FROM node:slim
+RUN mkdir /app
+WORKDIR /app
+ONBUILD COPY ./package.json /app
+ONBUILD RUN [ "npm", "install" ]
+ONBUILD COPY . /app/
+CMD [ "npm", "start" ]
+实际项目镜像
+FROM my-node

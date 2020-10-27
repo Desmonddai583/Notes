@@ -1,0 +1,33 @@
+字符串处理
+    1 计算字符串长度
+        ${#string}
+            len=${#var1}
+        expr length $string
+            len=`expr length "$string"`
+    2 获取字符索引位置
+        expr index "$string" substr  下标从1开始
+            var1="quickstart is a app"
+            ind=`expr index "$var1" start`  # 6
+            ind=`expr index "$var1" uniq`   # 1 
+                # 背后其实是uniq切成4个字符去查找,哪个最先找到索引就为他,这里q第一个就可以被找到,所以返回1
+    3 获取子串长度
+        expr match "$string" substr  必须子串开头
+            var1="quicstart is a app"
+			sub_len=`expr match "$var1" app`     # 0,因为不是以app开头 
+            sub_len=`expr match "$var1" quic.*`  # 18
+    4 抽取字符串中的子串
+        方法一 下标从0开始
+            1 ${string:position}
+            2 ${string:position:length}
+            3 ${string: -position} 或者 ${string:(position)} 使用括号前面就不需加空格
+                
+            var1="kafka hadoop yarn mapreduce"
+            
+            substr1=${var1:10}     # "op yarn mapreduce"
+            substr2=${var1:10:5}   # "op ya"
+            substr3=${var1: -5}    # "educe"
+            substr3=${var1:(-5)}   # "educe"
+            substr4=${var1: -5:2}  # "ed"
+        方法二 下标从1开始
+            expr substr $string $position $length
+                substr5=`expr substr "$var1" 10 5`  # "oop y"

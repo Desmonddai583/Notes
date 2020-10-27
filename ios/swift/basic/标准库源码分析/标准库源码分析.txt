@@ -1,0 +1,54 @@
+Swift于2015年正式开源，github地址： https://github.com/apple/swift
+
+几个可能会经常看的目录
+  docs：一些文档
+  stdlib：Swift源码
+  lib：C++源码
+  include：C++头文件
+
+标准库源码位置
+  https://github.com/apple/swift/tree/master/stdlib/public/core
+
+Array分析
+  map、filter
+    https://github.com/apple/swift/blob/master/stdlib/public/core/Sequence.swift
+  flatMap、compactMap、reduce
+    https://github.com/apple/swift/blob/master/stdlib/public/core/SequenceAlgorithms.swift
+
+Substring分析
+  append、lowercased、uppercased
+    https://github.com/apple/swift/blob/master/stdlib/public/core/Substring.swift
+
+Optional分析
+  map、flatMap、==、??
+    https://github.com/apple/swift/blob/master/stdlib/public/core/Optional.swift
+
+Metadata分析
+  文档： https://github.com/apple/swift/blob/master/docs/ABI/TypeMetadata.rst
+  其他参考
+    https://github.com/apple/swift/blob/master/include/swift/ABI/Metadata.h
+    https://github.com/apple/swift/blob/master/include/swift/ABI/MetadataKind.def
+    https://github.com/apple/swift/blob/master/include/swift/ABI/MetadataValues.h
+    https://github.com/apple/swift/blob/master/include/swift/Reflection/Records.h
+
+反射
+  反射是编程语言中一项强大的能力，比如Java语言的反射机制
+    对于任意一个类型，都能够动态获取这个类的所有属性和方法信息
+    对于任意一个实例，都能够动态调用它的任意方法和属性
+  Swift的反射机制目前还比较弱，通过 Mirror 类型来提供简单的反射功能
+    struct Person { 
+      var age: Int = 0 
+      var name: String = "" 
+    }
+    let mirror = Mirror(reflecting: Person(age: 10, name: "Jack")) 
+    // struct 
+    print(mirror.displayStyle!)
+    // Person 
+    print(mirror.subjectType) 
+    // nil 
+    print(mirror.superclassMirror as Any) 
+    // age 10 
+    // name Jack 
+    for case let (label?, value) in mirror.children { 
+      print(label, value) 
+    }

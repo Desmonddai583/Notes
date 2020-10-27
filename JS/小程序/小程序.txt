@@ -1,0 +1,357 @@
+目录结构
+    pages: 存储所有界面
+        一个界面对应一个文件夹, 文件夹中的所有类型文件必须同名, 小程序会自动将所有同名文件合成一个完整的界面
+        每个界面中的json文件只能编写app.json中window相关的配置, 作用就是覆盖app.json的window中相同的配置项
+            https://developers.weixin.qq.com/miniprogram/dev/framework/config.html#%E9%A1%B5%E9%9D%A2%E9%85%8D%E7%BD%AE
+    
+    utils: 工具类
+        用于存放封装好的可复用的业务逻辑代码
+
+    app.json: 是当前小程序的全局配置，包括了小程序的所有页面路径、界面表现、网络超时时间、底部 tab 等
+        pages字段 用于描述当前小程序所有页面路径，这是为了让微信客户端知道当前你的小程序页面定义在哪个目录
+                    pages数组中有多少个值,就代表着小程序有多少个界面
+                    数组中最前面的一个元素就是小程序的默认界面
+                    "pages":[
+                        "pages/index/index",
+                        "pages/logs/logs"
+                    ]
+        window字段 定义小程序所有页面的顶部背景颜色，文字颜色定义等
+                    "window":{
+                        "backgroundTextStyle":"light",
+                        "navigationBarBackgroundColor": "#fff",
+                        "navigationBarTitleText": "WeChat",
+                        "navigationBarTextStyle":"black",
+                        ...
+                    }
+        tabBar字段 配置tabBar
+            "tabBar": {
+                "color": "#00f",
+                "selectedColor": "#f00",
+                "list": [
+                    {
+                        "iconPath": "images/nav-icon-index.png",
+                        "selectedIconPath": "images/nav-icon-index.active.png",
+                        "pagePath": "pages/index/index",
+                        "text": "首页"
+                    },
+                    {
+                        "iconPath": "images/nav-icon-cat.png",
+                        "selectedIconPath": "images/nav-icon-cat.active.png",
+                        "pagePath": "pages/logs/logs",
+                        "text": "日志"
+                    }
+                ]
+            }
+        debug字段 是否输出相关debug信息
+            "debug": true
+        https://developers.weixin.qq.com/miniprogram/dev/framework/config.html
+    
+    app.js: 当前小程序的全局业务逻辑代码
+        用于创建小程序实例, 监听小程序生命周期
+        https://developers.weixin.qq.com/miniprogram/dev/framework/app-service/app.html
+    
+    app.wxss: 当前小程序的全局样式
+    
+    project.config.json 项目配置文件
+        针对各自喜好做一些个性化配置，例如界面颜色、编译配置等等，当你换了另外一台电脑重新安装工具的时候，你还要重新配置。
+        https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html
+    
+小程序的界面规范:
+    界面目录的名称和界面js/wxml/wxss/json名称必须一致
+    只有这些名称一致, 将来小程序才能自动的根据app.json中设置的界面路径自动合成界面
+    
+    界面文件的注意点:
+        界面的.js文件不能是一个空的文件, 必须至少包含Page({});
+        界面的.json文件不能是一个空的文件, 必须至少包含{};
+
+    常用的标签:
+        view标签: 相当于过去的div
+        text标签: 相当于过去的span
+            text标签注意点: 不会忽略回车换行
+
+    如何设置样式
+        和过去使用CSS设置样式一样, 搞一个类名, 设置对应类名的样式即可
+        注意点: 
+            在微信小程序中不推荐使用px, 微信小程序已经给我们封装好了一套rpx单位
+            rpx单位会自动根据不同的屏幕大小等比缩放, 保证在不同屏幕上效果的效果一致
+            rpx和过去我们使用vw/wh解决屏幕适配的问题本质是一样的, 只不过微信帮我们计算好了
+            在企业开发中只需要按照设计师提供的750的图片测量设置对应的值即可
+
+    如何编写业务逻辑代码
+        在当前页面对应的js代码中创建一个页面对象, 然后再页面对象中编写相关的代码即可
+    
+事件绑定
+    在小程序中绑定事件是以bind开头
+    小程序在事件被触发的时候会自动去当前页面的页面对象中查找指定名称的方法 
+        <button bindtap='myclick' data-name="lnj">我是按钮</button>
+    在执行对应的监听方法时和过去一样会将事件对象传递给我们
+    在小程序中给事件监听的方法传递参数比较特殊, 需要使用html5中新增的自定义属性来传递 data-xxx="abc"
+    然后在js中通过事件对象拿到触发事件的元素, 然后再通过dataset获取传递过来的数据
+        myclick(e){
+            console.log(e.currentTarget.dataset.name);
+        }
+
+    在小程序中默认情况下事件都是冒泡的, 如果想阻止事件冒泡那么就不能通过bind来绑定事件,需要通过catch来绑定事件
+        <view class='two' catchtap='twoFn'></view>
+
+数据绑定
+    在小程序中可以像Vue一样, 通过Mustache语法插入数据
+        小程序会自动到当前界面的页面对象中的data中查找
+        Page({
+            data: {
+                msg:"指趣学院"
+            }
+        })
+        <view>{{msg}}</view>  
+
+        在小程序中组件属性/控制属性/关键字都必须在双引号{{}}中添加
+        和Vue一样, 可以在 {{}} 内进行简单的运算，支持的有如下几种方式
+        https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/data.html
+
+    单向数据传递
+        小程序中想要从界面传递数据给js必须通过H5中新增的自定义属性data-xxx方式
+        小程序js中获取界面传递过来的数据必须通过 事件对象.currentTarget.dataset
+        https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/event.html
+    
+    双向数据绑定
+        和React一样, 需要自己手动监听修改数据
+        1. 通过bindinput那个输入事件
+            <input value="{{msg}}" class='account' bindinput='change'></input>
+        2. 在监听回调函数中通过事件对象.detail.value获取到最新的数据
+        3. 和React思想一样this.setData({}) 
+            change(e){
+                console.log(e.detail.value);
+                // 直接修改不会触发界面的更新
+                // this.data.msg = e.detail.value;
+                this.setData({
+                    msg: e.detail.value
+                });
+            }
+    
+小程序与原生网页的区别
+    在小程序中js代码是支持commonJS规范的
+    commonJS简单理解就是模块化
+    一个文件就是一个模块, 拥有独立的作用域
+    普通方式定义的变量/方式/对象都属于该模块
+    可以通过module.exports来暴露模块中的内容
+    可以通过require('')来导入指定模块中暴露的内容
+    其实就相当于学习Vue的时候, 自定义一个JS文件通过exports暴露文件中的数据,通过import导入暴露的数据是一样的, 只不过语法不一样
+
+    小程序的HTML大部分和原生的HTML一样
+        小程序的.wxml其实是weixin xml的简写, 所以里面的语法都是严格的
+        也就是说必须有闭合便签 <img src="" />
+    小程序的CSS大部分和原生的CSS一样
+        只不过新增的一个单位叫做rpx, 会根据屏幕大小自适应大小
+    小程序的JS大部分和原生的JS一样
+        1. 只不过小程序不是运行在浏览器中的, 所以没有BOM和DOM
+            小程序新增了很多的成员给我们使用
+        2. APP成员:用于创建小程序实例对象
+            整个小程序只有一个 App 实例，是全部页面共享的
+        3. Page成员: 用于创建页面对象
+            每个页面都有一个对应的页面对象, 用于保存当前页面对应的数据和处理当前页面对应的业务逻辑
+        4. getApp方法: 用于获取全局的应用程序实例
+        5. getCurrentPages方法: 获取当前页面的调用栈
+        6. wx对象: 用来调用微信提供的核心API
+
+条件渲染
+    <view wx:if="{{age >= 40}}">
+        大于=40岁
+    </view>
+    <view wx:elif="{{age >= 18}}">
+        大于=18岁
+    </view>
+    <view wx:else>
+        小于18
+    </view> 
+
+    如果要一次性判断多个组件标签, 那么可以使用block
+    并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性
+        <block wx:if="{{age >= 18}}">
+            <view>1</view>
+            <view>2</view>
+            <view>3</view>
+        </block> 
+        <block wx:else>
+            <view>4</view>
+            <view>5</view>
+            <view>6</view>
+        </block> 
+    
+    wx:if和hidden
+        两个语法都是惰性的, 如果第一次添加不满足都不会创建元素
+        if切换时候是真正的删除或者添加元素, hidden切换时候不会真正删除添加元素
+            <view hidden="{{!isShow}}">hidden</view>
+        https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/conditional.html
+
+        wx:if 有更高的切换消耗而 hidden 有更高的初始渲染消耗
+        因此如果需要频繁切换的情景下，用 hidden 更好
+        如果在运行时条件不大可能改变则 wx:if 较好
+
+列表渲染
+    通过wx:for="{{list}}"告诉小程序需要遍历谁
+    1. 默认情况下只要遍历到了数据就会放到一个名称叫做item的变量中
+        <view wx:for="{{list}}"> {{item}} </view>
+    2. 如果当前界面中有名称叫做item的变量会发生冲突, 那么就需要我们自己指定变量到的元素的名称
+        wx:for-item="currentItem"
+        <view 
+        wx:for="{{list}}" 
+        wx:for-item="currentItem"> 
+            {{currentItem}} 
+        </view> 
+    3. 如果想在遍历的元素中使用索引, 可以直接使用index接口, 如果发生冲突, 那么就需要我们自己指定索引的名称
+        wx:for-index="idx"
+        <view 
+        wx:for="{{list}}" 
+        wx:for-item="currentItem"
+        wx:for-index="idx"> 
+            {{currentItem}} -- {{idx}}
+        </view>
+    4. 和Vue/React一样, 如果是通过遍历生成的元素需要指定一个key
+        wx:key="{{}}"
+        <view 
+        wx:for="{{list}}" 
+        wx:for-item="currentItem"
+        wx:for-index="idx"
+        wx:key="{{idx}}"> 
+        {{currentItem}} -- {{idx}}
+        </view>
+    5. 同样也可以使用block
+
+    https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/list.html
+
+APP实例生命周期方法
+    let obj = {
+        onLaunch: function () {
+            // 小程序初始化完成时触发，全局只触发一次
+            console.log("onLaunch")
+        },
+        onShow(options) {
+            // 小程序启动，或从后台进入前台显示时触发
+            console.log("onShow");
+        },
+        onHide() {
+            // 小程序从前台进入后台时触发
+            console.log("onHide");
+        },
+        onError(msg) {
+            // 小程序发生脚本错误或 API 调用报错时触发
+            console.log("onError");
+        },
+        globalData: {
+            // 小程序全局共享数据, 通过getApp获取
+            msg: "指趣学院"
+        }
+    }
+    App(obj)
+
+页面生命周期方法
+    Page({
+        data: {
+            msg: '指趣学院'
+        },
+        onLoad(options) {
+            // 页面加载时触发。一个页面只会调用一次
+            console.log("two onLoad");
+        },
+        onReady() {
+            // 页面初次渲染完成时触发。一个页面只会调用一次，代表页面已经准备妥当，可以和视图层进行交互
+            console.log("two onReady");
+            // console.log(this.route);
+        },
+        onShow() {
+            // 页面显示/切入前台时触发
+            console.log("two onShow");
+        },
+        onHide() {
+            // 页面隐藏/切入后台时触发
+            console.log("two onHide");
+        },
+        onPullDownRefresh() {
+            // 监听用户下拉刷新事件
+            console.log("two onPullDownRefresh");
+        },
+        onPageScroll() {
+            // 监听用户滑动页面事件
+            console.log("onPageScroll");
+        },
+        onReachBottom() {
+            // 监听用户上拉触底事件
+            console.log("two onReachBottom");
+        },
+        onShareAppMessage(res) {
+            // 监听用户点击页面内转发按钮（<button> 组件 open-type="share"）或右上角菜单“转发”按钮的行为，并自定义转发内容。
+            console.log("two onShareAppMessage");
+            if (res.from === 'button') {
+            // 来自页面内转发按钮
+            console.log(res.target)
+            }
+            return {
+            title: '自定义转发标题',
+            }
+        },
+        onUnload() {
+            // 页面卸载时触发
+            console.log("two onUnload");
+        },
+        onResize() {
+            // 小程序屏幕旋转时触发
+            console.log("onResize");
+        },
+    })
+
+路由
+    1 navigator组件
+        <navigator url='./../two/two'>下一个界面</navigator>
+        添加open-type='redirect'会将上个页面卸载
+            <navigator url='./../two/two' open-type='redirect'>下一个界面</navigator>
+    2 js中调用navigateTo
+        wx.navigateTo({
+            url: './../logs/logs',
+        })
+
+模板
+    WXML提供模板（template），可以在模板中定义代码片段，然后在不同的地方调用
+    定义模板
+        通过template标签定义模板, 并且每个模板必须通过name属性指定一个有一个独一无二的名称
+        <template name="msgItem"></template>
+    使用模板
+        使用 is 属性，声明需要的使用的模板，然后将模板所需要的 data 传入
+        <template is="msgItem" data="{{...item}}" />
+
+        https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/template.html
+
+    可以将模板内容放在独立的wxml文件引用 
+        WXML提供两种文件引用方式import和include
+        1 import可以在该文件中使用目标文件定义的template
+            <import src="item.wxml" />
+            注意点:
+                只会 import 目标文件中定义的template,而不会import目标文件中的其他内容,也不会import目标文件中import的template
+        2 include 可以将目标文件除了 <template/> <wxs/> 外的整个代码引入，相当于是拷贝到 include 位置
+            <include src="header.wxml" />
+            https://developers.weixin.qq.com/miniprogram/dev/framework/view/wxml/import.html
+
+网络请求
+    注意点: 
+        本质上这个请求不是发送到了我们自己的服务器, 而是发送到了微信的服务器
+        微信服务器接收到请求之后, 会再次发送请求到我们的服务器, 然后将从服务器获取到的数据包装之后返回给我们
+    wx.request({
+      url: 'https://weixin.itzb.com/web/?lnj=api/default/index',
+      data: {},
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success(res) {
+        console.log(res.data)
+      }
+    })
+
+WePY
+    安装脚手架
+        npm install wepy-cli -g
+    初始化项目
+        wepy init standard 项目名称
+    安装依赖
+        npm install
+    开启实时编译
+        wepy build --watch    
+    

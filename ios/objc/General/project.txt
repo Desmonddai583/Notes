@@ -1,0 +1,195 @@
+因为OC完全兼容C, 所以可以在OC程序中编写C语言代码
+并且可以将C语言的源文件和OC的源文件组合在一起生成可执行文件
+  #import "zs.h"
+
+import的功能和include一样, 是将右边的文件拷贝到当前import的位置
+为了降低程序员的负担, 防止重复导入, 避免程序员去书写头文件卫士, 那么OC给出来一个新的预处理指令import
+import优点: 会自动防止重复拷贝
+
+Foundation.h我们称之为主头文件, 主头文件中又拷贝了该工具箱中所有工具的头文件, 我们只需要导入主头文件就可以使用该工具箱中所有的工具, 避免了每次使用都要导入一个对应的头文件
+工具箱的地址: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks
+规律: 所有的主头文件的名称都和工具箱的名称一致
+      所有的主头文件都是导入了该工具箱中所有工具的头文件
+
+自定义代码块可以在 资源库->Developer->Xcode->Userdata->Codesnippets下面
+自定义代码块里面如果要使用变量,可以通过<#变量名(按井号)>
+
+printf和NSLog的区别:
+  NSLog会自动换行
+  NSLog在输出内容时会附加一些系统信息
+  NSLog和printf接收的参数不一样,oc接收oc的字符串对象,所以前面要加@
+
+  #import <Foundation/Foundation.h>
+  NSLog(@"OC hello World")
+  NSLog(@"sum = %i", sum(20, 10));
+
+#pragma mark基本使用
+  - 会创建一条分割线
+  #pragma mark - 枪
+  #pragma mark - 士兵
+  #pragma mark - 程序入口
+
+修改项目模板
+  /*
+  工程名称:
+  文件名称:
+  创建者  :
+  创建时间:
+  版权    :
+  修改人  :
+  修改时间:
+  */
+
+  修改项目模板以及main函数中的内容
+    /Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates/Project Templates/Mac/Application/Command Line Tool.xctemplate/
+  修改OC文件头部的描述信息
+    /Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates/File Templates/Source/Cocoa Class.xctemplate
+
+Xcode文档
+  Xcode文档安装的位置1:
+    /Applications/Xcode.app/Contents/Developer/Documentation/DocSets
+    注意: 拷贝之前最好将默认的文档删除, 因为如果同时存在高版本和低版本的文档, 那么低版本的不会显示
+  Xcode文档安装的位置2:
+    /Users/你的用户名/Library/Developer/Shared/Documentation/DocSets
+    如果没有该文件夹可以自己创建一个
+
+如何获得APP内部资源
+  安装一个iTools
+  用USB连接设备，打开iTools
+
+类前缀
+  使用Objective-C开发iOS程序时，最好在每个类名前面加一个前缀, 使用Objective-C开发iOS程序时，最好在每个类名前面加一个前缀
+
+Xcode5与Xcode7的区别
+  1. Xcode5有个FrameWorks,存放框架， Xcode7自动导入框架,用到什么框架时，自动导入框架
+  2. Xcode7当中多了一个LaunchScreen.storyboard，用来设置启动页面,
+    如果没有设置启动页面，默认它的屏幕的大小是4s大小(模拟器默认的尺⼨是由启动界⾯决定的)
+    LaunchScreen底层实现：把LaunchScreen.storyboard当中内容，生成一张图片
+    可以进⼊沙盒当中查看,获取⽅法: NSLog(@"%@",NSHomeDirectory()); 打印出来,后前往⽂件夹.找到Library->Caches->Snapshots目录下⾯.最后⼀层就是程序⾃动⽣成的图⽚.
+  3. info.plist,名称发生了变化，而且放到了外面
+  4. 在xcode7当中没有了PCH文件
+
+info.plist
+  作用: 设置应用程序的配置信息，它是一个字典
+  Bundle name：应用程序它的名称
+  Bundle identifier：应用程序的唯一标识 
+                     如果两个应⽤同⼀个标识符, 那么之前的那个应⽤会被干掉
+                     上传到AppStore的时候必须得要有标识符
+                     当做推送的时候也必须得要Bundle identiﬁer
+  Bundle versions string, short：版本号
+  Bundle version：应用程序打包的版本号 
+
+  获取plist中的当前版本号,具体其他key可以在plist的source code中查找
+    [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"];
+
+PCH文件
+  只要在pch当中定义的东⻄, 会被整个应⽤程序共享
+  PCH它是⼀个预编译⽂件,要告诉系统要提前编译它.要去做⼀些配置
+  在Buld Setting当中找perﬁx找到Precomplie preﬁx Header为yes
+  设完这些后,再进⾏preﬁx Header的路径配置.路径从根层开始
+
+  作用
+    1.存入一些公有的宏
+      经常做⼀些系统的版本号的宏, 和⼀些屏幕的宏
+    2.导入公用的头文件,分类的头⽂件
+    3.自定义Log
+      在宏当中,三个点...表⽰可变参数
+      在函数当中,表⽰可变参数⽤:__VA_ARGS__ 
+      XMGLog(...) NSLog(__VA__ARGS__)
+
+  原理：工程在编译过程当中，把PCH文件当中的所有内容导入到工程当中所有文件当中
+        但如果⼯程当中有C语⾔⽂件的时候,它也是会把它给导⼊到C语⾔的⽂件当中.如果这样的话, 就会发⽣错误
+        解决办法: 每⼀个OC⽂件都会定义⼀个__OBJC__宏,只要判断有没有定义这样⼀个宏, 就能看出是不是C语⾔的⽂件,如果没有定义这样的宏, 那就不需要导⼊这些东⻄.就不会报错
+
+应⽤程序的启动原理
+  1.执⾏Main
+  2.执⾏UIApplicationMain函数.
+    int main(int argc, char * argv[]) {
+      @autoreleasepool { 
+        // 第三个参数:UIApplication类名或者⼦类的名称 nil == @"UIApplication" 
+        // 第四个参数:UIApplication的代理的代理名称
+        // NSStringFromClass:把类名转化字符串 
+        // NSStringFromClass好处:1.有提⽰功能 2.避免输⼊错误 
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+      }
+    }
+  3.创建UIApplication对象,并设置UIApplicationMain对象的代理.
+    UIApplication的第三个参数就是UIApplication的名称,如果指定为nil,它会默认为UIApplication.
+    UIApplication的第四个参数为UIApplication的代理.
+  4.开启⼀个主运⾏循环.保证应⽤程序不退出.
+  5.加载info.plist.加载配置⽂件.判断⼀下info.plist⽂件当中有没有Main storyboard file base name ⾥⾯有没有指定storyboard⽂件,如果有就去加载info.plist⽂件,如果没有,那么应⽤程序加载完毕.
+
+Cocoapods
+  1.先升级Gem
+    sudo gem update --system
+  2.切换cocoapods的数据源
+    [先删除，再添加，查看]
+    gem sources --remove https://rubygems.org/
+    gem sources -a https://ruby.taobao.org/
+    gem sources -l
+  3.安装cocoapods
+    sudo gem install cocoapods
+    或者（如10.11系统）sudo gem install -n /usr/local/bin cocoapods
+  4.将Podspec文件托管地址从github切换到国内的oschina
+    [先删除，再添加，再更新]
+    pod repo remove master
+    pod repo add master http://git.oschina.net/akuandev/Specs.git
+    pod repo add master https://gitcafe.com/akuandev/Specs.git
+    pod repo update
+  5.设置pod仓库
+    pod setup
+  6.测试
+    [如果有版本号，则说明已经安装成功]
+    pod --version
+  7.利用cocoapods来安装第三方框架
+    1 进入要安装框架的项目的.xcodeproj同级文件夹
+    2 在该文件夹中新建一个文件podfile
+    3 在文件中告诉cocoapods需要安装的框架信息
+      a.该框架支持的平台
+      b.适用的iOS版本
+      c.框架的名称
+      d.框架的版本
+  8.安装
+    pod install --no-repo-update
+    pod update --no-repo-update
+
+  podfile
+    platform :ios, '8.0' 用来设置所有第三方库所支持的iOS最低版本
+    pod 'SDWebImage','~>2.6' 设置框架的名称和版本号
+    版本号的规则：
+    '>1.0'    可以安装任何高于1.0的版本
+    '>=1.0'   可以安装任何高于或等于1.0的版本
+    '<1.0'    任何低于1.0的版本
+    '<=1.0'   任何低于或等于1.0的版本
+    '~>0.1'   任何高于或等于0.1的版本，但是不包含高于1.0的版本
+    '~>0'     任何版本，相当于不指定版本，默认采用最新版本号
+
+  使用pod install命令安装框架后的大致过程：
+    1 分析依赖:该步骤会分析Podfile,查看不同类库之间的依赖情况。如果有多个类库依赖于同一个类库，但是依赖于不同的版本，那么cocoaPods会自动设置一个兼容的版本。
+    2 下载依赖:根据分析依赖的结果，下载指定版本的类库到本地项目中。
+    3 生成Pods项目：创建一个Pods项目专门用来编译和管理第三方框架，CocoaPods会将所需的框架，库等内容添加到项目中，并且进行相应的配置。
+    4 整合Pods项目：将Pods和项目整合到一个工作空间中，并且设置文件链接。
+
+初始化项目流程
+  项目的部署版本
+    之后项目会运行在哪些系统中
+  横竖屏的支持
+    iPhone应用一般只支持横屏
+    iPhone游戏一般支持竖屏
+    iPad横竖屏都支持
+  设置项目的图标和启动图片
+    项目的图标(美工做好)
+    项目的启动图片(美工做好)
+  修改项目的名称
+    Bundle Display Name
+  确定项目的目录结构
+
+MVVM
+  在 MVVM 中，view 和 view controller 正式联系在一起，我们把它们视为一个组件
+  view 和 view controller 都不能直接引用 model，而是引用视图模型
+  view model 是一个放置用户输入验证逻辑，视图显示逻辑，发起网络请求和其他代码
+
+  注意
+    view 引用 view model，但反过来不行
+    view model 引用了 model，但反过来不行
+    如果我们破坏了这些规则，便无法正确地使用 MVVM

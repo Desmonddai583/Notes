@@ -1,0 +1,24 @@
+MBProgressHUD
+  实现了很多种样式的提示框
+  支持 ARC & MRC
+  提供有素材包
+  
+
+  基本使用
+    [MBProgressHUD showMessage:@"正在登录ing..."]; 显示信息
+    [MBProgressHUD hideHUD]; 隐藏当前提示框页面
+    [MBProgressHUD showError:@"⽤户名或密码错误"]; 显示错误
+
+SVProgressHUD
+  消息弹窗第三方框架
+  没有素材包，程序员需要针对框架进行一定的定制才能使用
+  只支持 ARC
+
+  // 显示错误弹窗
+  [SVProgressHUD showErrorWithStatus:self.usernameTF.placeholder];
+  // 显示成功消息弹窗
+  [SVProgressHUD showSuccessWithStatus:msg];
+  // 显示消息弹窗
+  [SVProgressHUD showWithStatus:@"客官别急,下一个轮到你"];
+  // 添加灰色的背景遮罩
+  [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack];

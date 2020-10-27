@@ -1,0 +1,266 @@
+只需要在C语言字符串前面加上@符号, 系统就会自动将C语言字符串转换为OC字符串
+
+C语言中的字符串不是对象
+  char *name1 = "lnj";
+  char name2[] = "lmj";
+
+OC中的字符串是一个对象
+正是因为OC中的字符串是一个对象, 所以它就具备了很多功能
+
+输出C语言的字符串使用%s
+  NSLog(@"content = %s", [p loadMessage]);
+输出OC的字符串使用%@,  %@就专门用于输出对象类型的
+  NSLog(@"content = %@", [p loadMessage]);
+
+计算字符串的长度
+  // "lnj"; // l n j \0
+  // 不包含\0的
+  // 计算出来的是个数, 而不是占用的字节数
+  NSString *str = @"李南江";
+  NSUInteger len = [str length];
+
+如何创建字符串对象
+  通过不同的方式创建字符串,字符串对象储存的位置也不一样
+  如果是通过字符串常量创建,那么字符串对象存储在常量区中
+  如果是通过alloc initWithFormat/stringWithFormat创建,那么字符串对象存储在堆区中
+  不同的平台存储的方式也不一样,如果是Mac平台系统会自动对字符串对象进行优化,但是如果是iOS平台就是两个对象
+  不同的编译器存储的方式也不一样,如果是Xcode6以下并且是在iOS平台,那么每次alloc都会创建一个新的对象,
+  如果是在Xcode6以上那么alloc多次指向同一块存储空间
+  1.通过字符串常量创建
+    如果是通过字符串常量创建对象,并且字符串常量的内容一致,那么如果创建多个字符串对象,
+    多个对象指向同一块存储空间
+    NSString *str1 = @"lnj";
+  2.通过alloc init创建
+    只要调用alloc就会在堆内存中开辟一块存储空间
+    NSString *str2 = [[NSString alloc]initWithFormat:@"lmj"];
+  3.通过类工厂方法创建/ stringWithFormat
+    内部其实就是封装了alloc init
+    NSString *str = [NSString stringWithFormat:@"age = %i, height = %f\n", 30, 1.75];
+  4.通过alloc/initWithString
+    一般情况下,只要是通过alloc或者类工厂方法创建的对象,每次都会在堆内存中开辟一块新的存储空间
+    但是如果是通过alloc的initWithString方法除外,因为这个方法是通过copy返回一个字符串对象给我们
+    而copy又分为深拷贝和浅拷贝,如果是深拷贝会创建一个新的对象,如果是浅拷贝不会创建一个新的对象,
+    而是直接返回被拷贝的对象的地址给我们
+    而initWithString正好是浅拷贝,所以无论什么平台或编译器都指向同一块存储空间
+    NSString *str4 = [[NSString alloc]initWithString:@"ls"];
+
+字符串文件读写
+  从文件中读取字符串
+    1. 
+      /*
+      file: 文件路径,
+      encoding: 编码英文 iOS-5988-1 中文 GBK GBK2312 , 一般情况填写UTF-8
+      error: 如果读取错误, 会将错误信息保存到error中 ,如果读取正确, 就没有error = nil
+      注意: 以后在OC方法中但凡看到XXXofFile的方法, 传递的一定是全路径(绝对路径)
+      */
+      NSString *path = @"/Users/xiaomage/Desktop/课堂共享/day17/note/lnj.txt";
+      NSError *error = nil;
+      NSString *str = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+      if (error == nil) {
+          NSLog(@"str = %@", str);
+      } else {
+          NSLog(@"error = %@", [error localizedDescription]);
+      }
+    2.
+      创建URL 协议头 + 主机地址 + 文件路径
+      //创建URL
+      //NSString *path = @"http://www.baidu.com";
+      //NSString *path = @"file://192.168.199.199/Users/NJ-Lee/Desktop/lnj.txt";
+      //如果加载的资源是本机上的资源,那么URL中的主机地址可以省略
+      //虽然主机地址可以省略,但是需要注意,文件路劲中最前面的/不能省略,文件路径最前面的/代表根路径
+      NSString *path = @"file:///Users/NJ-Lee/Desktop/lnj.txt";
+      //注意:如果是通过NSURL的fileURLWithPath:方法创建URL,那么系统会自动给我们传入的字符串添加协议头(file://),所以字符串中不需要再写file://
+      //注意:开发中一般情况下,如果是访问本机的资源,创建URL的时候,建议使用fileURLWithPath方法创建
+      //因为url不支持中文,如果URL中包含中文,那么无法访问;但是如果是通过fileURLWithString方法创建URL,哪怕URL中包含中文也可以进行访问,系统内部会自动对URL中包含的中文进行处理
+      // NSURL *url = [NSURL fileURLWithPath:path];
+      //如果URL中包含中文,又非不通过fileURLWithPath创建,也可以破
+      //如果想破就必须在创建URL之前先对字符串中的中文进行处理,进行百分号编码
+      path = [path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+      NSURL *url = [NSURL URLWithString:path];
+      //根据URL加载文件中的字符串
+      NSString *str = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
+
+  将字符串写入到文件中
+    1.
+      // atomically 如果传入YES, 字符串写入文件的过程中如果没有写完, 那么不会生成文件
+      //            如果传入NO, 字符串写入文件的过程中如果没有写完, 会生成文件
+      NSString *str = @"iOS0601基础班";
+      NSString *path2 = @"/Users/xiaomage/Desktop/abc.txt";
+      BOOL flag = [str writeToFile:path2 atomically:YES encoding:NSUTF8StringEncoding error:nil];
+      NSLog(@"flag = %i", flag);
+    2.
+      NSString *str = @"lnj";
+      // NSString *path = @"file:///Users/NJ-Lee/Desktop/未命名文件夹/abc.txt";
+      // path = [path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+      // NSURL *url = [NSURL URLWithString:path];
+      
+      NSString *path = @"/Users/NJ-Lee/Desktop/未命名文件夹/abc.txt";
+      NSURL *url = [NSURL fileURLWithPath:path];
+      [str writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:nil];
+      
+      //注意点:如果多次往同一个文件中写入内容,那么后一次的会覆盖前一次的
+      NSString *str2 = @"xxoo";
+      [str2 writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:nil];
+  
+字符串比较
+  比较两个字符串的"内容"是否相同
+    BOOL flag = [str1 isEqualToString:str2];
+  比较两个字符串的"地址"是否相同
+    flag = (str1 == str2);
+  比较字符串的大小
+    // NSOrderedAscending  前面的小于后面的
+    // NSOrderedSame,  两个字符串相等
+    // NSOrderedDescending  前面的大于后面的
+    switch ([str1 compare:str2]) {
+        case NSOrderedAscending:
+            NSLog(@"str1小于str2");
+            break;
+        case NSOrderedSame:
+            NSLog(@"str1等于str2");
+            break;
+        case NSOrderedDescending:
+            NSLog(@"str1大于str2");
+            break;
+        default:
+            break;
+    }
+  忽略大小写进行比较
+    switch ([str1 caseInsensitiveCompare:str2]) {
+        case NSOrderedAscending:
+            NSLog(@"str1小于str2");
+            break;
+        case NSOrderedSame:
+            NSLog(@"str1等于str2");
+            break;
+        case NSOrderedDescending:
+            NSLog(@"str1大于str2");
+            break;
+        default:
+            break;
+    }
+
+字符串搜索
+  1.判断是否以什么开头
+    本质就是从字符串的第一个字符开始匹配, 只要不匹配就返回NO
+    [str hasPrefix:@"http://"]
+  2.判断是否以什么结尾
+    本质就是从字符串的最后一个字符开始匹配, 只要不匹配就返回NO
+    [str hasSuffix:@".gif"]
+  3.判断字符串中是否包含520it.com
+    只要str中包含该字符串, 那么就会返回该字符串在str中的起始位置以及该字符串的长度
+    location从0开始 , length从1开始
+    如果str中没有需要查找的字符串, 那么返回的range的length=0, location = NSNotFound
+    NSRange range = [str rangeOfString:@"lnj"];
+    // if (range.location == NSNotFound) {
+    if (range.length == 0) {
+        NSLog(@"str中没有需要查找的字符串");
+    }else{
+        NSLog(@"str中有需要查找的字符串");
+        NSLog(@"location = %lu, length = %lu", range.location, range.length);
+    }
+
+字符串截取
+  NSString *str = @"<head>desmond</head>";
+  // 注意:rangeOfString是从左至右的开始查找, 只要找到就不找了
+  NSUInteger location = [str rangeOfString:@">"].location + 1;
+  NSUInteger length = [str rangeOfString:@"<" options:NSBackwardsSearch].location - location;
+  // NSRange range = {6, 3};
+  NSRange range = NSMakeRange(location, length);
+  NSString *newStr = [str substringWithRange:range];
+
+  从什么地方开始截取, 一直截取到最后
+    NSString *newStr = [str substringFromIndex:6];
+  从开头开始截取, 一直截取到什么位置
+    NSString *newStr = [str substringToIndex:6];
+
+字符串替换
+  // OccurrencesOfString: 要替换谁
+  // withString: 用谁替换
+  NSString *newStr = [str stringByReplacingOccurrencesOfString:@"&" withString:@"/"];
+
+  去除首尾
+    NSCharacterSet *set = [NSCharacterSet whitespaceCharacterSet];
+    // 去除首尾大小写
+    // NSCharacterSet *set = [NSCharacterSet uppercaseLetterCharacterSet]; 
+    NSString *newStr = [str stringByTrimmingCharactersInSet:set];
+
+字符串与路径
+  判断是否是绝对路径
+    其实本质就是判断字符串是否以/开头
+    [str isAbsolutePath]
+  获取文件路径中的最后一个目录
+    本质就是获取路径中最后一个/后面的内容
+    NSString *newStr = [str lastPathComponent];
+  删除文件路径中的最后一个目录
+    本质就是删除最后一个/后面的内容, 包括/也会被删除
+    NSString *newStr = [str stringByDeletingLastPathComponent];
+  给文件路径添加一个目录
+    本质就是在字符串的末尾加上一个/ 和指定的内容
+    注意: 如果路径后面已经有了/, 那么就不会添加了,如果路径后面有多个/, 那么会自动删除多余的/, 只保留一个
+    NSString *newStr = [str stringByAppendingPathComponent:@"xmg"];
+  获取路径中文件的扩展名
+    本质就是从字符串的末尾开始查找., 截取第一个.后面的内容
+    NSString *newStr = [str pathExtension];
+  删除路径中文件的扩展名
+    本质就是从字符串的末尾开始查找.,删除第一个.和.后面的内容
+    NSString *newStr = [str stringByDeletingPathExtension];
+  给文件路径添加一个扩展名  
+    本质就是在字符串的末尾加上一个.和指定的内容
+    NSString *newStr = [str stringByAppendingPathExtension:@"jpg"];
+
+字符串的转换
+  将字符串转换为大写
+    NSString *newStr = [str uppercaseString];
+  将字符串转换为小写
+    NSString *newStr2 = [newStr lowercaseString];
+  将字符串的首字符转换为大写 
+    NSString *newStr = [str capitalizedString];
+  字符串与基本数据类型的转换
+    如果不是int,double,float,bool,integer,longlong这些类型就不要乱用
+    int value1 = [str1 intValue];
+  C语言字符串和OC字符串之间的转换
+    C转OC
+    char *cStr = "lnj";
+    NSString *str = [NSString stringWithUTF8String:cStr];
+
+    OC转C
+    NSString *newStr = @"lmj";
+    const char *cStr2 = [newStr UTF8String];
+
+NSMutableString
+  继承与NSString
+  NSMutableString是可变的,NSString是不可变的
+  在开发中如果需要对字符串进行频繁的操作, 不要使用不可变的字符串
+
+  NSMutableString *str = [NSMutableString string];
+  [str appendString:@"lnj"];
+
+  NSMutableString *strM = [[NSMutableString alloc] init];
+  strM = [NSMutableString alloc] initWithFormat:<#(NSString *), ...#>
+  strM = [NSMutableString stringWithFormat:<#(NSString *), ...#>]
+
+  在字符串后面添加
+    [strM appendString:@"/image"];
+    [strM appendFormat:@"/age is %i", 10];
+  删除字符串中的内容
+    在开发中, 我们经常利用rangeOfString和deleteCharactersInRange方法配合起来删除指定的字符串
+    1. 先查找出520在字符串中的位置
+      NSRange range = [strM rangeOfString:@"520"];
+    2. 删除
+      [strM deleteCharactersInRange:range];
+  在指定内容前前面插入内容
+    insertString : 需要插入的字符串
+    atIndex: 从哪里开始插入
+
+    NSRange range = [strM rangeOfString:@"520"];
+    [strM insertString:@"love" atIndex:range.location];
+  替换字符串
+    注意: 如果是调用NSString的字符串替换方法, 不会修改原有字符串, 而是生成一个新的字符串
+    注意: 一般情况下OC方法要求传入一个参数如果没有*, 大部分都是枚举
+          一般情况下如果不想使用枚举的值, 可以传入0, 代表按照系统默认的方式处理
+    OccurrencesOfString: 需要替换的字符串
+    withString: 用什么替换
+    options: 替换时的搜索方式
+    range: 搜索的范围
+    返回值: 代表替换了多少个字符串
+    NSUInteger count = [strM replaceOccurrencesOfString:@"520" withString:@"530" options:0 range:NSMakeRange(0, strM.length)];

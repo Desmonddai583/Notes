@@ -1,0 +1,5 @@
+正则表达式
+    regx, err := regexp.Compile(表达式) // MustCompile会直接报错如果正则表达式写错的话
+    regx.FindAllString(str, 1) // 查找字符串中匹配的正则,最后数字代表返回几个匹配到的,-1代表返回所有匹配
+    regx.FindString(str) // 查找第一个匹配到的
+    regx.FindAllStringSubmatch(str, 1) // 返回一个二维切片,每一个元素都为1个切片,切片第一个元素存放匹配到的内容,第二个元素存放子匹配(即在正则表达式中加括号)

@@ -1,0 +1,122 @@
+程序：指令+数据
+	读入数据：Input
+	输出数据：Output
+打开的文件都有一个fd: file descriptor (文件描述符)
+Linux给程序提供三种I/O设备
+  标准输入（STDIN）－0　默认接受来自键盘的输入
+  标准输出（STDOUT）－1　默认输出到终端窗口
+  标准错误（STDERR）－2　默认输出到终端窗口
+I/O重定向：改变默认位置
+
+把输出和错误重新定向到文件
+  STDOUT和STDERR可以被重定向到文件
+    命令　操作符号　文件名
+  支持的操作符号包括：
+    > 　把STDOUT重定向到文件
+      > 文件内容会被覆盖
+        bash中执行
+          set –C  禁止将内容覆盖已有文件,但可追加
+          set +C  允许覆盖
+        >| file 强制覆盖
+    >>  原有内容基础上，追加内容
+    2>　把STDERR重定向到文件
+    2>>	 追加重定向错误输出数据流
+    &>　把所有输出重定向到文件
+  
+  标准输出和错误输出各自定向至不同位置
+    COMMAND > /path/to/file.out 2> /path/to/error.out
+  
+  合并标准输出和错误输出为同一个数据流进行重定向
+    &>   覆盖重定向
+    &>>  追加重定向
+    COMMAND > /path/to/file.out 2>&1
+    COMMAND >> /path/to/file.out 2>&1
+
+   ()：合并多个程序的STDOUT
+    ( cal 2007 ; cal 2008 ) > all.txt
+
+  键盘输入重定向值文件
+    cat > file
+    输入
+    desmond
+    按ctrl+d离开
+    
+  可以使用文件来代替键盘的输入
+    cat > filea < fileb
+  
+  把多行发送给STDIN
+    使用“<<终止词”命令从键盘把多行重导向给STDIN
+      直到终止词位置的所有文本都发送给STDIN
+      有时被称为就地文本(heretext)
+    
+    mail -s "Please Call"  admin@magedu.com <<END 
+    > Hi Wang,
+    >        
+    > Please give me a call when you get in. We may need 
+    > to do some maintenance on server1. 
+    >         
+    > Details when you're on-site
+    > Zhang
+    > END
+
+从文件中导入STDIN
+  使用<来重定向标准输入
+  某些命令能够接受从文件中导入的STDIN
+    tr ‘a-z’ ‘A-Z’< /etc/issue // 该命令会把/etc/issue中的小写字符都转换成写写字符
+    tr –d abc < /etc/fstab 删除fstab文件中的所有abc中任意字符
+
+tr
+  转换和删除字符
+  tr [OPTION]... SET1 [SET2]
+
+  选项：
+    -c –C --complement：取字符集的补集
+    -d --delete：删除所有属于第一字符集的字符 
+    -s --squeeze-repeats：把连续重复的字符以单独一个字符表示
+    -t --truncate-set1：将第一个字符集对应字符转化为第二字符集对应的字符
+
+  [:alnum:]：字母和数字 
+  [:alpha:]：字母 
+  [:cntrl:]：控制（非打印）字符 
+  [:digit:]：数字 
+  [:graph:]：图形字符 
+  [:lower:]：小写字母 
+  [:print:]：可打印字符 
+  [:punct:]：标点符号 
+  [:space:]：空白字符 
+  [:upper:]：大写字母 
+  [:xdigit:]：十六进制字符
+
+管道
+  管道（使用符号“|”表示）用来连接命令
+  命令1 | 命令2 | 命令3 | …
+  将命令1的STDOUT发送给命令2的STDIN，命令2的STDOUT发送到命令3的STDIN
+  STDERR默认不能通过管道转发，可利用2>&1 或 |& 实现
+  最后一个命令会在当前shell进程的子shell进程中执行用来
+  组合多种工具的功能
+    ls | tr 'a-z' 'A-Z'
+  有些命令不支持直接将管道直拿来使用,可以通过-代表上一个管道取出的值
+    echo '/etc/passwd' | file -
+    tar -cvf - /home | tar -xvf  -
+
+mail
+  通过电子邮件发送输入
+  echo "test email" | mail  -s "test" user@example.com
+
+lpr
+  把输入发送给打印机
+  echo "test print" | lpr -P printer_name
+
+tee
+  重定向到多个目标
+  命令1 | tee　[-a] 文件名 | 命令2 
+    把命令1的STDOUT保存在文件中，做为命令2的输入
+    -a 追加
+  
+  使用：
+    保存不同阶段的输出
+    复杂管道的故障排除
+    同时查看和记录输出
+
+
+

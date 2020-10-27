@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>136-吸顶效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        img{
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <img src="images/header.png" alt="">
+</div>
+<div class="nav">
+    <img src="images/nav.png" alt="">
+</div>
+<div class="content">
+    <img src="images/body01.png" alt="">
+    <img src="images/body02.png" alt="">
+</div>
+<script>
+    window.onload = function() {
+        // 1.获取需要操作的元素
+        var oNav = document.querySelector(".nav");
+        var oHeader = document.querySelector(".header");
+
+        // 2.注册监听事件
+        window.onscroll = function () {
+            // 2.1获取网页滚出去的距离
+            var offsetTop = getPageScroll().top;
+            // 2.2判断有没有超过头部的距离
+            var headerHeight = oHeader.offsetHeight;
+            if(offsetTop >= headerHeight){
+                // 2.3让导航吸定
+                oNav.style.position = "fixed";
+                oNav.style.top = 0;
+                oNav.style.left = 0;
+            }else{
+                oNav.style.position = "";
+            }
+        }
+
+        function getPageScroll() {
+            var top = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+            var left = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft;
+            return {
+                top: top,
+                left: left
+            }
+        }
+    }
+</script>
+</body>
+</html>

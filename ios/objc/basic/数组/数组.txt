@@ -1,0 +1,148 @@
+NSArray是OC中的数组类,开发中建议尽量使用NSArray替代C语言中的数组
+只能存放任意OC对象, 并且是有顺序的
+不能存储非OC对象, 比如int\float\double\char\enum\struct等
+它是不可变的,一旦初始化完毕后,它里面的内容就永远是固定的, 不能删除里面的元素, 也不能再往里面添加元素
+
+创建数组
+  NSArray *arr = [[NSArray alloc] init];
+  NSArray *arr = [NSArray arrayWithObject:@"lnj"];
+  // 数组中的nil是结束符,所以如果中间有nil,数组就只会赋值到nil之前
+  NSArray *arr = [NSArray arrayWithObjects:@"lnj", @"lmj" ,@"jjj", @"cp", nil];
+  // 简写
+  NSArray *arr = @[@"lnj", @"lmj", @"jjj"];
+
+数组长度
+  [arr count]
+
+获取最后一个元素
+  [arr lastObject]
+
+获取第一个元素
+  [arr firstObject]
+
+获取下标为1的元素
+  [arr objectAtIndex:1]
+  // 简写
+  arr[1]
+
+是否包含指定元素
+  [arr containsObject:@"zs"]
+
+遍历
+  常规遍历
+    for (int i = 0; i < arr.count; ++i) {
+        NSLog(@"arr[%i] = %@", i, arr[i]);
+    }
+
+  如果是OC数组可以使用OC中的增强for循环来遍历
+  逐个取出arr中的元素, 将取出的元素赋值给obj
+  注意: obj的类型可以根据数组中元素的类型来写, 不一定要写NSObject
+    for (NSString *obj in arr) {
+        NSLog(@"obj = %@", obj);
+    }
+
+  使用OC数组的迭代器来遍历
+  每取出一个元素就会调用一次block
+  每次调用block都会将当前取出的元素和元素对应的索引传递给我们
+  obj就是当前取出的元素, idx就是当前元素对应的索引
+  stop用于控制什么时候停止遍历
+    [arr enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if (idx == 1) {
+            *stop = YES;
+        }
+        NSLog(@"obj = %@, idx = %lu", obj, idx);
+    }];
+
+  如果使用OC数组存储对象, 可以调用OC数组的方法让数组中所有的元素都执行指定的方法
+  注意点: 如果数组中保存的不是相同类型的数据, 并且没有相同的方法, 那么会报错
+  [arr makeObjectsPerformSelector:@selector(say)];
+  withObject: 需要传递给调用方法的参数
+  [arr makeObjectsPerformSelector:@selector(sayWithName:) withObject:@"lnj"];
+
+排序
+  注意: 想使用compare方法对数组中的元素进行排序, 那么数组中的元素必须是Foundation框架中的对象, 
+        也就是说不能是自定义对象
+  NSArray *newArr = [arr sortedArrayUsingSelector:@selector(compare:)];
+
+  // 该方法默认会按照升序排序
+  NSArray *newArr = [arr sortedArrayWithOptions:NSSortStable usingComparator:^NSComparisonResult(Person *obj1, Person *obj2) {
+      // 每次调用该block都会取出数组中的两个元素给我们
+      //if (obj1.age > obj2.age) {
+      //    return NSOrderedDescending;
+      //}else if(obj1.age < obj2.age)
+      //{
+      //    return NSOrderedAscending;
+      //}else
+      //{
+      //    return NSOrderedSame;
+      //}
+      return obj1.age > obj2.age;
+  }];
+
+NSArray和NSString之间转换
+  定义一个可变字符串保存拼接之后的结果
+    NSMutableString *strM = [NSMutableString string];
+  遍历数组, 取出数组中的每一个元素, 将元素添加到可变字符串中
+    for (NSString *str in arr) {
+        [strM appendString:str];
+        // 每次添加完毕之后再添加一个-
+        [strM appendString:@"-"];
+    }
+    [strM deleteCharactersInRange:NSMakeRange(strM.length - 1, 1)];
+  
+  拼接NSArray to NSString
+    NSString *str = [arr componentsJoinedByString:@"**"];
+  
+  通过一个字符串生成一个数组,也叫做字符串切割
+    NSString *str = @"lnj**lmj**jjj";
+    NSArray *arr = [str componentsSeparatedByString:@"**"];
+
+NSArray文件读写
+  将数组写入到文件中
+    其实如果将一个数组写入到文件中之后, 本质是写入了一个XML文件
+    在iOS开发中一般情况下我们会将XML文件的扩展名保存为plist
+      NSArray *arr = @[@"lnj", @"lmj", @"jjj"];
+      BOOL flag = [arr writeToFile:@"/Users/xiaomage/Desktop/abc.plist" atomically:YES];
+    writeToFile只能写入数组中保存的元素都是Foundation框架中的类创建的对象, 如果保存的是自定义对象那么不能写入
+
+  从文件中读取一个数组
+    NSArray *newArray = [NSArray arrayWithContentsOfFile:@"/Users/xiaomage/Desktop/abc.plist"];
+
+NSMutableArray
+  NSMutableArray *arrM = [NSMutableArray array];
+
+  添加
+  [arrM addObject:@"lnj"];
+
+  将指定数组中的元素都取出来, 放到arrM中
+  并不是将整个数组作为一个元素添加到arrM中
+  [arrM addObjectsFromArray:@[@"lmj", @"jjj"]];
+
+  以下是将整个数组作为一个元素添加
+  [arrM addObject:@[@"lmj", @"jjj"]];
+
+  插入
+  [arrM insertObject:@"xcq" atIndex:1];
+
+  插入一组数据, 指定数组需要插入的位置, 和插入多少个
+  NSRange range = NSMakeRange(2, 2);
+  NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:range];
+  [arrM insertObjects:@[@"A", @"B"] atIndexes:set];
+
+  删除
+  [arrM removeObjectAtIndex:0];
+  [arrM removeLastObject];
+  [arrM removeObject:@"A"];
+
+  替换
+  [arrM replaceObjectAtIndex:1 withObject:@"M"];
+
+  获取
+  [arrM objectAtIndex:0]
+  arrM[0]
+
+  替换
+  arrM[0] = @"ZS";
+
+  注意: 不能通过@[]来创建一个可变数组, 因为@[]创建出来的是一个不可变的数组
+        如果把一个不可变数组当做一个可变数组来使用, 会引发一个运行时的错误

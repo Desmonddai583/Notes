@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>83-点击事件的练习(关闭广告)</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        div span{
+            width: 40px;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <img src="images/left_ad.png" alt="">
+    <span>关闭</span>
+</div>
+
+<script>
+
+    // 1.获取关闭按钮
+    var oSpan = document.querySelector("span");
+    var oDiv = document.querySelector("div");
+    // 2.给关闭按钮注册点击事件
+    oSpan.onclick = function () {
+        // 3.删除整个广告
+        oDiv.parentNode.removeChild(oDiv);
+    }
+</script>
+</body>
+</html>

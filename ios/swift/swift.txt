@@ -1,0 +1,67 @@
+API（Application Programming Interface）：应用程序编程接口
+  源代码和库之间的接口
+ABI（Application Binary Interface）：应用程序二进制接口
+  应用程序与操作系统之间的底层接口
+  涉及的内容有：目标文件格式、数据类型的大小\布局\对齐、函数调用约定等等
+
+swiftc
+  swiftc存放在Xcode内部
+  Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+  // 不加-o则直接输出到终端
+  生成语法树： swiftc -dump-ast main.swift -o main.ast
+  生成最简洁的SIL代码：swiftc -emit-sil main.swift 
+  生成LLVM IR代码： swiftc -emit-ir main.swift -o main.ll
+  生成汇编代码： swiftc -emit-assembly main.swift -o main.s
+
+导入框架 
+  import UIKit
+
+注释
+  // 单行注释
+  
+  多行注释支持嵌套
+  /*
+  多行注释
+  /*
+  多行注释
+  */
+  */
+ 
+  // MARK:- 注释 就等同于OC中的#pragma mark
+  /// 注释  对于属性或方法用这种方法注释,在调用时就会看到相关注释提示
+
+swift中不用编写main函数，swift将全局范围内的首句可执行代码作为程序入口
+一句代码尾部可以省略分号（;），多句代码写到同一行时必须用分号（;）隔开
+
+Swift中的打印语句:print(打印的内容),会自动换行
+  public func print(_ items: Any..., separator: String = " ", terminator: String = "\n")
+
+swift对象中不需要*
+  var view : UIView = UIView()
+
+swift中重写控件的init(frame方法)或者init()方法,必须重写init?(coder aDecoder: NSCoder)
+
+private标识的方法或属性在当前文件中可以访问,但是其他文件不能访问
+
+在 Swift 项目中，cocoapod 仅支持以 Framework 方式添加框架，因此需要在 Podfile 中添加 use_frameworks!
+
+常用Swift第三方库
+  网络请求： https://github.com/Alamofire/Alamofire
+  图片下载： https://github.com/onevcat/Kingfisher
+    Kingfisher默认不支持WebP格式的图片，需要额外安装KingfisherWebP
+
+    pod 'KingfisherWebP'
+
+    iconView.kf.setImage(with: URL(string: user.thumb),
+                        options: [.processor(WebPProcessor.default), 
+                                  .cacheSerializer(WebPSerializer.default)])
+  JSON访问： https://github.com/SwiftyJSON/SwiftyJSON
+  JSON-Model转换：https://github.com/kakaopensource/KakaJSON
+
+库的导入问题
+  默认情况下，用到哪个库就要导入哪个库，无疑增加了很多重复的工作量
+  如何办到全局导入库？ 
+    新建一个用于Swift调用OC的桥接文件： targetName-Bridging-Header.h
+    导入系统库：#import <XX/XX.h>
+    导入第三方库（Framework形式）：#import <XX/XX-Swift.h>

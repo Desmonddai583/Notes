@@ -1,0 +1,137 @@
+在Flutter中动画分为两类：基于tween或基于物理的
+
+补间(Tween)动画
+    在补间动画中，定义了开始点和结束点、时间线以及定义转换时间和速度的曲线。然后由框架计算如何从开始点过渡到结束点。
+基于物理的动画
+    在基于物理的动画中，运动被模拟为与真实世界的行为相似。例如，当你掷球时，它在何处落地，取决于抛球速度有多快、球有多重、距离地面有多远。 
+    类似的，将连接在弹簧上的球落下（并弹起）与连接到绳子上的球放下的方式也是不同。
+
+Animation
+  是Flutter动画库中的一个核心类，它生成指导动画的值
+  在Flutter中，Animation对象本身和UI渲染没有任何关系
+  Animation是一个抽象类，它拥有其当前值和状态（完成或停止）。其中一个比较常用的Animation类是Animation<double>
+  Flutter中的Animation对象是一个在一段时间内依次生成一个区间之间值的类。
+  Animation对象的输出可以是线性的、曲线的、一个步进函数或者任何其他可以设计的映射。 
+  根据Animation对象的控制方式，动画可以反向运行，甚至可以在中间切换方向
+  Animation还可以生成除double之外的其他类型值，如：Animation<Color> 或 Animation<Size>；
+  Animation对象有状态。可以通过访问其value属性获取动画的当前值；
+
+  addListener方法
+    每当动画的状态值发生变化时，动画都会通知所有通过 addListener 添加的监听器。
+    通常，一个正在监听动画的state对象会调用自身的setState方法，将自身传入这些监听器的回调函数来通知 widget 系统需要根据新状态值进行重新构建。
+  addStatusListener
+    当动画的状态发生变化时，会通知所有通过 addStatusListener 添加的监听器。
+    通常情况下，动画会从 dismissed 状态开始，表示它处于变化区间的开始点。
+    举例来说，从 0.0 到 1.0 的动画在 dismissed 状态时的值应该是 0.0。
+    动画进行的下一状态可能是 forward（比如从 0.0 到 1.0）或者 reverse（比如从 1.0 到 0.0）。
+    最终，如果动画到达其区间的结束点（比如 1.0），则动画会变成 completed 状态。
+
+CurvedAnimation
+  Animation的一个子类，将过程抽象为一个非线性曲线；
+  final CurvedAnimation curve = CurvedAnimation(parent: controller, curve: Curves.easeIn);
+  Curves 类定义了许多常用的曲线，也可以创建自己的，例如：
+    class ShakeCurve extends Curve {
+      @override
+      double transform(double t) {
+        return math.sin(t * math.PI * 2);
+      }
+    }
+
+AnimationController
+  Animation的一个子类，用来管理Animation；
+  AnimationController是一个特殊的Animation对象，在屏幕刷新的每一帧，就会生成一个新的值。
+  默认情况下，AnimationController在给定的时间段内会线性的生成从0.0到1.0的数字
+
+  final AnimationController controller = AnimationController(duration: const Duration(milliseconds: 2000), vsync: this);
+
+  AnimationController派生自Animation<double>，因此可以在需要Animation对象的任何地方使用。 
+  但是，AnimationController具有控制动画的其他方法
+    forward()：启动动画；
+    reverse({double from})：倒放动画；
+    reset()：重置动画，将其设置到动画的开始位置；
+    stop({ bool canceled = true })：停止动画；
+  
+  当创建一个AnimationController时，需要传递一个vsync参数，存在vsync时会防止屏幕外动画消耗不必要的资源，可以将stateful对象作为vsync的值
+  之前关于Flutter的渲染闭环，Flutter每次渲染一帧画面之前都需要等待一个vsync信号。
+  这里也是为了监听vsync信号，当Flutter开发的应用程序不再接受同步信号时（比如锁屏或退到后台），那么继续执行动画会消耗性能。
+  这个时候我们设置了Ticker，就不会再出发动画了。
+  开发中比较常见的是将SingleTickerProviderStateMixin混入到State的定义中。
+
+  在某些情况下，值(position，值动画的当前值)可能会超出AnimationController的0.0-1.0的范围。
+  例如，fling()函数允许您提供速度(velocity)、力量(force)、position(通过Force对象)。
+
+  位置(position)可以是任何东西，因此可以在0.0到1.0范围之外。 
+
+  CurvedAnimation生成的值也可以超出0.0到1.0的范围。
+  根据选择的曲线，CurvedAnimation的输出可以具有比输入更大的范围。
+  例如，Curves.elasticIn等弹性曲线会生成大于或小于默认范围的值
+
+Tween
+  在正在执行动画的对象所使用的数据范围之间生成值。例如，Tween可生成从红到蓝之间的色值，或者从0到255；
+  默认情况下，AnimationController对象的范围从0.0到1.0。
+  如果您需要不同的范围或不同的数据类型，则可以使用Tween来配置动画以生成不同的范围或数据类型的值
+    final Tween doubleTween = Tween<double>(begin: -200.0, end: 0.0);
+  
+  Tween是一个无状态(stateless)对象，需要begin和end值。
+  Tween的唯一职责就是定义从输入范围到输出范围的映射。输入范围通常为0.0到1.0，但这不是必须的
+
+  Tween继承自Animatable<T>，而不是继承自Animation<T>。
+  Animatable与Animation相似，不是必须输出double值。
+  例如，ColorTween指定两种颜色之间的过渡
+    final Tween colorTween = ColorTween(begin: Colors.transparent, end: Colors.black54);
+
+  Tween对象不存储任何状态。相反，它提供了evaluate(Animation<double> animation)方法将映射函数应用于动画当前值。 
+  Animation对象的当前值可以通过value()方法取到。evaluate函数还执行一些其它处理，例如分别确保在动画值为0.0和1.0时返回开始和结束状态
+
+  Tween.animate
+    要使用Tween对象，可调用它的animate()方法，传入一个控制器对象。
+    例如，以下代码在500毫秒内生成从0到255的整数值
+      final AnimationController controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this
+      );
+      Animation<int> alpha = IntTween(begin: 0, end: 255).animate(controller);
+    animate()返回的是一个Animation，而不是一个Animatable
+
+    构建了一个控制器、一条曲线和一个Tween
+      final AnimationController controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this
+      );
+      final Animation curve = CurvedAnimation(parent: controller, curve: Curves.easeOut);
+      Animation<int> alpha = IntTween(begin: 0, end: 255).animate(curve);
+
+AnimatedWidget
+  可以将AnimatedWidget理解为Animation的助手，使用它可以简化我们对动画的使用
+  在不使用AnimatedWidget的情况下需要手动调用动画的addListener()并在回调中添加setState才能看到动画效果，AnimatedWidget将为我们简化这一操作
+
+AnimatedBuilder
+  AnimatedBuilder是用于构建动画的通用widget，AnimatedBuilder对于希望将动画作为更大构建函数的一部分包含在内的更复杂的widget时非常有用，
+  可以这样理解：AnimatedBuilder是拆分动画的一个工具类，借助它我们可以将动画和widget进行分离
+
+  AnimatedBuilder是渲染树中的一个独立的类， 与AnimatedWidget类似，AnimatedBuilder自动监听来自Animation对象的通知，不需要手动调用addListener()
+
+  通过child参数将预构建(pre-built)的子树传递给AnimatedBuilder，
+  然后AnimatedBuilder就会在渲染每一帧动画时将此子树传递给builder方法（从而避免了在渲染每一帧动画时都要去构建子树）
+
+Hero动画
+  在 Flutter中可以用 Hero widget创建这个动画
+  当 hero 通过动画从源页面飞到目标页面时，目标页面逐渐淡入视野
+  通常， hero 是用户界面的一小部分，如图片，它通常在两个页面都有
+
+  Hero的函数原型
+    const Hero({
+      Key key,
+      @required this.tag,
+      this.createRectTween,
+      this.flightShuttleBuilder,
+      this.placeholderBuilder,
+      this.transitionOnUserGestures = false,
+      @required this.child,
+    }) : assert(tag != null),
+        assert(transitionOnUserGestures != null),
+        assert(child != null),
+        super(key: key);
+    
+    tag：[必须]用于关联两个Hero动画的标识
+    createRectTween：[可选]定义目标Hero的边界，在从起始位置到目的位置的“飞行”过程中该如何变化
+    child：[必须]定义动画所呈现的widget
+

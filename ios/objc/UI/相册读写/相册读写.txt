@@ -1,0 +1,26 @@
+保存图片到相册
+  第一个参数:要写入到相册的图片
+  第二个参数:哪个对象监听写入完成时的状态
+  第三个参数:图片保存完成时调用的方法
+  注意:图片保存完成时调用的方法必须得是image:didFinishSavingWithError:contextInfo:
+  UIImageWriteToSavedPhotosAlbum(newImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+  
+读取图片
+  弹出系统的相册,使用UIImagePickerController控件器Modal出它来
+  UIImagePickerController *pick = [[UIImagePickerController alloc] init];
+  设置照片的来源
+  pick.sourceType =  UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+  设置代码,监听选择图片,UIImagePickerController比较特殊,它需要遵守两个协议<UINavigationControllerDelegate,UIImagePickerControllerDelegate>
+  pick.delegate = self;
+  modal出控件器
+  [self presentViewController:pick animated:YES completion:nil];
+  
+  代理方法
+    选择的照片就在这个方法第二个参数当中, 它是一个字典
+    -(void)imagePickerController:(nonnull UIImagePickerController *)picker didFinishPickingMediaWithInfo:(nonnull NSDictionary<NSString *,id> *)info {
+      // 获取当前选中的图片.通过UIImagePickerControllerOriginalImage就能获取.
+      UIImage *image = info[UIImagePickerControllerOriginalImage];
+      ...
+      // 注意没有实现代码方法时,选择一张照片会自动的dismiss掉相册控制器.但是设置代码后,就得要自己去dismiss了
+      [self dismissViewControllerAnimated:YES completion:nil];
+    }

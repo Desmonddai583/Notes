@@ -1,0 +1,131 @@
+自增build ID 配置
+// http://blog.sina.com.cn/s/blog_13ec67adc0102wimg.html
+
+iOS各种图片尺寸大小官方文档
+// https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/IconMatrix.html
+
+// 图片预览插件路径
+~/Library/Developer/Xcode/Plug-ins
+
+// Xcode多行注释插件路径
+~/Library/Application Support/Developer/Shared/Xcode/Plug-ins
+
+// 跟控制器不能出栈官方文档
+// https://developer.apple.com/library/tvos/documentation/WindowsViews/Conceptual/ViewControllerCatalog/Chapters/NavigationControllers.html#//apple_ref/doc/uid/TP40011313-CH2-SW1
+
+// 图片拉伸MJ
+// http://blog.csdn.net/q199109106q/article/details/8615661
+
+// AutoLayout和transform动画一起使用出现的问题
+// http://blog.sina.com.cn/s/blog_13ec67adc0102wri6.html
+
+
+
+OC和JS代码的互调
+
+01 OC调用JS的代码
+    NSString *str = [self.webView stringByEvaluatingJavaScriptFromString:@"sum()"];
+
+02 JS怎么调用OC的说明
+    新的需求：点击按钮的时候拨打电话
+    但是我在点击按钮的时候，用户是不知道的，我们怎么能够知道用户点击了网页上面的一个按钮，只能通过一个技巧，那就是自己搞一个特定的协议头比如说xmg://,当我拦截到你的网络请求的时候，只需要判断一下当前的协议头是不是这个就能判断你现在是否是JS调用。
+    OC里面有通过字符串生成SEL类型的方法，所以当拿到数据之后做下面的事情
+    1）截取方法的名称
+    2）将截取出来的字符串转换为SEL
+    3）利用performSelect方法来调用SEL
+
+03 涉及到的相关方法
+    [@"abc" hasPrefix:@"A"] //判断字符串是否以一个固定的字符开头，这里为A
+    //截串操作
+    - (NSString *)substringFromIndex:(NSUInteger)from;
+    //切割字符串，返回一个数组
+    - (NSArray<NSString *> *)componentsSeparatedByString:(NSString *)separator;
+    //替换操作
+    - (NSString *)stringByReplacingOccurrencesOfString:(NSString *)target withString:(NSString *)replacement
+    //把string包装成SEL
+
+    SEL selector = NSSelectorFromString(sel);
+
+04 如何屏蔽警告
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            //-Warc-performSelector-leaks为唯一的警告标识
+            [self performSelector:selector withObject:nil];
+    #pragma clang diagnostic pop
+
+
+
+NSInvocation的基本使用
+
+//封装invacation可以调用多个参数的方法
+-(void)invacation
+{
+    //1.创建一个MethodSignature，签名中保存了方法的名称，参数和返回值
+    //这个方法属于谁，那么就用谁来进行创建
+    //注意：签名一般是用来设置参数和获得返回值的，和方法的调用没有太大的关系
+    NSMethodSignature *signature = [ViewController instanceMethodSignatureForSelector:@selector(callWithNumber:andContext:withStatus:)];
+
+    /*注意不要写错了方法名称
+     //    NSMethodSignature *signature = [ViewController methodSignatureForSelector:@selector(call)];
+     */
+
+    //2.通过MethodSignature来创建一个NSInvocation
+    //NSInvocation中保存了方法所属于的对象|方法名称|参数|返回值等等
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+
+    /*2.1 设置invocation，来调用方法*/
+
+    invocation.target = self;
+    //    invocation.selector = @selector(call);
+    //    invocation.selector = @selector(callWithNumber:);
+    //    invocation.selector = @selector(callWithNumber:andContext:);
+    invocation.selector = @selector(callWithNumber:andContext:withStatus:);
+
+    NSString *number = @"10086";
+    NSString *context = @"下课了";
+    NSString *status = @"睡觉的时候";
+
+    //注意：
+    //1.自定义的参数索引从2开始，0和1已经被self and _cmd占用了
+    //2.方法签名中保存的方法名称必须和调用的名称一致
+    [invocation setArgument:&number atIndex:2];
+    [invocation setArgument:&context atIndex:3];
+    [invocation setArgument:&status atIndex:4];
+
+    /*3.调用invok方法来执行*/
+    [invocation invoke];
+}
+
+
+
+异常处理
+
+01 一般处理方式：
+    a.app异常闪退，那么捕获crash信息，并记录在本地沙盒中。
+    b.当下次用户重新打开app的时候，检查沙盒中是否保存有上次捕获到的crash信息。
+    c.如果有那么利用专门的接口发送给服务器，以求在后期版本中修复。
+
+02 如何抛出异常
+
+    //抛出异常的两种方式
+        // @throw  [NSException exceptionWithName:@"好大一个bug" reason:@"异常原因：我也不知道" userInfo:nil];
+
+        //方式二
+        NSString *info = [NSString stringWithFormat:@"%@方法找不到",NSStringFromSelector(aSelector)];
+        //下面这种方法是自动抛出的
+        [NSException raise:@"这是一个异常" format:info,nil];
+
+03 如何捕获异常
+    NSSetUncaughtExceptionHandler (&UncaughtExceptionHandler);
+
+    void UncaughtExceptionHandler(NSException *exception) {
+    NSArray *arr = [exception callStackSymbols];//得到当前调用栈信息
+    NSString *reason = [exception reason];//非常重要，就是崩溃的原因
+    NSString *name = [exception name];//异常类型
+
+    NSString *errorMsg = [NSString stringWithFormat:@"当前调用栈的信息：%@\nCrash的原因：%@\n异常类型：%@\n",arr,reason,name];
+    //把该信息保存到本地沙盒，下次回传给服务器。
+}
+
+
+关于JS相关的学习框架：WebViewJavascriptBridge

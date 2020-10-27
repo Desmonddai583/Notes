@@ -1,0 +1,12 @@
+创建新screen会话
+  screen –S [SESSION]
+加入screen会话
+  screen –x [SESSION]
+退出并关闭screen会话
+  exit
+剥离当前screen会话
+  Ctrl+a,d
+显示所有已经打开的screen会话
+  screen -ls
+恢复某screen会话
+  screen -r [SESSION]

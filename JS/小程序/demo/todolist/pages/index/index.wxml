@@ -1,0 +1,35 @@
+<!--index.wxml-->
+<view class="main">
+  <view class='header'>
+    <view>
+      姓名:
+      <input 
+      value='{{person.name}}'
+      bindinput='change' 
+      data-type="name"></input>
+    </view>
+    <view>
+      年龄:
+      <input 
+      value='{{person.age}}' 
+      bindinput='change' 
+      data-type="age"></input>
+    </view>
+    <icon type="download" bindtap='add'></icon>
+  </view>
+
+  <view class='content'>
+    <block  
+    wx:for="{{list}}" 
+    wx:for-index="idx" 
+    wx:for-item="person" 
+    wx:key="{{idx}}"> 
+       <view class='item'>
+        <text>{{person.name}}</text>
+        <text>{{person.age}}</text>
+        <icon type="cancel" bindtap='remove' data-index="{{idx}}"></icon>
+       </view>
+    </block>
+    
+  </view>
+</view>

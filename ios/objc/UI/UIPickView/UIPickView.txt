@@ -1,0 +1,23 @@
+UIPickView和TableView⼀样,想要展⽰数据也要设置数据源和代理
+  设置数据源 
+  self.pickView.dataSource = self; 
+  设置代理 
+  self.pickView.delegate = self;
+
+总共有多少列 
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+
+第component列有多少⾏.
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+
+返回每⼀列的宽度 
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent: (NSInteger)forComponent
+
+返回第⼀列的⾼度 
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
+
+返回每⼀⾏的标题 
+- (nullable NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component 
+
+返回每⼀⾏的视图UIView 
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow: (NSInteger)row forComponent:(NSInteger)component reusingView: (nullable UIView *)view

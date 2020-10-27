@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>106-轮播图基本结构搭建</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 670px;
+            height: 300px;
+            border: 1px solid #000;
+            margin: 50px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        .box .items{
+            list-style: none;
+            display: flex;
+        }
+        .box>p{
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .box>p>span{
+            display: inline-block;
+            width: 20px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            font-size: 30px;
+            color: #fff;
+            background: rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        .left{
+            float: left;
+        }
+        .right{
+            float: right;
+        }
+        .dots{
+            list-style: none;
+            width: 120px;
+            height: 20px;
+            background: rgba(0,0,0, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .dots>li{
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        .dots .selected{
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <ul class="items">
+        <li><img src="images/ad1.jpg" alt=""></li>
+        <li><img src="images/ad2.jpg" alt=""></li>
+        <li><img src="images/ad3.jpg" alt=""></li>
+        <li><img src="images/ad4.jpg" alt=""></li>
+        <li><img src="images/ad1.jpg" alt=""></li>
+    </ul>
+    <p>
+        <span class="left">&lt;</span>
+        <span class="right">&gt;</span>
+    </p>
+    <ul class="dots">
+        <li class="selected"></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+<script>
+    window.onload = function (){
+        // 1.获取需要操作的元素
+        var oLeftBtn = document.querySelector(".left");
+        var oRightBtn = document.querySelector(".right");
+        var oUl = document.querySelector(".items");
+        var oItem = document.querySelector(".items>li");
+        var oDots = document.querySelector(".dots");
+        var oBox = document.querySelector(".box");
+
+        // 定义变量记录最大的索引
+        var maxIndex = oUl.children.length - 1;
+
+        // 定义变量记录当前图片的索引
+        var currentIndex = 0;
+        // 定义变量记录每张图片的宽度
+        var itemWidth = oItem.offsetWidth;
+        // 2.添加点击事件
+        oRightBtn.onclick = function () {
+            oDots.children[currentIndex].className = "";
+            // 让当前索引递增
+            currentIndex++;
+            // 判断是否是最后一张
+            if(currentIndex !== maxIndex){
+                // 修改小圆点的选中状态
+                oDots.children[currentIndex].className = "selected";
+                // 修改UL的位置
+                linearAnimation(oUl, -currentIndex * itemWidth);
+            }else{
+                linearAnimation(oUl, -currentIndex * itemWidth, function () {
+                    // 重置索引
+                    currentIndex = 0;
+                    // 重置选中状态
+                    oDots.children[currentIndex].className = "selected";
+                    oUl.removeAttribute("style");
+                });
+            }
+        };
+        oLeftBtn.onclick = function () {
+            oDots.children[currentIndex].className = "";
+            // 让当前索引递减
+            currentIndex--;
+            // 安全校验
+            // 判断是否是第一张
+            if(currentIndex >= 0){
+                // 修改UL的位置
+                linearAnimation(oUl, -currentIndex * itemWidth);
+            }else{
+                console.log("第一张");
+                currentIndex = maxIndex - 1;
+                // 将图片跳转到最后一张
+                oUl.style.marginLeft = -maxIndex * itemWidth + "px";
+                linearAnimation(oUl, -currentIndex * itemWidth);
+            }
+            // 修改小圆点的选中状态
+            oDots.children[currentIndex].className = "selected";
+        };
+
+        /**
+        * 做匀速动画
+        * @param ele  需要做动画的元素
+        * @param target  动画结束的位置
+        */
+        function linearAnimation(ele, target, fn) {
+            // 定义一个变量记录定义时
+            // var timerId = null;
+            // 为了避免拿不到上一次开启定时器的ID, 所以将定时器的ID绑定到当前执行动画的对象上
+            // 关闭原有的定时器
+            clearInterval(ele.timerId);
+            // 2.2重新开启定时器
+            ele.timerId = setInterval(function () {
+                // 定义一个变量获取当前的位置
+                var begin = parseInt(ele.style.marginLeft) || 0;
+                // 定义一个变量记录步长
+                var step = (begin > target) ? -10 : 10;
+                // 重新设置left
+                ele.style.marginLeft = begin + step + "px"; // 0
+                // 判断有没有抵达终点
+                if(Math.abs(target - begin) <= Math.abs(step)){
+                    // 微调位置
+                    ele.style.marginLeft = target + "px";
+                    clearInterval(ele.timerId);
+                    if(fn){
+                        fn();
+                    }
+                }
+            }, 10);
+        }
+
+        // 开启定时器, 实现自动轮播
+        var timerId = setInterval(function () {
+            oRightBtn.onclick();
+        }, 2000);
+        // 给整个轮播图添加移入移出的事件
+        oBox.onmouseenter = function () {
+            console.log("移入的事件");
+            clearInterval(timerId);
+        };
+        oBox.onmouseleave = function () {
+            console.log("移出的事件");
+            clearInterval(timerId);
+            timerId = setInterval(function () {
+                oRightBtn.onclick();
+            }, 2000);
+        }
+    }
+</script>
+</body>
+</html>

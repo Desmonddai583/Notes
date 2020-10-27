@@ -1,0 +1,55 @@
+1. fastcgi_pass address; 
+    context: location, if in location
+
+    e.g. 
+        fastcgi_pass localhost:9000;
+        fastcgi_pass unix:/tmp/fastcgi.socket;
+
+2. fastcgi_index name; // 默认首页
+    context: http, server, location
+    结合fastcgi_param一起设置
+
+3. fastcgi_param parameter value [if_not_empty]
+    context: http, server, location
+    通过fastcgi_param设置变量,并将设置的变量传递到后端的FastCGI server
+
+4. fastcgi_cache_path path [levels=levels] keys_zone=name:size [inactive=time] [max_size=size]...;
+    context: http
+
+5. fastcgi_cache_key string;
+    context: http, server, location
+
+6. fastcgi_cahce zone | off;
+    default: fastcgi_cache off;
+    context: http, server, location
+
+7. fastcgi_cache_valid [code ...] time;
+    context: http, server, location
+
+fastcgi_cache_path /opt/app/cache levels=1:2 keys_zone=imoocc:100m max_size=1g inactive=60m;
+server {
+    root /opt/app/code5;
+
+    location / {
+        index index.php
+        if ( $request_uri ~ "/admin/" ) {
+            set $is_nocache yes;
+        }
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass 127.0.0.1:9000; // php中fpm监听的端口
+        fastcgi_index index.php;
+        include fastcgi_params; // 这里参考的fastcgi_params文件可以去nginx官方找,一般不需要做额外的配置
+        // $document_root映射上面的root, $fastcgi_script_name对应请求的php文件
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name
+        fastcgi_cache_key $scheme$request_method$host$request_uri$is_args$args
+        fastcgi_cache imoocc;
+        fastcgi_cache_valid 200 60m;
+
+        add_header X-Cache-Source $upstream_cache_status;
+
+        // 忽略fpm的头信息缓存设置,防止后端服务设置no-cache头信息对于nginx缓存的影响
+        fastcgi_ignore_headers Cache-Control Expires Set-Cookie;
+    }
+}

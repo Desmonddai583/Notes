@@ -1,0 +1,201 @@
+闭包和OC中的block非常相似
+
+闭包表达式
+  闭包表达式的写法:
+    类型:(形参列表)->(返回值)
+    技巧:初学者定义闭包类型,直接写()->().再填充参数和返回值
+    值:
+    {
+        (形参) -> 返回值类型 in
+        // 执行代码
+    }
+
+    var fn = { 
+      (v1: Int, v2: Int) -> Int in 
+        return v1 + v2 
+    } 
+    fn(10, 20)
+
+    匿名写法
+      {
+        (v1: Int, v2: Int) -> Int in 
+          return v1 + v2 
+      }(10, 20)
+
+    如果闭包没有参数,没有返回值.in和in之前的内容可以省略
+      httpTool.loadRequest({
+          print("回到主线程", NSThread.currentThread());
+      })
+
+  闭包表达式的简写
+    func exec(v1: Int, v2: Int, fn: (Int, Int) -> Int) { 
+      print(fn(v1, v2)) 
+    }
+
+    exec(v1: 10, v2: 20, fn: { 
+      (v1: Int, v2: Int) -> Int in 
+      return v1 + v2 
+    })
+
+    exec(v1: 10, v2: 20, fn: { 
+      v1, v2 in return v1 + v2 
+    })
+
+    exec(v1: 10, v2: 20, fn: { 
+      v1, v2 in v1 + v2 
+    })
+
+    exec(v1: 10, v2: 20, fn: { $0 + $1 })
+
+    exec(v1: 10, v2: 20, fn: +)
+
+  忽略参数
+    func exec(fn: (Int, Int) -> Int) { 
+      print(fn(1, 2)) 
+    } 
+    exec { _,_ in 10 } // 10
+
+  尾随闭包写法
+    如果闭包是函数的最后一个参数,则可以将闭包写在()后面
+      httpTool.loadRequest() {
+          print("回到主线程", NSThread.currentThread());
+      }
+
+      func exec(v1: Int, v2: Int, fn: (Int, Int) -> Int) { 
+        print(fn(v1, v2)) 
+      }
+      exec(v1: 10, v2: 20) { 
+        $0 + $1 
+      }
+    如果函数只有一个参数,并且这个参数是闭包,那么()可以不写,开发中建议该写法
+      httpTool.loadRequest {
+          print("回到主线程", NSThread.currentThread());
+      }
+
+      func exec(fn: (Int, Int) -> Int) { 
+        print(fn(1, 2)) 
+      }
+      exec(fn: { $0 + $1 }) 
+      exec() { $0 + $1 } 
+      exec { $0 + $1 }
+
+闭包
+  一个函数(func或者闭包表达式)和它所捕获的变量\常量环境组合起来，称为闭包
+  一般指定义在函数内部的函数
+  一般它捕获的是外层函数的局部变量\常量
+
+  typealias Fn = (Int) -> Int 
+  func getFn() -> Fn { 
+    var num = 0 
+    func plus(_ i: Int) -> Int { 
+      num += i return num 
+    } 
+    // 注意捕获是发生在return时,如果看到返回的函数需要使用到局部变量就会创建堆空间,所以num的值以return之前的最后值为标准
+    return plus 
+  }
+  // 每调用一次getFn就会生成一个堆空间将num放入
+  var fn1 = getFn() 
+  var fn2 = getFn() 
+  fn1(1) // 1 
+  fn2(2) // 2 
+  fn1(3) // 4 
+  fn2(4) // 6 
+  fn1(5) // 9 
+  fn2(6) // 12
+
+  上面例子中
+    如果plus中没有使用到num(即不是闭包)的情况下
+      fn1变量接收getFn()所得的就是plus函数的地址且fn1占用16个字节
+      前八个字节放plus函数的地址,后八个字节放0
+    
+    如果plus中使用到num(即是闭包)的情况下
+      fn1变量接收getFn()所得的也是16个字节,
+      前八个字节存放跟plus相关的函数地址(如果看汇编最后会jmp去plus函数地址),
+      后八字节存放堆空间的地址值
+      调用plus时背后其实除了i之外还会传入fn1后八个字节存放的num堆空间地址值
+
+  可以把闭包想象成是一个类的实例对象
+  内存在堆空间
+  捕获的局部变量\常量就是对象的成员（存储属性）
+  组成闭包的函数就是类内部定义的方法
+    // 从类的角度看闭包
+    class Closure { 
+      var num = 0 
+      func plus(_ i: Int) -> Int { 
+        num += i return num 
+      } 
+    } 
+    var cs1 = Closure() 
+    var cs2 = Closure() 
+    cs1.plus(1) // 1 
+    cs2.plus(2) // 2 
+    cs1.plus(3) // 4 
+    cs2.plus(4) // 6 
+    cs1.plus(5) // 9 
+    cs2.plus(6) // 12
+
+如果返回值是函数类型，那么参数的修饰要保持统一
+  // 返回的函数参数用inout修饰,内部定义函数参数也需要加inout
+  func add(_ num: Int) -> (inout Int) -> Void { 
+    func plus(v: inout Int) { 
+      v += num 
+    } 
+    return plus 
+  } 
+  var num = 5 
+  add(20)(&num) 
+  print(num)
+
+自动闭包
+  // 改成函数类型的参数，可以让v2延迟加载 
+  func getFirstPositive(_ v1: Int, _ v2: () -> Int) -> Int? { 
+    return v1 > 0 ? v1 : v2() 
+  } 
+  getFirstPositive(-4) { 20 }
+
+  @autoclosure 会自动将 20 封装成闭包 { 20 }
+  @autoclosure 只支持 () -> T 格式的参数(无参并且返回一个类型)
+  @autoclosure 并非只支持最后1个参数
+  空合并运算符 ?? 使用了 @autoclosure 技术
+  有@autoclosure、无@autoclosure，构成了函数重载
+  为了避免与期望冲突，使用了@autoclosure的地方最好明确注释清楚：这个值会被推迟执行
+    func getFirstPositive(_ v1: Int, _ v2: @autoclosure () -> Int) -> Int? { 
+      return v1 > 0 ? v1 : v2() 
+    } 
+    getFirstPositive(-4, 20)
+
+定义闭包属性
+  var callBack : (()->())?
+
+闭包的循环引用
+  swift中检测一个对象是否销毁,可以实现对象的deinit函数(相当于OC中dealloc方法)
+
+  swift中解决循环引用的方式
+    方案一:
+      使用weak,对当前控制器使用弱引用
+      但是因为self可能有值也可能没有值,因此weakSelf是一个可选类型,在真正使用时可以对其强制解包(该处强制解包没有问题,因为控制器一定存在,否则无法调用所在函数)
+
+      weak var weakSelf = self
+      httpTool.loadData {
+          print("加载数据完成,更新界面:", NSThread.currentThread())
+          weakSelf!.view.backgroundColor = UIColor.redColor()
+      }
+    
+    方案二:(常用)
+      和方案一类型,只是书写方式更加简单
+      可以写在闭包中,并且在闭包中用到的self都是弱引用
+
+      httpTool.loadData {[weak self] () -> () in
+          print("加载数据完成,更新界面:", NSThread.currentThread())
+          self!.view.backgroundColor = UIColor.redColor()
+      }
+    
+    方案三:
+      使用关键字unowned
+      从行为上来说 unowned 更像OC中的 unsafe_unretained
+      unowned 表示:即使它原来引用的对象被释放了，仍然会保持对被已经释放了的对象的一个 "无效的" 引用，它不能是 Optional 值，也不会被指向 nil
+
+      httpTool.loadData {[unowned self] () -> () in
+          print("加载数据完成,更新界面:", NSThread.currentThread())
+          self.view.backgroundColor = UIColor.redColor()
+      }

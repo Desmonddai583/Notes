@@ -1,0 +1,148 @@
+单子布局组件
+  Align
+    const Align({
+      Key key,
+      this.alignment: Alignment.center, // 对齐方式，默认居中对齐
+      this.widthFactor, // 宽度因子，不设置的情况，会尽可能大
+      this.heightFactor, // 高度因子，不设置的情况，会尽可能大
+      Widget child // 要布局的子Widget
+    })
+    因为子组件在父组件中的对齐方式必须有一个前提，就是父组件得知道自己的范围（宽度和高度）；
+    如果widthFactor和heightFactor不设置，那么默认Align会尽可能的大（尽可能占据自己所在的父组件）；
+    我们也可以对他们进行设置，比如widthFactor设置为3，那么相对于Align的宽度是子组件跨度的3倍
+  
+  Center
+    Center组件继承自Align，只是将alignment设置为Alignment.center
+  
+  Padding
+    const Padding({
+      Key key,
+      @requiredthis.padding, // EdgeInsetsGeometry类型（抽象类），使用EdgeInsets
+      Widget child,
+    })
+  
+  Container
+    Container({
+      this.alignment,
+      this.padding, //容器内补白，属于decoration的装饰范围
+      Color color, // 背景色
+      Decoration decoration, // 背景装饰
+      Decoration foregroundDecoration, //前景装饰
+      double width,//容器的宽度
+      double height, //容器的高度
+      BoxConstraints constraints, //容器大小的限制条件
+      this.margin,//容器外补白，不属于decoration的装饰范围
+      this.transform, //变换
+      this.child,
+    })
+    容器的大小可以通过width、height属性来指定，也可以通过constraints来指定，如果同时存在时，width、height优先。
+    实际上Container内部会根据width、height来生成一个constraints；
+    color和decoration是互斥的，实际上，当指定color时，Container内会自动创建一个decoration
+  
+    BoxDecoration
+      Container有一个非常重要的属性 decoration
+      对应的类型是Decoration类型，但是它是一个抽象类
+      经常使用它的实现类BoxDecoration来进行实例化
+      const BoxDecoration({
+        this.color, // 颜色，会和Container中的color属性冲突
+        this.image, // 背景图片
+        this.border, // 边框，对应类型是Border类型，里面每一个边框使用BorderSide
+        this.borderRadius, // 圆角效果
+        this.boxShadow, // 阴影效果
+        this.gradient, // 渐变效果
+        this.backgroundBlendMode, // 背景混合
+        this.shape = BoxShape.rectangle, // 形变
+      })
+
+多子布局组件
+  Flex
+    Row组件和Column组件都继承自Flex组件
+    Flex组件和Row、Column属性主要的区别就是多一个direction。
+    当direction的值为Axis.horizontal的时候，则是Row。
+    当direction的值为Axis.vertical的时候，则是Column
+
+  Row
+    Row({
+      Key key,
+      MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start, // 主轴对齐方式
+      MainAxisSize mainAxisSize = MainAxisSize.max, // 水平方向尽可能大
+      CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center, // 交叉处对齐方式
+      TextDirection textDirection, // 水平方向子widget的布局顺序（默认为系统当前Locale环境的文本方向(如中文、英语都是从左往右，而阿拉伯语是从右往左））
+      VerticalDirection verticalDirection = VerticalDirection.down, // 表示Row纵轴（垂直）的对齐方向
+      TextBaseline textBaseline, // 如果上面是baseline对齐方式，那么选择什么模式（有两种可选）
+      List<Widget> children = const <Widget>[],
+    })
+
+    mainAxisSize：
+      表示Row在主轴(水平)方向占用的空间，默认是MainAxisSize.max，表示尽可能多的占用水平方向的空间，此时无论子widgets实际占用多少水平空间，Row的宽度始终等于水平方向的最大宽度
+      而MainAxisSize.min表示尽可能少的占用水平空间，当子widgets没有占满水平剩余空间，则Row的实际宽度等于所有子widgets占用的的水平空间；
+      默认情况下，Row会尽可能占据多的宽度，让子Widget在其中进行排布，这是因为mainAxisSize属性默认值是MainAxisSize.max
+    mainAxisAlignment：表示子Widgets在Row所占用的水平空间内对齐方式
+      如果mainAxisSize值为MainAxisSize.min，则此属性无意义，因为子widgets的宽度等于Row的宽度
+      只有当mainAxisSize的值为MainAxisSize.max时，此属性才有意义
+      MainAxisAlignment.start表示沿textDirection的初始方向对齐，
+      如textDirection取值为TextDirection.ltr时，则MainAxisAlignment.start表示左对齐，textDirection取值为TextDirection.rtl时表示从右对齐。
+      而MainAxisAlignment.end和MainAxisAlignment.start正好相反；
+      MainAxisAlignment.center表示居中对齐。
+    crossAxisAlignment：表示子Widgets在纵轴方向的对齐方式
+      Row的高度等于子Widgets中最高的子元素高度
+      它的取值和MainAxisAlignment一样(包含start、end、 center三个值)
+      不同的是crossAxisAlignment的参考系是verticalDirection，即verticalDirection值为VerticalDirection.down时crossAxisAlignment.start指顶部对齐，verticalDirection值为VerticalDirection.up时，crossAxisAlignment.start指底部对齐；而crossAxisAlignment.end和crossAxisAlignment.start正好相反；
+    
+    Expanded
+      可用来包裹Container Widget
+      flex属性，弹性系数，Row会根据两个Expanded的弹性系数来决定它们占据剩下空间的比例
+  
+  Column
+    Column({
+      Key key,
+      MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+      MainAxisSize mainAxisSize = MainAxisSize.max,
+      CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+      TextDirection textDirection,
+      VerticalDirection verticalDirection = VerticalDirection.down,
+      TextBaseline textBaseline,
+      List<Widget> children = const <Widget>[],
+    })
+  
+  Stack
+    用于叠加显示
+    Stack({
+      Key key,
+      this.alignment = AlignmentDirectional.topStart,
+      this.textDirection,
+      this.fit = StackFit.loose,
+      this.overflow = Overflow.clip,
+      List<Widget> children = const <Widget>[],
+    })
+
+    alignment：
+      此参数决定如何去对齐没有定位（没有使用Positioned）或部分定位的子widget。所谓部分定位，在这里**特指没有在某一个轴上定位：**left、right为横轴，top、bottom为纵轴，只要包含某个轴上的一个定位属性就算在该轴上有定位。
+    textDirection：
+      和Row、Wrap的textDirection功能一样，都用于决定alignment对齐的参考系即：textDirection的值为TextDirection.ltr，则alignment的start代表左，end代表右；textDirection的值为TextDirection.rtl，则alignment的start代表右，end代表左。
+    fit：
+      此参数用于决定没有定位的子widget如何去适应Stack的大小。StackFit.loose表示使用子widget的大小，StackFit.expand表示扩伸到Stack的大小。
+    overflow：
+      此属性决定如何显示超出Stack显示空间的子widget，值为Overflow.clip时，超出部分会被剪裁（隐藏），值为Overflow.visible 时则不会。
+
+    Stack会经常和Positioned一起来使用，Positioned可以决定组件在Stack中的位置，用于实现类似于Web中的绝对定位效果，Positioned组件只能在Stack中使用
+
+    Stack(
+      children: <Widget>[
+        Container(
+          color: Colors.purple,
+          width: 300,
+          height: 300,
+        ),
+        Positioned(
+          left: 20,
+          top: 20,
+          child: Icon(Icons.favorite, size: 50, color: Colors.white)
+        ),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: Text("你好啊，李银河", style: TextStyle(fontSize: 20, color: Colors.white)),
+        )
+      ],
+    );

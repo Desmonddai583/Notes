@@ -1,0 +1,19 @@
+//
+//  PrefixHeader.pch
+//  小码哥彩票
+//
+//  Created by simplyou on 15/11/12.
+//  Copyright © 2015年 simplyou. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import "UIView+XMG.h"
+#import "UIImage+XMG.h"
+#import "XMGSaveTool.h"
+
+#define XMGkeyWindow [UIApplication sharedApplication].keyWindow
+
+
+#endif /* PrefixHeader_pch */

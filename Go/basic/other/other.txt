@@ -1,0 +1,277 @@
+GOROOT: SDK安装的目录
+GOPATH: go源代码存放的目录
+GOBIN: 将来编译的可执行程序存放的目录,GOBIN目录,必须放在GOPATH目录里面
+
+go env // 查看go配置的环境变量
+go install main.go // 将包编译并放到GOPATH下的bin(命令文件)或者pkg目录(非命令文件)
+go run main.go // 将包编译并运行,但是会将编译后的文件放到临时目录而不是GOBIN下
+go build // 编译检查当前目录下的go文件,如果不是命令文件(main.go)，那么执行完后不会产生文件,如果是命令文件,则在目录下产生一个编译好的二进制文件
+env GOOS=linux GOARCH=amd64 go build // 跨平台编译
+go fmt // 格式化当前目录下的go文件
+
+获取系统架构和Int Size
+cpuArch := runtime.GOARCH
+intSize := strconv.IntSize
+
+清空控制台
+cmd := exec.Command("cmd", "/c", "cls")
+cmd.Stdout = os.Stdout
+cmd.Run()
+
+时间
+    now := time.Now() // 获取当前时间
+    now.Year()
+    now.Month()
+    ...
+    now.Second()
+    str := now.Format("2006/01/02 15:04:05") // 按照指定格式输出,注意这里这些数字都是固定的,格式是可以变的
+
+    prev := time.Date(2019, 08, 08, 17, 20, 34, 12340, time.UTC)
+    prev.Before(now)
+    prev.After(now)
+    prev.Equal(now)
+
+    now.Sub(prev) // 计算时间差
+
+    时间常量多用于Sleep
+        time.Sleep(time.Second)
+
+    时间戳多用于产生生成随机数的因子
+        Unix()返回秒的时间戳 UnixNano()返回纳秒的时间戳
+        rand.Seed(time.Now().Unix())
+        res := rand.Intn(3) // 生成[0, 3)的随机int值,小于0会panic
+
+json
+    br := BaseResponse{
+        Code: 1,
+        Data: ResponseData{
+            Name: "Desmond",
+            Age:  30,
+        },
+    }
+    jsonBytes, _ := json.Marshal(&br)
+    fmt.Println(string(jsonBytes))
+
+    var b2 BaseResponse
+    _ := json.unMarshal(jsonBytes, &br2)
+    fmt.Println(br2.Data.Name)
+
+    更快的JSON解析
+      EasyJSON 采⽤代码⽣成⽽⾮反射
+      使⽤
+        easyjson -all <结构定义>.go
+
+HTTP Server
+  路由规则
+    URL 分为两种，末尾是 /：表示⼀个⼦树，后⾯可以跟其他⼦路径； 末尾不是/，表示⼀个叶⼦，固定的路径
+      以/ 结尾的 URL 可以匹配它的任何⼦路径，⽐如 /images 会匹配 /images/ cute-cat.jpg
+    它采⽤最⻓匹配原则，如果有多个匹配，⼀定采⽤匹配路径最⻓的那个进⾏处理
+    如果没有找到任何匹配项，会返回 404 错误
+  
+  更好的 Router
+    https://github.com/julienschmidt/httprouter
+    func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+      fmt.Fprintf(w, "hello, %s!\n", ps.ByName("name"))
+    }
+    func main() {
+      router := httprouter.New()
+      router.GET("/", Index)
+      router.GET("/hello/:name", Hello)
+      log.Fatal(http.ListenAndServe(":8080", router))
+    }
+
+GC 友好的代码
+  避免内存分配和复制
+    复杂对象尽量传递引⽤
+      数组的传递
+      结构体传递
+  避免内存分配和复制
+    初始化⾄合适的⼤⼩
+      ⾃动扩容是有代价的
+    复⽤内存
+  打开 GC ⽇志
+    只要在程序执⾏之前加上环境变量GODEBUG=gctrace=1
+      e.g.
+        GODEBUG=gctrace=1 go test -bench=.
+        GODEBUG=gctrace=1 go run main.go
+  go tool trace
+    普通程序输出 trace 信息
+      package main 
+      import (
+        "os"
+        "runtime/trace"
+      )
+      func main() {
+        f, err := os.Create("trace.out") 
+        if err != nil { 
+          panic(err) 
+        }
+        defer f.Close()
+        err = trace.Start(f)
+        if err != nil {
+          panic(err)
+        } 
+        defer trace.Stop() 
+        // Your program here
+      }
+    测试程序输出 trace 信息
+      go test -trace trace.out
+    可视化 trace 信息
+      go tool trace trace.out    
+
+Chaos Engineering
+  相关开源项⽬
+    https://github.com/Netﬂix/chaosmonkey
+    https://github.com/easierway/service_decorators/blob/master/README.md
+
+Go与C交叉访问
+    Go访问C
+        1. C代码需要用单行注释或者多行注释注释起来
+        2. 在C代码紧随其后的位置写上import "C"
+        3. 接着就可以在go中通过C.函数名称的方式来访问C语言函数
+        /*
+        #include <stdio.h>
+
+        void say() {
+            printf("hello world")
+        }
+        */
+        import "C"
+
+        func main() {
+            C.say()
+        }
+    C访问Go
+        /*
+        #include <stdio.h>
+
+        void demo() {
+            extern void say(); // 声明
+            say(); // 调用
+        }
+        */
+        import "C"
+
+        func main() {
+            C.demo()
+        }
+
+        // 将以下代码放到一个单独的文件,Go的编译器不允许在一个文件的C和Go中声明同一个函数
+        // 这里一定要写上export 方法名 才可以在C中extern声明
+        // 也一定要写上import "C"才可以顺利go build
+        import "C"
+        //export say
+        func say() {
+            fmt.Println("hello world")
+        }
+    Go访问C的基本类型变量
+        /*
+        #include <stdio.h>
+
+        char ch = 'b';
+        int num = 123;
+        double value = 3.14;
+        */
+        import "C"
+
+        func main() {
+            fmt.Println(C.ch)
+            fmt.Println(C.num)
+            fmt.Println(C.value)
+
+            // 需要强制转换将C类型转为Go类型
+            var ch byte
+            ch = byte(C.ch)
+            ...
+        }
+    Go使用C中的字符串
+        C
+            char *str1 = "desmond";
+            char str2[20] = "desmond"
+        Go
+            var str1 string
+            var str2 string
+            str1 = C.GoString(C.str1)
+            // 不能讲数组直接通过GoString转换为Go的字符串,所以这里需要使用C中字符串的首地址
+            str2 = C.GoString(&C.str2[0])
+    C中使用Go字符串
+        需要注意的是Go转为C之后的字符串不受Go的GC控制,需要自己手动回收
+        var str string = "desmond"
+        str2 := C.CString(str)
+        C.free(unsafe.Pointer(str2))
+    Go使用C的指针
+        C
+            int num = 123;
+            int *p1 = &num;
+            void *p2 = &num;
+        Go
+            var p1 *C.int = C.p1
+            fmt.Println(*p1)
+            // 其他类型都可以按照上面的格式来使用
+            // 但是对于void *类型,必须使用Go中的unsafe.Pointer来保存
+            var p2 unsafe.Pointer = C.p2
+            fmt.Println(*p2)
+    Go使用C的枚举
+        C
+            enum Gender {
+                GenderMale,
+                GenderFemale,
+                GenderYao
+            }
+        Go
+            var gender C.enum_Gender = C.GenderMale
+            fmt.Println(gender)
+    Go使用C结构体
+        C
+            struct Point {
+                float x;
+                float y;
+            }
+        Go
+            // 当前支持不够好,如果结构体属性是复杂类型,可能会有问题
+            var pi C.struct_Point = C.struct_Point{1.1, 2.2}
+            fmt.Println(pi.x)
+            fmt.Println(pi.y)
+    Go使用C数组
+        C
+            int cArray[5] = {1, 2, 3, 4, 5};
+        Go
+            // 现在官方还没有很好的支持直接转换,所以使用以下方法
+            var arr [5]C.int = C.cArray
+            fmt.Println(arr[0])
+    Go中利用C实现无缓冲输入
+        package main
+        /*
+        #include <stdio.h>
+        char lowerCase(char ch){
+            // 1.判断当前是否是小写字母
+            if(ch >= 'a' && ch <= 'z'){
+                return ch;
+            }
+            // 注意点: 不能直接编写else, 因为执行到else不一定是一个大写字母
+            else if(ch >= 'A' && ch <= 'Z'){
+                return ch + ('a' - 'A');
+            }
+            return ' ';
+        }
+        char getCh(){
+            // 1.接收用户输入的数据
+            char ch;
+            scanf("%c", &ch);
+            setbuf(stdin, NULL);
+            // 2.大小写转换
+            ch = lowerCase(ch);
+            // 3.返回转换好的字符
+            return ch;
+        }
+        */
+        import "C"
+        import "fmt"
+
+        func main() {
+            for {
+                fmt.Println("请输入一个字符")
+                ch := C.getCh()
+                fmt.Printf("%c\n", ch)
+            }
+        }

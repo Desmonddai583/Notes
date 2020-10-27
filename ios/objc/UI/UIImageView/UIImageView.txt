@@ -1,0 +1,127 @@
+常见属性
+  @property(nonatomic,retain) UIImage *image; 显示的图片
+  @property(nonatomic,copy) NSArray *animationImages; 显示的动画图片
+  @property(nonatomic) NSTimeInterval animationDuration; 动画图片的持续时间
+  @property(nonatomic) NSInteger animationRepeatCount; 动画的播放次数（默认是0，代表无限播放）
+
+常见方法
+  - (void)startAnimating; // 开始动画
+  - (void)stopAnimating; // 停止动画
+  - (BOOL)isAnimating; // 是否正在执行动画
+
+UIImageView的contentMode
+  带有scale单词的 <图片有可能被拉伸>
+    UIViewContentModeScaleToFill
+      -将图片拉伸填充整个imageView
+      -图片显示的尺寸跟imageView的尺寸是一样的
+  带有scale单词的,并且带有aspect单词的:可能会被拉伸,但是会保持图片原来的宽高比
+    UIViewContentModeScaleAspectFit
+      - 保证刚好能看到图片的全部
+    UIViewContentModeScaleAspectFill
+      - 拉伸至图片的宽度或者高度跟imageView一样
+  不带有scale的单词<图片绝对不会被拉伸>,保持图片原来的宽度和高度
+
+裁剪超出imageView边框的部分
+  imageView.clipsToBounds = YES;
+
+设置imageView的frame
+  initWithImage 
+    默认尺寸就是图片的尺寸,位置默认从(0,0)开始
+  imageView.frame = CGRectMake(100,100, imageView.image.size.width, imageView.image.size.height);
+    注意尺寸不能设置在图片之前
+  直接赋值size,但会出现OC语法错误
+    不能直接修改OC对象结构体属性的成员,可以透过一个临时变量来赋值
+      CGRect tempFrame = imageView.frame;
+      tempFrame = imageView.image.size;
+      imageView.frame = tempFrame; // 不能少了这一句(不是对象,是结构体)
+  
+  常见赋值frame写法
+    imageView.frame = (CGRect){CGPointMake(100,100), imageView.image.size};
+    imageView.frame = (CGRect){CGPointMakeZero, imageView.image.size};
+  
+  修改bounds/center类似frame
+
+资源管理
+  图片放到supporting Files注意事项
+    不勾选copy
+      项目文件夹中是没有的,仅仅是引用
+      尽量勾选(独立,不会影响源文件)
+
+  如果放到images.xcassets中,默认就是拷贝源文件过来
+
+  Add to targets 要不要把图片打包到软件安装包中去
+
+  Added folder
+    如果勾选Create groups,会创建一个虚拟的文件夹
+    如果勾选Create folder references,真的创建一个文件夹(文件夹颜色不一样),一般是在app需要主题换肤的情况下使用这个选项
+  
+  在debug console中输入'po NSHomeDirectory()'会打印沙盒路径
+
+加载无缓存的图片
+  imageNamed方法默认缓存图片
+    优点:如果资源是经常用的,干脆放在内存中,不需要耗时的读写操作
+    缺点:缓存是会越积越多的,占用内存
+
+    使用场合：图片比较小、使用频率比较高
+    放在images.xcassets中的图片,默认就带有缓存,只能通过文件名访问,没有全路径
+    把需要缓存的图片放到Images.xcassets
+
+  没有缓存
+    NSString *file = [[NSBundle mainBundle] pathForResource:@"图片名" ofType:@"图片扩展名"];
+    UIImage *image = [UIImage imageWithContentOfFile:file];  
+
+    只要方法名带有file的，都是传全路径
+    使用场合：图片比较大，使用频率比较低
+    不需要缓存的图片不能放在Images.xcassets中
+    放到Image.xcassets中的图片只能通过图片名去加载不能通过路径(因为苹果会压缩图片,导致无法通过路径访问),而且默认带有缓存
+
+裁剪图片
+  image:为要裁剪的图⽚,既原始图⽚.它的类型为CGImageRef,类型,所以要转成CGImage 
+  rect:为裁剪的范围.这时需要确定每⼀个X的位置. 每⼀个x为它当前的⾓标 * 要裁剪的宽度.
+  CGImageCreateWithImageInRect(image, rect);
+  它会返回⼀个图⽚.图⽚类型为CGImageRef.我们在使用的时候,要把这张图⽚给转成UIImage. 
+  UIImage *image = [UIImage imageWithCGImage:imgR];
+
+  CGImageCreateWithImageInRect这个⽅法它是C语⾔的⽅法.它裁剪的区域是⼀个像素点
+  但在IOS中使用的是点坐标而不是像素点
+  所以会导致只能看到的⼀部分内容,解决办法为把裁剪的宽⾼都乘上⼀个像素⽐例.
+  获得像素⽐例 
+    [UIScreen mainScreen].scale 
+
+修改按钮内部图⽚的尺⼨⼤⼩
+  可以重写imageRectForContentRect:方法
+  -(CGRect)imageRectForContentRect:(CGRect)contentRect{
+    CGFloat btnW = 40; 
+    CGFloat btnH = 47; 
+    CGFloat btnY = 20; 
+    CGFloat btnX = (contentRect.size.width - btnW) * 0.5; 
+    return CGRectMake(btnX, btnY, btnW, btnH);
+  }
+
+修改按钮内部Label的尺⼨⼤⼩
+  可以重写titleRectForContentRect:方法
+  -(CGRect)titleRectForContentRect:(CGRect)contentRect{
+    ...
+  }
+
+让⼀张图⽚只显⽰上半部分或者下半部分
+  利⽤CALayer的⼀个属性
+    contentsRect = CGRectMake(0, 0, 1, 0.5); 
+  contentsRect就是要显⽰的范围.它是取值范围是(0~1); 
+  想让上部图⽚只显⽰上半部分contentsRect设置
+    CGRectMake(0, 0, 1, 0.5); 
+  让下部图⽚只显⽰下半部分contentsRect设置为
+    CGRectMake(0, 0.5, 1, 0.5)
+
+设置图片渲染方式
+  UIImageRenderingModeAlwaysOriginal 始终绘制图片原始状态，不使用Tint Color
+  UIImageRenderingModeAlwaysTemplate 始终根据Tint Color绘制图片，忽略图片的颜色信息
+  UIImageRenderingModeAutomatic 根据图片的使用环境和所处的绘图上下文自动调整渲染模式,默认模式
+  [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]
+
+通过NSData创建image
+  NSURL *url = [NSURL URLWithString:@"http://url"];
+  // 下载二进制数据到本地
+  NSData *imageData =  [NSData dataWithContentsOfURL:url];
+  // 转换图片
+  UIImage *image = [UIImage imageWithData:imageData];

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>99-时钟效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 600px;
+            height: 600px;
+            background: url("images/clock.jpg") no-repeat center center;
+            margin: 10px auto;
+            position: relative;
+        }
+        .hour{
+            width: 30px;
+            height: 600px;
+            background: url("images/hour.png") no-repeat center center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .minute{
+            width: 30px;
+            height: 600px;
+            background: url("images/minute.png") no-repeat center center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .second{
+            width: 30px;
+            height: 600px;
+            background: url("images/second.png") no-repeat center center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="hour"></div>
+    <div class="minute"></div>
+    <div class="second"></div>
+</div>
+<script>
+    // 1.拿到需要操作的元素
+    var oHour = document.querySelector(".hour");
+    var oMinute = document.querySelector(".minute");
+    var oSecond = document.querySelector(".second");
+
+    setInterval(function () {
+        init();
+    }, 1000);
+    init();
+    function init() {
+        // 2.获取当前的时间
+        var date = new Date();
+        // 2.1获取当前的小时
+        var h = date.getHours();
+        // 2.2修改时针
+        oHour.style.transform = "rotate("+(h * 30)+"deg)";
+        // 2.3获取当前的分钟
+        var m = date.getMinutes();
+        oMinute.style.transform = "rotate("+(m * 6)+"deg)";
+
+        var s = date.getSeconds();
+        oSecond.style.transform = "rotate("+(s * 6)+"deg)";
+    }
+
+</script>
+</body>
+</html>

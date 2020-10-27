@@ -1,0 +1,389 @@
+Zepto就是jQuery的移动端版本, 可以看做是一个轻量级的jQuery(但并不是100%覆盖jQuery)
+jQuery和Zepto的区别
+    1 jQuery更多是在PC端被应用，因此，考虑了很多低级浏览器的的兼容性问题；而Zepto.js则是直接抛弃了低级浏览器的适配问题，显得很轻盈；
+    2 Zepto.js在移动端被运用的更加广泛；
+    3 jQuery的底层是通过DOM来实现效果的， zepto.js是用css3来实现的；
+    4 Zepto.js可以说是轻量级版本的jQuery
+
+<!--引入核心模块；包含许多jQuery中常见方法-->
+<script src="js/zepto.js"></script>
+<!--引入zepto事件模块, 包含了常见的事件方法on/off/click ...-->
+<script src="js/event.js"></script>
+<!--引入zepto高级选择器模块, 包含了jQuery中的高级选择器-->
+<script src="js/selector.js"></script>
+<!--引入zepto动画模块-->
+<script src="js/fx.js"></script>
+<!--引入zepto动画模块的常用方法-->
+<script src="js/fx_methods.js"></script>
+<!--引入zepto的移动端事件模块-->
+<script src="js/touch.js"></script>
+
+zepto框架是一个模块化的框架, 将不同的功能封装到了不同的模块中
+这样做的好处也是为了瘦身, 让我们使用起来更加轻量级
+
+tap事件
+    1. 无论是PC端还是移动端都支持click的事件, 而且不仅仅是支持jQuery和zepto的原生JS的也支持
+    2. 但是在企业开发中, 如果是要在移动端监听点击事件,
+        1 一般情况下不会使用onclick事件来监听
+        2 因为移动端支持的手势比较多(点击/双击/拖拽/捏合/轻扫....), 所以移动端在监听click事件的时候会有100~300ms的延迟(系统需要等待判断是否是双击..)
+        3 但是在移动端的网页中几乎不会用到双击, 而且移动端对响应的速度要求也很高
+    3. 在移动端如果需要监听单击事件, 那么请使用tap事件
+    注意点: tap事件是zepto自己封装的(利用系统的touch相关事件), 不是系统自带的
+
+    $("div").tap(function () {
+        console.log("被点击了");
+    });
+
+    自己实现一下tap
+        实现单击事件思路:
+            1. 只有一根手指
+            2. 按下的时间和离开的时间不能相差太久 20ms
+            3. 按下的位置和离开的位置不能相差太多 5px
+
+        function myTap(dom, fn) {
+            // 安全校验
+            if(!dom || !(dom instanceof HTMLElement)){
+                return;
+            }
+            var startTime, startX, startY;
+            // 1.添加手指按下的事件
+            dom.addEventListener("touchstart", function (event) {
+                // 1.判断是否只有一根手指
+                if(event.targetTouches.length > 1){
+                    // 有多根手指
+                    return;
+                }
+                // 2.记录当前按下的时间
+                startTime = Date.now();
+                // 3.记录当前按下的位置
+                startX = event.targetTouches[0].clientX;
+                startY = event.targetTouches[0].clientY;
+            });
+            // 2.添加手指离开的事件
+            dom.addEventListener("touchend", function (event) {
+                // 1.判断是否只有一根手指
+                if(event.changedTouches.length > 1){
+                    // 有多根手指
+                    return;
+                }
+                // 2.判断离开时和按下时的时间差
+                if(Date.now() - startTime > 150){
+                    // 长按了, 不是单击
+                    console.log("超过时间了");
+                    return;
+                }
+                // 3.判断离开时的位置和按下时的位置差
+                var endX = event.changedTouches[0].clientX;
+                var endY = event.changedTouches[0].clientY;
+                if(Math.abs(endX - startX) > 5 ||
+                    Math.abs(endY - startY) > 5){
+                    // 拖拽or轻扫
+                    return;
+                }
+                // 告诉外界是一个单击事件
+                fn && fn();
+            });
+        }
+
+        myTap(oDiv, function () {
+            console.log("单击事件");
+        });
+
+touch相关事件
+    touchstart : 当手指触摸到指定元素时触发
+    touchmove:   当手指在指定元素上移动时触发
+    touchend: 当手指离开指定元素时触发
+
+    注意点:
+        1. 如果要添加移动端的touch相关的事件, 推荐使用addEventListener来添加
+            不推荐使用on来添加
+        2. 如上的事件, 当前在PC端无效
+    
+    var oDiv = document.querySelector("div");
+    oDiv.addEventListener("touchstart", function () {
+        console.log("手指按下");
+    });
+    oDiv.addEventListener("touchmove", function () {
+        console.log("手指移动");
+    });
+    oDiv.addEventListener("touchend", function () {
+        console.log("手指离开");
+    });
+
+    touch事件对象
+        1. 移动端的touch事件也是一个事件, 所以被触发的时候系统也会传递一个事件对象给我们
+        2. 传递给我们的事件对象中有三个子对象比较重要
+
+        touches:       保存了屏幕上所有手指的列表
+        targetTouches: 保存了元素上所有手指的列表
+        changedTouches: 包含了刚刚与屏幕接触的手指或者刚刚离开屏幕的手指
+
+        在移动端: touches和targetTouches中保存的数据是一样的
+
+        按下一个手指
+            touches 1
+            targetTouches 1
+            changedTouches 1
+        
+        再按下一个手指
+            touches 2
+            targetTouches 2
+            changedTouches 1
+        
+        有一个手指离开
+            touches 1
+            targetTouches 1
+            changedTouches 1
+
+        又有一个手指离开
+            touches 0
+            targetTouches 0
+            changedTouches 1
+
+    touch事件的XY
+        无论是event对象中的touches/targetTouches/changedTouches都是一个伪数组
+        所以我们想要获取手指位置的时候,需要从伪数组中取出需要获取的那个手指对象
+
+        获取手指距离屏幕左上角的位置
+        event.targetTouches[0].screenX
+        event.targetTouches[0].screenY
+
+        获取相对于当前视口的距离
+        event.targetTouches[0].clientX
+        event.targetTouches[0].clientY
+
+        获取相对于当前页面内容的距离
+        event.targetTouches[0].pageX
+        event.targetTouches[0].pageY
+
+    touch事件的点透问题
+        oTap.addEventListener("touchstart", function () {
+            // 如果两个元素是重叠的(一个在另一个上面)
+            // 并且上面一个监听了touchstart事件, 下面一个监听了click事件
+            // 那么如果上面一个元素触发touchstart事件之后消失了, 那么就会出现点透问题
+            this.style.display = "none";
+        });
+
+        // 通过zepto封装的tap事件
+        // 注意点: 看上去没有, 但是有时候也会穿透
+        // 所以zepto还没有有效的解决点透的问题
+        $(oTap).tap(function () {
+            oTap.style.display = "none";
+        });
+
+        oClick.addEventListener("click", function () {
+            console.log("lnj");
+        });
+
+        通过fastclick框架可以解决该问题
+            1. 导入fastclick.js
+            2. 注册fastclick事件
+                所有元素都会被注册fastclick事件
+                FastClick.attach(document.body);
+            3. 使用fastclick
+                注意点: 这里的click并不是系统的click, 而是fastclick事件
+                oTap.addEventListener("click", function () {
+                    oTap.style.display = "none";
+                });
+
+                oClick.addEventListener("click", function () {
+                    console.log("lnj");
+                });
+
+swipe事件
+    事件是指手指在元素上滑动
+    $("div").swipe(function () {
+        console.log("滑动事件");
+    });
+    $("div").swipeLeft(function () {
+        // console.log("左滑动");
+        $(this).animate({left: "0px"}, 1000);
+    });
+    $("div").swipeRight(function () {
+        // console.log("右滑动");
+        $(this).animate({left: "100px"}, 1000);
+    });
+    $("div").swipeUp(function () {
+        // console.log("上滑动");
+        $(this).animate({top: "0px"}, 1000);
+    });
+    $("div").swipeDown(function () {
+        // console.log("下滑动");
+        $(this).animate({top: "100px"}, 1000);
+    });
+
+hover事件
+    注意点: 移动端无法使用移入移出事件
+
+iscroll
+    iScroll是一个高性能，资源占用少，无依赖，多平台的javascript滚动插件
+    iscroll.js基本使用
+        1 按照框架的需要搭建一个三层的结构
+        2 引入iscroll.js框架
+        3 创建一个IScroll对象, 把需要滚动的容器给它
+
+    <div class="njtest">
+        <div>
+            <p>我是第1行内容</p>
+            <p>我是第2行内容</p>
+            ...
+        </div>
+    </div>
+
+    var myScroll = new IScroll('.njtest', {
+        mouseWheel: true, // 开启鼠标滚动滚动
+        scrollbars: true // 开启滚动条, 但是容器必须是定位的, 否则滚动条的位置不对
+    });
+
+    // 相关常用的回调函数
+    myScroll.on("beforeScrollStart", function () {
+        console.log("手指触摸, 还没有开始滚动");
+    });
+    myScroll.on("scrollStart", function () {
+        console.log("开始滚动");
+    });
+    myScroll.on("scrollEnd", function () {
+        console.log("结束滚动");
+    });
+
+swiper
+    Swiper是纯javascript打造的滑动特效插件，面向手机、平板电脑等移动终端。
+    Swiper能实现触屏焦点图、触屏Tab切换、触屏多图切换等常用效果。
+    Swiper开源、免费、稳定、使用简单、功能强大，是架构移动终端网站的重要选择！
+
+    使用
+        1 引入对应的css和js文件
+        2 按照框架的需求搭建三层结构
+        3 创建一个Swiper对象, 将容器元素传递给它
+
+    <div class="njtest">
+        <ul class="swiper-wrapper">
+            <li class="swiper-slide">slider1</li>
+            <li class="swiper-slide">slider2</li>
+            <li class="swiper-slide">slider3</li>
+        </ul>
+    </div>
+
+    var mySwiper = new Swiper('.njtest', {
+        loop: true,
+        autoplay: true,
+        // 如果需要分页器
+        pagination: {
+            el: '.swiper-pagination',
+        },
+        // 如果需要前进后退按钮
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        // 如果需要滚动条
+        scrollbar: {
+            el: '.swiper-scrollbar',
+        },
+    });
+
+Animate
+    Animate.css是一个css动画样式库，其目标是让CSS动画像喝水一样容易（Just-add-water CSS Animation）
+    Animate.css是一个来自国外的CSS3动画库，它预设了抖动（shake）、闪烁（flash）、弹跳（bounce）、翻转（flip）、旋转（rotateIn\/rotateOut）、淡入淡出（fadeIn\/fadeOut）等多达70多种动画特效，几乎包含了所有常见的动画特效。
+    浏览器兼容，Animate.css底层是通过css3实现的，当然是只兼容支持CSS3 animate属性的浏览器： IE10+、Firefox、Chrome、Opera、Safari。
+
+    使用:
+        1 引入animate.css的文件
+        2 给需要执行动画的元素添加类名
+            animated infinite bounce delay-2s
+            第一个animated是一个基类, 只要元素需要执行动画就必须添加这个类型
+            第二个infinite是动画执行的次数, 默认只执行一次, infinite可以无限执行, 此类名是可选的
+            第三个bounce是动画名称
+            第四个delay-xx, 延迟时间, 此类名是可选的
+    <div class="animated infinite flip delay-1s"></div>
+
+    框架的定制:
+        所有的CSS框架都可以随意定义, 但是一定要注意不要直接修改框架
+        而是在自己的CSS中覆盖
+
+WOW
+    什么是WOW.js?
+        对Animate.css的扩充, 让页面滚动更有趣
+        通过WOW.js，可以在页面逐渐向下滚动的过程中逐渐释放这些动画效果。也就是说：当我们向下滚动页面时，可以省去很多判断条件，让CSS动画逐渐展示出来
+
+    wow.js特点:
+        1 轻量级类库， 不依赖jQuery，超简单的安装和使用，与animate.css配合，只需要短短几行代码就可以实现很多特效。
+        2 容易定制，我们可以改变动画去设置喜欢的风格、延迟、长度、偏移和迭代等等。
+
+    兼容性:
+        WOW.js要和animate.css配合使用，所有其也只兼容支持CSS3 animate属性的浏览器：IE10+、Firefox、Chrome、Opera、Safari。
+
+    注意点:
+        WOW.js实例的动画只能加载一次，如果要重新执行动画必须要进行刷新
+        但是在实际开发中，更多时候动画是只加载一次，否则会造成视觉错乱
+
+    使用:
+        1 引入animate.css
+        2 引入wow.js
+        3 给需要执行动画的元素添加类名
+            wow slideInLeft
+            第一个参数: 是一个基类, 需要需要执行动画必须添加这个类
+            第二个参数: 动画的名称
+        4 在JavaScript中初始化wow.js
+
+    <div class="box">
+        <div class="f-left wow slideInLeft" data-wow-delay="2s"></div> // 延迟两秒执行
+        <div class="r-right wow slideInRight" data-wow-iteration="3"></div> // 执行三次
+    </div>
+
+    new WOW().init();
+
+scrollReveal
+    scrollReveal是一个兼容PC端和移动设备的滚动动画库。不同的是 WOW.js的动画只播放一次，而scrollReveal.js的动画可以播放一次或无限次
+
+    scrollReveal特点:
+        1 同时兼容PC端和移动端
+        2 0依赖（不依赖于jQuery，也不依赖于animate.css）
+        3 定制性高，使用简单方便快捷
+        4 和animte.css, WoW一样, 不支持低版本浏览器(IE10+)
+    
+    使用:
+        1.引入框架
+        2.搭建结构体
+        3.创建ScrollReveal对象
+        4.调用ScrollReveal对象的reveal方法, 将需要执行动画的元素给它
+
+    <ul>
+        <li class="test"></li>
+        <li class="test"></li>
+        <li class="test"></li>
+        <li class="test"></li>
+        ...
+    </ul>
+
+    var sReveal = ScrollReveal();
+    sReveal.reveal('.test', {
+        reset: true, // 重置动画, 开启滚动时往返都有动画, 默认只有向下滚动有动画
+        duration: 3000, // 动画持续的时间
+        delay: 0, // 动画延迟时间
+        rotate: {x: 0, y: 0, z: 45}, // 指定过渡的角度
+        opacity: 0.2, // 初始化透明度
+        scale: 0.8, // 初始化缩放比例
+        distance: "500px", // 初始化默认的偏移位
+        origin: "bottom", // 初始化默认偏移位的方向
+        easing: "ease-in-out", // 指定动画的运动方式(匀速/缓动)
+        beforeReveal: function () {
+            // 动画开始之前的回调
+            // console.log("动画开始");
+        },
+        afterReveal: function () {
+            // 动画结束时放的回调
+            // console.log("动画结束");
+        },
+        beforeReset: function () {
+            // 动画开始被重置
+            // 什么是动画重置?
+            // 执行动画的元素离开屏幕之后就会被重置
+            // 重置就是重新设置为动画开始之前的默认样式
+            console.log("动画开始被重置");
+        },
+        afterReset: function () {
+            // 动画重置结束
+            console.log("动画重置结束");
+        }
+    });

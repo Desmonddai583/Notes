@@ -1,0 +1,25 @@
+控件可以做动画的属性
+  frame
+  alpha
+
+动画的两种方式
+  1.
+    [UIView beginAnimations:nil context:nil];
+    动画代码
+    [UIView commitAnimations];
+  2.
+    [UIView animateWithDuration:1.0 animations:^{
+        // 动画代码
+    }];
+    或者
+    [UIView animateWithDuration:1.0 animations:^{
+        // 动画代码
+    } completion:^(BOOL finished) {
+        // 动画完成做什么事情
+    }];
+    或者
+    [UIView animateWithDuration:1.0 delay:1.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+      // 动画代码
+    } completion:^(BOOL finished) {
+      // 动画完成做什么事情
+    }];

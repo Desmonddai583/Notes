@@ -1,0 +1,251 @@
+webpack是一套基于Nodejs的前端项目构建工具, 可以很好的帮助我们管理打包项目
+省去过去很多繁琐的操作, 提升项目的执行效率
+
+项目中的资源
+js/css/images/fonts/....
+只要在项目如引入一个资源, 就会发送一次请求, 会影响执行效率
+
+如何解决引入资源过多的问题
+合并js/合并css/合并图片(精灵图)/压缩代码/....
+有了webpack之后, 这些事情就可以交给它, 而不用给我们自己做了
+
+安装
+    通过npm指令来安装
+    注意: 如果安装的是webpack3, 那么只需要执行如下指令
+    npm i -g webpack
+    注意: 如果安装的是webpack4, 那么需要执行如下两个指令
+    npm i -g webpack
+    npm i -g webpack-cli
+    推荐: 先在全局安装一个, 然后在项目中再在项目中安装一个
+    有时候项目中用到的一些插件必须将webpack安装到局部才可以
+
+引入dist下的main.js是通过index.js转换而来
+index.js是webpack规定的文件名称,规定的js入口文件
+<script src="../dist/main.js"></script>
+
+index.js文件中导入当前项目依赖的包
+    这是ES6提供的导入依赖文件的语法
+    import ** from 包名称
+    注意点: import这个语法太高级了, 浏览器无法识别
+    所以在这里不能直接运行, 如果想运行必须通过webpack将高级语法转换为低级语句
+
+    通过webpack将高级语法转换为浏览器识别的语法
+    webpack --mode development
+    webpack --mode production
+    webpack会自动找到index.js, 然后将里面的代码转换为浏览器识别的代码, 
+    然后自动存储到dist文件夹中, 命名为main.js
+    补充: 老版本 webpack ./src/index.js  ./dist/bundle.js
+
+配置文件
+    如果使用webpack, 可以给webpack添加一个配置文件
+    webpack在执行指令的时候会先检查我们有没有输入指令
+    如果输入了指令, 就按照我们输入的指令执行
+    如果没有输入指令, 就会自动去查找一个名称叫做webpack.config.js的文件
+    这个文件中就保存了webpack相关的配置, 其中也包含了相关的指令
+
+    // 导入JS中的路径模块
+    const path = require('path');
+
+    // var obj = {};
+    // 通过Node.js的模块操作, 向外暴露一个配置对象
+    // module.exports = obj;
+    module.exports = {
+        // 指定打包模式
+        mode: 'development',
+        // 手动指定 入口
+        entry: './src/index.js',
+        // 手动指定 出口
+        output: {
+            filename: 'main.js',
+            path: path.resolve(__dirname, 'dist')
+        }
+    }
+
+自动打包
+    如果使用webpack来管理项目,可以实现自动打包(修改完代码, 不用手动编译)
+    
+    webpack-dev-server安装
+        1. npm i webpack-dev-server -D
+        2. 在package.json的scripts脚本中做一个配置
+            "dev": "webpack-dev-server"
+        3. 在安装的项目目录中执行 npm run dev
+        4. 如何终止: ctrl + c  -> y
+
+    注意点:
+        如果安装之后无法运行, 可以尝试在项目中安装webpack
+        npm i webpack -D
+
+    通过webpack-dev-server自动转换的main.js文件, 并没有真正的放到dist目录中
+    因为读写磁盘是非常耗时和消耗性能的, 所以为了提升性能webpack-dev-server将转换好的main.js直接放到了内存中
+    所以需要通过"/mian.js"来访问
+
+    webpack-dev-server配置的两种方法
+        1. package.json中配置
+            自动打开: --open
+            设置端口号: --port 8090
+            指定默认界面: --contentBase src
+            指定热更新: --hot // 只会更新编译修改的部分,不会整个重新编译
+            "dev": "webpack-dev-server --open --port 8090 --contentBase src --hot"
+
+        2. webpack.config.js中配置
+            // 导入webpack模块
+            const webpack = require('webpack');
+
+            module.exports = {
+                ...
+                // 对webpack-dev-server进行配置
+                devServer: {
+                    open: true,
+                    port: 9090,
+                    contentBase: 'src',
+                    hot: true
+                },
+                // 插件相关的配置, 都放到这里面
+                plugins: [
+                    // 创建热更新的插件
+                    new webpack.HotModuleReplacementPlugin()
+                ]
+            }
+
+插件使用
+    htmlWebpackPlugin
+        自动在内存中根据指定的页面生成一个内存的页面,提升效率
+        自动将大包编译好的main.js添加到页面中,所以就不需要人手在页面中导入main.js
+
+        npm i html-webpack-plugin -D
+
+        // 将HTML放到内存第一步: 导入模块
+        const htmlWebpackPlugin = require('html-webpack-plugin');
+
+        module.exports = {
+            ...
+            plugins: [
+                ...
+                // 将HTML放到内存第二步: 创建插件
+                new htmlWebpackPlugin({
+                    // 指定模板页面, 将来会根据指定的页面路径去生成内存中的页面
+                    template: path.join(__dirname, './src/index.html'),
+                    // 指定生成的页面的名称
+                    filename: 'index.html'
+                })
+            ]
+        }
+
+    webpack-css-loader
+        1. webpack默认只能打包处理js类型的文件, 无法处理其他非js类型的文件
+        2. 如果要处理非js类型的文件, 我们需要手动安装一些对应的第三方loader(加载器)
+        3. 利用第三方的loader先对webpack不识别的文件进行处理, 处理为webpack能够识别的再进行打包
+
+        处理css
+            1. 安装相关的loader npm i style-loader css-loader
+            2. 在webpack.config.js中进行配置
+                新增一个module属性, 这个属性是一个对象,
+                在这个对象中有一个rules属性,这个属性是一个数组
+                将第三方loader的规则放到这个数组中即可
+
+                module.exports = {
+                    ...
+                    // 第三方loader配置的位置
+                    module:{
+                        rules: [
+                            // 处理css的loader的规则
+                            {
+                                test: /\.css$/,
+                                use: ['style-loader', 'css-loader']
+                            },
+                        ]
+                    }
+                }
+        
+        webpack中loader处理规则
+            1. 查看当前需要打包的内容是否是JS
+            2. 如果不是就会去webpack.config.js中查找有没有处理这种内容的loader
+            3. 如果没有处理对应内容的loader就报错
+            4. 如果有处理对应该内容的loader就交给对应的loader处理
+
+            注意点: 处理的时候use数组从右往左的处理, 直到没有loader处理就交给webpack打包
+
+    webpack-less-loader
+        1. 安装less: npm i less -D
+        2. less文件webpack也不识别, 所以也需要第三方的loader
+            npm i less-loader -D
+        3. 在webpack.config.js中配置less的规则
+            module.exports = {
+                ...
+                // 第三方loader配置的位置
+                module:{
+                    rules: [
+                        // 处理less的loader的规则
+                        {
+                            test: /\.less$/,
+                            use: ['style-loader', 'css-loader', 'less-loader']
+                        },
+                    ]
+                }
+            }
+
+    webpack-url-loader 
+        默认情况下只要不是js都不认识, 图片/字体图标/...都不认识
+        所以要想加载图片, 也需要配置第三方的loader
+
+        处理图片的loader
+            1. 安装: npm i url-loader file-loader -D
+                url-loader内部会调用到file-loader
+            2. 配置: {test: /\.jpg|png|gif|bmp/, use: 'url-loader'}
+
+            module.exports = {
+                ...
+                // 第三方loader配置的位置
+                module:{
+                    rules: [
+                        // 处理图片的loader的规则
+                        {
+                            test: /\.jpg|png|gif|bmp/,
+                            use: 'url-loader'
+                        }
+                    ]
+                }
+            }
+
+        注意点:
+            1. 默认情况下url-loader会将图片转换为base64字符串格式的图片
+                这样做的目的是为了提升访问的速度, 如果不想这样做可以通过给url-loader传递参数解决
+            2. use: 'url-loader?limit=值'
+                如果图片大小(字节)小于指定的值就会转换为base64
+                如果图片的大小(字节)大于或者等于指定的值, 就不会转换
+                &name=[name]: 保持原有的文件名称
+                &name=[name]-[hash:8].[ext]: 保持原有的文件后缀
+
+                e.g. url-loader?limit=6739&name=[name]-[hash:8].[ext]
+
+    字体图标loader
+        module.exports = {
+            ...
+            // 第三方loader配置的位置
+            module:{
+                rules: [
+                    // 处理字体图标的laoder规则
+                    {
+                        test: /\.ttf|eot|svg|woff/,
+                        use: 'url-loader'
+                    },
+                ]
+            }
+        }
+    
+    webpack-babel
+        在webpack中, 默认只能处理一部分的高级语法(ES67), 所有如果想让webpack处理所有的高级语法, 就需要借助第三方的loader
+        babel就是用来处理高级语法的, 它可以将高级语法转换为浏览器识别的低级语法
+
+        babel安装(处理语法)
+            1. npm install babel-loader @babel/core @babel/preset-env -D
+            2. npm install @babel/plugin-transform-runtime @babel/runtime @babel/plugin-proposal-class-properties -D
+
+        webpack.config.js中进行配置
+            {test: /\.js$/, use: 'babel-loader', exclude: /node_modules/}
+
+        在根目录下新建.babelrc文件
+            {
+                "presets": ["@babel/env"],
+                "plugins": ["@babel/plugin-transform-runtime", "@babel/plugin-proposal-class-properties"]
+            }

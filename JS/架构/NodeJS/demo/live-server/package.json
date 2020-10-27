@@ -1,0 +1,20 @@
+{
+  "name": "zf-live-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "zf-live-server": "./bin/www"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^5.0.0",
+    "ejs": "^3.0.2",
+    "mime": "^2.4.4"
+  }
+}

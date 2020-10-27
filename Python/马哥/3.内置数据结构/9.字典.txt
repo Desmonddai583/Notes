@@ -1,0 +1,145 @@
+key-value键值对的数据的集合
+可变的、无序的、key不重复
+ 
+字典dict定义 初始化
+  key的要求和set的元素要求一致
+    set的元素可以就是看做key，set可以看做dict的简化版
+    hashable 可哈希才可以作为key，可以使用hash()测试
+  d = dict() 或者 d = {}
+  dict(**kwargs) 使用name=value对初始化一个字典
+  dict(iterable, **kwarg) 使用可迭代对象和name=value对构造字典，不过可迭代对象的元素必须是一个二元结构
+    d = dict(((1,'a'),(2,'b'))) 或者 d = dict(([1,'a'],[2,'b']))
+  dict(mapping,**kwarg) 使用一个字典构建另一个字典
+  d = {'a':10, 'b':20, 'c':None, 'd':[1,2,3]}
+  类方法dict.fromkeys(iterable, value)
+    d = dict.fromkeys(range(5)) # 默认value为None
+    d = dict.fromkeys(range(5),0)
+
+字典元素的访问
+  d[key]
+    返回key对应的值value
+    key不存在抛出KeyError异常
+  get(key[, default])
+    返回key对应的值value
+    key不存在返回缺省值，如果没有设置缺省值就返回None
+  setdefault(key[, default])
+    返回key对应的值value
+    key不存在，添加kv对，value设置为default，并返回default，如果default没有设置，缺省为None
+
+字典增加和修改
+  d[key] = value
+    将key对应的值修改为value
+    key不存在添加新的kv对
+  update([other]) -> None
+    使用另一个字典的kv对更新本字典
+    key不存在，就添加
+    key存在，覆盖已经存在的key对应的值
+    就地修改
+
+    d.update(red=1)
+    d.update((('red',2),))
+    d.update({'red':3})
+  
+字典删除
+  pop(key[, default])
+    key存在，移除它，并返回它的value
+    key不存在，返回给定的default
+    default未设置，key不存在则抛出KeyError异常
+  popitem()
+    移除并返回一个任意的键值对
+    字典为empty，抛出KeyError异常
+  clear()
+    清空字典
+  del语句
+    a = True
+    b = [6]
+    d = {'a': 1, 'b': b, 'c': [1,3,5]}
+    del a
+    del d['c'] # 删除了kv对,看着像删除了一个对象，本质上减少了一个对象的引用，del实际上删除的是名称，而不是对象
+
+字典遍历
+  for ... in dict
+    遍历key
+      for k in d: 
+        print(k)
+      for k in d.keys(): 
+        print(k)
+    遍历value
+      for k in d: 
+        print(d[k])
+      for k in d.keys(): 
+        print(d.get(k))
+      for v in d.values(): 
+        print(v)
+    遍历item，即kv对
+      for item in d.items(): 
+        print(item)
+      for item in d.items(): 
+        print(item[0], item[1])
+      for k,v in d.items(): 
+        print(k, v)
+      for k, _ in d.items(): 
+        print(k)
+      for _ ,v in d.items(): 
+        print(v)
+
+  Python3中，keys、values、items方法返回一个类似一个生成器的可迭代对象，不会把函数的返回结果复制到内存中
+    Dictionary view对象，可以使用len()、iter()、in操作
+    字典的entry的动态的视图，字典变化，视图将反映出这些变化
+    keys返回一个类set对象，也就是可以看做一个set集合。如果values都可以hash，那么items也可以看做是类set对象
+  Python2中，上面的方法会返回一个新的列表，占据新的内存空间。所以Python2建议使用iterkeys、 itervalues、iteritems版本，返回一个迭代器，而不是返回一个copy
+
+  字典遍历和移除
+    # 相当于清空，不如直接clear() 
+      while len(d): 
+        print(d.popitem())
+      while d: 
+        print(d.popitem())
+
+    d = dict(a=1, b=2, c='abc') 
+    keys = []
+    for k,v in d.items():
+      if isinstance(v, str): 
+        keys.append(k)
+
+    for k in keys: 
+      d.pop(k)
+    print(d)
+
+defaultdict
+  collections.defaultdict([default_factory[, ...]])
+    第一个参数是default_factory，缺省是None，它提供一个初始化函数。当key不存在的时候，会调用这个工厂函数来生成key对应的value
+
+    from collections import defaultdict 
+    import random
+
+    d1 = defaultdict(list) 
+    for k in 'abcdef':
+      for i in range(random.randint(1,5)): 
+        d1[k].append(i)
+    print(d1)
+
+OrderedDict
+  collections.OrderedDict([items])
+    key并不是按照加入的顺序排列，可以使用OrderedDict记录顺序
+
+    from collections import OrderedDict
+    import random
+    d = {'banana': 3, 'apple': 4, 'pear': 1, 'orange': 2} 
+    print(d)
+    keys = list(d.keys())
+    random.shuffle(keys)
+    print(keys)
+    od = OrderedDict()
+    for key in keys:
+      od[key] = d[key] 
+    print(od)
+    print(od.keys())
+  
+  有序字典可以记录元素插入的顺序，打印的时候也是按照这个顺序输出打印
+  3.6版本的Python的字典就是像OrderedDict一样记录key插入的顺序(IPython不一定有效果)
+  应用场景
+    假如使用字典记录了N个产品，这些产品使用ID由小到大加入到字典中
+    除了使用字典检索的遍历，有时候需要取出ID，但是希望是按照输入的顺序，因为输入顺序是有序的
+    否则还需要重新把遍历到的值排序
+ 

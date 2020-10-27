@@ -1,0 +1,39 @@
+1. 文件句柄限制配置,默认1024,但是如果nginx需要serve大量请求就需要加大这个数值
+    1. 系统全局修改
+        在/etc/security/limit.conf下,配置
+            * soft nofile 25535
+            * hard nofile 25535
+    2. 用户局部修改
+        在/etc/security/limit.conf下,配置
+            root soft nofile 65535
+            root hard nofile 65535
+    3. 进程局部修改
+        在/etc/nginx/nginx.conf下,配置
+            worker_rlimit_nofile 65535;
+
+2. CPU亲和
+    查看当前有几个物理CPU
+        cat /proc/cpuinfo|grep "physical id"|sort|uniq|wc -l
+    查看总核心数
+        cat /proc/cpuinfo|greep "cpu cores"|uniq
+    假设当前16核,在/etc/nginx/nginx.conf下,配置
+        worker_processes 16;
+        worker_cpu_affinity 0000000000000010 0000000000000010 0000000000000100 0000000000001000 0000000000010000 0000000000100000 0000000001000000 0000000010000000 0000000100000000 0000001000000000 0000010000000000 0000100000000000 0001000000000000 0010000000000000 0100000000000000 1000000000000000;
+    表示每一个核各分配一个worker进程
+    另外还可以用一下方式,表示分配给两个worker各8个核
+        worker_processes 2;
+        worker_cpu_affinity 1010101010101010 0101010101010101;
+    最后还可以使用一下命令,效果就类似第一种平均分配
+        worker_cpu_affinity auto; (推荐)
+    可以通过一下命令查看当前执行的nginx进程以及在哪些核上
+        ps -eo pid,args,psr | grep [n]nginx
+    
+3. 通用配置
+    配置一个worker最大可处理的连接数
+    events {
+        worker_connections 10240;
+    }
+
+    http {
+        charset utf-8; // 统一处理响应回来的字符集
+    }

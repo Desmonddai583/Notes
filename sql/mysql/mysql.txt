@@ -1,0 +1,1141 @@
+数据库操作
+    创建数据库
+        create database [if not exists] 数据库名称 [字符编码];
+
+        示例一:
+        在MySQL中创建一个名称叫做stu1的数据库
+        create database stu1;
+        注意点: 如果已经存在一个叫做stu1的数据库, 那么会报错
+
+        示例二:
+        判断如果没有stu1的库就创建, 有就不创建
+        企业开发中推荐这样写
+        create database if not exists stu1;
+
+        示例三:
+        创建一个数据库, 告诉MySQL将来数据库中存储的内容采用gbk编码
+        create database if not exists stu2 charset=gbk;
+        注意点:
+        如果没有手动设置数据库的编码, 那么默认会采用安装时全局的设置作为默认的编码
+
+    查看数据库全局默认的编码
+        show variables like 'character_set_%';
+
+    查看某个数据库的编码
+        show create database 数据库名称;
+
+    特殊的数据库名称处理
+        如果数据库的名称是SQL语句的关键字或者是特殊符号, 那么数据库的名称需要用反引号括起来
+        create database if not exists create charset=utf8; #报错
+        create database if not exists `create` charset=utf8; #不会报错
+        create database if not exists `#%~*%#` charset=utf8; #不会报错
+
+    删除数据库
+        drop database [if exists] 数据库名称;
+
+        示例一:
+        drop database stu1;
+        注意点: 如果数据库不存在会报错
+
+        示例二:
+        判断只有表存在才删除, 不存在就不删除
+        drop database if exists stu1;
+
+    查看数据库
+        show databases;
+
+    修改数据库
+        alter database 数据库名称 charset=字符编码
+
+        示例:
+        alter database stu2 charset=utf8;
+
+表操作
+    创建表
+        create table [if not exists] 表名(
+            字段名称 数据类型 [null | not null],
+            字段名称 数据类型 [auto_increment],
+            字段名称 数据类型 [primary key],
+            字段名称 数据类型 [default],
+            字段名称 数据类型 [comment]
+        )engine=存储引擎;
+
+        字段名称: 相当于Excel中每一列的名称
+        数据类型: 相当于Excel中每一列的数据类型
+
+        [null | not null] 该字段是否可以为空, 默认都可以为空
+        [auto_increment] 该字段的值自动增长
+            1 自增长字段的值从1开始, 每次递增1
+            2 自增长字段数据不可以重复, 合适生成唯一的id
+            3 自增长字段可以使用null或者default来设置值
+            4 自增长字段必须是主键 (primary key)
+        [primary key] 主键, 一张表中只能有一个主键
+            主键用于唯一标识表中的每一条数据, 和现实生活中的身份证很像
+            主键的特征: 不能重复, 不能为空
+            注意点:
+                auto_increment的字段必须是主键, 但是主键不一定是auto_increment的, 只要是唯一的就可以
+                如果主键不是自增长的, 那么不能为空
+                一个表只能有一个主键, 但是主键可以是1个或多个字段组成
+                    联合主键的应用场景:
+                        如果一张表无论哪一个字段都无法保证数据的唯一性,
+                        可以使用多个字段组合再一起保证数据的唯一性
+                    create table if not exists stu5(
+                        id1 int,
+                        id2 int,
+                        name varchar(20),
+                        #不是指定两个主键, 一个primary key就是指定一个主键
+                        #这里只出现了一个primary key, 所以只指定了一个主键
+                        #只不过这个主键比较特殊, 是由两个字段共同组成的
+                        primary key(id1,id2)
+                    );
+            可以在创建表之后再添加主键
+                create table if not exists stu6(
+                    id int,
+                    name varchar(20)
+                );
+                alter table stu6 add primary key(id);
+            企业开发中如何选择主键?
+                1. 最少性: 尽量选择一个字段作为主键
+                2. 稳定性: 尽量选择更新少的字段作为主键
+                3. 尽量选择整数类型的字段作为主键
+                4. 结论: 搞一个id字段类型为int, 设置自动增长, 作为主键
+        [unique] 唯一键
+            避免添加重复数据, 也就是说如果想保证某一个字段的值永远不重复, 那么就可以将这个字段设置为唯一键
+            唯一键不是主键, 主键有一个特点是不能重复, 但是唯一键不等于主键
+            一张表中只能有一个主键, 但是一张表中可以有多个唯一键
+            删除唯一键
+                alter table 表名 drop index 唯一键名;
+                alter table stu11 drop index name; #删除唯一键
+        [default] 默认值, 如果没有传递对应的值, 就使用默认值
+        [comment] 备注, 方便程序员之间沟通
+        存储引擎  innodb/myisam/memory
+
+        注意点:
+        由于一个MySQL中可以有很多数据库, 所以在创建表之前必须告诉MySQL要创建到哪一个数据库中
+
+        示例一:
+        use person;
+        create table stu(
+            id int,
+            name varchar(20)
+        );
+        上面语句的含义: 在person数据库中创建一张叫做stu的表, 表中有两个字段, 分别是id和name, id将来可以存储int类型的值, name将来可以存储字符串类型的值
+
+        示例二: 企业开发推荐写法
+        use person;
+        create table if not exists stu(
+            id int,
+            name varchar(20)
+        );
+    
+    查看数据库中的表
+        show tables;
+    
+    查看表的结构
+        desc[ribe] 表名;
+
+    删除表
+        drop table [if exists] 表名1, 表名2, ....;
+
+        示例一:
+        drop table stu;
+        注意点: 表不存在会报错
+
+        示例二:
+        drop table if exists stu;
+
+        示例三:
+        drop table if exists stu1,stu2;
+    
+    修改表
+        添加字段
+            alter table 表名 add 字段名 数据类型 [位置];
+
+            示例一:
+            会将新的字段添加到原有字段的最后
+            alter table stu3 add email varchar(30);
+
+            示例二:
+            会将新的字段添加到原有字段的最前面
+            alter table stu3 add phone int first;
+
+            示例三:
+            会将新的字段添加到指定字段的后面
+            alter table stu3 add addr varchar(100) after name;
+
+        删除字段
+            alter table 表名 drop 字段名;
+
+            示例一:
+            alter table stu3 drop name;
+    
+        修改字段
+            alter table 表名 change 原始字段名 新字段名 数据类型;
+
+            示例一:
+            改字段名称, 并且改字段的类型
+            alter table stu3 change addr age int;
+
+            示例二:
+            改字段的类型, 不改字段的名称
+            alter table stu3 modify phone varchar(20);
+    
+    修改存储引擎
+        数据库的本质就是文件
+        只要新建一个数据库, 就会自动创建一个文件夹
+        只要删除一个数据库, 就会自动删除一个文件夹
+
+        alter table 表名 engine=引擎名称;
+
+        innodb: 默认
+            create table stu(
+                id int,
+                name varchar(20)
+            );
+            create table stu1(
+                id int,
+                name varchar(20)
+            )engine=innodb;
+            指定存储引擎为innodb和不指定引擎创建表生成的文件夹都一样, 所以推断出默认使用的就是innodb存储引擎
+            innodb存储引擎只要创建一张表就会自动创建一个后缀为frm的文件
+            注意:
+                .frm文件不是存储表中的数据的, 数据会存储到ibdata1中, 如果数据比较多系统会自动创建ibdata2, ibdata3, ....
+                .frm文件是MySQL表结构定义文件
+        
+        myisam:
+            create table stu2(
+                id int,
+                name varchar(20)
+            )engine=myisam;
+            指定存储引擎为myisam, 只要创建一张表就会自动创建三个文件
+                .frm文件是MySQL表结构定义文件
+                .MYD文件存储表的数据
+                .MYI文件存储表的索引
+
+        memory:
+            create table stu3(
+                id int,
+                name varchar(20)
+            )engine=memory;
+            指定存储引擎为memory; 只要创建一张表就会自动创建一个文件
+                .frm文件是MySQL表结构定义文件
+            注意点:
+                memory会将数据存储到内存中, 一旦电脑重启数据就不见了
+                特点读写比较快, 但是不会永久存储
+    
+    修改表名
+        alter table 原始名称 rename to 新名称;
+
+    表复制
+        复制数据, 但不复制结构
+            create table 新表名 select 字段 from 旧表名;
+            create table newStu select * from stu5;
+        复制结构, 但不复制数据
+            create table 新表名 like 旧表名;
+            create table newStu2 like stu5;
+
+数据操作
+    插入数据
+        insert into 表名 (字段名1, 字段名2, ...) values (值1, 值2, ....);
+
+        示例一:
+        create table if not exists stu(
+            id int,
+            name varchar(20)
+        );
+        insert into stu (id, name) values (1, 'lnj');
+        # 字段名称不用和表中的顺序一致
+        insert into stu (name, id) values ('zq', 2);
+        # 值顺序和个数必须和字段的顺序个数一致
+        insert into stu (name, id) values ('ww');
+        insert into stu (name, id) values (3, 'ww');
+        # 如果值的顺序和个数和表中字段的顺序和个数一致, 那么字段名称可以省略
+        insert into stu values (3, 'ww');
+        # 一次性插入多条数据, 每条数据的值用逗号隔开
+        insert into stu values (4, 'it'), (5, 'zb');
+
+        create table if not exists stu2(
+            name varchar(20) not null,
+            score int default 59,
+            age int
+        );
+        # 被not null修饰的字段必须传值
+        insert into stu2 (score, age) values (88, 13); #报错
+
+        默认字段都是被null修饰的, 所以可以不传值
+        如果字段被default修饰, 那么不传值就会使用默认值
+        insert into stu2 (name) values ('lnj'); #不报错
+
+        default用于告诉MySQL使用默认值
+        insert into stu2 (name, score, age) values ('zs', default, 13);
+
+        create table if not exists stu3(
+            id  int auto_increment primary key,
+            name varchar(20)
+        );
+        被auto_increment修饰的字段, 会从1开始自动增长
+        给auto_increment修饰的字段传递null或者default, 都是使用默认自增长的值
+        企业开发一般传递null, default用于告诉MySQL使用默认值
+        insert into stu3 (id, name) values (null, 'lnj');
+        insert into stu3 (id, name) values (default, 'zq');
+
+    查询表中的数据
+        select 字段名1,字段名2 from 表名 where 条件;
+
+        # 查询指定字段的所有数据
+        select name from stu5;
+        # 查询多个制定字段的所有数据, 会按照查询时指定的字段顺序返回
+        select name, id from stu5;
+        # 如果需要查询所有字段, 可以用*代替字段名称
+        select id, name, age from stu5;
+        select * from stu5;
+        # 查询所有满足条件的数据
+        select * from stu5 where age>=40;
+    
+    更新数据
+        update 表名 set 字段名=值 [where 条件];
+
+        示例一:
+        # 如果没有指定条件会修改表中所有的数据
+        update stu2 set age=66;
+
+        # 修改所有满足条件的数据
+        update stu2 set age=88 where name='zs';
+
+        # 添加多个条件 AND === &&  OR === ||
+        update stu2 set age=44 where name='zs' AND score=98;
+
+        # 同时修改多个字段的值
+        update stu2 set score=100,name='it' where age=66;
+
+    删除数据
+        delete from 表名 where 条件;
+
+        示例一:
+        # 删除满足条件的所有数据
+        delete from stu2 where age=88;
+        delete from stu2 where age<66;
+
+        # 删除表中所有的数据
+        delete from stu2;
+
+        delete from 表名; 删除表中所有的数据
+        truncate table 表名; 清空表中所有的数据
+        如果通过delete删除表中所有的数据, 自增长的字段不会被清空(插入新的数据自增长字段不会从1开始)
+        本质是遍历表中的每一条数据, 逐条删除
+        如果通过truncate清空表中所有的数据, 自增长的字段会被清空(插入新的数据自增长字段会从1开始)
+        本质是将原有的表删除, 然后再创建一个一模一样的
+
+MySQL中的中文问题
+    默认情况下插入中文会报错
+    但是报错的原因不在于插入的是否是中文
+    而是因为插入数据的时候本质上是从客户端将插入语句发送到了MySQL服务器,
+    MySQL服务器接收到插入语句之后再执行插入语句
+    如果客户端是以GBK发送的, 而服务端是以UTF8接收的, 那么就会报错(不能识别)
+    查看服务器编解码字符集
+        show variables like 'character_set_%';
+        +--------------------------+------------------------------------+
+        | Variable_name            | Value                              |
+        +--------------------------+------------------------------------+
+        | character_set_client     | utf8    以什么字符集接收客户端发送的数据 |
+        | character_set_connection | utf8                               |
+        | character_set_database   | utf8                               |
+        | character_set_filesystem | binary                             |
+        | character_set_results    | utf8   以什么字符集给客户端发送数据     |
+        | character_set_server     | utf8                               |
+        | character_set_system     | utf8                               |
+        | character_sets_dir       | D:\Developer\MySQL\share\charsets\ |
+        +--------------------------+------------------------------------+
+    将客户端和MySQL服务器的编码设置为一样的即可
+    可以通过set names gbk;来修改MySQL的字符集
+    set names gbk;会自动修改MySQL服务器接收和返回的编码方式
+
+表数据类型
+    整型
+        TINYINT	      1 字节	(-128，127)	(0，255)	小整数值
+        SMALLINT	  2 字节	(-32 768，32 767)	(0，65 535)	大整数值
+        MEDIUMINT	  3 字节	(-8 388 608，8 388 607)	(0，16 777 215)	大整数值
+        INT或INTEGER  4 字节	(-2 147 483 648，2 147 483 647)	(0，4 294 967 295)	大整数值
+        BIGINT	      8 字节	(-9 233 372 036 854 775 808，9 223 372 036 854 775 807)	(0，18 446 744 073 709 551 615)	极大整数值
+        注意点:
+            和编程开发中的整型一样, 也区分有符号的整型和无符号的整型 unsigned, 默认就是有符号, 如果是无符号, 那么取值范围*2
+            在企业开发中也和编程开发中, 每一个字段最好使用合适的类型
+                例如存储人的年龄, 就不要使用INT,
+            通过desc看到的数据类型后面的数值并不是占用的存储空间大小, 而是二printf一样,是位宽
+                例如:  tinyint(4) 显示的宽度是4
+                默认宽度不会自动填充, 如果想自动填充, 必须加上zerofill
+                    create table if not exists stu4(
+                        id int auto_increment primary key,
+                        score TINYINT(2) unsigned ZEROFILL
+                    );
+            如果存储的值超出了取值范围, 那么会报错
+    浮点类型
+        FLOAT(m, d)	    4 字节	单精度
+        DOUBLE(m, d)	8 字节	双精度
+        m总位数, d小数位数
+
+        float和double的区别
+            和编程开发中一样, 默认保留的小数位数不同
+            和编程开发中一样, 有效精度也不同
+            和编程开发中一样, 浮点类型是不准确的,太长了可能丢失精度
+            所以在企业开发中千万不要使用浮点数来保存用户的准确(珍贵)信息(RMB)
+    定点类型
+        decimal(M, D)
+        m总位数, d小数位数
+        定点类型的本质: 
+            是将数据分为两个部分来存储, 每个部分都是整数
+            所以可以保证精度
+            但是定点数不要滥用, 因为非常消耗资源
+    字符类型
+        CHAR(size)	    0-255字节	    定长字符串
+        VARCHAR(size)	0-65535 字节	变长字符串
+        注意点: 
+            由于是字符类型, 所以传递值只能用单引号''
+            如果没有指定长度, 那么默认char就是255,varchar65535
+            理论上varchar最多能够存储65535个字符, 但是实际的大小和表的编码方式有关
+            如果表的编码方式是UTF-8, 那么最多能够存储65535/3
+            如果表的编码方式是GBK, 那么最多能够存储65535/2
+
+        MySQL中每一行数据的大小限制
+            注意点: 在MySQL中每一行数据最多只能存储65535个字节
+            create table if not exists stu12(
+                cls char(2),
+                name varchar(32767) #会报错, 所有列的总大小超过了65535
+            )charset=gbk;
+
+            create table if not exists stu12(
+                cls char(2),
+                name varchar(32764) #只要所有列的中大小不超过65535就可以创建
+            )charset=gbk;
+
+        char(2)和varchar(2)的区别:
+            它们最多都只能保存2个字符
+            char(2)不会回收多余的字符, 指定多少个就给我们多少个
+            varchar(2)会回收多余的字符, 用多少给多少
+            由于char(2)不会回收多余的字符, 所以效率高
+            由于varchar(2)会回收多余的字符, 所以效率相对低一些
+    大文本类型
+        TINYTEXT	0-255字节	短文本字符串
+        TEXT	    0-65535字节	长文本数据
+        MEDIUMTEXT	0-16777215字节	中等长度文本数据
+        LONGTEXT	0-4294967295字节	极大文本数据
+
+        注意点:
+            大文本类型在表中并不会实际占用所能保存的字节数, 而是利用10个字节引用了实际保存数据的地址
+    枚举类型
+        和编程开发中一样, 如果某个字段只能是固定的几个取值,并且只能是其中一个取值, 那么就可以使用枚举
+        和编程开发中一样, MySQL中的枚举类型本质也是整型, 但是是从1开始的
+        和编程开发中一样, 既然本质是整型, 所以就可以设置整型数据
+        create table if not exists stu14(
+            cls char(2),
+            gender enum('男', '女', '妖')
+        );
+        insert into stu14 values(null, '未知'); #会报错, 只能设置枚举中列举的值
+        insert into stu14 values(null, 1); #插入整型, 但是也必须在范围内
+        select gender+0 from stu14; # +0表示以整形方式显示
+    集合类型
+        和编程开发中一样, 如果某个字段只能是固定的几个取值,并且可以是其中某几个取值, 那么就可以使用集合类型
+        MySQL中的集合本质也是整型
+
+        create table if not exists stu15(
+            cls char(2),
+            hobby set('篮球', '足球', '棒球', '足浴')
+        );
+        insert into stu15 values(null, '高尔夫'); #会报错, 只能设置集合中列举的值
+        insert into stu15 values(null, '足球'); #插入一个值
+        insert into stu15 values(null, '足球,篮球'); #插入多个值
+        select hobby+0 from stu15; # +0表示以整形方式显示
+
+        底层整形的计算公式是2(n), n从0开始
+        2(0) === 1;
+        2(1) === 2;
+        2(2) === 4;
+    日期类型:
+        DATE	    3字节	YYYY-MM-DD	日期值
+        TIME	    3字节	HH:MM:SS	时间值或持续时间
+        DATETIME	8字节	YYYY-MM-DD HH:MM:SS	混合日期和时间值
+
+        create table if not exists stu16(
+            id int auto_increment primary key,
+            field1 date,
+            field2 time,
+            field3 datetime
+        );
+        insert into stu16 (field1) values ('2020-12-12');
+        insert into stu16 (field1) values ('2020/12/12');
+        insert into stu16 (field1) values ('202/12/12'); #内部会自动补全 0202/12/12
+        insert into stu16 (field2) values ('18:32:15');
+        insert into stu16 (field2) values ('2020/12/12 18:32:15');
+    布尔类型
+        注意: MySQL不支持真正的布尔类型, 由于MySQL是用C/C++编写的, 所以非零即真
+        和C语言一样, ture===1 , false===0
+        create table if not exists stu17(
+            id int auto_increment primary key,
+            field1 boolean,
+            field2 boolean
+        );
+        insert into stu17 values (null, true, false);
+
+单表查询
+    完整的查询语句
+        select [查询选项] 字段名称 [from 表名] [where 条件] [order by 排序] [group by 分组] [having 条件] [limit 分页];
+
+    字段表达式
+        select 语句;
+
+        select 6*6; #字段名称为6*6,字段值为36
+        select 6*6 as mul; #为字段名称起别名
+        select 6*6 mul2; #为字段名称起别名
+    
+        以上语句虽然可以执行, 但是看上去不符合MySQL查询语句的规范
+        如果想要执行字段表达式, 又想要符合MySQL查询语句的规范, 那么可以使用伪表
+        什么是伪表(dual)? 占位符,但是实际上什么都不会做
+        select 6*6 mul from dual;
+    
+    where子语句
+        在MySQL中where子语句支持简单的运算符
+        > < >= <= = != and or not
+
+    in | not in
+        示例一:
+        需求: 要求找出表中城市在北京和武汉的人
+        过去的做法:
+        弊端如果需要查找的城市太多, 语句会变得很冗余
+        select * from stu where city='北京' or city='武汉';
+        如果需要查找的城市太多, 可以利用in来简化语句
+        select * from stu where city in ('北京', '武汉');
+
+        示例二:
+        需求: 要求找出表中城市不在北京和武汉的人
+        select * from stu where city!='北京' and city!='武汉';
+        select * from stu where city not in ('北京', '武汉');
+    
+    between...and | not between...and
+        示例一:
+        需求: 要求找出表中年龄在17~23岁之间的人
+        select * from stu where age>=17 and age<=23;
+        select * from stu where age between 17 and 23;
+
+        示例二:
+        需求: 要求找出表中年龄不在17~23岁之间的人
+        select * from stu where age<17 or age>23;
+        select * from stu where age not between 17 and 23;
+    
+    is null | is not null
+        注意点: 在MySQL中判断某一个字段保存的数据是否为null不能用等于符号
+
+        select * from stu where age=18;
+        insert into stu (name) values('it66');
+        select * from stu where age is null;
+        select * from stu where age is not null;
+    
+    模糊查询
+        _通配符: 表示任意一个字符
+        %通配符: 表示任意0~n个字符
+
+        a_c: abc, adc
+        abc,adc,abbc,ac
+        _a_c: 1abc,3adc
+        1abc,abc1,2abbc,3adc
+
+        a%c:abc, adc,abbc, ac
+        abc,adc,abbc,ac
+        %a%c:1abc,2abbc, 3adc
+        1abc,abc1,2abbc,3adc
+
+        格式:
+            select 字段 from 表名 where 字段 like '条件';
+
+            select * from stu where name like 'z_c';
+            select * from stu where name like 'z%';
+    
+    排序 order by
+        格式:
+            select 字段 from 表名 order by 字段 [asc | desc]
+            
+        示例一:
+        select * from stu order by age; #默认是升序排序
+        select * from stu order by age asc; #升序
+        select * from stu order by age desc; #降序
+
+        示例二:
+        insert into stu values(null, 'itzb', 23, 100, '广州');
+        需求: 按照年龄升序排序, 如果年龄相同那么按照成绩降序排序
+
+        select * from stu order by age asc, score desc;
+    
+    聚合函数
+        count(); 统计
+            select count(*) from stu;
+            select count(*) from stu where score >60;
+        
+        sum(); 求和
+            select sum(id) from stu;
+
+        avg();
+            select avg(id) from stu;
+
+        max();
+            select max(id) from stu;
+
+        min();
+            select min(id) from stu;
+        
+        rand(); 生成随机数
+            select rand();
+            select * from stu order by age;
+            select * from stu order by rand(); #随机排序
+        
+        round(); 四舍五入
+            select round(3.3);
+            select round(3.5);
+        
+        ceil(); 向上取整
+            select ceil(3.1);
+        
+        floor(); 向下取整
+            select floor(3.7);
+        
+        truncate(); 截取小数位
+            select truncate(3.12345, 2);
+        
+        ucase(); 转换为大写
+            select ucase("hello world");
+
+        lcase(); 转换为小写
+            select lcase("HELLO WORLD");
+        
+        left(); 从左边开始截取
+            select left('abcdefg', 2); #从左边开始截取2个字符
+        
+        right(); 从右边开始截取
+            select right('abcdefg', 2);#从右边开始截取2个字符
+        
+        substring()
+            select substring('abcdefg', 2, 3); #从第二个字符开始截取3个字符
+    
+    数据分组 group by
+        select city, avg(score) from stu group by city;
+        如果分组查询, 那么查询的字段必须包含分组字段和聚合函数
+        city就是分组字段/avg()就是聚合函数
+
+        如果查询的字段不是分组字段, 那么只会返回分组中的第一个值
+        select name from stu group by city;
+
+        group_concat()函数可以将每一组中的所有数据连接在一起
+        select group_concat(name) from stu group by city;
+
+        在企业开发中, 一般情况下使用分组都是用来统计
+        select city, count(*) from stu group by city;
+    
+    条件 having
+        默认情况下都是去数据库的表中查询数据, 如果想在查询结果的基础上查询数据, 那么就可以使用having
+        where条件会去表中查询是否符合条件, having条件会去查询结果集中查询是否符合条件
+
+        select * from stu where city='武汉';  #去数据库的表中匹配条件
+        select * from stu having city='武汉'; #去查询的结果集中匹配添加
+
+        可以找到武汉的人, 因为是去数据库的表中匹配
+        select name,age from stu where city='武汉';
+        不可以找到, 因为结果集中只有name和age,没有city,所以找不到
+        select name,age from stu having city='武汉';
+
+        前面部分代码查询返回的结果我们称之为结果集
+        如下语句返回的结果集中包含了name和age
+        select name,age from stu;
+
+        查看表中哪些城市的平均分>=60分
+        select city , avg(score) as avgscore from stu group by city;
+        select city , avg(score) as avgscore from stu group by city where avgscore>=60; #报错, 因为数据库的表中没有avgscore字段
+        select city , avg(score) as avgscore from stu group by city having avgscore>=60;
+
+    分页 limit
+        select 字段 from 表 limit 索引, 个数;
+
+        返回表中的前两条数据
+        select * from stu limit 0, 2;
+        select * from stu limit 2;
+        返回表中的第3条数据和第4条数据
+        select * from stu limit 2, 2;
+
+    查询选项
+        all:      显示所有数据[默认]
+            select all name from stu;
+        distinct: 去除结果集中重复的数据
+            select distinct name from stu;
+
+多表查询
+    默认的多表查询
+        多表查询就是在以前查询的基础上再加一张表, 写在以前表名的后面即可
+        默认情况下多表查询返回的结果是笛卡尔集(即两张表数据的排列组合)
+        select * from stuinfo, stugrade;
+
+    union
+        union: 将多个select语句的结果集纵向结合在一起(不是排列组合)
+        union格式:
+        select 字段 from 表1 union select 字段 from 表2;
+        select id,name from stuinfo union select id,score from stugrade;
+
+        union注意点:
+            union两边的select语句字段的个数必须一致
+                select id,name from stuinfo union select score from stugrade; #报错
+            union两边的select语句字段名称可以不一样
+                select id,name from stuinfo union select id,score from stugrade;
+            union两边的select语句字段类型可以不一样
+            union结果集字段的名称默认是左边select语句指定的字段名称
+            union结果集会自动去重
+    
+    内连接 inner join
+        返回所有多张表中符合条件的数据集
+        select 字段 from 表1 inner join 表2 on 表1.公共字段=表2.公共字段
+
+        select * from stuinfo, stugrade where stuinfo.id=stugrade.stuid;
+        select * from stuinfo inner join stugrade on stuinfo.id=stugrade.stuid;
+    
+    外连接
+        左外连接 left join
+            包含左边表的全部内容(不管右边的表中是否存在匹配的数据)和右边表符合条件的内容
+            select * from stuinfo left join stugrade on stuinfo.id=stugrade.stuid;
+        
+        右外连接 right join
+            包含右边表的全部内容(不管右边的表中是否存在匹配的数据)和左边表符合条件的内容
+            select * from stuinfo right join stugrade on stuinfo.id=stugrade.stuid;
+    
+    交叉连接 cross join
+        如果没有指定连接表达式, 返回笛卡尔集
+        如果有链接表达式等价于内连接
+        select * from stuinfo cross join stugrade;
+        select * from stuinfo cross join stugrade on stuinfo.id=stugrade.stuid;
+
+    全连接(full join MySQL不支持)
+
+    自然连接 (natural)
+        自动判断连接条件, 但是有一个前提条件, 就是连接条件的字段名称一致
+        自然连接是用来简化前面讲解的连接语句的代码的
+        注意点:
+            如果没有同名的字段, 那么返回笛卡尔集
+            会对返回的结果集的字段进行优化, 去除重复的连接条件字段
+            如果是直接用上面的连接方式不会去重
+            e.g.上面的连接方式会有两个stuid字段,因为两个表中都有这个字段,自然连接则会去除一个重复的
+
+        自然内连接
+            select 字段 from 表1 natural join 表2;
+            select * from stuinfo natural join stugrade;
+
+        自然外连接
+            自然左外连接
+                select 字段 from 表1 natural left join 表2;
+                select * from stuinfo natural left join stugrade;
+        
+            自然右外连接
+                select 字段 from 表1 natural right join 表2;
+                select * from stuinfo natural right join stugrade;
+    
+    using() 指定连接字段
+        如果连接条件的字段名称一致, 除了可以使用自然连接来简化代码以外还可以使用using来指定连接字段, 两者达到的效果是相同的
+        所以也跟自然连接一样会对结果集的重复字段进行优化
+
+        select * from stuinfo inner join stugrade on stuinfo.stuid=stugrade.stuid; // 原来写法
+        select * from stuinfo inner join stugrade using(stuid); // using的写法
+
+    子查询
+        圆括号中的select我们称之为子查询, 圆括号外面的select我们称之为父查询
+        select 语句 where 条件 (select 语句);
+
+        查询出成绩是100的人的姓名
+        select name from stuinfo where stuid=(select stuid from stugrade where score=100);
+    
+        以上也称为标准子查询
+        标准子查询的特点: 返回的结果只有一个
+
+        如果返回值不止一个, 需要使用in | not in
+        查询出成绩是90分以上人的姓名
+        select name from stuinfo where stuid in (select stuid from stugrade where score>=90);
+
+        子查询的结果不仅仅能作为条件, 还可以作为一张表来使用, 但是作为一张表来使用必须起别名
+        select name, city, score from (select * from stu where score >=60) as t;
+
+视图
+    视图仅仅是表的结构, 没有表的数据
+    视图的结构和数据是建立在表的基础上的
+    视图中保存了一张表或者多张表的部分或者所有数据
+
+    视图可以用来简化SQL语句
+        例如 表中有id,name,age,gender,score, 我们需要查询id,name,gender
+        select id,name,gender from stu;
+        如果在表的基础上创建了一个包含id,name,gender的视图
+        select * from stu_view;
+
+    视图可以用来隐藏表的结构
+        表中有id,name,age,gender,score, 视图中有id,name,gender
+        那么外界在使用视图的时候就不知道表中还有age和score
+    
+    创建视图语法
+        create view 视图名称 as select 语句;
+
+        create view stu_view as select name,city from stu;
+        select * from stu_view;
+    
+    注意点:
+        视图仅仅是表的结构, 没有表的数据
+        视图是建立在表的基础上的, 如果修改视图中的数据本质上是修改了表中的数据
+
+    由于视图不保存数据, 本质上数据是插入到了表中
+    insert into stu_view values('yyyy', '武汉');
+    由于视图不保存数据, 本质上修改的是表中的数据
+    update stu_view set city='杭州' where name='ww';
+    由于视图不保存数据, 本质上删除的是表中的数据
+    delete from stu_view where name='ww';
+
+    在多表查询的时候, 如果需要显示重复字段, 必须在字段名称前面加上表名
+        select * from stuinfo inner join stugrade on stuinfo.stuid=stugrade.stuid;
+        select stuinfo.stuid, name, score from stuinfo inner join stugrade on stuinfo.stuid=stugrade.stuid;
+
+        create view studes_view as select stuinfo.stuid, name, score from stuinfo inner join stugrade on stuinfo.stuid=stugrade.stuid;
+    
+    更改视图
+        alter view 视图名称 as select 语句;
+        create view stu_view as select name,city from stu;
+        修改视图返回的结果
+        alter view stu_view as select name,age,city from stu;
+    
+    删除视图
+        drop view [if exists] 视图名;
+        drop view if exists stu_view;
+
+    select * from (select * from stu order by score desc) as t group by city;
+    将子查询封装到视图中去
+    create view order_view as select * from stu order by score desc;
+    用视图替代子查询
+    select * from order_view group by city; #结果出现了误差
+    以上出现的误差源于视图的算法
+    视图算法
+        merge: 合并算法, 将视图的语句和外层的语句合并之后再执行
+        temptable: 临时表算法, 将视图生成一个临时表, 再执行外层的语句
+        undefined: 未定义, 由MySQL自己决定使用如上的哪一种算法, 默认就是undefined
+        由于合并算法的效率比临时表算法效率高, 所以MySQL一般会选择合并算法
+        如上案例中导致数据混乱的原因就是因为默认使用了合并算法
+    
+    解决方法就是将子查询封装到视图中去,algorithm=temptable指定视图的算法
+        create algorithm=temptable view order_view as select * from stu order by score desc;
+        select * from order_view group by city;
+
+事务
+    MySQL中的事务主要用于处理操作量大，复杂度高的数据
+    MySQL中只有使用了Innodb数据引擎的数据库或表才支持事务
+    事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行
+    事务用来管理insert,update,delete语句
+
+    事务基本使用
+        开启事务: start transaction; / begin;
+            需要保证要么一起成功要么一起失败的语句
+        提交事务: commit;  
+            如果执行的过程中没有发生意外, 那么就可以commit,代表都成功了
+        回滚事务: rollback; 
+            如果执行的过程中发生意外, 那么就可以rollback回到修改前的状态
+    
+        begin;
+        update bank set money=money-500 where card='1002';
+        rollback;
+        update bank set money=money+500 where card='1001';
+        commit;
+
+        注意点: 事务其实就是将原有的数据拷贝了一份, 在拷贝的基础上进行修改
+                如果发生了意外, 回滚的时候直接删掉拷贝的数据即可
+                如果没有发生意外, 那么需要通过commit将拷贝的数据应用到原始表中
+
+        在MySQL中可以通过 delimiter 修改界定符号
+            delemiter //
+            执行上面这句话之后就需要靠//来结束当前语句,默认是分号
+    
+    事务的回滚点
+        savepoint 回滚点的名称
+        rollback to 回滚点的名称
+
+        begin;
+        insert into bank values(null, '1003', 3333);
+        savepoint aa;
+        insert into bank values(null, '1004', 4444);
+        savepoint bb;
+        insert into bank values(null, '1005', 5555);
+        rollback to aa;
+        注意点: 回滚到指定的点之后也不会自动提交, 如果想提交还是必须手动调用commit;
+    
+    事务特性:
+        原子性：
+            一个事务中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚到事务开始前的状态，就像这个事务从来没有执行过一样。
+        一致性：
+            在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。
+        隔离性：
+            数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）。
+            多个并发事务会按照单线程来执行, 前面的没有执行完毕, 后面的不能执行
+        持久性：
+            事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。
+
+预处理
+    所谓的预处理技术，最初也是由MySQL提出的一种减轻服务器压力的一种技术
+
+    传统mysql处理流程
+        1 在客户端准备sql语句
+        2 发送sql语句到MySQL服务器
+        3 MySQL服务器对sql语句进行解析(词法,语法), 然后编译, 然后执行该sql语句
+        4 服务器将执行结果返回给客户端
+        弊端:
+            哪怕语句是相同的, 还是每次执行之前都会先解析语句,再执行
+            哪怕语句大部分内容都是相同的, 每次还是要传递重复语句
+
+    预处理的基本策略：
+        1 在客户端准备预处理sql语句
+        2 发送预处理sql语句到MySQL服务器
+        3 MySQL服务器对预处理sql语句进行解析(词法,语法), 但不会执行
+        4 在客户端准备相关数据
+        5 MySQL服务器对数据和预处理sql编译, 然后执行该sql语句
+        6 服务器将执行结果返回给客户端
+        优点:
+            只对sql语句进行了一次解析
+            重复内容大大减少(网络传输更快)
+    
+    1. 准备预处理sql语句
+        格式: prepare 预处理名称 from 'sql语句';
+        prepare stmt from 'select * from stu where id=?;';
+    2. 执行预处理sql语句
+        格式: execute 预处理名称 using 参数;
+        set @id=10;
+        execute stmt using @id;
+
+    如何在MySQL中定义变量
+        全局变量: @变量名称
+        局部变量: 变量名称
+        给全局变量赋值: set @变量名称=值;
+        给局部变量赋值: set 变量名称=值;
+
+存储过程
+    SQL语句需要先编译然后执行，而存储过程（Stored Procedure）是一组为了完成特定功能的SQL语句集，经编译后存储在数据库中，用户通过指定存储过程的名字并给定参数（如果该存储过程带有参数）来调用执行它。
+    本质上就是编程开发中的函数
+
+    存储过程的优点：
+        1 增强SQL语言的功能和灵活性：存储过程可以用控制语句编写，有很强的灵活性，可以完成复杂的判断和较复杂的运算。
+        2 标准组件式编程：存储过程被创建后，可以在程序中被多次调用，而不必重新编写该存储过程的SQL语句。而且数据库专业人员可以随时对存储过程进行修改，对应用程序源代码毫无影响。
+        3 较快的执行速度：如果某一操作包含大量的Transaction-SQL代码或分别被多次执行，那么存储过程要比批处理的执行速度快很多。因为存储过程是预编译的。在首次运行一个存储过程时查询，优化器对其进行分析优化，并且给出最终被存储在系统表中的执行计划。而批处理的Transaction-SQL语句在每次运行时都要进行编译和优化，速度相对要慢一些。
+        4 减少网络流量：针对同一个数据库对象的操作（如查询、修改），如果这一操作所涉及的Transaction-SQL语句被组织进存储过程，那么当在客户计算机上调用该存储过程时，网络中传送的只是该调用语句，从而大大减少网络流量并降低了网络负载。
+        5 作为一种安全机制来充分利用：通过对执行某一存储过程的权限进行限制，能够实现对相应的数据的访问权限的限制，避免了非授权用户对数据的访问，保证了数据的安全。
+    
+    存储过程的基本语法
+        1 存储过程定义的格式
+            create procedure 存储过程名称(参数列表)
+            begin
+                被封装的sql语句
+            end;
+
+            create procedure checkAll()
+            begin
+                select * from stu;
+            end;
+
+        2 存储过程调用的格式
+            call 存储过程名称(参数);
+            call checkAll();
+        
+        3 存储过程的参数
+            1 in 输入参数(默认)
+                create procedure checkId(in param int)
+                begin
+                    select * from stu where id=param;
+                end;
+
+                call checkId(10);
+            2 out 输出参数
+                在MySQL的存储过程中, 是不能通过reutrn返回值
+                create procedure checkName(in param int, out result varchar(20))
+                begin
+                    select name into result from stu where id=param;
+                end;
+
+                call checkName(10, @name);
+            3 inout 输入输出参数
+                create procedure checkCity(inout param varchar(20))
+                begin
+                    select name into param from stu where city=param;
+                end;
+
+                set @temp = '武汉';
+                call checkCity(@temp);
+
+索引
+    索引用于快速找出在某个列中有一特定值的行，不使用索引，MySQL必须从第一条记录开始读完整个表，直到找出相关的行，表越大，查询数据所花费的时间就越多，
+    如果表中查询的列有一个索引，MySQL能够快速到达一个位置去搜索数据文件，而不必查看所有数据，那么将会节省很大一部分时间
+
+    索引就相当于字典中前几页的目录(拼音/偏旁部首手), 通过目录我们就能快速的找到想要的结果.
+    如果没有索引, 就相当于字典没有目录(拼音/偏旁部首手),那么如果想要查找某条数据就必须从第一条开始一条一条的查找
+
+    MySQL中索引的优缺点和使用原则
+        优点
+            所有的MySql字段都可以用作索引
+            大大加快数据的查询速度
+        缺点
+            索引也需要占空间
+            对表中的数据进行增加、删除、修改时，索引也需要动态的维护，降低了数据的维护速度
+        原则
+            对经常用于查询的字段应该创建索引，
+            数据量小的表最好不要使用索引，索引就可能不会产生优化效果。
+        索引分类
+            普通索引: 　MySQL中基本索引类型，没有什么限制，允许在定义索引的列中插入重复值和空值，纯粹为了查询数据更快一点。
+            唯一索引(唯一键): 索引列中的值必须是唯一的，但是允许为空值，
+            主键索引:是一种特殊的唯一索引，不允许有空值。
+            ... ...
+    
+    创建普通索引的三种方式
+        1. 
+        create table test1(
+            id int,
+            name varchar(20),
+            index idx_name(name) #创建索引
+        );
+
+        2. 
+        create table test2(
+            id int,
+            name varchar(20),
+        );
+        create index idx_name on test2(name); #创建索引
+
+        3. 
+        create table test3(
+            id int,
+            name varchar(20),
+        );
+        alter table test3 add index idx_name(name);
+    
+    创建唯一键索引的三种方式
+        1. 
+        create table test4(
+            id int,
+            name varchar(20),
+            unique index idx_name(name) #创建索引
+        );
+
+        2. 
+        create table test5(
+            id int,
+            name varchar(20),
+        );
+        create unique index idx_name on test5(name); #创建索引
+
+        3. 
+        create table test6(
+            id int,
+            name varchar(20),
+        );
+        alter table test6 add unique index idx_name(name);
+    
+    删除索引
+        drop index idx_name on test6
+
+数据完整性
+    实体完整性(行的完整性)
+        行数据是否完整, 如果多条数据相同, 无法区分, 我们称之为实体不完整
+
+        - 添加主键约束
+        id name score
+        1  lnj  100
+        2  lnj  100
+
+        - 添加唯一键约束
+        name score
+        lnj  100
+        zq  100
+
+        - 自动增长列
+        id name score
+        1  lnj  100
+        2  lnj  100
+
+    域完整性(列完整性)
+        某一列数据是否完整, 如果出现null, 不匹配的数据 都表示不完整
+
+        - 数据类型约束
+        id name score
+        1   lnj  100
+        2   zq   null
+        2   zq   0
+
+        - 非空约束
+        id name score
+        1   lnj  100
+        2   zq   0
+        2   zq   0
+
+        - 默认值约束
+        id name score
+        1   lnj  100
+        2   zq   59.5
+        2   zq   0
+
+    引用完整性
+        默认情况下多张表之间是没有任何关系的, 所以给A表可以随意插入数据, 给B表也可以随意插入数据
+        例如有一张学生表和一张成绩表, 要求成绩表中保存的必须是学生表中每个学生的成绩
+
+        可以通过外键约束添加表与表之间的关系,告诉MySQL在插入数据的时候, 检查是否存在依赖的数据, 存在才可以插入
+
+外键
+    如果一张表中有一个字段引用了另一张表中的主键, 那么这个字段我们就称之为外键
+    例如: 成绩表中的stuid引用了学生表中的id, 那么stuid我们就称之为外键
+    注意点:  成绩表中的stuid引用了学生表中的id, 那么成绩表我们称之为"从表", 学生表称之为主表
+    
+    create table stugrade2(
+        id int auto_increment primary key,
+        stuid int,
+        score float,
+        #告诉MySQL将stuid作为外键, 值是引用stuinfo中的id
+        foreign key(stuid) references stuinfo(id)
+    );
+    insert into stugrade2 values(null, 3, 100); #报错, 因为sutinfo中没有id为3的人
+    insert into stuinfo values(null, 'lnj');
+    insert into stugrade2 values(null, 3, 100); #报错, 因为sutinfo中没有id为3的人
+    insert into stugrade2 values(null, 1, 100);
+    delete from stuinfo where id=1; #报错, 因为有其它表引用这这条数据
+
+    外键的特点:
+        主表中没有对应的数据, 从表不能插入, 因为插入之后数据也不完整
+        从表引用这主表的数据, 主表不能删除该数据, 因为上次之后数据也不完整
+    
+    添加外键的第二种方式:
+        create table stugrade3(
+            id int auto_increment primary key,
+            stuid int,
+            score float
+        );
+        #通过修改表的方式添加外键
+        alter table stugrade3 add foreign key(stuid) references stuinfo(id);   
+    
+    查看外键
+        show create table stugrade3\G; (\G只是用来排版输出格式)
+
+    删除外键
+        alter table stugrade3 drop foreign key stugrade3_ibfk_1;
+    
+    外键相关的操作
+        严格模式(默认)
+            主要不存在对应的数据, 从表不允许插入
+            从表引用着主表的数据, 主表不能删除
+            从表引用着主表的数据, 主表不能修改
+        置空操作
+            如果主表中的数据被删除了, 从表中对应的字段变为null, 我们就称之为置空操作
+            例如: 主表中id为1的人被删除了, 那么从表中的stuid变为null
+        级联操作
+            如果主表发生了变化, 从表也跟着变化, 我们就称之为级联操作
+            例如: 主表中'lnj'的id从1变为3, 那么从表中的stuid也从1变为3
+        
+        格式:
+            foreign key(字段) references 主表名(主表主键)[主表删除的动作][主表更新的动作]
+
+        create table stugrade(
+            id int auto_increment primary key,
+            stuid int,
+            score float,
+            #注意点: 一般在企业开发中都是删除就清空, 更新就随着更新
+            foreign key(stuid) references stuinfo(id) on delete set null on update cascade
+        );
+        insert into stugrade values(null, 1, 100);
+        update stuinfo set id=666 where id=1;
+        delete from stuinfo where id=666;

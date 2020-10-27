@@ -1,0 +1,45 @@
+值类型
+  值类型赋值给var、let或者给函数传参，是直接将所有内容拷贝一份
+  类似于对文件进行copy、paste操作，产生了全新的文件副本。属于深拷贝（deep copy）
+  在Swift标准库中，为了提升性能，String、Array、Dictionary、Set采取了Copy On Write的技术(我们自己定义的结构体就没有这个性能提升操作)
+  比如仅当有“写”操作时，才会真正执行拷贝操作,如果发现没有写操作那么会用同一块内存
+  对于标准库值类型的赋值操作，Swift 能确保最佳性能，所有没必要为了保证最佳性能来避免赋值
+  建议：不需要修改的，尽量定义成let
+    // 这里如果后面没有写操作,编译器会为了性能而将两个变量使用同一块内存空间
+    var s1 = "123"
+    var s2 = s1
+
+引用类型
+  引用赋值给var、let或者给函数传参，是将内存地址拷贝一份
+  类似于制作一个文件的替身（快捷方式、链接），指向的是同一个文件。属于浅拷贝（shallow copy）
+
+值类型、引用类型的let
+  总结来说就是let修饰的变量对应的内存是不可以改的,所以值类型就不可以修改内容了,但是像对象(引用类型)指向的堆空间的内存就是可改的
+
+  struct Point { 
+    var x: Int 
+    var y: Int 
+  } 
+  class Size { 
+    var width: Int 
+    var height: Int 
+    init(width: Int, height: Int) { 
+      self.width = width 
+      self.height = height 
+    }
+  }
+  let p = Point(x: 10, y: 20)
+  p = Point(x: 11, y: 22) // 报错
+  p.x = 33 // 报错
+  p.y = 44 // 报错
+
+  let str = "Jack"
+  str.append("123") // 报错
+  let arr = [1, 2, 3]
+  arr[0] = 1 // 报错
+  arr.append(4) // 报错
+
+  let s = Size(width: 10, height: 20)
+  s = Size(x: 11, y: 22) // 报错
+  s.width = 30
+  s.height = 30

@@ -1,0 +1,69 @@
+swift中将原本OC中的基本类型设计为结构体类型是为了赋予更多的功能,可以调用一些属性方法等
+
+类型推导
+  Swift是强类型的语言
+  Swift中任何一个标识符都有明确的类型
+  注意:
+    如果定义一个标识符时有直接进行赋值,那么标识符后面的类型可以省略.
+    因为swift有类型推导,会自动根据后面的赋值来决定前面的标识符的数据类型
+    可以通过option+鼠标左键来查看变量的数据类型
+
+基本运算
+  Swift中在进行基本运算时必须保证类型一致,否则会出错
+    相同类型之间才可以进行运算
+    因为Swift中没有隐式转换
+  数据类型的转化
+    Int类型转成Double类型:Double(标识符)
+    Double类型转成Int类型:Int(标识符)
+  字面量是可以直接相加的,因为本身没有明确的类型
+    let result = 3 + 0.14159
+
+typealias
+  typealias用来给类型起别名
+
+  typealias Byte = Int8 
+  typealias Short = Int16 
+  typealias Long = Int64
+
+  元组起别名
+  typealias Date = (year: Int, month: Int, day: Int)
+  func test(_ date: Date) {
+    print(date.0)
+    print(date.year) 
+  } 
+  test((2011, 9, 10))
+
+  函数类型取别名
+    typealias IntFn = (Int, Int) -> Int
+    func difference(v1: Int, v2: Int) -> Int { 
+      v1 - v2 
+    }
+
+    let fn: IntFn = difference 
+    fn(20, 10) // 10
+
+    func setFn(_ fn: IntFn) { } 
+    setFn(difference)
+
+    func getFn() -> IntFn { difference }
+  
+  按照Swift标准库的定义，Void就是空元组()
+    // 这是在swift标准库中的定义
+    public typealias Void = ()
+
+嵌套类型
+  struct Poker {
+    enum Suit : Character { 
+      case spades = "♠", hearts = "♥", diamonds = "♦", clubs = "♣" 
+    } 
+    enum Rank : Int {
+      case two = 2, three, four, five, six, seven, eight, nine, ten
+      case jack, queen, king, ace 
+    }
+  }
+
+  print(Poker.Suit.hearts.rawValue)
+  var suit = Poker.Suit.spades 
+  suit = .diamonds
+  var rank = Poker.Rank.five 
+  rank = .king

@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+  labels:
+    app: liveness
+spec:
+  containers:
+  - name: liveness
+    image: busybox
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      # 在第一次执行探针的时候要等待5秒，这样能够确保我们的容器能够有足够的时间启动起来
+      initialDelaySeconds: 5
+      # 让kubelet每隔5秒执行一次存活探针
+      # 如果命令执行成功了，将返回0，那么kubelet就会认为当前这个容器是存活的并且很监控，如果返回的是非0值，那么kubelet就会把该容器杀掉然后重启它
+      periodSeconds: 5 
+
+# timeoutSeconds：探测超时时间，默认1秒，最小1秒。
+# successThreshold：探测失败后，最少连续探测成功多少次才被认定为成功。默认是1，但是如果是`liveness`则必须是1。最小值是1。
+# failureThreshold：探测成功后，最少连续探测失败多少次才被认定为失败。默认是3，最小值是1。

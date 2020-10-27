@@ -1,0 +1,242 @@
+NSURLConnection同步请求(GET)
+  1 设置请求路径
+  2 创建请求对象（默认是GET请求，且已经默认包含了请求头）
+  3 使用NSURLConnection sendsync方法发送网络请求
+  4 接收到服务器的响应后，解析响应体
+
+  //1.确定请求路径
+  NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login?username=520it&pwd=520it&type=XML"];
+
+  //2.创建一个请求对象
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+
+  //3.把请求发送给服务器
+  //sendSynchronousRequest 阻塞式的方法，会卡住线程
+  //真实类型:NSHTTPURLResponse
+  NSHTTPURLResponse *response = nil;
+  NSError *error = nil;
+
+  /*
+  第一个参数：请求对象
+  第二个参数：响应头信息，当该方法执行完毕之后，该参数被赋值
+  第三个参数：错误信息，如果请求失败，则error有值
+  */
+  //该方法是阻塞式的，会卡住线程
+  NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+
+  //4.解析服务器返回的数据
+  NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+
+NSURLConnection异步请求(GET-sendAsynchronousRequest)
+  该方法不会卡住当前线程，网络请求任务是异步执行的
+
+  //1.确定请求路径
+  NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login?username=520it&pwd=520it"];
+
+  //2.创建一个请求对象
+  // 请求头不需要设置(默认的请求头)
+  // 请求方法--->默认为GET
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+
+  //3.把请求发送给服务器,发送一个异步请求
+  /*
+  第一个参数：请求对象
+  第二个参数：回调方法在哪个线程中执行，如果是主队列则block在主线程中执行，非主队列则在子线程中执行
+  第三个参数：completionHandlerBlock块：接受到响应的时候执行该block中的代码
+    response：响应头信息
+    data：响应体
+    connectionError：错误信息，如果请求失败，那么该参数有值
+  */
+  [NSURLConnection sendAsynchronousRequest:request queue:[[NSOperationQueue alloc]init] completionHandler:^(NSURLResponse * __nullable response, NSData * __nullable data, NSError * __nullable connectionError) {
+      //4.解析服务器返回的数据
+      NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+      //转换并打印响应头信息
+      NSHTTPURLResponse *r = (NSHTTPURLResponse *)response;
+      NSLog(@"--%zd---%@--",r.statusCode,r.allHeaderFields);
+  }];
+
+NSURLConnection异步请求(GET-代理)
+  如果响应是较大的数据推荐使用代理方法,因为data是陆续传输过来,不像前两种是一次性传过来,可能会出现内存不足的问题
+
+  1 确定请求路径
+  2 创建请求对象
+  3 创建NSURLConnection对象并设置代理
+  4 遵守NSURLConnectionDataDelegate协议，并实现相应的代理方法
+  5 在代理方法中监听网络请求的响应
+
+  设置代理的三种方法
+    1. 自动发送网络请求
+      [[NSURLConnection alloc]initWithRequest:request delegate:self];
+    2. 
+      /*
+      设置代理的第二种方式：
+      第一个参数：请求对象
+      第二个参数：谁成为NSURLConnetion对象的代理
+      第三个参数：是否马上发送网络请求，如果该值为YES则立刻发送，如果为NO则不会发送网路请求，需要调用start方法来发送
+      */
+      NSURLConnection *conn = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
+
+      //调用该方法控制网络请求的发送
+      [conn start];
+      //取消网络请求
+      //[conn cancel];
+    3. 使用类方法设置代理，会自动发送网络请求
+      NSURLConnection *conn = [NSURLConnection connectionWithRequest:request delegate:self];
+      //取消网络请求
+      //[conn cancel];
+
+  代理方法
+    /*
+    当接收到服务器响应的时候调用
+    第一个参数connection：监听的是哪个NSURLConnection对象
+    第二个参数response：接收到的服务器返回的响应头信息
+    */
+    - (void)connection:(nonnull NSURLConnection *)connection didReceiveResponse:(nonnull NSURLResponse *)response
+
+    /*
+    当接收到数据的时候调用，该方法会被调用多次
+    第一个参数connection：监听的是哪个NSURLConnection对象
+    第二个参数data：本次接收到的服务端返回的二进制数据（可能是片段）
+    */
+    @property (nonatomic, strong) NSMutableData *resultData;
+    - (void)connection:(nonnull NSURLConnection *)connection didReceiveData:(nonnull NSData *)data
+    {
+        //拼接数据
+        [self.resultData appendData:data];
+    }
+
+    /*
+    当服务端返回的数据接收完毕之后会调用
+    通常在该方法中解析服务器返回的数据
+    */
+    -(void)connectionDidFinishLoading:(nonnull NSURLConnection *)connection
+    {
+        NSLog(@"%@",[[NSString alloc]initWithData:self.resultData encoding:NSUTF8StringEncoding]);
+    }
+
+    /*
+    当请求错误的时候调用（比如请求超时）
+    第一个参数connection：NSURLConnection对象
+    第二个参数：网络请求的错误信息，如果请求失败，则error有值
+    */
+    - (void)connection:(nonnull NSURLConnection *)connection didFailWithError:(nonnull NSError *)error
+
+NSURLConnection发送POST请求
+  a.确定URL路径
+  b.创建请求对象（可变对象）
+  c.修改请求对象的方法为POST，设置请求体（Data）
+  d.发送一个异步请求
+  e.补充：设置请求超时，处理错误信息，设置请求头（如获取客户端的版本等等,请求头是可设置可不设置的）
+
+  //1.确定请求路径
+  NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login"];
+
+  //2.创建请求对象
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+
+  //2.1更改请求方法
+  request.HTTPMethod = @"POST";
+
+  //2.2设置请求体
+  request.HTTPBody = [@"username=520it&pwd=520it" dataUsingEncoding:NSUTF8StringEncoding];
+
+  //2.3请求超时
+  request.timeoutInterval = 5;
+
+  //2.4设置请求头
+  //注意:key一定要一致(用于传递数据给后台)
+  [request setValue:@"ios 9.0" forHTTPHeaderField:@"User-Agent"];
+
+  //3.发送请求
+  [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse * __nullable response, NSData * __nullable data, NSError * __nullable connectionError) {
+      //4.解析服务器返回的数据
+      if (connectionError) {
+          NSLog(@"--请求失败-");
+      }else
+      {
+          NSLog(@"%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+      }
+  }];
+
+NSMutableURLRequest
+  NSMutableURLRequest是NSURLRequest的子类
+
+  设置请求超时等待时间（超过这个时间就算超时，请求失败）
+  - (void)setTimeoutInterval:(NSTimeInterval)seconds;
+  设置请求方法（比如GET和POST）
+  - (void)setHTTPMethod:(NSString *)method;
+  设置请求体
+  - (void)setHTTPBody:(NSData *)data;
+  设置请求头
+  - (void)setValue:(NSString *)value forHTTPHeaderField:(NSString *)field;
+
+  创建GET请求
+    NSString *urlStr = [@"http://120.25.226.186:32812/login?username=123&pwd=123" stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSURL *url = [NSURL URLWithString:urlStr];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+  
+  创建POST请求
+    NSString *urlStr = @"http://120.25.226.186:32812/login";
+    NSURL *url = [NSURL URLWithString:urlStr];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.HTTPMethod = @"POST";
+    NSString *bodyStr = @"username=123&pwd=123";
+    request.HTTPBody = [bodyStr dataUsingEncoding:NSUTF8StringEncoding];
+
+NSURLConnection和Runloop
+  两种为NSURLConnection设置代理方式的区别
+    1. 第一种设置方式
+      通过该方法设置代理，会自动的发送请求
+      NSURLConnection *connect = [[NSURLConnection alloc]initWithRequest:request delegate:self];
+    2. 第二种设置方式
+      //设置代理，startImmediately为NO的时候，该方法不会自动发送请求
+      NSURLConnection *connect = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:NO];
+      //手动通过代码的方式来发送请求
+      //注意该方法内部会自动的把connect添加到当前线程的RunLoop中在默认模式下执行
+      [connect start];
+
+  控制代理方法在哪个线程调用(同时适用于上面两种)
+    //说明：默认情况下，代理方法会在主线程中进行调用（为了方便开发者拿到数据后处理一些刷新UI的操作不需要考虑到线程间通信）
+    //设置代理方法的执行队列,使其在子线程中调用
+    //注意这里不可以使用[NSOperationQueue mainQueue],否则不会触发代理方法
+    [connect setDelegateQueue:[[NSOperationQueue alloc]init]];
+
+  开子线程发送网络请求的注意点
+    1. 调用start方法发送
+      //1.创建一个非主队列
+      NSOperationQueue *queue = [[NSOperationQueue alloc]init];
+      //2.封装操作，并把任务添加到队列中执行
+      [queue addOperationWithBlock:^{
+          //2-1.确定请求路径
+          NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login?username=dd&pwd=ww&type=JSON"];
+          //2-2.创建请求对象
+          NSURLRequest *request = [NSURLRequest requestWithURL:url];
+          //2-3.使用NSURLConnection设置代理，发送网络请求
+          NSURLConnection *connection = [[NSURLConnection alloc]initWithRequest:request delegate:self startImmediately:YES];
+          //2-4.设置代理方法在哪个队列中执行，如果是非主队列，那么代理方法将在子线程中执行
+          [connection setDelegateQueue:[[NSOperationQueue alloc]init]];
+          //2-5.发送网络请求
+          //注意：start方法内部会把当前的connect对象作为一个source添加到当前线程对应的runloop中
+          //区别在于，如果调用start方法发送网络请求，那么再添加source的过程中，如果当前runloop不存在
+          //那么该方法内部会自动创建一个当前线程对应的runloop,并启动,所以这个模式下不需要手动创建runloop并启动
+          [connection start];
+      }];
+    2. 自动发送网络请求
+      //1.创建一个非主队列
+      NSOperationQueue *queue = [[NSOperationQueue alloc]init];
+      //2.封装操作，并把任务添加到队列中执行
+      [queue addOperationWithBlock:^{
+          //2-1.确定请求路径
+          NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login?username=dd&pwd=ww&type=JSON"];
+          //2-2.创建请求对象
+          NSURLRequest *request = [NSURLRequest requestWithURL:url];
+          //2-3.使用NSURLConnection设置代理，发送网络请求
+          //注意：该方法内部虽然会把connection添加到runloop并指定运行模式为默认,但是如果当前的runloop不存在，那么不会主动创建。
+          NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
+          //这里如果将运行模式改成非默认也会使代理失效,例如UITrackingRunLoopMode
+          //[[NSRunLoop currentRunLoop] runMode:UITrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1000]]; 代理会失效
+          //2-4.设置代理方法在哪个队列中执行，如果是非主队列，那么代理方法将在子线程中执行
+          [connection setDelegateQueue:[[NSOperationQueue alloc]init]];
+          //2-5 创建当前线程对应的runloop,并开启(这里因为子线程需要手动去创建runloop并启动,所以必须要执行这句)
+          [[NSRunLoop currentRunLoop]run];
+      }];

@@ -1,0 +1,35 @@
+<style lang="less" type="text/less" scoped>
+
+</style>
+
+<template>
+  <view>我是One组件</view>
+  <view>{{parentInfo}}</view>
+  <view>子组件 {{parentTitle}}</view>
+  <button @tap="change">子组件按钮</button>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    /*页面和组件有两个区别:
+    * 页面就是一个特殊的组件
+    * 如果是继承于wepy.page, 那么可以监听生命周期方法, 可以设置配置信息
+    * 如果是继承于wepy.component, 那么不可以监听生命周期方法, 不可以设置配置信息
+    * */
+    export default class One extends wepy.component {
+      props = {
+        // 静态传递数据
+        parentInfo: String,
+        parentTitle: {
+          type: String,
+          default: 'null',
+          twoWay: true
+        }
+      };
+      methods = {
+        change(){
+          this.parentTitle = "子组件修改的";
+        }
+      }
+    }
+</script>

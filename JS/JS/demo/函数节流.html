@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>101-函数节流</title>
+</head>
+<body>
+<input type="text">
+<script>
+    /*
+    1.什么是函数节流?
+    函数节流就是降低性能消耗, 将那么会频繁调用的函数修改为间隔多长时间调用一次
+     */
+    // 1.获取需要操作的元素
+    var oInput = document.querySelector("input");
+    // 2.时时监听input内容的变化
+    var timerId = null;
+    inputChange(oInput, function () {
+        var self = this;
+        clearTimeout(timerId);
+        // console.log("发送一次请求到服务器", this.value);
+        timerId = setTimeout(function () {
+            console.log("发送一次请求到服务器", self.value);
+        }, 1000);
+    });
+    function inputChange(ele, fn) {
+        if("oninput" in ele){
+            ele.oninput = fn;
+        }else{
+            ele.onpropertychange = fn;
+        }
+    }
+</script>
+</body>
+</html>

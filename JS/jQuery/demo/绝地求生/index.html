@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--1.设置网站的标题-->
+    <title>绝地求生-绝地求生官方网站-腾讯游戏</title>
+    <!--2.设置网站快捷图标-->
+    <link rel="shortcut icon" href="favicon.ico"  type="image/x-icon"/>
+    <!--3.引入fullpage相关的文件-->
+    <link rel="stylesheet" href="css/fullpage.css">
+    <script src="js/jquery-3.1.1.js"></script>
+    <script src="js/easings.js"></script>
+    <script src="js/fullpage.js"></script>
+    <!--4.引入初始化CSS的文件-->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/base.css">
+    <script src="js/base.js"></script>
+
+    <!--5.引入我们首页自己的CSS文件-->
+    <link rel="stylesheet" href="css/index.css">
+    <!--6.引入我们首页自己的JS文件-->
+    <script src="js/index.js"></script>
+
+</head>
+<body>
+<!--顶部广告-->
+<div class="header-top">
+    <div class="header-top-in">
+        <div class="header-top-log f-left">
+            <a href="#"></a>
+        </div>
+        <div class="header-top-game f-left">
+            <a href="#">
+                <img src="images/big-game.jpg" class="big-game">
+            </a>
+        </div>
+        <ul class="header-login f-right">
+            <li><a href="#">成长守护平台</a></li>
+            <li>
+                <a href="#">腾讯游戏排行榜</a>
+                <i class="iconfont">&#xe60c;</i>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--顶部导航-->
+<div class="header-nav">
+    <div class="header-nav-in">
+        <h1 class="f-left"><a href="#"></a></h1>
+        <ul class="f-left">
+            <li><a href="#">官网首页</a></li>
+            <li><a href="#">绑定查询</a></li>
+            <li><a href="#" class="o-color">国服预约</a></li>
+            <li><a href="#" class="o-color">老兵绑定</a></li>
+            <li><a href="#">游戏特色</a></li>
+            <li><a href="#">社区APP</a></li>
+            <li><a href="#">网吧认证</a></li>
+        </ul>
+        <div class="f-right"><a href="#">进入官网</a></div>
+    </div>
+</div>
+<!--搭建首页全屏滚动的主体-->
+<div id="fullpage">
+    <div class="section s1">
+        <video autoplay loop muted>
+            <source data-src="images/one.mp4" type="video/mp4" />
+        </video>
+        <div class="play"><a href="#"></a></div>
+        <div class="logo-b">
+            <img src="images/logo_b.png" alt="">
+        </div>
+    </div>
+    <div class="section s2">
+        <video autoplay loop muted>
+            <source data-src="images/two.mp4" type="video/mp4" />
+        </video>
+        <div class="s2-title">
+            <div></div>
+            连呼吸都必须小心翼翼，前所未有的紧张刺激体验
+        </div>
+        <div class="dot s2-dot">
+            <span>+</span>
+            <b></b>
+            <b></b>
+        </div>
+    </div>
+    <div class="section s3">
+        <video autoplay loop muted>
+            <source data-src="images/three.mp4" type="video/mp4" />
+        </video>
+        <div class="s3-title">
+            <div></div>
+            真实的射击体验，多种枪械与配件，眼观六路耳听八方
+        </div>
+        <div class="dot s3-dot">
+            <span>+</span>
+            <b></b>
+            <b></b>
+        </div>
+    </div>
+    <div class="section s4">
+        <ul class="s4-imgs">
+            <li class="s4-img1"><img src="images/img1.jpg" alt=""></li>
+            <li class="s4-img2"><img src="images/img2.jpg" alt=""></li>
+            <li class="s4-img3"><img src="images/img3.jpg" alt=""></li>
+        </ul>
+        <div class="s4-title"></div>
+        <ul class="s4-bottom">
+            <li>
+                <div></div>
+                <span></span>
+                <p>天气将严重影响视野，既潜藏着危险，也能成为你的掩护</p>
+            </li>
+            <li class="mr-zero">
+                <div></div>
+                <span></span>
+                <p>天气将严重影响视野，既潜藏着危险，也能成为你的掩护</p>
+            </li>
+        </ul>
+    </div>
+    <div class="section s5">第五屏</div>
+    <div class="section s6">第六屏</div>
+    <!--
+    在fullpage框架中, 只要是写在fullpage容器中的, 只要类名叫做section
+    默认就是就是全屏的, 但是在企业开发中, 缺存储一种情况, 某一页不是全屏的
+    -->
+    <div class="section footer fp-auto-height">底部</div>
+</div>
+<!--搭建首页自定义的侧边栏-->
+<ul id="myMenu">
+    <li data-menuanchor="firstPage">
+        <a href="#firstPage"></a>
+    </li>
+    <li data-menuanchor="secondPage">
+        <a href="#secondPage">
+            <b class="f-left">N</b>
+            <i class="iconfont f-left">&#xe612;</i>
+            <div class="f-left"><span>丰富的防具</span></div>
+        </a>
+    </li>
+    <li data-menuanchor="thirdPage">
+        <a href="#thirdPage">
+            <b class="f-left">NE</b>
+            <i class="iconfont f-left">&#xe612;</i>
+            <div class="f-left"><span>丰富的防具</span></div>
+        </a>
+    </li>
+    <li data-menuanchor="fourthPage">
+        <a href="#fourthPage">
+            <b class="f-left">E</b>
+            <i class="iconfont f-left">&#xe612;</i>
+            <div class="f-left"><span>丰富的防具</span></div>
+        </a>
+    </li>
+    <li data-menuanchor="fivePage">
+        <a href="#fivePage">
+            <b class="f-left">SE</b>
+            <i class="iconfont f-left">&#xe612;</i>
+            <div class="f-left"><span>丰富的防具</span></div>
+        </a>
+    </li>
+    <li data-menuanchor="sixPage">
+        <a href="#sixPage"></a>
+    </li>
+    <u class="forword"></u>
+</ul>
+<!--搭建小鼠标-->
+<div class="mouse"></div>
+</body>
+</html>

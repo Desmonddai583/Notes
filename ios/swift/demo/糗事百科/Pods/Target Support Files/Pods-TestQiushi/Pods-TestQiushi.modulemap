@@ -1,0 +1,6 @@
+framework module Pods_TestQiushi {
+  umbrella header "Pods-TestQiushi-umbrella.h"
+
+  export *
+  module * { export * }
+}

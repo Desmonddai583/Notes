@@ -1,0 +1,56 @@
+如果对象是NSString、NSDictionary、NSArray、NSData、NSNumber等类型，可以直接用NSKeyedArchiver进行归档和恢复
+不是所有的对象都可以直接用这种方法进行归档，只有遵守了NSCoding协议的对象才可以
+如果⼀个字典当中保存有⾃定义对象,如果把这个字典写⼊到⽂件当中,它是不会⽣ 成plist⽂件的
+
+NSCoding协议有2个方法：
+  encodeWithCoder:
+    每次归档对象时，都会调用这个方法。一般在这个方法里面指定如何归档对象中的每个实例变量，可以使用encodeObject:forKey:方法归档实例变量
+  initWithCoder:
+    每次从文件中恢复(解码)对象时，都会调用这个方法。一般在这个方法里面指定如何解码文件中的数据为对象的实例变量，可以使用decodeObject:forKey方法解码实例变量
+
+归档与恢复一个NSArray对象
+  // 归档
+  NSArray *array = [NSArray arrayWithObjects:@”a”,@”b”,nil];
+  [NSKeyedArchiver archiveRootObject:array toFile:path];
+  // 恢复
+  NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
+
+归档Person对象
+  @interface Person : NSObject<NSCoding>
+  @property (nonatomic, copy) NSString *name;
+  @property (nonatomic, assign) int age;
+  @property (nonatomic, assign) float height;
+  @end
+
+  @implementation Person
+  - (void)encodeWithCoder:(NSCoder *)encoder {
+      [encoder encodeObject:self.name forKey:@"name"];
+      [encoder encodeInt:self.age forKey:@"age"];
+      [encoder encodeFloat:self.height forKey:@"height"];
+  }
+  - (id)initWithCoder:(NSCoder *)decoder {
+      self.name = [decoder decodeObjectForKey:@"name"];
+      self.age = [decoder decodeIntForKey:@"age"];
+      self.height = [decoder decodeFloatForKey:@"height"];
+      return self;
+  }
+  @end
+
+  // 归档
+  Person *person = [[[Person alloc] init] autorelease];
+  person.name = @"MJ";
+  person.age = 27;
+  person.height = 1.83f;
+  [NSKeyedArchiver archiveRootObject:person toFile:path];
+
+  // 恢复(解码)
+  Person *person = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
+
+如果父类也遵守了NSCoding协议，请注意：
+  应该在encodeWithCoder:方法中加上一句
+    [super encodeWithCode:encode];
+  确保继承的实例变量也能被编码，即也能被归档
+
+  应该在initWithCoder:方法中加上一句
+    self = [super initWithCoder:decoder];
+  确保继承的实例变量也能被解码，即也能被恢复

@@ -1,0 +1,114 @@
+sed是流编辑器，依据特定的匹配模式,对文本逐行匹配，并对匹配行进行特定处理
+主要用来自动编辑一个或多个文件,简化对文件的反复操作,编写转换程序等
+它一次处理一行内容。处理时，把当前处理的行存储在临时缓冲区中，称为“模式空间”（pattern space），
+接着用sed命令处理缓冲区中的内容，处理完成后，把缓冲区的内容送往屏幕。
+然后读入下行，执行下一个循环。如果没有使诸如‘D’的特殊命令，那会在两个循环之间清空模式空间，但不会清空保留空间。
+这样不断重复，直到文件末尾。文件内容并没有改变，除非你使用重定向存储输出
+
+两种使用形式
+    1. stdout | sed [option] "/pattern/command"
+    2. sed [option] "/pattern/command" file
+
+选项
+    -n 只打印模式匹配行 
+        默认会打印匹配的原行信息加命令之后的信息
+        -n只打印匹配命令之后的信息
+    -e 直接在命令行进行sed编辑,默认选项
+        用于指定多个编辑命令
+        sed -n -e '/python/p' -e '/PYTHON/p' sed.txt
+    -f 编辑动作保存在文件中,指定文件执行
+        e.g. 
+            创建edit.sed文件,内容为
+                /python/p
+            调用
+                sed -n -f edit.sed sed.txt
+    -r 支持扩展正则表达式
+        sed -n -r '/python|PYTHON/p' sed.txt
+    -i 直接修改文件内容
+        # 多个command用;隔开
+        sed -n -i 's/love/like/g;p' sed.txt
+
+命令
+    查询
+        p 打印特定的行
+            sed [option] '/pattern/p' file
+    删除
+        d 删除
+            用法总结
+                1. 1d
+                2. 5,10d
+                3. 10,+10d
+                4. /pattern1/d
+                5. /pattern1/,/pattern2/d
+                6. /pattern1/,20d
+                7. 15,/pattern1/d
+                8. 1~2d 奇数行
+                9. 2~2d 偶数行
+    增加
+        a 匹配到的行后追加内容
+        i 匹配到的行前追加内容
+        r 将后面指定文件的内容追加到匹配到的行后面
+        w 将匹配到的行内容另存到其他文件中
+        c 替换行为单行或多行文本
+    修改
+        s///,支持使用其它分隔符，s@@@，s###
+        s/pattern/string/  
+            查找并替换,查找符合pattern模式的字符串，将其替换为string  
+            /后不跟数字默认只替换第一个,加数字可适配替换几个(1,2,3,4,5)
+        s/pattern/string/g  g表示全部行内全部匹配
+        s/pattern/string/2g  2g表示，同一行内，只替换从第2个开始到剩下所有的符合条件的字符串
+        s/pattern/string/ig  加i参数表示匹配时忽略大小写，g表示匹配到的全部替换
+
+        修改用法总结：
+            1. 1s/old/new/
+            2. 5,10s/old/new/
+            3. 10,+10s/old/new/
+            4. /pattern1/s/old/new/
+            5. /pattern1/,/pattern2/s/old/new/
+            6. /pattern1/,20s/old/new/
+            7. 15,/pattern1/s/old/new/
+    其他编辑命令
+        =  显示行号
+        !  匹配行取反处理
+    反向引用
+        &和\1	引用模式匹配到的整个串
+            sed "s/l..e/&r/g" file		 在file中搜寻以l开头，然后跟两个任意字符，以e结尾的字符串，在找到的字符串后加r字符(后向引用)
+            sed "s/\(l..e\)/\1r/g" file	 和上面实现一样的功能，使用\1代表搜寻到的字符串
+            上面两种方式实现了一样的功能，分别使用&和\1引用前面匹配到的整个字符串
+            两者区别在于&只能表示匹配到的完整字符串，只能引用整个字符串；而\1可以使用()对匹配到的字符串进行分组，可以替换完整字符串，也可以替换子串，更加灵活
+            例如：如果我们仅想要替换匹配到的字符串的一部分，name必须使用\1这种方式，不能使用&。
+                查找test.txt文件中以l开头，紧接着跟两个任意字符，再接一个e的字符串。将找到的字符串中开头的小写l换成大写L
+                sed "s/l\(..e\)/L\1/g" test.txt
+
+pattern的几种形式
+    1. LineNumber         直接指定行号
+        # 打印file文件的第17行
+        sed -n "17p" file	     
+    2. StartLine,EndLine  指定起始行号和结束行号
+        # 打印file文件的10到20行
+        sed -n "10,20p" file    
+    3. StartLine,+N	      指定起始行号，然后后面N行
+        # 打印file文件中从第10行开始，往后面加5行的所有行
+        sed -n "10,+5p" file    
+    4. /pattern1/		  正则表达式匹配的行
+        # 打印file文件中以root开头的行
+        sed -n "/^root/p" file  
+    5. /pattern1/,/pattern2/  从匹配到pattern1的行，到匹配到pattern2的行
+        # 打印file文件中第一个匹配到以ftp开头的行，到第二个匹配到以mail开头的行
+        sed -n "/^ftp/,/^mail/p" file			
+    6. LineNumber,/pattern1/  从指定行号开始匹配，直到匹配到pattern1的行
+        # 打印file文件中从第4行开始匹配，直到以hdfs开头的行匹配到就结束
+        sed -n "4,/^hdfs/p" file				
+    7. /pattern1/,LineNumber  从pattern1匹配的行开始，直到匹配到指定行号位置结束
+        # 打印file文件中匹配root的行，直到第10行结束
+        sed -n "/root/,10p" file				
+
+sed中引用变量时注意事项
+    1. 匹配模式中存在变量，则建议使用双引号
+        old_str=hadoop
+        new_str=HADOOP
+        sed -i "s/$old_str/$new_str/g" str.txt
+    2. sed中需要引入自定义变量时，如果外面使用单引号，则自定义变量也必须使用单引号
+        old_str=hadoop
+        new_str=HADOOP
+        sed -i 's/'$old_str'/'$new_str'/g' str.txt

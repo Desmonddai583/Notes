@@ -1,0 +1,210 @@
+CSS需要书写大量看似没有逻辑的代码, 不方便维护及扩展, 也不利于复用, 
+造成这些原因的本质源于CSS是一门非程序式的语言, 没有变量/函数/作用域等概念
+
+Less是一门CSS预处理语言，使用了类似CSS的语法，为CSS赋予了动态语言的特征
+它扩展了CSS语言，增加了变量、Mixin(混合)、嵌套、函数和运算等特性，使CSS更易维护和扩展
+用类似JS的语法去写CSS
+作为CSS的一种扩展，LESS不仅向下兼容CSS的语法，而且连新增的特性也是使用CSS语法
+这样的设置使得学习LESS非常轻松，而且你可以在任何时候回退到CSS
+
+less基本使用
+    1. 在客户端直接运行
+        编写less文件-->引入less文件-->引入less.js-->运行
+        注意点:
+            一定要先引入less.css再引入less.js
+            一定要在服务端运行才能生效, 本地运行无效
+        引入less.js就是让网页在运行的时候动态的去解析less的css,动态的设置给元素
+        <link rel="stylesheet/less" href="css/index.less">
+        <script src="js/less.min.js"></script>
+    2. 提前预编译
+        编写less文件-->利用工具转换为css文件-->引入css文件
+        注意点:
+            无需引入less.js, 无需在服务端运行
+
+less中的注释
+    // 这是不想被编译的注释, 不会暴露
+    /* 这是想被编译的注释, 会暴露 */
+
+less中的变量
+    less中定义变量的格式
+        @变量名称: 值;
+    less中使用变量的格式
+        @变量名称;
+    和js一样可以将一个变量赋值给另外一个变量
+        @变量名称 : @变量名称;
+    和js一样less中的变量也有全局变量和局部变量
+        定义在{}外面的就是全局的变量, 什么地方都可以使用
+        定义在{}里面的就是局部变量, 只能在{}中使用
+        注意點: less中的变量是延迟加载的, 写到后面也能在前面使用
+    和js一样不同作用域的变量不会相互影响, 只有相同作用域的变量才会相互影响
+        和js一样在访问变量时会采用就近原则
+
+less属性和选择器的变量
+    在less中如果属性的名称或者选择器的名称需要使用变量
+    那么需要通过@{变量名称}的方式来使用
+
+    @color: blue;
+    @width: width;
+    @selector: .father;
+    @{selector}{
+        @{width}: 200px;
+        height: 200px;
+        background: @color;
+    }
+
+less中的运算
+    margin-left: (-200px / 2px);
+    注意点: 
+        运算符的两边需要用空格隔开
+        参与运算的只有其中一个有单位即可
+
+less中的混合
+    将需要重复使用的代码封装到一个类中, 在需要使用的地方调用封装好的类即可
+    在预处理的时候less会自动将用到的封装好的类中的代码拷贝过来
+    本质就是ctrl+c  --> ctrl + v
+
+    .center(){
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+
+    .box1{
+        width: 300px;
+        height: 300px;
+        background: red;
+        .center();
+    }
+
+    .box2{
+        width: 200px;
+        height: 200px;
+        background: blue;
+        .center();
+    }
+
+    注意点:
+        如果混合名称的后面没有(), 那么在预处理的时候, 会将混合的代码(即上面代码中的center)也拷贝过来css中
+        如果混合名称的后面加上(), 那么在预处理的时候, 不会将混合的代码(即上面代码中的center)拷贝过来css中
+
+    带参数的混合(包括默认值)
+        .size(@w:100px, @h:100px, @c: #ccc){
+            width: @w;
+            height: @h;
+            background: @c;
+        }
+
+        .box1{
+            .size(200px, 200px, red);
+        }
+
+        如果想给指定的形参传值, 那么必须加上形参的名称
+            .size(@c:blue);
+
+    可变参数
+        .transition(...){
+            transition: @arguments;
+        }
+
+        div{
+            width: 200px;
+            height: 200px;
+            background: red;
+            .transition(margin-left, 2s);
+        }
+
+less中混合的匹配模式
+    只要任意匹配模式被执行, 这个混合都会被执行
+    .triangle(@_ ,@w, @c){
+        width: 0;
+        height: 0;
+        overflow: hidden;
+    }
+
+    .triangle(Down,@w, @c){
+        border-width: @w;
+        border-style: solid dashed dashed dashed ;
+        border-color: @c transparent transparent transparent;
+    }
+
+    .triangle(Up,@w, @c){
+        border-width: @w;
+        border-style: dashed dashed solid dashed ;
+        border-color: transparent transparent @c transparent;
+    }
+
+    .triangle(Left,@w, @c){
+        border-width: @w;
+        border-style: dashed solid dashed dashed ;
+        border-color: transparent @c transparent transparent;
+    }
+
+    .triangle(Right,@w, @c){
+        border-width: @w;
+        border-style: dashed dashed dashed solid;
+        border-color: transparent transparent transparent @c;
+    }
+
+    div{
+        //.triangle(Down ,20px, red);
+        //.triangle(Up ,20px, red);
+        //.triangle(Left ,20px, red);
+        .triangle(Right ,40px, red);
+    }
+
+less文件中引入其他less文件
+    @import "triangle.less";
+
+    div{
+        .triangle(Down, 40px, red);
+    }
+
+less中的函数
+    可用函数可以通过文档查看
+    div:hover{
+        //background: lighten(red, 20%);
+        background: darken(red, 20%);
+    }
+
+less-&使用
+    .father{
+        width: 200px;
+        height: 200px;
+        background: red;
+        &:hover{
+            background: blue;
+        }
+        /*
+        默认情况下嵌套的选择器都会按照后代来转换
+        .father .son
+        但是加上&就会变成是紧贴
+        .father:hover
+        */
+        .son{
+            width: 100px;
+            height: 100px;
+            background: deepskyblue;
+        }
+    }
+
+less-继承
+    .center{
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+    .box1:extend(.center){
+        width: 300px;
+        height: 300px;
+        background: red;
+        //.center; // 混合会直接把代码拷贝过来
+    }
+    .box2{
+        &:extend(.center);
+        width: 100px;
+        height: 100px;
+        background: blue;
+        //.center;
+    }

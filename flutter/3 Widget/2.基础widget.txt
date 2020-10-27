@@ -1,0 +1,320 @@
+富文本展示
+  Text.rich(
+    TextSpan(
+      children: [
+        TextSpan(text: "《定风波》", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black)),
+        TextSpan(text: "苏轼", style: TextStyle(fontSize: 18, color: Colors.redAccent)),
+        TextSpan(text: "\n莫听穿林打叶声，何妨吟啸且徐行。\n竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生。")
+      ],
+    ),
+    style: TextStyle(fontSize: 20, color: Colors.purple),
+    textAlign: TextAlign.center,
+  );
+
+FloatingActionButton、RaisedButton、FlatButton、OutlineButton
+  Column(
+    children: <Widget>[
+      FloatingActionButton(
+        child: Text("FloatingActionButton"),
+        onPressed: () {
+          print("FloatingActionButton Click");
+        },
+      ),
+      RaisedButton(
+        child: Text("RaisedButton"),
+        onPressed: () {
+          print("RaisedButton Click");
+        },
+      ),
+      FlatButton(
+        child: Text("FlatButton"),
+        onPressed: () {
+          print("FlatButton Click");
+        },
+      ),
+      OutlineButton(
+        child: Text("OutlineButton"),
+        onPressed: () {
+          print("OutlineButton Click");
+        },
+      )
+    ],
+  );
+
+  自定义样式
+    RaisedButton(
+      child: Text("同意协议", style: TextStyle(color: Colors.white)),
+      color: Colors.orange, // 按钮的颜色
+      highlightColor: Colors.orange[700], // 按下去高亮颜色
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // 圆角的实现
+      onPressed: () {
+        print("同意协议");
+      },
+    )
+
+图片Widget
+  Image.network：加载网络中的图片
+    width、height：用于设置图片的宽、高，当不指定宽高时，图片会根据当前父容器的限制，尽可能的显示其原始大小，如果只设置width、height的其中一个，那么另一个属性默认会按比例缩放，但可以通过下面介绍的fit属性来指定适应规则。
+    fit：该属性用于在图片的显示空间和图片本身大小不同时指定图片的适应模式。适应模式是在BoxFit中定义，它是一个枚举类型，有如下值：
+      fill：会拉伸填充满显示空间，图片本身长宽比会发生变化，图片会变形。
+      cover：会按图片的长宽比放大后居中填满显示空间，图片不会变形，超出显示空间部分会被剪裁。
+      contain：这是图片的默认适应规则，图片会在保证图片本身长宽比不变的情况下缩放以适应当前显示空间，图片不会变形。
+      fitWidth：图片的宽度会缩放到显示空间的宽度，高度会按比例缩放，然后居中显示，图片不会变形，超出显示空间部分会被剪裁。
+      fitHeight：图片的高度会缩放到显示空间的高度，宽度会按比例缩放，然后居中显示，图片不会变形，超出显示空间部分会被剪裁。
+      none：图片没有适应策略，会在显示空间内显示图片，如果图片比显示空间大，则显示空间只会显示图片中间部分。
+    color和 colorBlendMode：在图片绘制时可以对每一个像素进行颜色混合处理，color指定混合色，而colorBlendMode指定混合模式；
+    repeat：当图片本身大小小于显示空间时，指定图片的重复规则
+
+  Image.assets：加载本地资源图片
+    Image.asset("images/test.jpeg")
+
+  实现圆角图像
+    CircleAvatar
+      // backgroundImage要求我们传入一个ImageProvider
+      // ImageProvider是一个抽象类，事实上所有我们前面创建的Image对象都有包含image属性，该属性就是一个ImageProvider
+      Center(
+        child: CircleAvatar(
+          radius: 100,
+          backgroundImage: NetworkImage("https://tva1.sinaimg.cn/large/006y8mN6gy1g7aa03bmfpj3069069mx8.jpg"),
+          child: Container(
+            alignment: Alignment(0, .5),
+            width: 200,
+            height: 200,
+            child: Text("兵长利威尔")
+          ),
+        ),
+      );
+
+    ClipOval
+      ClipOval也可以实现圆角头像，而且通常是在只有头像时使用
+      Center(
+        child: ClipOval(
+          child: Image.network(
+            "https://tva1.sinaimg.cn/large/006y8mN6gy1g7aa03bmfpj3069069mx8.jpg",
+            width: 200,
+            height: 200,
+          ),
+        ),
+      );
+
+    Container+BoxDecoration
+      Container(
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: NetworkImage("https://tva1.sinaimg.cn/large/006y8mN6gy1g7aa03bmfpj3069069mx8.jpg"),
+          )
+        ),
+      )
+
+  实现圆角图片
+    ClipRRect
+      ClipRRect用于实现圆角效果，可以设置圆角的大小
+      ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          "https://tva1.sinaimg.cn/large/006y8mN6gy1g7aa03bmfpj3069069mx8.jpg",
+          width: 200,
+          height: 200,
+        ),
+      )
+
+    Container+BoxDecoration
+  
+  Image - 用于从ImageProvider获取图像；
+  Image.asset - 使用key 从AssetBundle获得的图像；
+    Image.asset(my_icon.png,
+      width: 26,
+      height: 26,
+    )
+    等效于
+    Image(
+      height: 26,
+      width: 26,
+      image: AssetImage(my_icon.png),
+    )
+  Image.network - 从网络URL中获取图片；
+    Image.network(
+      'http://www.devio.org/img/avatar.png',
+    )
+  Image.file - 从本地文件中获取图片；
+    绝对路径
+      Image.file(File('/sdcard/Download/Stack.png'))
+    相对路径
+      // 导入path_provider
+      FutureBuilder(future: _getLocalFile("Download/Stack.png"),
+        builder:  (BuildContext context, AsyncSnapshot<File> snapshot) {
+          return snapshot.data != null ? Image.file(snapshot.data) : Container();
+        })
+      )
+      //获取SDCard的路径：
+      Future<File> _getLocalFile(String filename) async {
+        String dir = (await getExternalStorageDirectory()).path;
+        File f = File('$dir/$filename');
+        return f;
+      }
+  Image.memory - 用于从Uint8List获取图像；
+
+  在加载项目中的图片资源时，为了让Image能够根据像素密度自动适配不同分辨率的图片，请使用AssetImage指定图像，
+  并确保在widget树中的“Image” widget上方存在MaterialApp，WidgetsApp或MediaQuery窗口widget
+
+  Image 支持以下类型的图片：JPEG, PNG, GIF, Animated GIF, WebP, Animated WebP, BMP, 和 WBMP
+
+  设置placeholder
+    // 导入transparent_image
+    FadeInImage.memoryNetwork(
+      placeholder: kTransparentImage,
+      image: 'http://www.devio.org/img/avatar.png',
+    )
+
+    从本地资源中加载placeholder
+      // 现在asset中添加
+      FadeInImage.assetNetwork(
+        placeholder: 'assets/loading.gif',
+        image: 'http://www.devio.org/img/avatar.png',
+      );
+
+  配置图片缓存
+    // 导入cached_network_image
+    CachedNetworkImage(
+      placeholder: (context, url) => CircularProgressIndicator(),
+      imageUrl:
+          'https://picsum.photos/250?image=9',
+    )
+
+  加载Icon
+    // 我们可以构造一个自己的IconData，也可以使用Flutter提供的material_fonts
+    const Icon(this.icon//IconDate, {
+      Key key,
+      this.size,//大小
+      this.color,//颜色
+      this.semanticLabel,//标志位
+      this.textDirection,//绘制方向，一般使用不到
+    })
+
+    使用自定义的Icon
+      const IconData(
+        this.codePoint,//必填参数，fonticon对应的16进制Unicode {
+        this.fontFamily,//字体库系列
+        this.fontPackage,//字体在那个包中，不填仅在自己程序包中查找
+        this.matchTextDirection: false,图标是否按照图标绘制方向显示
+      });
+
+      在pubspec.yaml中配置我们的icon
+        fonts:
+          - family: devio
+            fonts:
+              - asset: fonts/devio.ttf
+    
+      Icon(IconData(0xf5566, fontFamily: "devio"), size: 100.0, color: Colors.blueAccent,)
+
+表单Widget
+  TextField
+    keyboardType键盘的类型，style设置样式，textAlign文本对齐方式，maxLength最大显示行数等等；
+    decoration：用于设置输入框相关的样式
+    icon：设置左边显示的图标
+    labelText：在输入框上面显示一个提示的文本
+    hintText：显示提示的占位文字
+    border：输入框的边框，默认底部有一个边框，可以通过InputBorder.none删除掉
+    filled：是否填充输入框，默认为false
+    fillColor：输入框填充的颜色
+    onChanged：监听输入框内容的改变，传入一个回调函数
+    onSubmitted：点击键盘中右下角的down时，会回调的一个函数
+
+    TextField的样式以及监听
+      TextField(
+        decoration: InputDecoration(
+          icon: Icon(Icons.people),
+          labelText: "username",
+          hintText: "请输入用户名",
+          border: InputBorder.none,
+          filled: true,
+          fillColor: Colors.lightGreen
+        ),
+        onChanged: (value) {
+          print("onChanged:$value");
+        },
+        onSubmitted: (value) {
+          print("onSubmitted:$value");
+        },
+      )
+    
+    TextField的controller
+      可以给TextField添加一个控制器（Controller），可以使用它设置文本的初始值，也可以使用它来监听文本的改变
+      如果我们没有为TextField提供一个Controller，那么会Flutter会默认创建一个TextEditingController的
+    
+      final textEditingController = TextEditingController();
+      @override
+      void initState() {
+        super.initState();
+        // 1.设置默认值
+        textEditingController.text = "Hello World";
+        // 2.监听文本框
+        textEditingController.addListener(() {
+          print("textEditingController:${textEditingController.text}");
+        });
+      }
+  
+  Form表单
+    Form表单也是一个Widget，可以在里面放入我们的输入框
+    但是Form表单中输入框必须是FormField类型的
+      TextField是继承自StatefulWidget，并不是一个FormField类型；
+      可以使用TextFormField，它的使用类似于TextField，并且是继承自FormField的
+    
+    Form(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          TextFormField(
+            decoration: InputDecoration(
+              icon: Icon(Icons.people),
+              labelText: "用户名或手机号"
+            ),
+          ),
+          TextFormField(
+            obscureText: true,
+            decoration: InputDecoration(
+              icon: Icon(Icons.lock),
+              labelText: "密码"
+            ),
+          ),
+          SizedBox(height: 16,),
+          Container(
+            width: double.infinity,
+            height: 44,
+            child: RaisedButton(
+              color: Colors.lightGreen,
+              child: Text("注 册", style: TextStyle(fontSize: 20, color: Colors.white),),
+              onPressed: () {
+                print("点击了注册按钮");
+              },
+            ),
+          )
+        ],
+      ),
+    );
+
+    保存和获取表单数据
+      调用Form的State对象的save方法，就会调用Form中放入的TextFormField的onSave回调
+      在Flutter中通过绑定一个GlobalKey可以获取一个通过一个引用获取一个StatefulWidget的State对象
+
+    验证填写的表单数据
+      为TextFormField添加validator的回调函数
+      调用Form的State对象的validate方法，就会回调validator传入的函数
+      也可以为TextFormField添加一个属性：autovalidate，不需要调用validate方法，会自动验证是否符合要求
+
+显示底部菜单
+  showModalBottomSheet(
+    context: context,
+    builder: (context) => Container(
+      height: 160,
+      child: Column(
+        children: <Widget>[
+          _item('拍照', true),
+          _item('从相册选择', false),
+        ],
+      ),
+    )
+  );

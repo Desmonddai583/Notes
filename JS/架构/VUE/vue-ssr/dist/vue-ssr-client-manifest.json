@@ -1,0 +1,63 @@
+{
+  "publicPath": "",
+  "all": [
+    "1.bundle.js",
+    "2.bundle.js",
+    "client.html",
+    "client1.bundle.js"
+  ],
+  "initial": [
+    "client1.bundle.js"
+  ],
+  "async": [
+    "1.bundle.js",
+    "2.bundle.js"
+  ],
+  "modules": {
+    "8f31a070": [
+      3
+    ],
+    "84a412e4": [
+      3
+    ],
+    "e7158a1e": [
+      3
+    ],
+    "4fe76d72": [
+      3
+    ],
+    "7cabe36e": [
+      3
+    ],
+    "2d86e34a": [
+      3
+    ],
+    "09752ada": [
+      3
+    ],
+    "164d8786": [
+      0
+    ],
+    "63c0484d": [
+      0
+    ],
+    "386f3d44": [
+      0
+    ],
+    "0a33e0c6": [
+      0
+    ],
+    "393e89b6": [
+      0
+    ],
+    "1efe7d1e": [
+      1
+    ],
+    "33abfdeb": [
+      0
+    ],
+    "02f4d1aa": [
+      3
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+靜態pod直接由特定節點上的kubelet進程來管理，不通過master節點上的apiserver。
+無法與常用的Deployment或者DaemonSet進行關聯，它由kubelet進程自己來監控，
+當pod崩潰時重啓該pod，kubelet也無法對他們進行健康檢查。
+靜態pod始終綁定在某一個kubelet，並且始終運行在同一個節點上。
+
+Kubelet會自動爲每一個靜態pod在apiserver上創建一個鏡像Pod(Mirror Pod)，
+因此我們可以在apiserver中查詢到該pod，但是不能通過apiserver進行控制(例如刪除等)
+
+可以通過配置文件或者HTTP兩種方式創建靜態pod
+
+1. 配置文件
+    通過systemctl status kubelet來查看kubelet的啓動配置文件
+    進入配置文件，查看KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=後面的path，將我們pod的yml文件放入該路徑下即可
+
+2. HTTP
+    kubelet會周期的從--manifest-url=參數指定的地址下載文件並解析爲相對pod的定義

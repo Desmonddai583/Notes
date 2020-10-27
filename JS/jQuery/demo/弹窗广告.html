@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>46-弹窗广告</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .ad{
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            display: none;
+        }
+        .ad>span{
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            // 1.监听span的点击事件
+            $("span").click(function () {
+                $(".ad").remove();
+            });
+
+            // 2.执行广告动画
+            /*
+            $(".ad").slideDown(1000, function () {
+                $(".ad").fadeOut(1000, function () {
+                    $(".ad").fadeIn(1000);
+                });
+            });
+            */
+            $(".ad").stop().slideDown(1000).fadeOut(1000).fadeIn(1000);
+
+        });
+    </script>
+</head>
+<body>
+<div class="ad">
+    <img src="images/ad-pic.png" alt="">
+    <span></span>
+</div>
+</body>
+</html>

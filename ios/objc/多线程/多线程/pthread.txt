@@ -1,0 +1,10 @@
+使用pthread创建线程对象
+  pthread_t thread;
+  NSString *name = @"wendingding";
+  //第一个参数：线程对象地址
+  //第二个参数：线程属性
+  //第三个参数：指向函数的指针
+  //第四个参数：传递给该函数的参数
+  pthread_create(&thread, NULL, run, (__bridge void *)(name));
+判断两个线程是否为同一个
+  pthread_equal(threadA, threadB)

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 日历组件 点击输入框 可以显示下面的面板 -->
+        <div v-click-outside="hide">
+            <input type="text" @focus="show">
+            <div v-if="isShow">
+                显示面板
+                时间 
+            </div>
+        </div>
+        <input type="text" v-focus>
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el:'#app',
+            directives:{
+                focus:{ // v-if v-show v-model v-for  v-lazyload
+                    bind(el,bindings,vnode){ // bind + update
+                        Vue.nextTick(()=>{
+                            el.focus();
+                        })
+                    },
+                },
+                clickOutside:{
+                    bind(el,bindings,vnode){
+                        // 指令有生命周期 钩子函数
+                        // bind 当指令绑定上的时候 会执行一次
+                        // inserted 插入的时候
+                        // update 当引用的数据变化时会执行一个钩子
+                        // componentUpdate
+                        // unbind 
+                        // 默认写成一个函数的话 bind + update
+                        el.handler = function (e) {
+                            if(!el.contains(e.target)){
+                                let method = bindings.expression;
+                                // vm.hide();
+                                vnode.context[method]();
+                            }
+                        } // 非固定 等一会方便移除
+                        // 添加操作
+                        document.addEventListener('click',el.handler)
+                    },
+                    unbind(el){ //  卸载指令
+                        document.removeEventListener('click',el.handler)
+                    }
+                }
+            },
+            data(){
+                return {
+                    msg:'hello',
+                    isShow:false
+                }
+            },
+            methods:{
+                show(){
+                    this.isShow = true
+                },
+                hide(){
+                    this.isShow = false
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>

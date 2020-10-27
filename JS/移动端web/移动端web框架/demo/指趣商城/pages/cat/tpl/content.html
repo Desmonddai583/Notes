@@ -1,0 +1,24 @@
+<div class="content clearfix">
+    <div class="left-menu f-left">
+        <ul>
+            <% for (var i = 0; i < list.length; i ++) { %>
+                <% if (i === 0) {%>
+                <li class="active"><%=list[i].name%></li>
+                <% } else {%>
+                <li><%=list[i].name%></li>
+                <% } %>
+            <% } %>
+        </ul>
+    </div>
+
+    <div class="right-menu">
+        <ul>
+            <% for (var i = 0; i < list[0].list.length; i ++) { %>
+            <li>
+                <img src="<%=list[0].list[i].pic_url%>" alt="">
+                <p><%=list[0].list[i].name%></p>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</div>

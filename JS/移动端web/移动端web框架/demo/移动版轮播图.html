@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-移动版轮播图</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+        }
+        html, body{
+            width: 100%;
+            height: 100%;
+        }
+        .container{
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .container>ul{
+            list-style: none;
+            width: 600%;
+            display: flex;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+        .container>ul>li{
+           flex-grow: 1;
+        }
+        .container>ul>li>img{
+            width: 100%;
+        }
+        .container>p{
+            width: 100%;
+            overflow: hidden;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+        }
+        .container>p>span{
+            font-size: 40px;
+            line-height: 60px;
+            text-align: center;
+            color: #fff;
+            background: rgba(255,0,0,0.3);
+        }
+        .container>ol{
+            display: flex;
+            list-style: none;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+        }
+        .container>ol>li{
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin-right: 10px;
+        }
+        .container>ol>li:last-child{
+            margin-right: 0;
+        }
+        .container>ol>.active{
+            background: orangered;
+        }
+        .f-left{
+            float: left;
+        }
+        .r-right{
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <ul>
+        <li><img src="images/img4.jpg" alt=""></li>
+        <li><img src="images/img1.jpg" alt=""></li>
+        <li><img src="images/img2.jpg" alt=""></li>
+        <li><img src="images/img3.jpg" alt=""></li>
+        <li><img src="images/img4.jpg" alt=""></li>
+        <li><img src="images/img1.jpg" alt=""></li>
+    </ul>
+    <p>
+        <span class="f-left left-btn">&lt;</span>
+        <span class="r-right right-btn">&gt;</span>
+    </p>
+    <ol>
+        <li class="active"></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ol>
+</div>
+<script src="../js/zepto.js"></script>
+<script src="../js/event.js"></script>
+<script src="../js/fx.js"></script>
+<script src="../js/fx_methods.js"></script>
+<script src="../js/touch.js"></script>
+<script>
+    // 定义变量记录每张图片的宽度
+    var itemWidth = $("ul>li").width();
+    // 定义变量记录当前图片的索引
+    var currentIndex = 1;
+    // 定义变量记录总共有多少张图片
+    var totalIndex = $("ul>li").length - 1;
+    // 0.初始化轮播图正确的位置
+    $("ul").css({left: -itemWidth+ "px"});
+    /*
+    // 1.监听按钮的点击
+    $(".left-btn").click(function () {
+        // 1.让图片滚动起来
+        currentIndex--;
+        $("ul").animate({left: -currentIndex * itemWidth}, 1000);
+        // 2.判断是否是最前面一张
+        if(currentIndex === 0){
+            // console.log("最后一张");
+            currentIndex =  totalIndex - 1;
+            setTimeout(function () {
+                $("ul").css({left: -currentIndex * itemWidth+ "px"});
+            }, 1010);
+        }
+        // 3.修改小圆点
+        $("ol>li").eq(currentIndex - 1).addClass("active").siblings().removeClass("active");
+    });
+    $(".right-btn").click(function () {
+        // 1.让图片滚动起来
+        currentIndex++;
+        $("ul").animate({left: -currentIndex * itemWidth}, 1000);
+        // 2.判断是否是最后一张
+        if(currentIndex === totalIndex){
+            // console.log("最后一张");
+            currentIndex = 1;
+            setTimeout(function () {
+                $("ul").css({left: -itemWidth+ "px"});
+            }, 1010);
+        }
+        // 3.修改小圆点
+        $("ol>li").eq(currentIndex - 1).addClass("active").siblings().removeClass("active");
+    });
+    */
+    $(".left-btn").click(function () {
+        currentIndex--;
+        moveImages();
+    });
+    $(".right-btn").click(function () {
+        currentIndex++;
+        moveImages();
+    });
+    // 让图片滚动的方法
+    function moveImages() {
+        // 1.让图片滚动起来
+        $("ul").animate({left: -currentIndex * itemWidth}, 1000);
+        // 2.判断是否是最后一张
+        if(currentIndex === totalIndex){
+            // console.log("最后一张");
+            currentIndex = 1;
+            setTimeout(function () {
+                $("ul").css({left: -itemWidth+ "px"});
+            }, 1010);
+        }
+        else if(currentIndex === 0){
+            // console.log("最后一张");
+            currentIndex =  totalIndex - 1;
+            setTimeout(function () {
+                $("ul").css({left: -currentIndex * itemWidth+ "px"});
+            }, 1010);
+        }
+        // 3.修改小圆点
+        $("ol>li").eq(currentIndex - 1).addClass("active").siblings().removeClass("active");
+    }
+
+
+    // 自动轮播
+    var timerId = null;
+    function autoPlay() {
+        timerId = setInterval(function () {
+            $(".right-btn").click();
+        }, 3000);
+    }
+    autoPlay();
+
+    var startX, moveX, distanceX;
+    // 监听手指按下事件
+    $(".container").on("touchstart", function (event) {
+        // 关闭自动轮播
+        clearInterval(timerId);
+        // 获取手指按下的位置
+        startX = event.targetTouches[0].clientX;
+    });
+    // 监听手指移动事件
+    $(".container").on("touchmove", function () {
+        // 获取手指移动的位置
+        moveX = event.targetTouches[0].clientX;
+        // 计算偏移位
+        distanceX = moveX - startX;
+        // 让UL动起来
+        $("ul").css({
+            //     基于以前的偏移位继续移动
+            left: -currentIndex * itemWidth + distanceX + "px"
+        });
+    });
+    // 监听手指抬起事件
+    $(".container").on("touchend", function () {
+        // 重新开启自动轮播
+        autoPlay();
+        // 判断上一张还是下一张
+        if(distanceX > 0){
+            $(".left-btn").click();
+        }else if(distanceX < 0){
+            $(".right-btn").click();
+        }
+    });
+</script>
+</body>
+</html>

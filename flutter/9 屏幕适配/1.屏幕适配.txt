@@ -1,0 +1,48 @@
+Flutter使用的是类似于iOS中的点pt，也就是point
+所以我们经常说iPhone6的尺寸是375x667，但是它的分辨率其实是750x1334
+因为iPhone6的dpr（devicePixelRatio）是2.0，iPhone6plus的dpr是3.0
+
+获取屏幕上的一些信息，可以通过MediaQuery：
+  // 1.媒体查询信息
+  final mediaQueryData = MediaQuery.of(context);
+
+  // 2.获取宽度和高度
+  final screenWidth = mediaQueryData.size.width;
+  final screenHeight = mediaQueryData.size.height;
+  final physicalWidth = window.physicalSize.width;
+  final physicalHeight = window.physicalSize.height;
+  final dpr = window.devicePixelRatio;
+  print("屏幕width:$screenWidth height:$screenHeight");
+  print("分辨率: $physicalWidth - $physicalHeight");
+  print("dpr: $dpr");
+
+  // 3.状态栏的高度
+  // 有刘海的屏幕:44 没有刘海的屏幕为20
+  final statusBarHeight = mediaQueryData.padding.top;
+  // 有刘海的屏幕:34 没有刘海的屏幕0
+  final bottomHeight = mediaQueryData.padding.bottom;
+  print("状态栏height: $statusBarHeight 底部高度:$bottomHeight");
+
+在前端开发中，针对不同的屏幕常见的适配方案有下面几种：
+  rem：
+    rem是给根标签（HTML标签）设置一个字体大小；
+    但是不同的屏幕要动画设置不同的字体大小（可以通过媒体查询，也可以通过js动态计算）；
+    其它所有的单位都使用rem单位（相对于根标签）；
+  vw、wh：
+    vw和vh是将屏幕（视口）分成100等份，一个1vw相当于是1%的大小；
+    其它所有的单位都使用vw或wh单位；
+  rpx：
+    rpx是小程序中的适配方案，它将750px作为设计稿，1rpx=屏幕宽度/750；
+    其它所有的单位都使用rpx单位；
+
+rpx适配
+  不管是什么屏幕，统一分成750份
+  在iPhone5上：1rpx = 320/750 = 0.4266 ≈ 0.42px
+  在iPhone6上：1rpx = 375/750 = 0.5px
+  在iPhone6plus上：1rpx = 414/750 = 0.552px
+
+  可以通过上面的计算方式，算出一个rpx，再将自己的size和rpx单位相乘即可：
+  比如100px的宽度：100 * 2 * rpx
+  在iPhone5上计算出的结果是84px
+  在iPhone6上计算出的结果是100px
+  在iPhone6plus上计算出的结果是110.4px

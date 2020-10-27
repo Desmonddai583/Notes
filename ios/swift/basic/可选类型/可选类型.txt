@@ -1,0 +1,235 @@
+在OC开发中,如果一个变量暂停不使用,可以赋值为0(基本属性类型)或者赋值为空(对象类型)
+在swift开发中,nil也是一个特殊的类型.因为和真实的类型不匹配是不能赋值的(swift是强类型语言)
+但是开发中赋值nil,在所难免.因此推出了可选类型
+
+可选类型的取值:
+  空值
+  有值
+
+定义一个可选类型
+  如果不设置初始值,默认就是nil
+  var name : String? = nil
+
+取出可选类型的真实值(解包)
+  注意:如果可选类型为nil,强制取出其中的值(解包),会出错
+  print(string!)
+
+  所以规范写法需要判断是否为nil
+    if string != nil {
+        print(string!)
+    }
+
+可选项绑定
+  可以使用可选项绑定来判断可选项是否包含值
+  如果包含就自动解包，把值赋给一个临时的常量(let)或者变量(var)，并返回true，否则返回false
+
+  if let str = string {
+      print(str)
+  }
+  或者直接
+  if let string = string {
+      print(string)
+  }
+
+  可选项绑定与switch
+    enum Season : Int {
+      case spring = 1, summer, autumn, winter 
+    } 
+    if let season = Season(rawValue: 6) { 
+      switch season { 
+        case .spring:
+          print("the season is spring") 
+        default:
+          print("the season is other") 
+      } 
+    } else { 
+      print("no such season") 
+    } // no such season
+  
+  可选项绑定与while
+    // 遍历数组，将遇到的正数都加起来，如果遇到负数或者非数字，停止遍历 
+    var strs = ["10", "20", "abc", "-20", "30"]
+    var index = 0 
+    var sum = 0 
+    while let num = Int(strs[index]), num > 0 {
+      sum += num
+      index += 1 
+    }
+  
+  多个可选绑定使用,分隔
+    if let first = Int("4"), 
+        let second = Int("42"), 
+        first < second && second < 100 { 
+        print("\(second) < \(second) < 100") 
+    }
+
+空合并运算符 ??
+  a ?? b 
+  a 是可选项
+  b 是可选项 或者 不是可选项 
+  b 跟 a 的存储类型必须相同 
+  如果 a 不为nil，就返回 a 
+  如果 a 为nil，就返回 b 
+  如果 b 不是可选项，返回 a或b 时会自动解包
+
+  let a: Int? = 1 
+  let b: Int? = 2 
+  let c = a ?? b // c是Int? , Optional(1)
+
+  let a: Int? = nil 
+  let b: Int? = 2 
+  let c = a ?? b // c是Int? , Optional(2)
+
+  let a: Int? = nil 
+  let b: Int? = nil 
+  let c = a ?? b // c是Int? , nil
+
+  let a: Int? = 1 
+  let b: Int = 2 
+  let c = a ?? b // c是Int , 1
+
+  let a: Int? = nil 
+  let b: Int = 2 
+  let c = a ?? b // c是Int , 2
+
+  ??背后的定义
+    public func ?? <T>(optional: T?, defaultValue: @autoclosure () throws -> T?) rethrows -> T?
+    public func ?? <T>(optional: T?, defaultValue: @autoclosure () throws -> T) rethrows -> T
+    所以其实运算符返回的类型看的就是最右边的类型
+
+  多个 ?? 一起使用
+    let a: Int? = 1 
+    let b: Int? = 2 
+    let c = a ?? b ?? 3 // c是Int , 1
+
+    let a: Int? = nil 
+    let b: Int? = 2 
+    let c = a ?? b ?? 3 // c是Int , 2
+
+    let a: Int? = nil 
+    let b: Int? = nil 
+    let c = a ?? b ?? 3 // c是Int , 3
+
+    a ?? 3 ?? b // 这样写是不合理的,会跳警告,不可选类型应该放在最后
+  
+  ??跟if let配合使用
+    // 类似于if a != nil || b != nil
+    let a: Int? = nil 
+    let b: Int? = 2 
+    if let c = a ?? b { 
+      print(c) 
+    } 
+
+    // 类似于if a != nil && b != nil
+    if let c = a, let d = b { 
+      print(c) print(d) 
+    }
+
+guard
+  guard语句必须带有else语句，它的语法如下：
+    当条件表达式为true时候跳过else语句中的内容，执行语句组内容
+    条件表达式为false时候执行else语句中的内容，跳转语句一般是return、break、continue和throw
+  guard语句特别适合用来“提前退出”
+  
+  guard 条件表达式 else {
+      // 条换语句
+      break
+  }
+
+  当使用guard语句进行可选项绑定时，绑定的常量(let)、变量(var)也能在外层作用域中使用
+    func login(_ info: [String : String]) {
+      guard let username = info["username"] else { 
+        print("请输入用户名") return 
+      } 
+      guard let password = info["password"] else {
+        print("请输入密码")
+        return 
+      } 
+      print("用户名：\(username)", "密码：\(password)", "登陆ing")
+    }
+
+隐式解包
+  在某些情况下，可选项一旦被设定值之后，就会一直拥有值
+  在这种情况下，可以去掉检查，也不必每次访问的时候都进行解包，因为它能确定每次访问的时候都有值
+  可以在类型后面加个感叹号 ! 定义一个隐式解包的可选项
+  
+  let num1: Int! = 10
+  let num2: Int = num1 // 隐式解包可以直接赋值或计算
+  // 隐式解包也可以进行判断
+  if num1 != nil {
+    print(num1 + 6) // 16 
+  }
+
+多重可选项
+  var num1: Int? = 10 
+  var num2: Int?? = num1 
+  var num3: Int?? = 10
+  print(num2 == num3) // true
+
+  // 为nil时是不等的
+  var num1: Int? = nil 
+  var num2: Int?? = num1 
+  var num3: Int?? = nil
+  print(num2 == num3) // false
+
+  (num2 ?? 1) ?? 2 // 2 
+  (num3 ?? 1) ?? 2 // 1
+
+  可以使用lldb指令 frame variable –R 或者 fr v –R 查看区别
+
+可选类型自动解包
+  如果前面的可选类型,没有值,后面所有的代码都不会执行
+  如果前面的可选类型,有值,系统会自动将vc进行解包,并且使用vc
+  vc?.view
+
+可选项的本质
+  可选项的本质是enum类型
+  public enum Optional<Wrapped> : ExpressibleByNilLiteral { 
+    case none 
+    case some(Wrapped) 
+    public init(_ some: Wrapped) 
+  }
+
+  var age: Int? = 10 
+  var age0: Optional<Int> = Optional<Int>.some(10) 
+  var age1: Optional = .some(10) 
+  var age2 = Optional.some(10) 
+  var age3 = Optional(10) 
+
+  age = nil 
+  age3 = .none
+
+  var age: Int? = nil
+  var age0 = Optional<Int>.none 
+  var age1: Optional<Int> = .none
+
+  var age: Int? = .none 
+  age = 10 
+  age = .some(20) 
+  age = nil
+
+  switch age { 
+    case let v?:
+      print("some", v) 
+    case nil:
+      print("none") 
+  }
+
+  switch age { 
+    case let .some(v):
+      print("some", v) 
+    case .none:
+      print("none") 
+  }
+
+  var age_: Int? = 10 
+  var age: Int?? = age_ 
+  age = nil
+
+  var age0 = Optional.some(Optional.some(10)) 
+  age0 = .none 
+  var age1: Optional<Optional> = .some(.some(10)) 
+  age1 = .none
+
+  var age: Int?? = 10 
+  var age0: Optional<Optional> = 10

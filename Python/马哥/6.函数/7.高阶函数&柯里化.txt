@@ -1,0 +1,50 @@
+First Class Object
+  函数在Python中是一等公民
+  函数也是对象，可调用的对象
+  函数可以作为普通变量、参数、返回值等等
+
+高阶函数
+  数学概念 y=g(f(x))
+  在数学和计算机科学中，高阶函数应当是至少满足下面一个条件的函数
+    接受一个或多个函数作为参数
+    输出一个函数
+
+自定义sort函数
+  内建函数sorted函数是返回一个新的列表，可以设置升序或降序，可以设置一个排序的函数
+
+  def sort(iterable, reverse=False, key=lambda x,y:x<y):
+    ret = [] 
+    for x in iterable:
+      for i,y in enumerate(ret):
+        flag = key(x,y) if not reverse else not key(x,y) 
+        if flag:
+          ret.insert(i, x) 
+          break 
+        else:
+          ret.append(x) 
+    return ret 
+  print(sort([1,2,5,4,2,3,5,6]))
+
+内建函数-高阶函数
+  sorted(iterable[, key][, reverse]) 排序
+    返回一个新的列表，对一个可迭代对象的所有元素排序，排序规则为key定义的函数，reverse表示是否排序翻转
+    sorted(lst,key=lambda x:6-x) # 返回新列表
+    list.sort(key=lambda x: 6-x) # 就地修改
+  filter(function, iterable)
+    过滤可迭代对象的元素，返回一个迭代器
+    function一个具有一个参数的函数，返回bool
+    list(filter(lambda x: x%3==0, [1,9,55,150,-3,78,28,123]))
+  map(function, *iterables) --> map object
+    对多个可迭代对象的元素按照指定的函数进行映射，返回一个迭代器
+      list(map(lambda x:2*x+1, range(5)))
+      dict(map(lambda x: (x%5,x) , range(500)))
+
+柯里化Currying
+  指的是将原来接受两个参数的函数变成新的接受一个参数的函数的过程。新的函数返回一个以原有第二个参数为参数的函数
+  z = f(x, y) 转换成 z = f(x)(y)的形式
+  通过嵌套函数就可以把函数转换成柯里化函数
+    def add(x):
+      def _add(y):
+        return x+y 
+      return _add 
+    add(5)(6)

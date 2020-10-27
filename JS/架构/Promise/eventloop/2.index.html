@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- script是一个宏任务 -->
+    <button id="button">点我啊</button>
+    <script>
+        button.addEventListener('click',()=>{
+            console.log('listener1');
+            Promise.resolve().then(()=>console.log('micro task1'))
+        })
+        button.addEventListener('click',()=>{
+            console.log('listener2');
+            Promise.resolve().then(()=>console.log('micro task2'))
+        })
+         // listener1
+        // micro task1
+        // listener2
+        // micro task2
+        // 一个个的函数来取 每次执行完 会先处理当前定义的微任务
+        button.click(); // click1() click2()
+        // listener1 listener2 micro task1 micro task2
+       
+    </script>
+</body>
+</html>

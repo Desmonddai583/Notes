@@ -1,0 +1,61 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>指趣管理系统-登录</title>
+    <!-- Custom Theme files -->
+    <link href="static/css/login.css" rel="stylesheet" type="text/css" media="all"/>
+    <!-- Custom Theme files -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+<!--header start here-->
+<div class="login-form">
+    <div class="top-login">
+        <span><img src="static/img/group.png" alt=""/></span>
+    </div>
+    <h1>{{or .errMsg "登录"}}</h1>
+    <div class="login-top">
+        <form method="post" action="/login">
+            <!--账号-->
+            <div class="login-ic">
+                <input type="text"
+                       name="username"
+                       placeholder="请输入账号"
+                       value="{{.userName}}"
+                />
+                <div class="clear"></div>
+                <p style="color: red">{{.nameError}}</p>
+            </div>
+            <!--密码-->
+            <div class="login-ic">
+                <input type="password"
+                       name="password"
+                       placeholder="请输入密码"
+                       value="{{.userPwd}}"
+                />
+                <div class="clear"></div>
+                <p style="color: red">{{.pwdError}}</p>
+            </div>
+            <!--登录-->
+            <div class="log-bwn">
+                <input type="submit" value="Login">
+            </div>
+            <!--注册-->
+            <div class="log-bwn">
+                <a href="/register">Register</a>
+            </div>
+            <div class="log-bwn" style="float: left">
+                <div style="color: white">
+                    <input type="checkbox" name="remember" {{.checked}}>
+                    记住用户名
+                </div>
+            </div>
+        </form>
+    </div>
+    <p class="copy">© 2018 知播渔教育</p>
+</div>
+<!--header start here-->
+</body>
+</html>

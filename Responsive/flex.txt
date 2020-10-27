@@ -1,0 +1,28 @@
+启动flex
+display: flex;
+
+flex-container 属性
+  flex-direction row|row-reverse|column|column-reverse
+  flex-wrap 
+    默认不加的话如果超出一行或一列大小会自动压缩flex-item
+    加了flex-wrap会强制换行
+  justify-content center|flex-start|flex-end|space-around|space-between
+    如何对其主轴
+  align-items center|flex-start|flex-end|space-around|space-between
+    如何对其交叉轴
+
+  flex-direction与flex-wrap可以用flex-flow来缩写
+
+flex-item 属性
+  order
+    用来改变item排列顺序，不加的item则排在最前面
+  flex-grow
+    剩余空间占用比例
+  flex-shrink
+    剩余空间不足时缩小比例
+  flex-basis e.g. flex-basis: 150px
+    用于计算grow和shrink的基准值，类似于对item设置宽度
+  align-self
+    item定义自己的对齐方式，会override掉container里面的对齐方式
+
+  flex-grow, flex-shrink, flex-basis可以用flex缩写

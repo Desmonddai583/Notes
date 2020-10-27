@@ -1,0 +1,12 @@
+UIViewController也是可以管理子控制器
+可以通过调用[self addChildViewController:childVc];,并非只有UITabBarController才行
+
+开发规划:如果A控制器的view添加到B控制器的view上,那么A控制器必须成为B控制器的子控制器
+
+push
+  调用self.navigationController时背后其实会首先去判断下自己是否是导航控制器的子控制器,
+  如果不是则判断父控制器是否是导航控制器的子控制器,一直向上查找直到没有父控制器为止
+
+modal
+  调用dismissViewControllerAnimated时背后其实会首先判断下当前方法调用者是否被modal,
+  如果不是则判断父控制器是否被modal,一直向上查找直到没有父控制器为止

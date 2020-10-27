@@ -1,0 +1,19 @@
+如果一个view内部的子控件比较多，一般会考虑自定义一个view，把它内部子控件的创建屏蔽起来，不让外界关心
+外界可以传入对应的模型数据给view，view拿到模型数据后给内部的子控件设置对应的数据
+封装控件的基本步骤
+  在initWithFrame:方法中添加子控件，提供便利构造方法
+  在layoutSubviews方法中设置子控件的frame（一定要调用super的layoutSubviews）
+  增加模型属性，在模型属性set方法中设置数据到子控件上
+
+layoutSubviews在以下情况会调用
+  1.[self setNeedsLayout]
+  2.addSubview的时候
+  3.当view的size发生改变的时候
+  4.滑动UIScrollView的时候
+  5.旋转Screen会触发父UIView上的layoutSubviews事件
+  注意: 
+    1. 当view的size的值为0的时候，addSubview也不会调用layoutSubviews。当要给这个view添加子控件的时候不管他的size有没有值都会调用
+    2. UIButton设置title的时候会调用一次,设置image的时候会调用一次(image的名字工程里面必须有才会调用)
+  可参考博客http://www.jianshu.com/p/d1ce00f08b7f
+
+UIView的init方法会调用initWithFrame方法,所以提供构造方法是可以只重写initWithFrame而不用重写init

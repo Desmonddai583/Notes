@@ -1,0 +1,188 @@
+国际化的适配
+  Widget的国际化
+    在localizationsDelegates中指定哪些Widget需要进行国际化
+      用于生产本地化值集合的工厂
+      指定Material、Widgets、Cupertino都使用国际化
+    supportedLocales指定要支持哪些国际化
+      指定中文和英文（也可以指定国家编码）
+    MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate, // 指定本地化的字符串和一些其他的值
+        GlobalCupertinoLocalizations.delegate, // 对应的Cupertino风格
+        GlobalWidgetsLocalizations.delegate // 指定默认的文本排列方向, 由左到右或由右到左
+      ],
+      supportedLocales: [
+        Locale("en"),
+        Locale("zh")
+      ],
+    )
+    注意：如果要指定语言代码、文字代码和国家代码，可以进行如下指定方式：
+      supportedLocales: [
+        const Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'), // 'zh_Hans_CN'
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'), // 'zh_Hant_TW'
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK'), // 'zh_Hant_HK'
+      ]
+    对于iOS，将语言切换为中文，依然显示是英文的Widget
+      这是因为iOS定义了一些应用的元数据，其中包括支持的语言环境；
+      我们必须将其对应的元数据中支持的语言添加进去；
+      元数据的设置在iOS项目中对应的info.plist文件中；
+      修改iOS的info.plist文件配置
+        选择 Information Property List 项；
+        从 Editor 菜单中选择 Add Item，然后从弹出菜单中选择 Localizations；
+        为array添加一项选择 Add Item，选择Chinese；
+  
+  其它文本国际化
+    创建本地化类
+      该类用于定义我们需要进行本地化的字符串等信息：
+        1.我们需要一个构造器，并且传入一个Locale对象（后续会使用到）
+        2.定义一个Map，其中存放我们不同语言对应的显示文本
+        3.定义它们对应的getter方法，根据语言环境返回不同的结果
+    
+      class HYLocalizations {
+        final Locale locale;
+
+        HYLocalizations(this.locale);
+
+        static Map<String, Map<String, String>> _localizedValues = {
+          "en": {
+            "title": "home",
+            "greet": "hello~",
+            "picktime": "Pick a Time"
+          },
+          "zh": {
+            "title": "首页",
+            "greet": "你好~",
+            "picktime": "选择一个时间"
+          }
+        };
+
+        String get title {
+          return _localizedValues[locale.languageCode]["title"];
+        }
+
+        String get greet {
+          return _localizedValues[locale.languageCode]["greet"];
+        }
+
+        String get pickTime {
+          return _localizedValues[locale.languageCode]["picktime"];
+        }
+      }
+  
+    自定义Delegate
+      定义一个对象的Delegate类，并且将其传入localizationsDelegates中；
+      Delegate的作用就是当Locale发生改变时，调用对应的load方法，重新加载新的Locale资源
+      HYLocalizationsDelegate需要继承自LocalizationsDelegate，并且有三个方法必须重写：
+        isSupported：用于当前环境的Locale，是否在我们支持的语言范围
+        shouldReload：当Localizations Widget重新build时，是否调用load方法重新加载Locale资源
+          一般情况下，Locale资源只应该在Locale切换时加载一次，不需要每次Localizations重新build时都加载一遍；
+          所以一般情况下返回false即可；
+        load方法：当Locale发生改变时（语言环境），加载对应的HYLocalizations资源
+          这个方法返回的是一个Future，因为有可能是异步加载的；
+          但是我们这里是直接定义的一个Map，因此可以直接返回一个同步的Future（SynchronousFuture）
+      
+      class HYLocalizationsDelegate extends LocalizationsDelegate<HYLocalizations> {
+        @override
+        bool isSupported(Locale locale) {
+          return ["en", "zh"].contains(locale.languageCode);
+        }
+
+        @override
+        bool shouldReload(LocalizationsDelegate<HYLocalizations> old) {
+          return false;
+        }
+
+        @override
+        Future<HYLocalizations> load(Locale locale) {
+          return SynchronousFuture(HYLocalizations(locale));
+        }
+
+        static HYLocalizationsDelegate delegate = HYLocalizationsDelegate();
+      }
+    
+    使用本地化类
+      通过Localizations.of(context, HYLocalizations)获取到HYLocalizations对象
+      Text(Localizations.of(context, HYLocalizations).greet)
+    
+    可以对Localizations.of(context, HYLocalizations)进行一个优化
+      给HYLocalizations定义一个of的静态方法
+        class HYLocalizations {
+          static HYLocalizations of(BuildContext context) {
+            return Localizations.of(context, HYLocalizations);
+          }
+        }
+      
+      接下来就可以这么使用了 Text(HYLocalizations.of(context).title)
+    
+    异步加载数据
+      修改HYLocalizations的数据加载
+        static Map<String, Map<String, String>> _localizedValues = {};
+
+        Future<bool> loadJson() async {
+          // 1.加载json文件
+          String jsonString = await rootBundle.loadString("assets/json/i18n.json");
+          
+          // 2.转成map类型
+          final Map<String, dynamic> map = json.decode(jsonString);
+          
+          // 3.注意：这里是将Map<String, dynamic>转成Map<String, Map<String, String>>类型
+          _localizedValues = map.map((key, value) {
+            return MapEntry(key, value.cast<String, String>());
+          });
+          return true;
+        }
+      在HYLocalizationsDelegate中使用异步进行加载
+        @override
+        Future<HYLocalizations> load(Locale locale) async {
+          final localization = HYLocalizations(locale);
+          await localization.loadJson();
+          return localization;
+        }
+
+国际化的工具
+  还有另外一个问题，我们在进行国际化的过程中，每个key的get依然需要根据json文件手动编写
+  使用arb可以快速在本地化文件-dart代码文件直接转换
+  arb文件全称Application Resource Bundle，表示应用资源包，目前已经得到Google的支持；
+  其本质就是一个json文件，但是可以根据该文件转成对应的语言环境；
+  arb的说明文档：https://github.com/google/app-resource-bundle/wiki/ApplicationResourceBundleSpecification
+
+  intl package
+    官方文档推荐可以使用intl package来进行arb和dart文件之间的转换
+    需要在在pubspec.yaml中添加其相关的依赖
+    https://flutter.dev/docs/development/accessibility-and-localization/internationalization#appendix-using-the-dart-intl-tools
+
+  使用IDE插件 Flutter Intl
+    1 安装插件
+    2 初始化intl
+      完成上面的操作之后会自动生成如下文件目录：
+        generated是自动生成的dart代码
+        I10n是对应的arb文件目录
+    3 使用intl
+      在localizationsDelegates中配置生成的class，名字是S
+      1.添加对应的delegate
+      2.supportedLocales使用S.delegate.supportedLocales
+
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        HYLocalizationsDelegate.delegate,
+        S.delegate
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+    4 在intl_en.arb文件中编写保存即可自动生成
+    5 使用 S.of(context).title
+    6 添加语言
+      调用插件的add Locale
+    
+  arb其它语法
+    传递参数
+      修改对应的arb文件
+        {
+          "sayHello": "hello {name}"
+        }
+      在使用时，传入对应的参数即可
+        Text(S.of(context).sayHello("李银河"))

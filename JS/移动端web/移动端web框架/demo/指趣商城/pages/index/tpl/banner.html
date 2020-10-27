@@ -1,0 +1,12 @@
+<div class="swiper-container">
+    <!-- 如果需要分页器 -->
+    <div class="swiper-pagination"></div>
+
+    <div class="swiper-wrapper">
+        <% for (var i = 0; i < banner_list.length; i ++) { %>
+        <div class="swiper-slide">
+            <img src="<%=banner_list[i].pic_url%>" >
+        </div>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: hpa-demo
+  labels:
+    app: hpa
+spec:
+  revisionHistoryLimit: 15
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        # 通過resource來設定容器可以請求和限制的資源
+        # 除了cpu之外還可以使用memory等
+        resources:
+          requests:
+            cpu: 100m
+          limit:
+            cpu: 200m
+        ports:
+        - containerPort: 80
+
+---
+# 除了使用kubectl autoscale命令来创建外，
+# 我们依然可以通过创建YAML文件的形式来创建HPA资源对象
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-demo
+  namespace: default
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: hpa-demo
+  targetCPUUtilizationPercentage: 5

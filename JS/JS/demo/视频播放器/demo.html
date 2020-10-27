@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/tools.js"></script>
+    <script src="js/index.js"></script>
+</head>
+<body>
+<!--定义一个多媒体分组-->
+<figure>
+    <!--定义一个多媒体分组标题-->
+    <figcaption>视频播放器</figcaption>
+    <!--放一个视频-->
+    <video src="images/cjk.mp4"></video>
+    <!--控制条-->
+    <div class="controls">
+        <!--播放按钮-->
+        <a href="javascript:;" class="iconfont play">&#xe66a;</a>
+        <!--进度条-->
+        <div class="progress">
+            <div class="line"></div>
+        </div>
+        <!--时间显示-->
+        <div class="time">
+            <span class="curTime">00:00:00</span>
+            /
+            <span class="totalTime">00:00:00</span>
+        </div>
+        <!--全屏显示-->
+        <a href="javascript:;" class="iconfont full">&#xe655;</a>
+    </div>
+</figure>
+</body>
+</html>

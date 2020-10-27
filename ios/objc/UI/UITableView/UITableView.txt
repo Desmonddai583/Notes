@@ -1,0 +1,552 @@
+UItableView继承于UIScrollView
+UITableView中系统自带了两个控件,一个是UIImageView,另一个是UIlabel
+
+如何利用tableView如何展示数据
+  1. 设置数据源对象(一般是控制器)
+    self.tableView.dataSource = self;
+  2. 数据源对象需要遵守协议->UITableViewDataSource
+    @interface ViewController ()<UITableViewDataSource>
+  3. 实现数据源协议里面的方法
+    告诉tableView⼀共有多少组
+    - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+    告诉tableView第section组有多少⾏
+    - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+    告诉tableView每⼀⾏显⽰的内容(tableView每⼀⾏都是UITableViewCell)
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+    告诉tableView每⼀组头部显⽰的标题
+    - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+    告诉tableView每⼀组尾部显⽰的标题
+    - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+
+cell内部有一个contentView里面包着子控件
+
+想要去除tableView下面多余的分割线可以通过给tableView设置一个tableFooterView实现
+  self.tableView.tableFooterView = [[UIView alloc] init];
+
+常见的设置
+  // 设置tableView每⼀⾏cell的⾼度,默认是44
+  self.tableView.rowHeight = 80;
+
+  // 设置tableView每⼀组头部的⾼度
+  self.tableView.sectionHeaderHeight = 50;
+
+  // 设置tableView每⼀组尾部的⾼度
+  self.tableView.sectionFooterHeight = 50;
+
+  // 设置分割线的颜⾊,如果设置[UIColor clearColor]隐藏分割线
+  self.tableView.separatorColor = [UIColor redColor];
+
+  // 设置分割线的样式
+  self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+
+  // 设置表头
+  self.tableView.tableHeaderView = [[UISwitch alloc] init] ;
+
+  // 设置表尾
+  self.tableView.tableFooterView = [UIButton buttonWithType:UIButtonTypeContactAdd];
+
+  // 设置索引条上⽂字颜⾊
+  self.tableView.sectionIndexColor = [UIColor redColor];
+
+  // 设置索引条的背景颜⾊
+  self.tableView.sectionIndexBackgroundColor = [UIColor blackColor];
+
+  // 设置cell右边的指⽰控件
+  cell.accessoryView = [[UISwitch alloc] init];
+
+  // 设置cell右边的指⽰样式(accessoryView优先级 > accessoryType)
+  cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+
+  // 设置cell的背景view
+  // backgroundView优先级 > backgroundColor
+  UIView *bg = [[UIView alloc] init];
+  bg.backgroundColor = [UIColor blueColor];
+  cell.backgroundView = bg;
+
+  // 设置cell的背景颜⾊
+  cell.backgroundColor = [UIColor redColor];
+
+  // 设置cell选中的背景view
+  UIView *selectbg = [[UIView alloc] init];
+  selectbg.backgroundColor = [UIColor purpleColor];
+  cell.selectedBackgroundView = selectbg;
+
+  // 设置cell选中的样式
+  cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+代理方法
+  当选中某⼀⾏cell就会调⽤
+  - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+  当取消选中某⼀⾏cell就会调⽤
+  - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+  返回每⼀组显⽰的头部控件
+  - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+  返回每⼀组显⽰的尾部控件
+  - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+  返回每⼀组头部的⾼度
+  - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+  返回每⼀组尾部的⾼度
+  - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+  返回tableView每⼀⾏的⾼度
+  - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+  当cell将要显示的时候调用
+  - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
+
+性能优化
+  传统的写法
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+    {
+      // 0.定义⼀个重⽤标识
+      static NSString *ID = @"wine";
+      // 1.⾸先去缓存池中查找可循环利⽤的cell
+      UITableViewCell *cell= [tableView dequeueReusableCellWithIdentifier:ID];
+      // 2.如果缓存池中没有,⾃⼰创建
+      if (cell == nil) {
+        cell = [[UITableViewCell alloc]
+        initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+      }
+      //3. 设置数据
+      cell.textLabel.text = [NSString stringWithFormat:@"%zd⾏数据",indexPath.row];
+
+      return cell;
+    }
+  注册方式
+    - (void)viewDidLoad {
+      [super viewDidLoad];
+      // 根据ID 这个标识 注册对应的 cell类型
+      [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:ID];
+    }
+
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+    {
+      // 1.⾸先去缓存池中查找可循环利⽤的cell
+      UITableViewCell *cell= [tableView dequeueReusableCellWithIdentifier:ID];
+      // 2.设置数据
+      cell.textLabel.text = [NSString stringWithFormat:@"%zd⾏数据",indexPath.row];
+      return cell;
+    }
+
+索引条
+  返回每⼀组的索引标题(数组中都是NSString对象)
+  - (NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView
+
+自定义cell
+  自定义等高的cell
+    a. 纯代码
+      1. frame
+        新建一个继承自UITableViewCell的子类，比如XMGTgCell
+          @interface XMGTgCell : UITableViewCell
+          @end
+
+        在XMGTgCell.m文件中
+          重写-initWithStyle:reuseIdentifier:方法
+          在这个方法中添加所有的子控件
+          给子控件做一些初始化设置（设置字体、文字颜色等）
+            - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+            {
+                if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+                    // ......
+                }
+                return self;
+            }
+          
+          重写-layoutSubviews方法
+          一定要调用[super layoutSubviews]
+          在这个方法中计算和设置所有子控件的frame
+            - (void)layoutSubviews
+            {
+                [super layoutSubviews];
+                // ......
+            }
+        
+        在XMGTgCell.h文件中提供一个模型属性，比如XMGTg模型
+          @class XMGTg;
+          @interface XMGTgCell : UITableViewCell
+          /** 团购模型数据 */
+          @property (nonatomic, strong) XMGTg *tg;
+          @end
+      
+        在XMGTgCell.m中重写模型属性的set方法
+          在set方法中给子控件设置模型数据
+          - (void)setTg:(XMGTg *)tg
+          {
+              _tg = tg;
+              // .......
+          }
+
+        在控制器中
+          注册cell的类型
+            [self.tableView registerClass:[XMGTgCell class] forCellReuseIdentifier:ID];
+          给cell传递模型数据
+            - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+            {
+                // 访问缓存池
+                XMGTgCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+                // 设置数据(传递模型数据)
+                cell.tg = self.tgs[indexPath.row];
+                return cell;
+            }
+
+      2. Autolayout
+        新建一个继承自UITableViewCell的子类，比如XMGTgCell
+          @interface XMGTgCell : UITableViewCell
+          @end
+
+        在XMGTgCell.m文件中
+          在这个方法中添加所有的子控件
+          给子控件做一些初始化设置（设置字体、文字颜色等）
+          添加子控件的完整约束
+            - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+            {
+                if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+                    // ......
+                }
+                return self;
+            }
+        
+        在XMGTgCell.h文件中提供一个模型属性，比如XMGTg模型
+          @class XMGTg;
+          @interface XMGTgCell : UITableViewCell
+          /** 团购模型数据 */
+          @property (nonatomic, strong) XMGTg *tg;
+          @end
+      
+        在XMGTgCell.m中重写模型属性的set方法
+          在set方法中给子控件设置模型数据
+          - (void)setTg:(XMGTg *)tg
+          {
+              _tg = tg;
+              // .......
+          }
+
+        在控制器中
+          注册cell的类型
+            [self.tableView registerClass:[XMGTgCell class] forCellReuseIdentifier:ID];
+          给cell传递模型数据
+            - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+            {
+                // 访问缓存池
+                XMGTgCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+                // 设置数据(传递模型数据)
+                cell.tg = self.tgs[indexPath.row];
+                return cell;
+            }
+        
+    b. xib
+      新建一个继承自UITableViewCell的子类，比如XMGTgCell
+          @interface XMGTgCell : UITableViewCell
+          @end
+      
+      新建一个xib文件（文件名最好跟类名一致，比如XMGTgCell.xib）
+        修改cell的class为XMGTgCell
+        绑定循环利用标识(设置Identifier)
+        添加子控件，设置子控件约束
+        将子控件连线到类扩展中
+
+      在XMGTgCell.h文件中提供一个模型属性，比如XMGTg模型
+        @class XMGTg;
+        @interface XMGTgCell : UITableViewCell
+        /** 团购模型数据 */
+        @property (nonatomic, strong) XMGTg *tg;
+        @end
+    
+      在XMGTgCell.m中重写模型属性的set方法
+        在set方法中给子控件设置模型数据
+        - (void)setTg:(XMGTg *)tg
+        {
+            _tg = tg;
+            // .......
+        }
+      
+      在控制器中
+        注册xib文件
+          [self.tableView registerNib:[UINib nibWithNibName:NSStringFromClass([XMGTgCell class]) bundle:nil] forCellReuseIdentifier:ID];
+        给cell传递模型数据
+          - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+          {
+              // 访问缓存池
+              XMGTgCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+              // 设置数据(传递模型数据)
+              cell.tg = self.tgs[indexPath.row];
+              return cell;
+          }
+    
+    c. storyboard
+      新建一个继承自UITableViewCell的子类，比如XMGTgCell
+          @interface XMGTgCell : UITableViewCell
+          @end
+      
+      在storyboard文件中，找到UITableView里面的cell（动态cell）
+        修改cell的class为XMGTgCell
+        绑定循环利用标识(设置Identifier)
+        添加子控件，设置子控件约束
+        将子控件连线到类扩展中
+      
+      在XMGTgCell.h文件中提供一个模型属性，比如XMGTg模型
+        @class XMGTg;
+        @interface XMGTgCell : UITableViewCell
+        /** 团购模型数据 */
+        @property (nonatomic, strong) XMGTg *tg;
+        @end
+    
+      在XMGTgCell.m中重写模型属性的set方法
+        在set方法中给子控件设置模型数据
+        - (void)setTg:(XMGTg *)tg
+        {
+            _tg = tg;
+            // .......
+        }
+      
+      在控制器中
+        给cell传递模型数据
+          - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+          {
+              // 访问缓存池
+              XMGTgCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+              // 设置数据(传递模型数据)
+              cell.tg = self.tgs[indexPath.row];
+              return cell;
+          }
+
+  自定义不等高的cell
+    纯代码
+      frame
+        给模型增加frame数据
+          所有子控件的frame
+          cell的高度(cellHeight)
+            @interface XMGStatus : NSObject
+            /**** 文字\图片数据 ****/
+            // .....
+            /**** frame数据 ****/
+            /** 头像的frame */
+            @property (nonatomic, assign) CGRect iconFrame;
+            // .....
+            /** cell的高度 */
+            @property (nonatomic, assign) CGFloat cellHeight;
+            @end
+          重写模型cellHeight属性的get方法
+            - (CGFloat)cellHeight
+            {
+                if (_cellHeight == 0) {
+                    // ... 计算所有子控件的frame、cell的高度
+                }
+                return _cellHeight;
+            }
+
+        在控制器中
+          实现一个返回cell高度的代理方法
+            在这个方法中返回indexPath位置对应cell的高度
+            - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+            {
+                XMGStatus *status = self.statuses[indexPath.row];
+                return status.cellHeight;
+            }
+          给cell传递模型数据
+            - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+            {
+                // 访问缓存池
+                XMGStatusCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+
+                // 设置数据(传递模型数据)
+                cell.status = self.statuses[indexPath.row];
+
+                return cell;
+            }
+        
+        新建一个继承自UITableViewCell的子类，比如XMGStatusCell
+          @interface XMGStatusCell : UITableViewCell
+          @end
+
+        在XMGStatusCell.m文件中
+          重写-initWithStyle:reuseIdentifier:方法
+            在这个方法中添加所有可能需要显示的子控件
+            给子控件做一些初始化设置（设置字体、文字颜色等）
+            - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+            {
+                if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+                    // ......
+                }
+                return self;
+            }
+        
+        在XMGStatusCell.h文件中提供一个模型属性，比如XMGStatus模型
+          @class XMGStatus;
+          @interface XMGStatusCell : UITableViewCell
+          /** 微博模型数据 */
+          @property (nonatomic, strong) XMGStatus *status;
+          @end
+      
+        在XMGStatusCell.m中重写模型属性的set方法
+          在set方法中给子控件设置模型数据
+          - (void)setStatus:(XMGStatus *)status
+          {
+              _status = status;
+              // .......
+          }
+        
+        重写-layoutSubviews方法
+          一定要调用[super layoutSubviews]
+          在这个方法中设置所有子控件的frame
+          - (void)layoutSubviews
+          {
+              [super layoutSubviews];
+
+              // ......
+          }
+
+    storyboard
+      iOS8之后
+        对比自定义等高cell，需要几个额外的步骤
+          添加子控件和contentView之间的间距约束
+          设置tableViewCell的真实行高和估算行高
+            // 告诉tableView所有cell的真实高度是自动计算（根据设置的约束来计算）
+            self.tableView.rowHeight = UITableViewAutomaticDimension;
+            // 告诉tableView所有cell的估算高度
+            self.tableView.estimatedRowHeight = 44;
+
+      iOS8之前
+        如果cell内部有自动换行的label，需要设置preferredMaxLayoutWidth属性
+          - (void)awakeFromNib
+          {
+              // 手动设置文字的最大宽度（目的是：让label知道自己文字的最大宽度，进而能够计算出自己的frame）
+              self.text_label.preferredMaxLayoutWidth = [UIScreen mainScreen].bounds.size.width - 20;
+          }
+        
+        设置tableView的cell估算高度
+          // 告诉tableView所有cell的估算高度(设置了估算高度，就可以减少tableView:heightForRowAtIndexPath:方法的调用次数)
+          self.tableView.estimatedRowHeight = 200;
+        
+        在代理方法中计算cell的高度
+          XMGStatusCell *cell;
+          - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+          {
+              // 创建一个临时的cell（cell的作用：根据模型数据布局所有的子控件，进而计算出cell的高度）
+              if (!cell) {
+                  cell = [tableView dequeueReusableCellWithIdentifier:ID];
+              }
+
+              // 设置模型数据
+              cell.status = self.statuses[indexPath.row];
+
+              return cell.height;
+          }
+
+          - (CGFloat)height
+          {
+              // 强制布局cell内部的所有子控件(label根据文字多少计算出自己最真实的尺寸)
+              [self layoutIfNeeded];
+
+              // 计算cell的高度
+              if (self.status.picture) {
+                  return CGRectGetMaxY(self.pictureImageView.frame) + 10;
+              } else {
+                  return CGRectGetMaxY(self.text_label.frame) + 10;
+              }
+          }
+
+数据刷新
+  包括
+    添加数据
+    删除数据
+    更改数据
+
+  全局刷新方法
+    [self.tableView reloadData]; // 屏幕上的所有可视的cell都会刷新一遍
+  
+  局部刷新方法
+    添加数据
+      NSArray *indexPaths = @[
+                              [NSIndexPath indexPathForRow:0 inSection:0],
+                              [NSIndexPath indexPathForRow:1 inSection:0]
+                              ];
+      [self.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationRight];
+
+    删除数据
+      NSArray *indexPaths = @[
+                              [NSIndexPath indexPathForRow:0 inSection:0],
+                              [NSIndexPath indexPathForRow:1 inSection:0]
+                              ];
+      [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationMiddle];
+    
+    更新数据（没有添加和删除数据，仅仅是修改已经存在的数据）
+      NSArray *indexPaths = @[
+                              [NSIndexPath indexPathForRow:0 inSection:0],
+                              [NSIndexPath indexPathForRow:1 inSection:0]
+                              ];
+      [self.tableView relaodRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationMiddle];
+  
+  左滑出现删除按钮
+    /**
+    *  只要实现了这个方法，左滑出现Delete按钮的功能就有了
+    *  点击了“左滑出现的Delete按钮”会调用这个方法
+    */
+    - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+    {
+        // 删除模型
+        [self.wineArray removeObjectAtIndex:indexPath.row];
+
+        // 刷新
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    }
+
+    /**
+    *  修改Delete按钮文字为“删除”
+    */
+    - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+    {
+        return @"删除";
+    }
+  
+  左滑出现N个按钮 
+    需要实现tableView的代理方法
+      /**
+      *  只要实现了这个方法，左滑出现按钮的功能就有了
+      (一旦左滑出现了N个按钮，tableView就进入了编辑模式, tableView.editing = YES)
+      */
+      - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+      {
+      }
+
+      /**
+      *  左滑cell时出现什么按钮
+      */
+      - (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
+      {
+          UITableViewRowAction *action0 = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:@"关注" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+              NSLog(@"点击了关注");
+
+              // 收回左滑出现的按钮(退出编辑模式)
+              tableView.editing = NO;
+          }];
+
+          UITableViewRowAction *action1 = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"删除" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+              [self.wineArray removeObjectAtIndex:indexPath.row];
+              [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+          }];
+
+          return @[action1, action0];
+      }
+  
+  进入编辑模式
+    // self.tabelView.editing = YES;
+    [self.tableView setEditing:YES animated:YES]; // 默认情况下，进入编辑模式时，左边会出现一排红色的“减号”按钮
+  
+  在编辑模式中多选
+    // 编辑模式的时候可以多选
+    self.tableView.allowsMultipleSelectionDuringEditing = YES;
+    // 进入编辑模式
+    [self.tableView setEditing:YES animated:YES];
+
+    // 获得选中的所有行
+    self.tableView.indexPathsForSelectedRows;
+
+cell添加textField
+  在iOS7以后,把textField添加到cell上,系统就会自动帮我们设置好键盘位置
+
+tableView滚动时把键盘退出
+  // 在scrollView代理方法里实现
+  // 当开始滚动的时候调用
+  - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+      // 退出键盘
+      [self.view endEditing:YES];
+  }

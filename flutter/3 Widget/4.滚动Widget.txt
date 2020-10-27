@@ -1,0 +1,165 @@
+ListView
+  ListView(
+    children: <Widget>[
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text("人的一切痛苦，本质上都是对自己无能的愤怒。", style: textStyle),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text("人活在世界上，不可以有偏差；而且多少要费点劲儿，才能把自己保持到理性的轨道上。", style: textStyle),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text("我活在世上，无非想要明白些道理，遇见些有趣的事。", style: textStyle),
+      )
+    ],
+  );
+
+  ListTile的使用
+    有一个图标或图片（Icon），有一个标题（Title），有一个子标题（Subtitle），还有尾部一个图标（Icon）
+    ListTile(
+      leading: Icon(Icons.people, size: 36,),
+      title: Text("联系人"),
+      subtitle: Text("联系人信息"),
+      trailing: Icon(Icons.arrow_forward_ios),
+    )
+  
+  ExpansionTile 可折叠的列表
+    const ExpansionTile({
+      Key key,
+      this.leading,//标题左侧要展示的widget
+      @required this.title,//要展示的标题widget
+      this.backgroundColor,//背景
+      this.onExpansionChanged,//列表展开收起的回调函数
+      this.children = const <Widget>[],//列表展开时显示的widget
+      this.trailing,//标题有侧要展示的widget
+      this.initiallyExpanded = false,//是否默认状态下展开
+    })
+  
+  滚动
+    通过设置 scrollDirection 参数来控制视图的滚动方向
+    假设实现一个水平滚动的内容
+      需要给Container设置width，否则它是没有宽度的，就不能正常显示
+      或者我们也可以给ListView设置一个itemExtent，该属性会设置滚动方向上每个item所占据的宽度
+
+      ListView(
+        scrollDirection: Axis.horizontal,
+        itemExtent: 200,
+        children: <Widget>[
+          Container(color: Colors.red, width: 200),
+          Container(color: Colors.green, width: 200),
+          Container(color: Colors.blue, width: 200),
+          Container(color: Colors.purple, width: 200),
+          Container(color: Colors.orange, width: 200),
+        ],
+      );
+  
+  ListView.build
+    ListView.build适用于子Widget比较多的场景，该构造函数将创建子Widget交给了一个抽象的方法，交给ListView进行管理，
+    ListView会在真正需要的时候去创建子Widget，而不是一开始就全部初始化好
+
+    两个重要参数：
+      itemBuilder：列表项创建的方法。当列表滚动到对应位置的时候，ListView会自动调用该方法来创建对应的子Widget。类型是IndexedWidgetBuilder，是一个函数类型。
+      itemCount：表示列表项的数量，如果为空，则表示ListView为无限列表。
+    
+    ListView.builder(
+      itemCount: 100,
+      itemExtent: 80,
+      itemBuilder: (BuildContext context, int index) {
+        return ListTile(title: Text("标题$index"), subtitle: Text("详情内容$index"));
+      }
+    );
+  
+  ListView.separated
+    ListView.separated可以生成列表项之间的分割器，它除了比ListView.builder多了一个separatorBuilder参数，该参数是一个分割器生成器
+
+    Divider blueColor = Divider(color: Colors.blue);
+    Divider redColor = Divider(color: Colors.red);
+
+    ListView.separated(
+      itemBuilder: (BuildContext context, int index) {
+        return ListTile(
+          leading: Icon(Icons.people),
+          title: Text("联系人${index+1}"),
+          subtitle: Text("联系人电话${index+1}"),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return index % 2 == 0 ? redColor : blueColor;
+      },
+      itemCount: 100
+    );
+  
+GridView
+  GridView构造函数
+    一种使用GridView的方式就是使用构造函数来创建，和ListView对比有一个特殊的参数：gridDelegate
+    gridDelegate用于控制交叉轴的item数量或者宽度，需要传入的类型是SliverGridDelegate，但是它是一个抽象类，
+    所以我们需要传入它的子类：
+      SliverGridDelegateWithFixedCrossAxisCount
+        SliverGridDelegateWithFixedCrossAxisCount({
+          @requireddouble crossAxisCount, // 交叉轴的item个数
+          double mainAxisSpacing = 0.0, // 主轴的间距
+          double crossAxisSpacing = 0.0, // 交叉轴的间距
+          double childAspectRatio = 1.0, // 子Widget的宽高比
+        })
+
+      SliverGridDelegateWithMaxCrossAxisExtent
+        SliverGridDelegateWithMaxCrossAxisExtent({
+          double maxCrossAxisExtent, // 交叉轴的item宽度
+          double mainAxisSpacing = 0.0, // 主轴的间距
+          double crossAxisSpacing = 0.0, // 交叉轴的间距
+          double childAspectRatio = 1.0, // 子Widget的宽高比
+        })
+
+  GridView.build
+    使用构造函数会一次性创建所有的子Widget，会带来性能问题，所以我们可以使用GridView.build来交给GridView自己管理需要创建的子Widget
+    GridView.builder(
+      shrinkWrap: true,
+      physics: ClampingScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.2
+      ),
+      itemCount: anchors.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Image.network(anchors[index].imageUrl),
+              SizedBox(height: 5),
+              Text(anchors[index].nickname, style: TextStyle(fontSize: 16),),
+              Text(anchors[index].roomName, maxLines: 1, overflow: TextOverflow.ellipsis,)
+            ],
+          ),
+        );
+      }
+    )
+
+Slivers
+  Flutter中有一个CustomScrollView，可以统一管理多个滚动视图
+  在CustomScrollView中，每一个独立的，可滚动的Widget被称之为Sliver
+  需要把很多的Sliver放在一个CustomScrollView中，所以CustomScrollView有一个slivers属性，里面让我们放对应的一些Sliver：
+    SliverList：类似于我们之前使用过的ListView；
+    SliverFixedExtentList：类似于SliverList只是可以设置滚动的高度；
+    SliverGrid：类似于我们之前使用过的GridView；
+    SliverPadding：设置Sliver的内边距，因为可能要单独给Sliver设置内边距；
+    SliverAppBar：添加一个AppBar，通常用来作为CustomScrollView的HeaderView；
+    SliverSafeArea：设置内容显示在安全区域（比如不让齐刘海挡住我们的内容）
+
+监听滚动事件
+  ScrollController
+    在Flutter中，Widget并不是最终渲染到屏幕上的元素（真正渲染的是RenderObject），因此通常这种监听事件以及相关的信息并不能直接从Widget中获取，而是必须通过对应的Widget的Controller来实现
+    ListView、GridView的组件控制器是ScrollController，我们可以通过它来获取视图的滚动信息，并且可以调用里面的方法来更新视图的滚动位置
+    另外，通常情况下，我们会根据滚动的位置来改变一些Widget的状态信息，所以ScrollController通常会和StatefulWidget一起来使用，并且会在其中控制它的初始化、监听、销毁等事件
+    jumpTo(double offset)、animateTo(double offset,...)：这两个方法用于跳转到指定的位置，它们不同之处在于，后者在跳转时会执行一个动画，而前者不会
+    ScrollController间接继承自Listenable，我们可以根据ScrollController来监听滚动事件
+  
+  NotificationListener
+    如果我们希望监听什么时候开始滚动，什么时候结束滚动，这个时候我们可以通过NotificationListener
+    NotificationListener是一个Widget，模板参数T是想监听的通知类型，如果省略，则所有类型通知都会被监听，如果指定特定类型，则只有该类型的通知会被监听。
+    NotificationListener需要一个onNotification回调函数，用于实现监听处理逻辑。
+    该回调可以返回一个布尔值，代表是否阻止该事件继续向上冒泡，如果为true时，则冒泡终止，事件停止向上传播，如果不返回或者返回值为false 时，则冒泡继续

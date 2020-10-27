@@ -1,0 +1,222 @@
+结构体与类的本质区别
+  结构体是值类型（枚举也是值类型）,类是引用类型（指针类型）
+  注意如果对类使用MemoryLayout获得的stride是8,因为他获取的是对象的内存大小,而不是对象存储的指针指向的堆空间大小
+
+对象的堆空间申请过程
+  在Swift中，创建类的实例对象，要向堆空间申请内存，大概流程如下
+    Class.__allocating_init()
+    libswiftCore.dylib：_swift_allocObject_
+    libswiftCore.dylib：swift_slowAlloc
+    libsystem_malloc.dylib：malloc
+  在Mac、iOS中的malloc函数分配的内存大小总是16的倍数
+  通过class_getInstanceSize可以得知：类的对象至少需要占用多少内存
+
+  class Point { 
+    var x = 11 
+    var test = true 
+    var y = 22 
+  } 
+  var p = Point() 
+  class_getInstanceSize(type(of: p)) // 40  3个属性(8+8+1)加指向类型信息(8)加引用计数(8),加上内存对齐(8的倍数)
+  class_getInstanceSize(Point.self) // 40
+
+class 类名 : SuperClass {
+    // 定义属性和方法
+}
+
+定义的类,可以没有父类.那么该类是rootClass
+通常情况下,定义类时.继承自NSObject(非OC的NSObject)
+
+两个地方需要使用self: 
+  1 如果在一个函数中出现歧义 
+  2 在闭包中使用当前对象的属性和方法也需要加self
+
+定义类的属性
+  存储属性:存储实例的常量和变量
+  计算属性:通过某种方式计算出来的属性
+  类属性:与整个类自身相关的属性
+
+存储属性
+  存储属性是最简单的属性，它作为类实例的一部分，用于存储常量和变量
+  可以给存储属性提供一个默认值，也可以在初始化方法中对其进行初始化
+
+  class Student : NSObject {
+      // 存储属性
+      var age : Int = 0
+      var name : String?
+      var chineseScore : Double = 0.0
+      var mathScore : Double = 0.0
+  }
+
+计算属性
+  计算属性并不存储实际的值，而是提供一个getter和一个可选的setter来间接获取和设置其它属性
+  计算属性一般只提供getter方法
+  如果只提供getter，而不提供setter，则该计算属性为只读属性,并且可以省略get{}
+
+  class Student : NSObject {
+      ...
+      // 计算属性
+      var averageScore : Double {
+          get {
+              return (chineseScore + mathScore) / 2
+          }
+          // 没有意义,因为之后获取值时依然是计算得到的
+          // newValue是系统分配的变量名,内部存储着新值
+          set {
+              self.averageScore = newValue
+          }
+      }
+  }
+
+类属性
+  类属性是与类相关联的，而不是与类的实例相关联
+  所有的类和实例都共有一份类属性.因此在某一处修改之后,该类属性就会被修改
+  类属性的设置和修改,需要通过类来完成
+  类属性使用static来修饰
+
+  class Student : NSObject {
+    ...
+    // 类属性
+    static var corseCount : Int = 0
+  }
+  Student.corseCount = 3
+
+  在Swift中定义一个静态变量并赋予初值即为单例
+    static let shareInstance = NetworkTools()
+
+类方法
+  swift中类方法是以class开头的方法.类似于OC中+开头的方法
+  class func createButton(imageName : String, bgImageName : String) -> UIButton {
+    ...
+  }
+
+监听属性的改变
+  Swift中可以通过属性观察者来监听和响应属性值的变化
+  通常是监听存储属性和类属性的改变.(对于计算属性，我们不需要定义属性观察者，因为我们可以在计算属性的setter中直接观察并响应这种值的变化)
+  willSet：在属性值被存储之前设置。此时新属性值作为一个常量参数被传入。该参数名默认为newValue，我们可以自己定义该参数名
+  didSet：在新属性值被存储后立即调用。与willSet相同，此时传入的是属性的旧值，默认参数名为oldValue
+  willSet与didSet只有在属性被设置时才会调用，在初始化时，不会去调用这些监听方法
+
+  class Person : NSObject {
+      var name : String? {
+          // 可以给newValue自定义名称
+          willSet (new){ // 属性即将改变,还未改变时会调用的方法
+              // 在该方法中有一个默认的系统属性newValue,用于存储新值
+              print(name)
+              print(new)
+          }
+          // 可以给oldValue自定义名称
+          didSet (old) { // 属性值已经改变了,会调用的方法
+              // 在该方法中有一个默认的系统属性oldValue,用于存储旧值
+              print(name)
+              print(old)
+          }
+      }
+  }
+
+构造函数
+  默认情况下载创建一个类时,必然会调用一个构造函数
+  即便是没有编写任何构造函数，编译器也会提供一个默认的构造函数。
+  但编译器并没有为类自动生成可以传入成员值的初始化器
+  如果是继承自NSObject,可以对父类的构造函数进行重写
+  如果是方法的重写,则需要在重写的方法前加override
+  默认重写构造函数不需要写super.init(),swift会在构造函数最后自动加上
+
+  如果类的所有成员都在定义的时候指定了初始值，编译器会为类生成无参的初始化器
+  成员的初始化是在这个初始化器中完成的
+  下面2段代码是完全等效的
+    class Point { 
+      var x: Int = 10 
+      var y: Int = 20 
+    } 
+    let p1 = Point()
+
+    class Point {
+      var x: Int 
+      var y: Int 
+      init() {
+        x = 10
+        y = 20 
+      }
+    } 
+    let p1 = Point()
+
+  // 类的属性必须有值
+  // 如果不是在定义时初始化值,可以在构造函数中赋值
+  class Person: NSObject {
+      var name : String
+      var age : Int
+      // 重写了NSObject(父类)的构造方法
+      override init() {
+          name = ""
+          age = 0
+      }
+  }
+
+  如果自定义了构造函数,会覆盖init()方法.即不在有默认的构造函数
+    class Person: NSObject {
+        var name : String
+        var age : Int
+
+        // 自定义构造函数,会覆盖init()函数
+        init(name : String, age : Int) {
+            self.name = name
+            self.age = age
+        }
+    }
+  
+  字典转模型
+    去字典中取出的是NSObject,任意类型.
+    as? 最终转成的类型是一个可选类型
+    as! 最终转成的类型是一个确定的类型
+
+    可以通过as!转成需要的类型,再赋值(不可以直接赋值) 
+    class Person: NSObject {
+        var name : String
+        var age : Int
+        // 自定义构造函数,会覆盖init()函数
+        init(dict : [String : NSObject]) {
+            name = dict["name"] as! String
+            age = dict["age"] as! Int
+        }
+    }
+
+    上面的方法可能出现解包报错现象,应该使用可选类型判断方法
+      if let tempAge = dict["age"] as? Int {
+          age = tempAge
+      }
+
+  KVC字典转模型
+    要是用KVC就一定要继承NSObject
+    KVC并不能保证会给所有的属性赋值
+    因此属性需要有默认值
+    基本数据类型默认值设置为0
+    对象或者结构体类型定义为可选类型即可(可选类型没有赋值前为nil)
+    可以重写setValue(value: AnyObject?, forUndefinedKey key: String),那么字典中没有的字段可以在类中没有对应的属性
+
+    class Person: NSObject {
+        // 结构体或者类的类型,必须是可选类型.因为不能保证一定会赋值
+        var name : String?
+        // 基本数据类型不能是可选类型,否则KVC无法转化
+        var age : Int = 0
+        // 自定义构造函数,会覆盖init()函数
+        init(dict : [String : NSObject]) {
+            // 必须先初始化对象
+            super.init()
+            // 调用对象的KVC方法字典转模型
+            setValuesForKeysWithDictionary(dict)
+        }
+    }
+
+  便利构造函数
+    遍历构造函数通常用在对系统的类进行构造函数的扩充时使用
+    特点
+      1.便利构造函数通常都是写在extension里面
+      2.便利构造函数init前面需要加载convenience
+      3.在便利构造函数中需要明确的调用self.init()
+
+类扩展
+  类似于OC中的分类,也是只能扩充方法,不能扩充属性
+  extension ViewController : UITableViewDataSource, UITableViewDelegate { 
+    ...
+  }

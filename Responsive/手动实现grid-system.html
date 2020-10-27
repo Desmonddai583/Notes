@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .container {
+            width: 100%;
+        }
+        .row {
+            width: 100%;
+        }
+        .col-sm-1,
+        .col-sm-2,
+        .col-sm-3,
+        .col-sm-4,
+        .col-sm-5,
+        .col-sm-6
+        .col-md-1,
+        .col-md-2,
+        .col-md-3,
+        .col-md-4,
+        .col-md-5,
+        .col-md-6 {
+            float: left;
+        }
+
+        .col-sm-1 {
+            width: 16.66666666%;
+        }
+        .col-sm-2 {
+            width: 33.33333332%;
+        }
+        .col-sm-3 {
+            width: 49.99999998%;
+        }
+        .col-sm-4 {
+            width: 66.66666664%;
+        }
+        .col-sm-5 {
+            width: 83.33333333%;
+        }
+        .col-sm-6 {
+            width: 100%
+        }
+
+        @media (min-width: 768px) {
+            .col-md-1 {
+                width: 16.66666666%;
+            }
+            .col-md-2 {
+                width: 33.33333332%;
+            }
+            .col-md-3 {
+                width: 49.99999998%;
+            }
+            .col-md-4 {
+                width: 66.66666664%;
+            }
+            .col-md-5 {
+                width: 83.33333333%;
+            }
+            .col-md-6 {
+                width: 100%
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-sm-1">
+                col-md-3
+            </div>
+            <div class="col-md-3 col-sm-5">
+                col-md-3
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 col-sm-1">col-md-2</div>
+            <div class="col-md-2 col-sm-1">col-md-2</div>
+            <div class="col-md-2 col-sm-4">col-md-2</div>
+        </div>
+    </div>
+</body>
+</html>

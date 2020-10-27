@@ -1,0 +1,16 @@
+<MKM version="2.0" imageFileUrl="file:///C:/Users/Jonathan_Lee/Desktop/%e5%89%8d%e7%ab%af%e5%b0%8f%e6%a1%86%e6%9e%b6/28-em%e5%92%8crem/images/demo.png">
+  <Marks>
+    <LengthMark direction="12" color="16711680" length="751" x="1" y="39"/>
+    <LengthMark direction="3" color="16711680" length="670" x="85" y="-2"/>
+    <LengthMark direction="3" color="16711680" length="80" x="298" y="-3"/>
+    <TextMark defaultDirection="9" direction="9" color="16711680" x="451" y="88" textMaxWidth="100" offsetX="25" offsetY="10" text="font-size:36px"/>
+    <LengthMark direction="12" color="16711680" length="430" x="158" y="659"/>
+    <LengthMark direction="3" color="16711680" length="290" x="143" y="669"/>
+    <LengthMark direction="12" color="16711680" length="410" x="171" y="697"/>
+    <LengthMark direction="3" color="16711680" length="270" x="216" y="683"/>
+    <LengthMark direction="12" color="16711680" length="84" x="333" y="784"/>
+    <LengthMark direction="3" color="16711680" length="84" x="375" y="743"/>
+    <LengthMark direction="3" color="16711680" length="35" x="365" y="960"/>
+    <LengthMark direction="3" color="16711680" length="70" x="363" y="672"/>
+  </Marks>
+</MKM>

@@ -1,0 +1,83 @@
+reduce方法
+  reduce方法，顾名思义就是减少
+  可迭代对象不能为空；初始值没提供就在可迭代对象中取一个元素
+
+  from functools import reduce
+  nums = [6, 9, 4, 2, 4, 10, 5, 9, 6, 9]
+  print(reduce(lambda val, x: val + x, nums))
+
+partial方法
+  偏函数，把函数部分的参数固定下来，相当于为部分的参数添加了一个固定的默认值，形成一个新的函数并返回
+  从partial生成的新函数，是对原函数的封装
+
+  import functools
+
+  def add(x, y, *args) -> int:
+    print(args) 
+    return x + y
+
+  newadd = functools.partial(add, 1,3,6,5)
+
+  print(newadd(7)) 
+  print(newadd(7, 10)) 
+  print(newadd(9, 10, y=20, x=26)) # 报错, x y 重复赋值
+  print(newadd())
+
+  import inspect 
+  print(inspect.signature(newadd))
+
+  partial函数本质
+    def partial(func, *args, **keywords):
+      def newfunc(*fargs, **fkeywords): # 包装函数 
+        newkeywords = keywords.copy() 
+        newkeywords.update(fkeywords) 
+        return func(*(args + fargs), **newkeywords) 
+      newfunc.func = func # 保留原函数 
+      newfunc.args = args # 保留原函数的位置参数 
+      newfunc.keywords = keywords # 保留原函数的关键字参数参数 
+      return newfunc
+    
+    def add(x,y):
+      return x+y
+
+    foo = partial(add,4) 
+    foo(5)
+
+lru_cache装饰器方法
+  @functools.lru_cache(maxsize=128, typed=False)
+  Least-recently-used装饰器。lru，最近最少使用。cache缓存
+  如果maxsize设置为None，则禁用LRU功能，并且缓存可以无限制增长。当maxsize是二的幂时，LRU功能执行得最好
+  如果typed设置为True，则不同类型的函数参数将单独缓存。例如，f(3)和f(3.0)将被视为具有不同结果的不同调用
+
+  import functools import time 
+  @functools.lru_cache() 
+  def add(x, y, z=3):
+    time.sleep(z)
+    return x + y
+
+  背后通过一个字典缓存被装饰函数的调用和返回值
+  key是什么
+    functools._make_key((4,6),{'z':3},False)
+    functools._make_key((4,6,3),{},False) 
+    functools._make_key(tuple(),{'z':3,'x':4,'y':6},False) 
+    functools._make_key(tuple(),{'z':3,'x':4,'y':6}, True)
+
+  斐波那契数列递归方法的改造
+    import functools
+
+    @functools.lru_cache() # maxsize=None 
+    def fib(n):
+      if n < 3:
+        return n 
+      return fib(n-1) + fib(n-2)
+    print([fib(x) for x in range(35)])
+
+  使用前提
+    同样的函数参数一定得到同样的结果
+    函数执行时间很长，且要多次执行
+  本质是函数调用的参数=>返回值
+  缺点
+    不支持缓存过期，key无法过期、失效
+    不支持清除操作
+    不支持分布式，是一个单机的缓存
+  适用场景，单机上需要空间换时间的地方，可以用缓存来将计算变成快速的查询

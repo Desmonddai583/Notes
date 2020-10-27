@@ -1,0 +1,29 @@
+整型
+  有符号
+    Int8 : 有符号8位整型
+    Int16 : 有符号16位整型
+    Int32 : 有符号32位整型
+    Int64 : 有符号64位整型
+    Int : 和平台相关(默认,相当于OC的NSInteger)
+  无符号
+    UInt8 : 无符号8位整型
+    UInt16 : 无符号16位整型
+    UInt32 : 无符号32位整型
+    UInt64 : 无符号64位整型
+    UInt : 和平台相关(常用,相当于OC的NSUInteger)(默认)
+
+  let intDecimal = 17 // 十进制
+  let intBinary = 0b10001 // 二进制
+  let intOctal = 0o21 // 八进制
+  let intHexadecimal = 0x11 // 十六进制
+
+浮点型
+  Float : 32位浮点型
+  Double : 64浮点型(默认)
+
+  let doubleDecimal = 125.0 // 十进制,等价于1.25e2  0.0125等价于1.25e-2
+  let doubleHexadecimal1 = 0xFp2 // 十六进制,意味着15*2^2
+  let doubleHexadecimal1 = 0xFp-2 // 十六进制,意味着15*2^-2
+
+整数和浮点数可以添加额外的零或者添加下划线来增强可读性
+100_0000、 1_000_000.000_000_1、 000123.456

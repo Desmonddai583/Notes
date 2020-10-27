@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>90-搜索框效果</title>
+</head>
+<body>
+<form action="http://www.it666.com">
+    <input type="text" placeholder="请输入搜索关键字">
+    <input type="submit" value="搜索">
+</form>
+<script>
+    // 1.获取需要操作的元素
+    var oText = document.querySelector("input[type=text]");
+    var oSubmit = document.querySelector("input[type=submit]");
+    // 2.禁用搜索按钮
+    // 注意点： 如果HTML标签的属性的取值和属性和名称一样
+    //          那么通过JS获取到的值就是true或者false
+    // console.log(oSubmit.disabled);
+    oSubmit.disabled = true;
+    // 3.监听输入框的时时变化
+    inputChange(oText, function () {
+        // 修改搜索按钮的状态
+        // oSubmit.disabled = oText.value.length > 0 ? false : true;
+
+        // if(oText.value.length > 0){
+        //     oSubmit.disabled = false;
+        // }else{
+        //     oSubmit.disabled = true;
+        // }
+
+        oSubmit.disabled = !(oText.value.length > 0);
+    });
+
+    // 时时监听输入框内容改变的兼容性处理
+    function inputChange(ele, fn) {
+        if("oninput" in ele){
+            ele.oninput = fn;
+        }else{
+            ele.onpropertychange = fn;
+        }
+    }
+    // 4.监听输入框的聚焦和失去焦点的事件
+    oText.onblur = function () {
+        // 恢复默认内容
+        // 注意点: 如果是直接通过属性设置的内容, 没办法时时监听到内容的变化
+        this.value = "";
+        oSubmit.disabled = true;
+    }
+</script>
+</body>
+</html>

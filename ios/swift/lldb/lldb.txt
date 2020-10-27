@@ -1,0 +1,49 @@
+格式
+  x是16进制，f是浮点，d是十进制
+
+字节大小
+  b – byte 1字节
+  h – half word 2字节
+  w – word 4字节
+  g – giant word 8字节
+
+读取寄存器的值
+  register read/格式
+    register read/x
+
+修改寄存器的值
+  register write 寄存器名称 数值
+    register write rax 0
+
+读取内存中的值
+  x/数量-格式-字节大小 内存地址
+    x/3xw 0x0000010
+
+修改内存中的值
+  memory write 内存地址 数值
+  memory write 0x0000010 10
+
+expression 高级语言表达式
+  可以简写：expr 高级语言表达式
+  用于在lldb中执行高级语言代码
+
+po 表达式
+  print 表达式
+  po/x $rax
+  po (int)$rax
+
+单步运⾏，把子函数当做整体⼀步执⾏(源码级别),如果在汇编级别使用该指令,会跳到源码级别的执行代码对应的那条汇编命令,省略掉一些前置的汇编命令
+  thread step-over、next、n
+
+单步运⾏，遇到子函数会进⼊子函数(源码级别),如果在汇编级别使用该指令,会跳到源码级别的执行代码对应的那条汇编命令,省略掉一些前置的汇编命令
+  thread step-in、step、s
+
+单步运⾏，把子函数当做整体⼀步执⾏（汇编级别）
+  thread step-inst-over、nexti、ni
+
+单步运⾏，遇到子函数会进⼊子函数（汇编级别）
+  thread step-inst、stepi、si
+  
+直接执⾏完当前函数的所有代码，返回到上一个函数（遇到断点会卡住）
+  thread step-out、finish
+

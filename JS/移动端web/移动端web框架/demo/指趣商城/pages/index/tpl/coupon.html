@@ -1,0 +1,30 @@
+<div class="coupon">
+    <div class="cp-title clearfix">
+        <div class="cp-title-left f-left">
+            <span class="iconfont">&#xe62d;</span>
+            <span>专享优惠券</span>
+        </div>
+        <div class="cp-title-more f-right">
+            <a href="#">更多<span class="iconfont">&#xe64e;</span></a>
+        </div>
+    </div>
+    <div class="cp-content clearfix">
+        <ul class="cp-list clearfix">
+            <% for (var i = 0; i < coupon_list.length; i ++) { %>
+            <li>
+                <img src="<%=update_list.coupon.bg%>" alt="">
+                <p class="cp-sub-price">
+                    <span class="iconfont">&#xeb1e;</span>
+                    <%=coupon_list[i].sub_price%>
+                </p>
+                <p class="cp-min-price">
+                    满<%=coupon_list[i].min_price%>元可以用
+                </p>
+                <p class="receive_content">
+                    <%=coupon_list[i].receive_content%>
+                </p>
+            </li>
+            <% } %>
+        </ul>
+    </div>
+</div>

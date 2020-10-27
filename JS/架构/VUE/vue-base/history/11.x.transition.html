@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!-- vue中的动画 （当dom 显示或者隐藏时 vue可以管理动画）v-for v-if v-show  -->
+        <transition 
+            @before-enter="beforeEnter"
+            @enter="enter"
+            @after-enter="afterEnter"
+        >
+        <!-- @before-leave=""
+        @leave=""
+        @after-leave="" -->
+            <div style="width: 100px;height:100px;" class="box" v-show="isShow">
+            </div>
+        </transition>
+        <button @click="change">点我啊</button>
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el:'#app',
+            data(){
+                return {isShow:false}  
+            },
+            methods:{
+                beforeEnter(el){
+                    el.style.background = 'yellow'
+                },
+                enter(el,done){ // Velocity
+                    el.style.background = 'blue';
+                    setTimeout(() => {
+                        done();
+                    }, 1000);
+                },
+                afterEnter(el){
+                    el.style.background = 'pink'
+                },
+                change(){
+                    this.isShow = !this.isShow
+                }
+            }
+        })
+    </script>
+</body>
+</html>

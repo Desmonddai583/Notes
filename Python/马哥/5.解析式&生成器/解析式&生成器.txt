@@ -1,0 +1,123 @@
+列表解析
+  语法
+    [返回值 for 元素 in 可迭代对象 if 条件] 
+    使用中括号[]，内部是for循环，if条件语句可选
+    返回一个新的列表
+  列表解析式是一种语法糖
+    编译器会优化，不会因为简写而影响效率，反而因优化提高了效率
+    减少程序员工作量，减少出错
+    简化了代码，但可读性增强
+  列表解析进阶
+    [expr for item in iterable if cond1 if cond2]
+    等价于
+    ret = []
+    for item in iterable:
+      if cond1:
+        if cond2:
+          ret.append(expr)
+
+    举例, 20以内，既能被2整除又能被3整除的数
+      [i for i in range(20) if i%2==0 and i%3==0] 
+      [i for i in range(20) if i%2==0 if i%3==0]
+
+    ---------------------------------------
+
+    [expr for i in iterable1 for j in iterable2 ]
+    等价于
+    ret = []
+    for i in iterable1:
+      for j in iterable2: 
+        ret.append(expr)
+    
+    举例
+      [(x, y) for x in 'abcde' for y in range(3)] 
+      [[x, y] for x in 'abcde' for y in range(3)] 
+      [{x: y} for x in 'abcde' for y in range(3)]
+
+    [(i,j) for i in range(7) if i>4 for j in range(20,25) if j>23] 
+    [(i,j) for i in range(7) for j in range(20,25) if i>4 if j>23] 
+    [(i,j) for i in range(7) for j in range(20,25) if i>4 and j>23]
+    第一种效率最高
+
+生成器表达式
+  语法
+    (返回值 for 元素 in 可迭代对象 if 条件)
+    列表解析式的中括号换成小括号就行了
+    返回一个生成器
+  和列表解析式的区别
+    生成器表达式是按需计算(或称惰性求值、延迟计算)，需要的时候才计算值
+    列表解析式是立即返回值
+  生成器
+    可迭代对象
+    迭代器
+
+  g = ("{:04}".format(i) for i in range(1,11))
+  next(g)
+  for x in g:
+    print(x) 
+  print('~~~~~~~~~~~~') 
+  for x in g:
+    print(x)
+
+  总结
+    生成器
+      延迟计算
+      返回迭代器，可以迭代
+      从前到后走完一遍后，不能回头
+    列表
+      立即计算
+      返回的不是迭代器，返回可迭代对象列表
+      从前到后走完一遍后，可以重新回头迭代
+
+  和列表解析式的对比
+    计算方式  
+      生成器表达式延迟计算，列表解析式立即计算
+    内存占用
+      单从返回值本身来说，生成器表达式省内存，列表解析式返回新的列表
+      生成器没有数据，内存占用极少，但是使用的时候，虽然一个个返回数据，但是合起来占用的内存也差不多
+      列表解析式构造新的列表需要占用内存
+    计算速度
+      单看计算时间看，生成器表达式耗时非常短，列表解析式耗时长
+      但是生成器本身并没有返回任何值，只返回了一个生成器对象
+      列表解析式构造并返回了一个新的列表
+
+集合解析式
+  立即计算
+  语法
+    {返回值 for 元素 in 可迭代对象 if 条件}
+    列表解析式的中括号换成大括号{}就行了
+    立即返回一个集合
+  用法
+    {(x,x+1) for x in range(10)}
+    {[x] for x in range(10)} # 报错，因为list不可hash
+
+字典解析式
+  立即计算
+  语法
+    {返回值 for 元素 in 可迭代对象 if 条件}
+    列表解析式的中括号换成大括号{}就行了
+    使用key:value形式
+    立即返回一个字典
+  用法
+    {x:(x,x+1) for x in range(10)}
+    {x:[x,x+1] for x in range(10)}
+    {(x,):[x,x+1] for x in range(10)}
+    {[x]:[x,x+1] for x in range(10)} # 报错，因为list不可hash
+    {chr(0x41+x):x**2 for x in range(10)}
+    {str(x):y for x in range(3) for y in range(4)}
+    等价于
+    ret = {}
+    for x in range(3):
+      for y in range(4): 
+        ret[str(x)] = y
+ 
+总结
+  Python2 引入列表解析式
+  Python2.4 引入生成器表达式
+  Python3 引入集合、字典解析式，并迁移到了2.7
+
+  一般来说，应该多应用解析式，简短、高效
+  如果一个解析式非常复杂，难以读懂，要考虑拆解成for循环
+
+  生成器和迭代器是不同的对象，但都是可迭代对象
+ 

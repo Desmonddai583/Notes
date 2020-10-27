@@ -1,0 +1,250 @@
+NSURLSessionTask是一个抽象类，本身不能使用，只能使用它的子类
+  NSURLSessionDataTask
+  NSURLSessionUploadTask
+  NSURLSessionDownloadTask
+
+NSURLSessionDataTask
+  get请求
+    第一种
+      //1.创建NSURLSession对象（可以获取单例对象）
+      NSURLSession *session = [NSURLSession sharedSession];
+      //2.根据NSURLSession对象创建一个Task
+      NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login?username=ss&pwd=ss&type=JSON"];
+      NSURLRequest *request = [NSURLRequest requestWithURL:url];
+      //方法参数说明
+      /*
+      注意：该block是在子线程中调用的，如果拿到数据之后要做一些UI刷新操作，那么需要回到主线程刷新
+      第一个参数：需要发送的请求对象
+      block:当请求结束拿到服务器响应的数据时调用block
+      block-NSData:该请求的响应体
+      block-NSURLResponse:存放本次请求的响应信息，响应头，真实类型为NSHTTPURLResponse
+      block-NSErroe:请求错误信息
+      */
+      NSURLSessionDataTask * dataTask =  [session dataTaskWithRequest:request completionHandler:^(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error) {
+          //拿到响应头信息
+          NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+          //4.解析拿到的响应数据
+          NSLog(@"%@\n%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],res.allHeaderFields);
+      }];
+      //3.执行Task
+      //注意：刚创建出来的task默认是挂起状态的，需要调用该方法来启动任务（执行任务）
+      [dataTask resume];
+    第二种
+      //注意：该方法内部默认会把URL对象包装成一个NSURLRequest对象(GET请求),这种方法只适用于Get请求
+      //方法参数说明
+      /*
+      //第一个参数：发送请求的URL地址
+      //block:当请求结束拿到服务器响应的数据时调用block
+      //block-NSData:该请求的响应体
+      //block-NSURLResponse:存放本次请求的响应信息，响应头，真实类型为NSHTTPURLResponse
+      //block-NSErroe:请求错误信息
+      */
+      - (nullable NSURLSessionDataTask *)dataTaskWithURL:(NSURL *)url completionHandler:(void (^)(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error))completionHandler;
+
+  POST请求
+    //1.创建NSURLSession对象（可以获取单例对象）
+    NSURLSession *session = [NSURLSession sharedSession];
+    //2.根据NSURLSession对象创建一个Task
+    NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/login"];
+    //创建一个请求对象，并这是请求方法为POST，把参数放在请求体中传递
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.HTTPMethod = @"POST";
+    request.HTTPBody = [@"username=520it&pwd=520it&type=JSON" dataUsingEncoding:NSUTF8StringEncoding];
+    // completionHandler当请求完成之后调用,在子线程中调用
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error) {
+        //拿到响应头信息
+        NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+        //解析拿到的响应数据
+        NSLog(@"%@\n%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding],res.allHeaderFields);
+    }];
+    //3.执行Task
+    //注意：刚创建出来的task默认是挂起状态的，需要调用该方法来启动任务（执行任务）
+    [dataTask resume];
+
+  自定义session
+    /*
+    第一个参数:配置信息 [NSURLSessionConfiguration defaultSessionConfiguration]
+    第二个参数:代理
+    第三个参数:设置代理方法在哪个线程中调用
+    */
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+
+  代理方法
+    /*
+    1.当接收到服务器响应的时候调用
+        session：发送请求的session对象
+        dataTask：根据NSURLSession创建的task任务
+        response:服务器响应信息（响应头）
+        completionHandler：通过该block回调，告诉服务器端是否接收返回的数据
+    */
+    -(void)URLSession:(nonnull NSURLSession *)session dataTask:(nonnull NSURLSessionDataTask *)dataTask didReceiveResponse:(nonnull NSURLResponse *)response completionHandler:(nonnull void (^)(NSURLSessionResponseDisposition))completionHandler
+    /*
+    2.当接收到服务器返回的数据时调用
+    该方法可能会被调用多次
+    *  @param session           会话对象
+    *  @param dataTask          请求任务
+    *  @param data              本次下载的数据
+    */
+    -(void)URLSession:(nonnull NSURLSession *)session dataTask:(nonnull NSURLSessionDataTask *)dataTask didReceiveData:(nonnull NSData *)data
+    /*
+    3.当请求完成之后调用该方法
+    不论是请求成功还是请求失败都调用该方法，如果请求失败，那么error对象有值，否则那么error对象为空
+    *  @param session           会话对象
+    *  @param dataTask          请求任务
+    *  @param error             错误信息
+    */
+    -(void)URLSession:(nonnull NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
+
+    默认情况下，当接收到服务器响应之后，服务器认为客户端不需要接收数据，所以后面的代理方法不会调用
+    如果需要继续接收服务器返回的数据，那么需要调用block,并传入对应的策略
+      /*
+          NSURLSessionResponseCancel = 0, 取消任务
+          NSURLSessionResponseAllow = 1,  接收任务
+          NSURLSessionResponseBecomeDownload = 2, 转变成下载
+          NSURLSessionResponseBecomeStream NS_ENUM_AVAILABLE(10_11, 9_0) = 3, 转变成流
+      */
+    completionHandler(NSURLSessionResponseAllow);
+
+NSURLSessionDownloadTask
+  大文件下载
+    1. downloadTaskWithURL
+      downloadTaskWithURL内部默认已经实现了边下载边写入操作，所以不用开发人员担心内存问题
+      文件下载后默认保存在tmp文件目录，需要开发人员手动的剪切到合适的沙盒目录
+      缺点：没有办法监控下载进度
+      /*
+      第一个参数：要下载文件的url路径
+      第二个参数：当接收完服务器返回的数据之后调用该block
+      location:下载的文件的保存地址（默认是存储在沙盒中tmp文件夹下面，随时会被删除）
+      response：服务器响应信息，响应头
+      error：该请求的错误信息
+      */
+      //说明：downloadTaskWithURL方法已经实现了在下载文件数据的过程中边下载文件数据，边写入到沙盒文件的操作
+      NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:url completionHandler:^(NSURL * __nullable location, NSURLResponse * __nullable response, NSError * __nullable error)
+    2. 代理
+      //1.创建NSULRSession,设置代理
+      self.session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+      //2.创建task
+      NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/resources/videos/minion_01.mp4"];
+      self.downloadTask = [self.session downloadTaskWithURL:url];
+      //3.执行task
+      [self.downloadTask resume];
+      /*
+      1.当接收到下载数据的时候调用,可以在该方法中监听文件下载的进度
+      该方法会被调用多次
+      totalBytesWritten:已经写入到文件中的数据大小
+      totalBytesExpectedToWrite:目前文件的总大小
+      bytesWritten:本次下载的文件数据大小
+      */
+      -(void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+      /*
+      2.恢复下载的时候调用该方法
+      fileOffset:恢复之后，要从文件的什么地方开发下载
+      expectedTotalBytes：该文件数据的总大小
+      */
+      -(void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes
+      /*
+      3.下载完成之后调用该方法
+      @param location   文件的临时存储路径
+      */
+      -(void)URLSession:(nonnull NSURLSession *)session downloadTask:(nonnull NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(nonnull NSURL *)location
+      /*
+      4.请求完成之后调用
+      如果请求失败，那么error有值
+      */
+      -(void)URLSession:(nonnull NSURLSession *)session task:(nonnull NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
+
+      暂停
+        [self.downloadTask suspend];
+
+      断点下载
+        如果任务取消了那么以后就不能恢复了
+          self.downloadTask cancel];
+
+        如果采取下面这种方式来取消任务，那么该方法会通过resumeData保存当前文件的下载信息
+        只要有了这份信息，以后就可以通过这些信息来恢复下载
+        恢复下载的数据!=文件数据,恢复下载数据里面放的是临时文件的地址,取消时的文件位置等
+          [self.downloadTask cancelByProducingResumeData:^(NSData * __nullable resumeData) {
+              self.resumeData = resumeData;
+          }];
+        继续下载,首先通过之前保存的resumeData信息，创建一个下载任务
+        self.downloadTask = [self.session downloadTaskWithResumeData:self.resumeData];
+        [self.downloadTask resume];
+
+        局限性
+          1 如果用户点击暂停之后退出程序，那么需要把恢复下载的数据写一份到沙盒，代码复杂度更高
+          2 如果用户在下载中途未保存恢复下载数据即退出程序，则不具备可操作性
+
+NSURLSessionDataTask实现大文件离线断点下载
+  针对NSURLSessionDownloadTask局限性问题可以通过NSURLSessionDataTask来解决
+  因为NSURLSessionDataTask可以设置头部range,所以即便退出程序下次也可以从记录下来的离线断点续传
+    //1.1 创建请求路径
+    NSURL *url = [NSURL URLWithString:@"http://120.25.226.186:32812/resources/videos/minion_01.mp4"];
+    //1.2 创建可变请求对象
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    //1.3 拿到当前文件的残留数据大小
+    self.currentContentLength = [self FileSize];
+    //1.4 告诉服务器从哪个地方开始下载文件数据
+    NSString *range = [NSString stringWithFormat:@"bytes=%zd-",self.currentContentLength];
+    NSLog(@"%@",range);
+    //1.5 设置请求头
+    [request setValue:range forHTTPHeaderField:@"Range"];
+
+NSURLSession对象的释放
+  -(void)dealloc
+  {
+      //在最后的时候应该把session释放，以免造成内存泄露
+      //NSURLSession设置过代理后，需要在最后（比如控制器销毁的时候）调用session的invalidateAndCancel或者resetWithCompletionHandler，才不会有内存泄露
+      //[self.session invalidateAndCancel];
+      [self.session resetWithCompletionHandler:^{
+          NSLog(@"释放---");
+      }];
+  }
+
+文件上传
+  /*
+  第一个参数：请求对象
+  第二个参数：请求体（要上传的文件数据）
+  block回调：
+  NSData:响应体
+  NSURLResponse：响应头
+  NSError：请求的错误信息
+  */
+  NSURLSessionUploadTask *uploadTask =  [session uploadTaskWithRequest:request fromData:data completionHandler:^(NSData * __nullable data, NSURLResponse * __nullable response, NSError * __nullable error)
+
+  可以通过设置代理，在代理方法中监听文件上传进度
+    因为NSURLSessionUploadTask的父类是NSURLSessionDataTask并且它自己本身没有协议,所以需要实现NSURLSessionDataTask的协议
+    /*
+    调用该方法上传文件数据
+    如果文件数据很大，那么该方法会被调用多次
+    参数说明：
+        totalBytesSent：已经上传的文件数据的大小
+        totalBytesExpectedToSend：文件的总大小
+    */
+    -(void)URLSession:(nonnull NSURLSession *)session task:(nonnull NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
+    {
+        NSLog(@"%.2f",1.0 * totalBytesSent/totalBytesExpectedToSend);
+    }
+
+NSURLSessionConfiguration
+  详情见 NSURLConfiguration笔记.m
+  作用：可以统一配置NSURLSession,如请求超时等
+
+  创建配置的三种方式
+    + (NSURLSessionConfiguration *)defaultSessionConfiguration;
+    + (NSURLSessionConfiguration *)ephemeralSessionConfiguration;
+    + (NSURLSessionConfiguration *)backgroundSessionConfigurationWithIdentifier:(NSString *)identifier NS_AVAILABLE(10_10, 8_0);
+
+  统一配置NSURLSession
+  -(NSURLSession *)session
+  {
+      if (_session == nil) {
+          //创建NSURLSessionConfiguration
+          NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+          //设置请求超时为10秒钟
+          config.timeoutIntervalForRequest = 10;
+          //在蜂窝网络情况下是否继续请求（上传或下载）
+          config.allowsCellularAccess = NO;
+          _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+      }
+      return _session;
+  }

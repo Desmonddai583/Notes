@@ -1,0 +1,87 @@
+在 Swift 标准库中，绝大多数的公开类型都是结构体，而枚举和类只占很小一部分
+比如Bool、Int、Double、 String、Array、Dictionary等常见类型都是结构体
+结构体中也是可以定义方法的
+
+所有的结构体都有一个编译器自动生成的初始化器（initializer，初始化方法、构造器、构造方法）
+可以传入所有成员值，用以初始化所有成员（存储属性，Stored Property）
+  struct Date { 
+    var year: Int 
+    var month: Int 
+    var day: Int 
+  } 
+  var date = Date(year: 2019, month: 6, day: 23)
+
+编译器会根据情况，可能会为结构体生成多个初始化器，宗旨是：保证所有成员都有初始值
+  struct Point { 
+    var x: Int 
+    var y: Int 
+  } 
+  var p1 = Point(x: 10, y: 10)
+  var p2 = Point(x: 10) // 报错
+  var p3 = Point(y: 10) // 报错
+  var p4 = Point() // 报错
+
+  struct Point { 
+    var x: Int = 0
+    var y: Int = 0
+  } 
+  var p1 = Point(x: 10, y: 10)
+  var p2 = Point(x: 10)
+  var p3 = Point(y: 10) 
+  var p4 = Point() 
+
+  可选项都有个默认值nil
+  // 一下代码可以编译通过
+  struct Point { 
+    var x: Int?
+    var y: Int?
+  } 
+  var p1 = Point(x: 10, y: 10) 
+  var p2 = Point(y: 10) 
+  var p3 = Point(x: 10) 
+  var p4 = Point()
+
+自定义初始化器
+  一旦在定义结构体时自定义了初始化器，编译器就不会再帮它自动生成其他初始化器
+
+  struct Point { 
+    var x: Int = 0
+    var y: Int = 0
+    init(x: Int, y: Int) {
+      self.x = x
+      self.y = y
+    }
+  } 
+  var p1 = Point(x: 10, y: 10)
+  var p2 = Point(x: 10) // 报错
+  var p3 = Point(y: 10) // 报错
+  var p4 = Point() // 报错
+
+初始化器的本质  
+  以下2段代码完全等效,背后的汇编也完全一样
+    1.
+      struct Point { 
+        var x: Int = 0 
+        var y: Int = 0 
+      } 
+      var p = Point()
+    2.
+      struct Point { 
+        var x: Int 
+        var y: Int 
+        init() { 
+          x = 0 
+          y = 0 
+        }
+      } 
+      var p = Point()
+
+结构体内存结构
+  struct Point { 
+    var x: Int = 0 
+    var y: Int = 0 
+    var origin: Bool = false 
+  } 
+  print(MemoryLayout<Point>.size) // 8 + 8 + 1
+  print(MemoryLayout<Point>.stride) // 24 
+  print(MemoryLayout<Point>.alignment) // 8

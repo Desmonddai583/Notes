@@ -1,0 +1,15 @@
+获取打印所在的文件
+  let file = (__FILE__ as NSString).lastPathComponent
+获取打印所在的方法
+  let funcName = __FUNCTION__
+获取打印所在行数
+  let lineNum = __LINE__
+
+func XMGLog<T>(messsage : T, file : String = __FILE__, funcName : String = __FUNCTION__, lineNum : Int = __LINE__) {
+    // 现在项目中为debug和release添加标记即可使用下面的语法(见插图)
+    // 只有在debug模式下才会执行
+    #if DEBUG
+    let fileName = (file as NSString).lastPathComponent
+    print("\(fileName):(\(lineNum))-\(messsage)")
+    #endif
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>84-简易的图片展示</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 670px;
+            border: 1px solid #000;
+            margin: 50px auto;
+        }
+        div ul{
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+        }
+        div ul img{
+            width: 120px;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <img src="images/ad1.jpg" alt="">
+    <ul>
+        <li><img src="images/ad1.jpg" alt=""></li>
+        <li><img src="images/ad2.jpg" alt=""></li>
+        <li><img src="images/ad3.jpg" alt=""></li>
+        <li><img src="images/ad4.jpg" alt=""></li>
+        <li><img src="images/ad5.jpg" alt=""></li>
+    </ul>
+</div>
+<script>
+    // 1.获取到所有的li
+    var oItems = document.querySelectorAll("ul>li");
+    // 获取大图片
+    var oBigImg = document.querySelector("div>img");
+    /*
+    // USB写法
+    oItems[0].onclick = function () {
+        alert("1");
+    };
+    oItems[1].onclick = function () {
+        alert("2");
+    };
+    oItems[2].onclick = function () {
+        alert("3");
+    };
+    oItems[3].onclick = function () {
+        alert("4");
+    };
+    oItems[4].onclick = function () {
+        alert("5");
+    };
+    */
+
+    // 2.给所有li添加点击事件
+    // 每执行过一次循环, 就会判断一次条件表达式
+    // 每判断一次条件表达式就会获取一次oItems的长度
+    // var len = oItems.length;
+    // for(var i = 0; i < oItems.length; i++){
+    // for(var i = 0; i < len; i++){
+    for(var i = 0, len = oItems.length; i < len; i++){
+        var item = oItems[i];
+        /*
+        item.onclick = function () {
+            // 3.切换图片
+            // 3.1获取当前点击图片的资源地址
+           var osmallImg = this.firstElementChild || this.firstChild;
+            // 3.2将点击图片的资源地址设置给大图片
+            oBigImg.src = osmallImg.src;
+        }
+        */
+        item.onclick = change;
+    }
+    function change() {
+        // 3.切换图片
+        // 3.1获取当前点击图片的资源地址
+        var osmallImg = this.firstElementChild || this.firstChild;
+        // 3.2将点击图片的资源地址设置给大图片
+        oBigImg.src = osmallImg.src;
+    }
+
+    // // 获取指定元素的第一个子元素
+    // var first = this.firstElementChild || this.firstChild;
+    // // 获取指定元素的最后一个子元素
+    // var first = this.lastElementChild || this.lastChild;
+
+    /*
+    var obj1 = {name: "zs"};
+    var obj2 = {name: "ls"};
+    var obj3 = {name: "ww"};
+    // obj1.say = function () {
+    //     console.log("say");
+    // };
+    // obj2.say = function () {
+    //     console.log("say");
+    // };
+    // obj3.say = function () {
+    //     console.log("say");
+    // };
+    function say() {
+        console.log("say");
+    }
+    obj1.say = say;
+    obj2.say = say;
+    obj3.say = say;
+    */
+
+
+</script>
+</body>
+</html>

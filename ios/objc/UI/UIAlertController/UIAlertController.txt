@@ -1,0 +1,23 @@
+分为UIAlertControllerStyleActionSheet和UIAlertControllerStyleAlert两种
+
+1. 创建控制器
+UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:@"确定要退出嘛?" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+2. 创建按钮
+UIAlertAction *action = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    NSLog(@"点击了取消");
+}];
+UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+    [self.navigationController popViewControllerAnimated:YES];
+}];
+3.添加按钮
+[alertVC addAction:action];
+[alertVC addAction:action1];
+除了添加按钮之外,还可以添加⽂本框, 
+添加⽂本框的前提是UIAlertController的样式必须得要是 UIAlertControllerStyleAlert样式.否则会直接报错 
+  [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    textField.placeholder = @“⽂本框点位⽂字"; 
+  }];
+  // 通过控制器的textFields属性获取添加的⽂本框.注意textFields它是⼀个数组. 
+  UITextField *textF = alertController.textFields.lastObject;
+4.显示弹框.(相当于show操作)
+[self presentViewController:alertVC animated:YES completion:nil];

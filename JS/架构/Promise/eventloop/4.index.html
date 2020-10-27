@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 从上到下执行 -->
+    <script>
+        console.log(1);
+        async function async () {
+            console.log(2);
+            await console.log(3); // Promise.resolve(console.log(3)).then(console.log(4))
+            console.log(4)
+        }
+        setTimeout(() => {
+            console.log(5);
+        }, 0);
+        const promise = new Promise((resolve, reject) => {
+            console.log(6); // new Promise 代码会立即执行
+            resolve(7)
+        })
+        promise.then(res => { // 第一个微任务
+            console.log(res)
+        })
+        async (); 
+        console.log(8);
+        // 1 2 4 3 6 7 8 5
+        // 1 6 8 2 4 3 7 5
+        // 1 8 6 7 2 4 3 5
+        // 1 2 4 6 8 3 7 5  xx
+        // 1 6 2 3 8 7 4 5
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,186 @@
+web开发的流程
+1.项目立项(确认项目,资金,人员,....)
+2.需求分析
+3.概要设计(出文档)
+4.详细设计(出文档)
+5.原型设计(Axure)
+2/3/4/5会开很多次的会议(头脑风暴, 这个时候你可能还在做其它的项目)
+6.分工干活(后端/前端)
+    6.1后端
+    架构设计/数据库设计/模块代码实现/
+    6.2前端
+    UI设计/架构设计/编写前端界面/
+7.合并代码
+8.内部测试(单元测试/白盒测试/黑盒测试/压力测试/....)
+9.打包上线
+
+Beego是一个能够快速开发Go应用程序的HTTP框架, 
+它可以用来迅速的开发API, 网络APP(网站)和后端服务
+Beego是一个MVC的框架
+
+安装Beego框架
+    go get github.com/astaxie/beego
+安装Beego工具
+    go get -u github.com/beego/bee
+利用bee工具创建一个Beego的项目
+    bee new 项目名称
+运行创建好的项目
+    cd 项目名称
+    bee run
+
+bee工具创建的项目结构
+    conf  : 保存了项目的一些配置信息
+    controllers : 保存MVC中的控制器
+    models : 保存MVC中的模型
+    views 保存MVC中的视图
+    routers : 保存了项目的路由
+    static : 保存了项目中的静态资源 images .css .js
+    tests : 保存测试用例
+    main.go : 项目的入口文件
+
+Beego项目的执行流程
+    1 客户端发起请求
+        http://127.0.0.1:8080/
+    2 执行项目的路由相关代码, 找到处理对应请求的控制器
+        beego.Router("/", &controllers.MainController{})
+    3 执行控制器对应的方法
+        默认会根据请求类型找到对应的请求方法Get/Post方法
+    4 在对应的方法中处理业务逻辑, 返回对应的界面
+        c.Data["msg"] = "msg"
+        c.TplName = "index.tpl" // 返回对应的界面
+    5 客户端显示对应的界面
+        {{.msg}}
+
+路由
+    1. 固定路由
+        beego.Router("/login", &controllers.LoginController{})
+    2. 自定义方法
+        注意点: 方法名的首字母必须大写(公开的方法)
+        *表示通配符, 无论什么请求类型都通过Handle方法来处理
+        如果后续还指定了明确的请求类型对应的方法, 那么会执行明确指定的方法
+            beego.Router("/register", &controllers.RegisterController{}, "*:Handle")
+            beego.Router("/register", &controllers.RegisterController{}, "*:Handle;post:CustomPost")
+            beego.Router("/register", &controllers.RegisterController{}, "get:CustomGet;post:CustomPost")
+
+操作数据库
+    因为利用go语言直接操作数据库需要编写SQL语句, 而SQL语句都是字符串, 所以没有提示, 所以容易出错
+    过去: 在企业开发中一般情况下都是在图形化界面工具中先写好SQL语句, 测试没有问题之后再拷贝到代码当中
+    现在: 在企业开发中一般情况下可以使用ORM, 如果使用ORM来操作数据库, 就可以摆脱SQL语句
+
+    ORM
+        ORM是对象关系映射Object Relational Mapping
+        ORM可以将编程开发中的对象和数据库中的表进行映射, 可以根据对象创建表, 可以根据对象对表进行CRUD
+        现在市面上所有的编程语言几乎都支持ORM, 只不过是使用的框架不同而已
+
+        import "github.com/astaxie/beego/orm"
+
+        // 定义模型
+        //     如果通过模型来创建表, 那么模型中的公有属性会添加为表的字段,那么模型中的私有属性不会被添加为表的字段
+        //     特点: 创建表的时候会将公有属性的首字母自动转换为小写
+        //     特点: 如果属性名称是驼峰命名, 会自动转换为下划线连接. PassWorld -> pass_world
+        //     注意点: 在利用模型创建表的时候, 模型中的属性名称最好不要_
+        //             因为两个下划线在ORM中有特殊的含义
+        type User struct {
+            Id   int
+            Name string
+            Password string
+            score float64
+        }
+
+        func init()  {
+            // 1. 注册数据库驱动类型
+            orm.RegisterDriver("mysql", orm.DRMySQL)
+            // 2. 获取ORM连接对象
+            // 参数1   数据库的别名，用来在 ORM 中切换数据库使用
+            // 参数2   driverName
+            // 参数3   对应的链接字符串
+            orm.RegisterDataBase("default", "mysql", "root:root@tcp(127.0.0.1:3306)/itzb?charset=utf8")
+            // 3. 注册ORM模型
+            // 注意点: 注册完模型并不会创建表
+            orm.RegisterModel(new(User))
+            // 4. 根据注册的模型创建表
+            // 第一个参数: 数据库的别名(在哪个数据库中创建)
+            // 第二个参数: 是否强制更新(销毁过去的再重新创建)
+            // 第三个参数: 是否显示创建SQL语句
+            orm.RunSyncdb("default", false, true)
+        }
+
+    ORM CRUD
+        func (c *MainController) Get() {
+            // 1.获取ORM对象
+            o := orm.NewOrm()
+
+            // 2.创建需要插入的对象
+            var user models.User
+            user.Name="zq"
+            user.Password="987654"
+            // 3.通过ORM对象将创建的对象插入到数据库当中
+            if id, err := o.Insert(&user); err == nil{
+                beego.Info("插入数据成功, id是", id)
+            }else{
+                beego.Error("插入数据失败", err)
+            }
+
+            // 1.定义需要查询的对象
+            var user models.User
+            // 2.指定需要查询的字段
+            //user.Name = "zq"
+            user.Id = 1
+            // 3.利用ORM对象查询指定的对象
+            //      含义从表中找到name是我们指定name的那一条数据, 然后赋值给传入的user变量
+            //      第二个参数就相当于过去的where name=user.Name
+            //if err := o.Read(&user, "name"); err ==nil{
+            //if err := o.Read(&user, "id"); err ==nil{
+
+            // 注意点: 如果查询的条件字段是ID, 那么可以省略
+            if err := o.Read(&user); err ==nil{
+                beego.Info("查询成功", user)
+            }else{
+                beego.Error("查询失败", err)
+            }
+
+            // 1.告诉ORM从哪一张表中查询
+            // 参数: 从哪一张表中查询
+            qs := o.QueryTable("user")
+            // 2.定义切片保存查询的结果
+            // 注意点: 切片的类型必须是模型的类型
+            var users []models.User
+            // 3.通过QuerySeter的ALL方法将查询的数据放到切片中
+            if count, err := qs.All(&users); err == nil{
+                beego.Info(count, users)
+            }else{
+                beego.Error("查询失败", err)
+            }
+
+            // 1.定义需要更新的对象
+            var user models.User
+            // 2.指定需要查询的字段
+            // 为了避免出错, 一般情况下更新之前需要先判断数据是否存在
+            user.Name = "lnj"
+            // 注意点: 如果查询的条件字段是ID, 那么可以省略
+            if err := o.Read(&user, "name"); err ==nil{
+                beego.Info("查询成功", user)
+                // 3.设置需要更新的数据
+                user.Name="it666"
+                user.PassWorld="abcdefg"
+                count, _ :=o.Update(&user)
+                beego.Info("count====", count)
+            }else{
+                beego.Error("查询失败", err)
+            }
+
+            // 1.定义需要删除的对象
+            var user models.User
+            // 2.指定需要查询的字段
+            // 为了避免出错, 一般情况下更新之前需要先判断数据是否存在
+            user.Name = "zq"
+            // 注意点: 如果查询的条件字段是ID, 那么可以省略
+            if err := o.Read(&user, "name"); err ==nil{
+                beego.Info("查询成功", user)
+                // 3.删除指定的对象
+                count, _ :=o.Delete(&user)
+                beego.Info("count====", count)
+            }else{
+                beego.Error("查询失败", err)
+            }
+        }

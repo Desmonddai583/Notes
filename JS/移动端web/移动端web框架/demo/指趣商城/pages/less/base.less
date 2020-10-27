@@ -1,0 +1,191 @@
+@import "../../less/normalize.css";
+
+/*对Normalize Css补充*/
+blockquote,body,button,dd,dl,dt,fieldset,form,h1,h2,h3,h4,h5,h6,hr,input,legend,li,ol,p,pre,td,textarea,th,ul{margin:0;padding:0}
+/*设置整个网站的字体和字体大小*/
+body{
+  font-family: -apple-system, Helvetica,sans-serif;
+  color: #666;
+  background: #f4f4f4;
+  touch-action: none;
+  box-sizing: border-box;
+  -webkit-text-size-adjust:none; // 谷歌浏览器默认最小字体只能是12像素
+}
+/*对a标签的补充*/
+a{
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+}
+img{
+  vertical-align: top;
+  width: 100%;
+}
+input{
+  outline: none;
+  border: none;
+}
+/*字体图标相关的样式*/
+/*声明字体图标*/
+@font-face {
+  font-family: 'iconfont';
+  src: url('../../fonts/iconfont.eot');
+  src: url('../../fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+  url('../../fonts/iconfont.woff') format('woff'),
+  url('../../fonts/iconfont.ttf') format('truetype'),
+  url('../../fonts/iconfont.svg#iconfont') format('svg');
+}
+/*定义使用iconfont的样式*/
+.iconfont{
+  font-family:"iconfont" !important;
+  font-size:12px;font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+进行媒体查询, 给不同的屏幕大小设置不同的字体大小
+字体大小的来源: 来源于原始设置图片等分为多少份的大小
+*/
+@media screen and (min-width:320px) {
+  html {
+    font-size: 21.33px
+  }
+  body {
+    font-size: 12px
+  }
+}
+
+@media screen and (min-width:360px) {
+  html {
+    font-size: 24px
+  }
+
+  body {
+    font-size: 12px
+  }
+}
+
+@media screen and (min-width:375px) {
+  html {
+    font-size: 25px
+  }
+
+  body {
+    font-size: 12px
+  }
+}
+
+@media screen and (min-width:384px) {
+  html {
+    font-size: 25.6px
+  }
+
+  body {
+    font-size: 14px
+  }
+}
+
+@media screen and (min-width:400px) {
+  html {
+    font-size: 26.67px
+  }
+
+  body {
+    font-size: 14px
+  }
+}
+
+@media screen and (min-width:414px) {
+  html {
+    font-size: 27.6px
+  }
+
+  body {
+    font-size: 14px
+  }
+}
+
+@media screen and (min-width:424px) {
+  html {
+    font-size: 28.27px
+  }
+
+  body {
+    font-size: 14px
+  }
+}
+
+@media screen and (min-width:480px) {
+  html {
+    font-size: 32px
+  }
+
+  body {
+    font-size: 15.36px
+  }
+}
+
+@media screen and (min-width:540px) {
+  html {
+    font-size: 36px
+  }
+
+  body {
+    font-size: 17.28px
+  }
+}
+
+@media screen and (min-width:720px) {
+  html {
+    font-size: 48px
+  }
+  body {
+    font-size: 23.04px
+  }
+}
+@media screen and (min-width:750px) {
+  html {
+    font-size: 50px
+  }
+  body {
+    font-size: 24px
+  }
+}
+
+html,body{
+  width: 100%;
+  height: 100%;
+}
+
+/*常用工具类*/
+.f-left{
+  float: left;
+}
+.f-right{
+  float: right;
+}
+.clearfix{
+  //&:before,
+  //&:after {
+  //  content: " ";
+  //  display: table;
+  //}
+  //&:after {
+  //  clear: both;
+  //}
+  overflow: hidden;
+}
+// 触屏版的最大宽度
+.maxWidth(){
+  max-width: 750px;
+  min-width: 320px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.layout{
+  .maxWidth;
+  box-sizing: border-box;
+}

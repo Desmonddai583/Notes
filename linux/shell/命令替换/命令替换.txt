@@ -1,0 +1,41 @@
+1. `command`
+        获取系统的所有用户并输出	
+            index=1
+            
+            for user in `cat /etc/passwd | cut -d ":" -f 1`
+            do
+                echo "This is $index user: $user"
+                # 在Linux的shell中，变量的值的类型默认是字符串，不能直接进行数值运算
+                # 所以这里使用双括号来enable数值运算
+                index=$(($index + 1))
+            done
+2. $(command)
+        根据系统时间计算今年或明年
+      echo "This is $(date +%Y) year"
+      echo "This is $(($(date +%Y) + 1)) year"
+        
+        根据系统时间获取今年还剩下多少星期，已经过了多少星期
+            date +%j
+            echo "This year have passed $(date +%j) days"
+            echo "This year have passed $(($(date +%j)/7)) weeks"
+            
+            echo "There is $((365 - $(date +%j))) days before new year"
+            echo "There is $(((365 - $(date +%j))/7)) weeks before new year"
+    
+        判定nginx进程是否存在，若不存在则自动拉起该进程
+            # grep -v 排除(invert match)
+            nginx_process_num=$(ps -ef | grep nginx | grep -v grep | wc -l)
+            
+            if [ $nginx_process_num -eq 0 ];then
+                systemctl start nginx
+            fi
+
+``和$()两者是等价的，但推荐初学者使用$()，易于掌握；缺点是极少数UNIX可能不支持，但``都是支持的
+$(())主要用来进行整数运算，包括加减乘除,引用变量前面可以加$，也可以不加$
+    num1=20;num2=30
+    echo "$(($num1 + $num2))" # 120
+    echo "$((num1 + num2))"   # 120
+自增自减操作
+    num=0
+    ((num++))
+((num--))

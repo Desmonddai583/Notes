@@ -1,0 +1,66 @@
+.single_cat{
+  .maxWidth;
+  margin-top: 10/50rem;
+  background: #fff;
+  .cat-title{
+    width: 100%;
+    height: 55px;
+    line-height: 55px;
+    padding: 0 2%;
+    box-sizing: border-box;
+    position: relative;
+    .cat-title-center{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      span{
+        font-size: 30/50rem;
+        vertical-align: middle;
+      }
+      span:nth-child(2){
+        padding: 0 20/50rem;
+      }
+    }
+    .cat-title-more{
+      height: 100%;
+      a{
+        font-size: 30/50rem;
+        span{
+          font-size: 30/50rem;
+        }
+      }
+    }
+  }
+  .cat-content{
+    width: 100%;
+    margin-top: 2/50rem;
+    ul{
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      li{
+        width: 32%;
+        text-align: center;
+        margin-bottom: 10/50rem;
+        .cat-content-name{
+          display: -webkit-box;
+          -webkit-line-clamp: 2; // 限定只显示2行
+          text-overflow: ellipsis;// 超出的文本显示...
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          font-size: 25/50rem;
+          margin: 10/50rem 0;
+        }
+        .cat-content-price{
+          font-size: 20/50rem;
+          color: orangered;
+          span{
+            font-size: 20/50rem;
+          }
+        }
+      }
+    }
+  }
+}

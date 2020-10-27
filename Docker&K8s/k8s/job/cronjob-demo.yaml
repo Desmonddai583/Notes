@@ -1,0 +1,25 @@
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cronjob-demo
+spec:
+  # 指定可以保留多少完成和失败的Job，默认没有限制，所有成功和失败的Job都会被保留
+  # 如果设置限制的值为0，那么相关类型的Job完成后将不会被保留
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 10
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: cronjob-demo
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: counter
+            image: busybox
+            command:
+            - "bin/sh"
+            - "-c"
+            - "for i in 9 8 7 6 5 4 3 2 1; do echo $i; done"

@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<!--
+2013-9-30: Created.
+-->
+<svg>
+<metadata>
+Created by iconfont
+</metadata>
+<defs>
+
+<font id="iconfont" horiz-adv-x="1024" >
+  <font-face
+    font-family="iconfont"
+    font-weight="500"
+    font-stretch="normal"
+    units-per-em="1024"
+    ascent="896"
+    descent="-128"
+  />
+    <missing-glyph />
+    
+    <glyph glyph-name="huaban" unicode="&#58892;" d="M989.44 556.16a36.8 36.8 0 0 1-6.72 10.56 32 32 0 0 1-45.44 0 36.8 36.8 0 0 1-6.72-10.56 26.56 26.56 0 0 1-2.56-12.16 32 32 0 1 1 64 0 32 32 0 0 1-2.56 12.16zM844.16 493.76l-96-75.52a32 32 0 0 1 39.68-50.24l96 75.52a32 32 0 0 1-39.68 50.24zM652.16 342.72L512 232.64 83.84 569.28a32 32 0 0 1-39.68-50.24l448-352a32 32 0 0 1 39.68 0l160 125.76a32 32 0 0 1-39.68 50.24z"  horiz-adv-x="1024" />
+
+    
+    <glyph glyph-name="jiantou" unicode="&#58898;" d="M887.3 393.5v-23.7l15.8 11.8zM242.9 831.8v-898l598.6 449z"  horiz-adv-x="1024" />
+
+    
+
+
+  </font>
+</defs></svg>

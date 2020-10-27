@@ -1,0 +1,21 @@
+1. 爬虫行为和恶意抓取,资源盗用
+    基础防盗链-不让恶意用户能轻易的爬去网站对外数据
+    secure_link_module-对数据安全性提高加密验证和失效性,适合如核心重要数据
+    access_module-对后台,部分用户服务的数据提供IP防控
+
+2. 后台密码撞库
+    1. 后台登录密码复杂度
+    2. access_module 对后台提供IP防控
+    3. 预警机制 通过lua开发模块应用于nginx上
+
+3. 文件上传漏洞
+    利用这些可以上传的接口将恶意代码植入服务器中,在通过url去访问以执行代码
+    location ^~ /upload {
+        root /opt/app/images;
+        if ($request_filename ~* (.*)\.php) { // 不允许上传时后缀为.php
+            return 403;
+        }
+    }
+
+4. SQL注入,CC攻击
+    可参考https://github.com/loveshell/ngx_lua_waf

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon"/>
+    <title>知播渔电商-Vue版</title>
+
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+<!--
+企业利用Vue开发的步骤:
+1.初始化项目: vue init webpack 项目名称
+2.简单的修改配置文件:  修改端口, 自动打开...
+3.删除默认项目中多余的代码和文件
+4.再进一步的搭建项目结构
+5.进一步的修改src文件夹
+src
+  |----api文件夹: 存放一些和后台交互文件
+  |----assets文件夹: 存放一些自己的静态文件(全局图片/CSS/JS)
+  |----components文件夹: 存放非路由组件
+  |----pages文件夹: 存放路由组件
+  |----filter文件夹: 存放自定义过滤器
+  |----router文件夹: 存放路由
+  |----store文件夹: 存放Vuex
+  |----App.vue: 根组件
+  |----main.js: 入口JS文件
+static: 存放第三方的静态文件
+6,项目技术选型:
+6.1基础结构:Vue+Vuex+VueRouter
+6.2网络请求:axios
+6.3CSS预处理器: Sass、LESS 和 Stylus / Postcss?
+6.4导入清空默认样式的resetcss文件, 导入basecss文件
+6.5导入fastclick处理移动端的点击事件(延迟100~3000毫秒的)
+6.6如何做适配: 媒体查询/em/rem/vw/js来处理  -> vw
+6.6.1安装px转换vm相关的postcss插件
+npm i postcss-aspect-ratio-mini postcss-px-to-viewport postcss-write-svg postcss-cssnext cssnano --S
+npm i cssnano-preset-advanced --save-dev
+6.6.2修改.postcssrc.js配置文件
+6.6.3编写CSS的时候直接按照750设计图片编写px即可
+7.导入项目快捷图标
+注意点, 在Vue中如果需要设置网页快捷图标, 需要将图标放到static目录中
+
+1.postcss-px-to-viewport
+ 自动将项目中的px转换为vm, 也就是说用了这插件, 编写CSS样式的时候就可以直接按照750设计图片标注的大小来编写了, 插件会自动了转换为vw,实现不同视口大小的等比缩放
+
+2.postcss-aspect-ratio-mini
+主要用来处理img/iframe/video等元素的自适应问题, 让元素根据宽高比自动计算出容器大小, 实现等比缩放
+
+3.postcss-write-svg
+插件主要用来处理移动端1px的解决方案。该插件主要使用的是border-image和background来做1px的相关处理
+
+4.postcss-cssnext
+https://www.cnblogs.com/nzbin/p/5744672.html
+
+什么是PostCss?
+PostCss是使用NodeJS编写的一款css预处理工具, 类似于sass/less/stylus等预处理工具
+但是它本身没有太多牛X的功能, 但是它又相当于一个插件平台, 围绕这个平台有很多优秀的插件
+例如
+Vue-cli默认给我们集成进来的postcss-url: 就是用于处理url路径的.
+                          autoprefixer: 就是自动添加浏览器适配的前缀
+                          cssnano: 自动帮我们优化压缩CSS代码
+
+课后必须阅读相关文章:
+https://github.com/amfe/lib-flexible
+https://www.w3cplus.com/mobile/lib-flexible-for-html5-layout.html
+https://www.w3cplus.com/mobile/vw-layout-in-vue.html
+https://www.cnblogs.com/nzbin/p/5744672.html
+编程开发是一门做中学的科学, 企业开发不要学会了再去做, 而是在做的过程中学
+-->
+</html>

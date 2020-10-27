@@ -1,0 +1,132 @@
+NSOperation是对GCD的包装
+NSOperation本身是抽象类，只能只有它的子类
+三个子类分别是：NSBlockOperation、NSInvocationOperation以及自定义继承自NSOperation的类
+NSOperation和NSOperationQueue结合使用才能实现多线程并发
+
+NSInvocationOperation
+  1. 封装操作
+    /*
+    第一个参数：目标对象
+    第二个参数：该操作要调用的方法，最多接受一个参数
+    第三个参数：调用方法传递的参数，如果方法不接受参数，那么该值传nil
+    */
+    NSInvocationOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(run) object:nil];
+  2. 启动操作
+    [operation start];
+
+NSBlockOperation
+  1. 封装操作
+    /*
+    NSBlockOperation提供了一个类方法，在该类方法中封装操作
+    */
+    NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
+        //在主线程中执行
+        NSLog(@"---download1--%@",[NSThread currentThread]);
+    }];
+  2. 追加任务，追加的操作在子线程中执行
+    //注意:如果一个操作中的任务数量大于1,那么会开子线程并发执行任务
+    //注意:不一定是子线程,有可能是主线程
+    [operation addExecutionBlock:^{
+        NSLog(@"---download2--%@",[NSThread currentThread]);
+    }];
+
+    [operation addExecutionBlock:^{
+        NSLog(@"---download3--%@",[NSThread currentThread]);
+    }];
+  3. 启动执行操作
+  [operation start];
+
+自定义NSOperation
+  自定义的NSOperation,通过重写内部的main方法实现封装操作
+  -(void)main
+  {
+    NSLog(@"--main--%@",[NSThread currentThread]);
+  }
+
+  1. 实例化一个自定义操作对象
+    XMGOperation *op = [[XMGOperation alloc]init];
+  2. 执行操作
+    [op start]
+
+NSOperationQueue
+  NSOperation中的两种队列
+    01 主队列 通过mainQueue获得，凡是放到主队列中的任务都将在主线程执行
+    02 非主队列 直接alloc init出来的队列。非主队列同时具备了并发和串行的功能，通过设置最大并发数属性来控制任务是并发执行还是串行执行
+  
+  与GCD比较
+    GCD中的队列：
+      串行队列：自己创建的，主队列
+      并发队列：自己创建的，全局并发队列
+
+    NSOperationQueue
+      主队列：[NSOperationQueue mainqueue];凡事放在主队列中的操作都在主线程中执行
+      非主队列：[[NSOperationQueue alloc]init]，并发和串行，默认是并发执行的
+
+  自定义NSOperation
+    1.创建队列
+      NSOperationQueue *queue = [[NSOperationQueue alloc]init];
+    2.封装操作
+      XMGOperation *op1 = [[XMGOperation alloc]init];
+      XMGOperation *op2 = [[XMGOperation alloc]init];
+    3.添加操作到队列中
+      [queue addOperation:op1];
+      [queue addOperation:op2];
+
+  NSBlockOperation与NSInvocationOperation类似
+
+  简便方法
+    [queue addOperationWithBlock:^{
+      NSLog(@"5----%@",[NSThread currentThread]);
+    }];
+
+NSOperation其它用法
+  设置最大并发数
+    注意点：该属性需要在任务添加到队列中之前进行设置
+    如果最大并发数等于1，那么该队列是串行的，如果大于1那么是并行的
+    系统的最大并发数有个默认的值，为-1，如果该属性设置为0，那么不会执行任何任务
+    注意串行执行任务不等于只开一条线程(线程同步,背后可能是用好几个线程去执行不同的操作,只是同一时间只有一个线程在执行)
+    queue.maxConcurrentOperationCount = 2;
+  暂停和恢复以及取消
+    suspended设置为YES表示暂停，suspended设置为NO表示恢复
+    暂停表示不继续执行队列中的下一个任务，不能暂停当前正在处于执行状态的任务
+    暂停操作是可以恢复的
+    self.queue.suspended = NO;
+
+    取消队列里面的所有操作
+    该方法内部调用了所有操作的cancel方法
+    取消之后，当前正在执行的操作的下一个操作将不再执行，而且永远都不在执行，就像后面的所有任务都从队列里面移除了一样
+    取消操作是不可以恢复的
+    [self.queue cancelAllOperations];
+
+    由于暂停取消对应的最小单位是一个任务操作,所以如果在一个任务中有多个耗时操作
+    建议每当执行完一次耗时操作之后，就查看一下当前队列是否为取消状态，如果是，那么就直接退出
+    if (self.isCancelled) {
+      return;
+    }
+
+操作依赖和监听
+  添加操作依赖
+    注意点:不能循环依赖,可以跨队列依赖(两个不同队列里的操作也可以添加依赖)
+      [op1 addDependency:op4];
+      [op2 addDependency:op3];
+  
+  添加操作监听
+    注意这里监听的操作不一定与源操作在同一个线程执行,可能会切换另一个线程执行
+    op3.completionBlock = ^{
+      NSLog(@"hi------%@",[NSThread currentThread]);
+    };
+
+线程间通信
+  嵌套 
+    [queue addOperationWithBlock:^{
+        NSURL *url = [NSURL URLWithString:@"http://news.51sheyuan.com/uploads/allimg/111001/133442IB-2.jpg"];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        UIImage *image = [UIImage imageWithData:data];
+        NSLog(@"下载图片操作--%@",[NSThread currentThread]);
+
+        // 回到主线程刷新UI
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            self.imageView.image = image;
+            NSLog(@"刷新UI操作---%@",[NSThread currentThread]);
+        }];
+    }];

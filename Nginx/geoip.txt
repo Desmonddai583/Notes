@@ -1,0 +1,25 @@
+基于IP地址读取所在地域信息
+install nginx-module-geoip on your system
+下载ip地域文件并解压
+wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+
+编辑nginx.conf加上
+load_module "modules/ngx_http_geoip_module.so";
+load_module "modules/ngx_stream_geoip_module.so";
+
+在配置中导入解压的文件
+geoip_country /etc/nginx/geoip/GeoIP.dat;
+geoip_city /etc/nginx/geoip/GeoLiteCity.dat;
+
+server {
+    location / {
+        if ($geoip_country_code != CN) {
+            return 403;
+        }
+    }
+
+    location /myip {
+        return 200 "$remote_addr $geoip_country_name $geoip_country_code $geoip_city";
+    }
+}

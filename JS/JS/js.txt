@@ -1,0 +1,1244 @@
+如果将JS代码写到了一对head标签中的一对script标签中
+那么JS代码必须写到window.onload = function(){}的大括号中
+因为浏览器渲染界面的时候, 会从上至下的执行代码(加载元素), 如果直接在一对head标签中的一对script标签中书写JS代码, 
+如果做了DOM操作, 那么可能拿不到需要操作的元素
+window.onload = function (){}这句代码的含义就是等到界面上所有DOM元素加载完毕之后再执行里面的JS代码
+如果将JS代码放到了body标签的最后, 那么就不用添加window.onload = function(){}这句代码了, 因为执行到JS的时候, 上面的所有DOM元素都已经加载完毕了
+使用外联方式也遵循以上规则
+
+效果: 弹出一个窗口, 让用户输入内容
+var res = prompt("我是一个弹窗");
+
+和alert一样, 会弹出一个窗口, 但是比alert多了一个按钮
+var res = confirm("我是一个弹窗");
+
+在网页中输出内容
+document.write("我是被输出的内容");
+
+在控制台中输出
+console.log("普通的打印");
+console.warn("警告的打印");
+console.error("错误的打印");
+
+如何获取Number类型的取值范围
+console.log(Number.MAX_VALUE); 最大值
+console.log(Number.MIN_VALUE); 最小值
+console.log(Number.MAX_VALUE + Number.MAX_VALUE); Infinity 无穷大
+console.log(Number.MIN_VALUE + Number.MIN_VALUE); -Infinity 无穷小
+
+Null和Undefined这两个都代表数据是空的,undefined值实际上是由null值衍生出来的,所以如果比较undefined和null的值(==)是否相等,会返回true
+
+==   判断左右两侧的值是否相等,会自动将字符串转换为Number类型后再判断值是否相等
+===  判断左右两侧的数据类型是否相等
+
+基本类型
+    Number  12  3.14
+    Boolean  false true
+    null
+    undefined
+    String  "lnj" "a"
+
+通过Number/Boolean/String类型的构造函数创建的对象, 我们就称之为包装类型
+    var num2 = new Number(666);
+    var flag2 = new Boolean(false);
+
+将其它基本数据类型转换为字符串类型
+    1. toString
+        对于Number类型和Boolean类型来说, 直接利用变量调用toString()方法即可
+        toString()方法会将调用者转换为字符串, 并且会将转换后的结果返回给我们
+        并且不会修改调用者原有的值
+
+        对于null和undefined来说, 不能通过调用toString()方法来转换
+
+        toString()方法是可以接收参数的, 参数代表告诉解析引擎, 需要将Number类型转换为多少进制
+        toString(2) 代表需要将调用者转换为2进制
+        toString(8) 代表需要将调用者转换为8进制
+        toString(16) 代表需要将调用者转换为16进制
+    2. String(data)函数
+        可以将Number/Boolean/null/undefined转换为字符串
+    3. 利用算数运算符的加法运算来转换Number/Boolean/null/undefined为字符串
+        格式: 需要转换的数据 + "";
+        因为任何类型和字符串相加, 都会先转换为字符串之后再相加
+
+将其它基本数据类型转换为Number类型
+    1. Number()函数
+        1.对于字符串: 如果字符串中都是数字, 那么就正常转换
+                    如果字符串中不仅仅有数字, 那么转换为NaN
+                    如果字符串中没有内容"" "   ", 那么就转换为0
+        2.对于布尔类型: true转换为1, false转换为0
+        3.对于null: 转换为0
+        4.对于undefined: 转换为NaN
+
+        总结:
+            空字符串/false/null  --> 0
+            不仅仅包含数字的字符串和undefined --> 转换为NaN
+            其它的正常转换
+    
+    2. 利用算数运算符来转换
+        在需要转换的类型前面加上+加号或者-减号即可
+        var str1 = "123";
+        var res1 = +str1;
+        注意点: +加号不会改变数据的正负性
+                -减号会改变数据的正负性
+    
+    3. parseInt()/parseFloat()函数
+        parseInt/parseFloat , 会从左至右的提取, 一旦被中断后续的就提取不到了
+        对于parseFloat来说, 只能提取一个点, 第二个点会被中断
+
+将其它基本数据类型转换为Boolean类型
+    Boolean()函数
+        1. 对于字符串而言: 只要不是空字符串(没有任何内容), 都会转换为false
+                         只要字符串中有内容(包含空格/Table), 都会转换为true
+
+        2. 对于Number类型而言: 只要不是0都会转换为true, 只有0会转换为false
+
+        3. 对于null和undefined而言, 都会转换为false
+
+        4. 对于NaN也会转换为false
+
+        总结: "" / 0 / null / undefined / NaN  --> false
+
+算数运算符
+    任何值和NaN运算, 得到的结果都是NaN
+    任何值和字符串进行加法运算, 都会先转换为字符串之后再运算
+    其它运算符, 如果参与运算的不是Number类型, 会先转换为Number类型后再运算
+    只有加法才会转换为字符串, - * / %都会转换为Number
+    对于取模运算m%n, m小于n, 结果就是m; 如果m等于0, 结果就是0, 如果n等于0, 结果就是NaN
+
+isNaN(data)函数的作用, 就是判断传入的值, 是否是NaN, 如果是就返回true, 如果不是就返回false
+
+逻辑运算符
+    对于非Boolean类型的数据, 会先转换为Boolean类型之后再判断
+    判断之后的返回值, 逻辑与和逻辑或都有自己的规则
+    对于逻辑&&来说
+        条件A && 添加B;
+        如果条件A不成立, 那么就返回条件A
+        如果条件A成立, 不管条件B是否成立, 都会返回条件B
+    对于逻辑||来说
+        条件A || 添加B;
+        如果条件A成立, 那么就返回条件A
+        如果条件A不成立, 那么不管条件B是否成立, 都会返回条件B
+
+switch
+    case后面可以放常量也可以放变量
+    如果case后面是一个表达式, 会先计算表达式的值, 再判断
+    javaScript中case是判断===, 而不是判断==
+
+函数
+    由于JavaScript中的函数是引用类型, 所以也有属性和方法
+    每个函数内部默认都有一个属性叫做arguments
+    arguments是一个伪数组(不是真的数组, 但是使用方式和数组很像, 本质就是一个对象)
+    函数中默认的arguments属性的作用就是用来保存外界传入的实参的
+    传入的所有实参都会被保存到arguments属性中
+
+    C语言中的函数不可以嵌套定义, 但是JavaScript中的函数可以嵌套定义
+        function demo() {
+            var test = function () {
+                console.log("test");
+            }
+            return test;
+        }
+
+    匿名函数作为立即执行的函数,必须用一个()将所有代码括起来才能调用
+        (function(){
+            console.log("匿名函数");
+        })();
+
+    创建函数的第一种方式
+    function test() {
+        console.log("test");
+    }
+    创建函数的第二种方式
+    var demo = function () {
+        console.log("demo");
+    }
+    创建函数的第三种方式
+    上面两种的本质就是最后一种的简写
+    所以只要定义了一个函数, 就会创建一个函数对象
+    var fn = new Function("console.log(\"fn\");");
+
+作用域
+    在JavaScript中有一个叫做作用域链的概念
+    默认情况下全局作用域, 我们称之为0级作用域
+    只要定义一个函数就会再开启一个作用域
+    如果该函数是在全局作用域中定义的, 那么我们称之为1级作用域
+    如果该函数是在其他函数中定义的, 那么所在函数+1级作用域
+    在使用变量或者函数的时候, 会在当前作用域链中查找, 如果找不到, 就会去上一级的作用域链中查找
+
+    如果在函数中定义变量时, 没有书写var关键字, 那么这个局部变量就会变为全局变量
+    虽然这样可以将一个局部变量变为全局变量, 但是在企业开发中千万不要这样写
+
+预解析
+    js是解释性的语言, 也就是不需要编译, 边执行边解析
+    浏览器的JS解析引擎在执行JS代码之前会做一件事情, 就是预解析
+    将变量和函数的声明(注意只是声明)提升到当前作用域的最前面, 这个我们就称之为预解析
+    注意变量和函数同名时,函数的优先级高
+    如果在同名的变量和函数声明之前访问这个名称, 拿到的是函数
+    如果在同名的变量和函数声明之后访问这个名称, 拿到的是变量
+
+    在高级别的浏览器中, 预解析不会提升if{}中的函数
+    但是在低级别的浏览器中, 预解析会提升if{}中的函数
+    解决放法就是在外部先声明好变量
+        var test;
+        if(true){
+            test = function () {
+                console.log("test1");
+            }
+        }else{
+            test = function () {
+                console.log("test22222");
+            }
+        }
+        test();
+        这里利用到的原理就是通过函数表达式的方式定义预解析时只会解析前面的变量名而不会解析后面的函数
+
+面向对象
+    创建对象
+        1 通过默认的Object这个类(构造函数)来创建
+            var obj = new Object();
+            obj.name = "lnj";
+            obj.age = 13;
+            obj.say = function () {
+                console.log("hello");
+            };
+            console.log(obj.name);
+            console.log(obj.age);
+            obj.say();
+        2 通过字面量来创建对象(语法糖)
+            var obj = {}; // 相当于 var obj = new Object();
+            之后用法同1
+            在创建的时候就可以动态的添加属性和方法
+                var obj = {
+                    name: "lnj",
+                    age: 18,
+                    say: function () {
+                        console.log("hello");
+                    }
+                };
+        3 通过工厂函数来创建对象
+            function createPerson(name, age) {
+                // 1.通过Object创建一个空对象
+                // var obj = new Object();
+                var obj = {};
+                // 2.动态的给空对象添加属性和方法
+                obj.name = name;
+                obj.age = age;
+                obj.say = function () {
+                    console.log("hello");
+                }
+                // 3.将函数中创建的对象返回给调用者
+                return obj;
+            }
+
+            var obj1 = createPerson("lnj", 13);
+            var obj2 = createPerson("zq", 18);
+            console.log(obj1);
+            console.log(obj2);
+
+            console.log(typeof obj1); // object
+            console.log(obj1.constructor); // ƒ Object() { [native code] }
+        4 先自定义构造函数, 再通过构造函数来创建对象
+            构造函数也是一个函数, 只不过是专门用于创建对象的函数而已
+            构造函数的函数名称首字母必须大写
+            构造函数必须使用new来调用
+            
+            在构造函数中默认会创建一个空的对象, 会将创建的对象赋值给this, 会将创建的对象返回给调用者
+                function Person(name, age) {
+                    // 1.var obj = new Object();
+                    // 2.this = obj;
+                    this.name = name; // obj.name = name;
+                    this.age = age;
+                    this.say = function () {
+                        console.log("hello");
+                    }
+                    // 3.return obj;
+                }
+            
+            过去通过Object对象, 或者通过字面量, 或者通过工厂函数创建的对象, 我们无法判断这个对象是谁创建出来的
+            但是通过构造函数创建的对象, 我们可以判断这个对象是谁创建出来的
+            
+            默认情况下每一个对象都有一个隐藏的属性, 叫做constructor, 这个属性指向了创建当前对象的构造函数
+            
+            在企业开发中如果想判断某个对象时候是某个构造函数创建出来的，可以使用 对象名称 instanceof 构造函数名称, 来判断
+
+            默认情况下, 只要创建一个对象就会在对象中开辟一块存储空间，该存储空间中会存储对象的所有数据，所以存在性能问题
+
+            构造函数优化
+                1. 将方法定义在外面, 将定义在外面函数的地址赋值给属性,每次创建对象, 对象中say保存的都是函数的地址, 就不会重复保存了
+                    弊端: 因为将函数定义在了全局作用域中, 所以如果定义了多个函数, 会导致全局作用域的名称匮乏
+                2. 将所有函数都封装到另外一个对象中, 这样函数名称就不在全局作用域中了, 这就不会导致全局作用域命名匮乏问题了,然后将对象中方法的地址复制给使用者即可
+                    var fns = {
+                        say: function() {
+                            console.log(this.name, this.age);
+                        },
+                        eat: function () {
+                        console.log("eat");
+                        }
+                    };
+                    function Person(name, age) {
+                        this.name = name;
+                        this.age = age;
+                        this.say = fns.say;
+                        this.eat = fns.eat;
+                    }
+                3. 利用原型对象(推荐,前两种不推荐)
+                    在JavaScript中,每一个构造函数都有一个默认的属性, 这个属性叫做prototype
+                    prototype属性指向一个对象, 这个对象我们称之为构造函数的原型对象
+                    所以既然构造函数的prototype就对应一个对象, 所以我们就可以将方法都放到这个对象中
+
+                    所有通过同一个构造函数创建出来的对象, 都可以访问该构造函数的原型对象
+                    并且所有通过同一个构造函数创建出来的对象, 访问的都是同一个原型对象
+
+                    私有成员（一般就是非函数成员）放到构造函数中
+                    共享成员（一般就是函数）放到原型对象中
+                    如果重置了prototype记得修正constructor的指向
+
+                    构造函数-对象-原型对象的三角恋关系
+                        1 每个构造函数都有一个默认的属性, 叫做prototype, 这个属性指向一个对象(原型对象)
+                        2 每个原型对象都有一个默认的属性, 叫做constructor, 这个属性指向原型对象对应的构造函数
+                        3 每个对象都有一个默认的属性, 叫做__proto__, 这个属性指向创建它的构造函数的原型对象
+
+                    属性和方法查找顺序
+                        调用属性时
+                            会先在当前对象中查找有没有该属性, 如果有, 使用当前的
+                            如果当前对象没有该属性, 会到原型对象中查找, 如果有, 就使用原型对象中的该属性
+                            如果原型对象中没有, 会继续根据__proto__链条查找, 如果找到null都没有, 就输出undefined
+                        方法也跟属性类似,只是如果null都没有,会直接报错
+
+                    注意
+                        在直接通过对象访问属性的时，不会修改原型中的属性，会在当前对象中新增一个属性
+                        Person.prototype.type = "超人";
+                        obj1.type = "人";
+                        console.log(obj1.__proto__.type); // 超人
+
+                    自定义原型对象
+                        注意点: 自定义原型对象一定要保持三角恋的关系, 一定要设置constructor: 所属的构造函数
+                        Person.prototype = {
+                            constructor: Person,
+                            say: function () {
+                                console.log(this.name, this.age);
+                            }
+                        };
+
+                    静态的属性和方法就是不需要通过对象就能访问的属性和方法, 就是静态属性和方法
+                    通过构造函数就能够直接访问的属性和访问, 我们就称之为静态属性和方法
+                        Person.type = "人";
+                        Person.eat = function () {
+                            console.log("eat");
+                        };
+
+                        console.log(Person.type);
+                        Person.eat();
+    
+    继承实现方式
+        1. 通过原型链实现继承
+            function Person(name, age){
+                this.name = name;
+                this.age = age;
+            }
+            Person.prototype.say = function () {
+                console.log(this.name, this.age);
+            }
+
+            function Student(score) {
+                this.score = score;
+            }
+
+            // 修改Student的原型为Person对象
+            // 由于直接创建了父类对象作为子类的原型对象, 所以在指定原型对象的时候就必须指定父类的参数
+            // 但是在企业开发中每个子类对象的参数都可能不一样, 所以这种方案不行
+            Student.prototype = new Person();
+            Student.prototype.constructor = Student;
+        2. 构造函数实现继承
+            function test(a, b) {
+                console.log(a, b);
+                console.log(this);
+            }
+            var obj = {
+                name: "zq"
+            };
+            bind方法的作用
+                修改函数内部的this的, 但是不会调用这个函数, 会返回一个新的函数给我们
+                var fn = test.bind(obj, 10, 20);
+                fn();
+            call方法的作用
+                修改函数内部的this的, 但是会调用这个函数
+                test.call(obj, 10, 20);
+            apply方法的作用
+                修改函数内部的this的, 但是会调用这个函数
+                test.apply(obj, [10, 20]);
+            以上三个方法都是专门用于修改函数内部的this的
+            call和apply的区别:
+                传递参数的形式不同, 如果是call那么参数依次用逗号隔开即可, 如果是apply那么参数都要放到一个数组中
+
+            function Person(name, age){
+                this.name = name;
+                this.age = age;
+            }
+            Person.prototype.say = function () {
+                console.log(this.name, this.age);
+            }
+
+            function Student(score, name, age) {
+                Person.call(this, name, age); // 本质就是借用Person构造函数动态给stu对象添加属性
+                this.score = score;
+            }
+            var stu = new Student(99, "zs", 18);
+
+            Person.call(this, name, age); 这种方式仅仅是借用了父类的构造函数动态的给子类添加属性, 没有其它任何的关系
+            所以在子类中是不能使用父类原型中的方法的(stu.say()), 所以也不推荐
+        3. 组合继承
+            function Person(name, age) {
+                this.name = name;
+                this.age = age;
+            }
+            Person.prototype.say = function () {
+                console.log("say");
+            };
+
+            function Student(score, name, age) {
+                Person.call(this, name, age);
+                this.score = score;
+            }
+            // 将子类的原型修改为父类的原型
+            Student.prototype = Person.prototype;
+            // 将原型的归属修改为Student(保持三角恋关系)
+            Student.prototype.constructor = Student;
+            // 给子类原型对象动态添加一个方法
+            Student.prototype.eat = function () {
+                console.log("eat");
+            };
+
+            通过修改子类的prototype等于父类的prototype, 再修改子类原型对象的constructor等于子类构造函数的方式, 会破坏父类的三角恋关系
+            由于当前子类的原型对象和父类的原型对象都是同一个对象, 所以给子类的原型添加属性或者方法, 父类也会受到影响
+            所以不推荐
+        4. 终极组合继承
+            function Person(name, age) {
+                this.name = name;
+                this.age = age;
+            }
+            Person.prototype.say = function () {
+                console.log("say");
+            };
+
+            function Student(score, name, age) {
+                // 借用构造函数, 动态给当前对象添加属性和方法
+                Person.call(this, name, age);
+                this.score = score;
+            }
+
+            Student.prototype = new Person();
+            Student.prototype.constructor = Student;
+            Student.prototype.eat = function () {
+                console.log("eat");
+            };
+
+    对象的属性删除
+        delete p.name;
+    判断对象中有没有某个属性
+        "age" in p  
+            如果有就返回true, 如果没有就返回false
+            会先在当前对象中找有没有, 如果没有会去当前对象的原型对象上找有没有, 一直找到null都没有就会返回false
+        p.hasOwnProperty("age")
+            只会在当前对象上查找, 如果当前对象上有就返回true, 如果当前对象上没有就返回false, 不会去当前对象的原型对象上查找
+        判断指定的属性是否是原型上的属性
+            function prototypeProperty(obj, name) {
+                if(!obj.hasOwnProperty(name)){
+                    // type不是当前对象上的属性
+                    if(name in obj){
+                        // 一定是原型上的属性
+                        return true;
+                    }
+                }
+                return false;
+            }
+    对象遍历
+        for(var key in obj){
+            console.log(p[key]);
+        }
+    对象浅拷贝和深拷贝
+        例如将A对象赋值给B对象
+        深拷贝是指, 修改B对象的属性和方法不会影响到A对象的属性和方法, 我们称之为深拷贝
+        浅拷贝是指, 修改B对象的属性和方法会影响到A对象的属性和方法, 我们称之为浅拷贝
+
+        默认情况下对象之间的直接赋值都是浅拷贝
+        默认情况下一个对象的属性如果是基本数据类型, 那么都是深拷贝
+        如果对象的属性包含了引用数据类型, 才真正的区分深拷贝和浅拷贝
+
+        浅拷贝
+            1 对象之间直接赋值
+                var p2 = p1;
+            2 对象属性的逐一赋值(引用类型就会产生浅拷贝)
+                function copy(o1, o2){
+                    for(var key in o1){
+                        o2[key] = o1[key];
+                    }
+                }
+
+        深拷贝
+            function deepCopy(o1, o2){
+                // 取出第一个对象的每一个属性
+                for(var key in o1){
+                    // 取出第一个对象当前属性对应的值
+                    var item = o1[key]; // dog
+                    // 判断当前的值是否是引用类型
+                    // 如果是引用类型, 我们就重新开辟一块存储空间
+                    if(item instanceof Object){
+                        var temp = new Object();
+                        deepCopy(item, temp);
+                        o2[key] = temp;
+                    }else{
+                        // 基本数据类型
+                        o2[key] = o1[key];
+                    }
+                }
+            }
+
+数组的常用放法
+    判断一个对象是否是数组
+        1. arr instanceof Array
+        2. Array.isArray(arr) // isArray有兼容性的问题,支持H5标签的浏览器才支持
+    push 先push的数据会添加到前面,后push的数据会添加到后面
+        arr.push(2)
+    pop 从数据中取出最后一个元素返回给我们,不仅可以从数据中取出数据,还会将取出的数据从数组中删除
+        arr.pop()
+    shift 从数据中取出最前面一个元素返回给我们,不仅可以从数据中取出数据,还会将取出的数据从数组中删除
+        arr.shift()
+    unshift 在数组最前面插入元素
+        arr.unshift(666)
+    清空数组
+        1. arr = []; // 推荐
+        2. arr.length = 0
+        3. splice
+            第一个参数: 从什么地方开始删除
+            第二个参数: 需要删除多少个
+            arr.splice(0, arr.length)
+    数组的拼接
+        数组不支持直接用于+号来拼接,如果使用+号来拼接数组, 会先调用数组的toString方法,然后再将转换后的字符串进行拼接
+        concat 此方法不会更改现有数组，而是返回一个新数组
+            var res = arr1.concat(arr2)
+    Array的toString方法会返回保存内容的字符串
+        arr1.toString()
+    Array的valueOf方法会返回数组本身
+        arr1.valueOf()
+    slice 数组的截取
+        方法返回一个新的数组对象
+        第一个参数: 从什么地方开始截取
+        第二个参数: 截取到什么地方位置, 不包括这个结束的元素
+        arr.slice(1, 3)
+    查找元素
+        1. indexOf
+            返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1
+            默认是从左至右的查找, 一旦找到就会自动停止继续查找
+            arr.indexOf(6)
+            indexOf(6, 3) 从第3个索引开始查找, 找6
+            lastIndexOf(6) lastIndexOf会从右至左的查找
+        2. find
+            find方法需要传递一个函数, 内部会遍历调用者(数组), 取出每一个元素
+            取出一个元素就调用一次传入的函数, 将取出的元素传递给这个函数
+            只要有一个元素满足函数中的条件就会停止查找
+            返回查找到的元素,如果没有符合条件的成员，则返回undefined
+            注意点: 在IE浏览器中会有问题
+            function test(ele) {
+                if(ele === 6){
+                    return ele;
+                }
+            }
+
+            arr.find(test)
+        3. findIndedx
+            返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1
+            var res = arr.findIndex(function (ele) {
+                return ele === 6;
+            });
+        indexOf方法无法识别数组的NaN成员，但是findIndex方法可以借助Object.is方法做到
+            [NaN].findIndex(y => Object.is(NaN, y))
+    filter
+        filter函数会创建一个新的数组
+        当执行回调函数的时候, 返回的是true, 就会将当前遍历到的元素放到新的数组中
+        var res = arr.filter(function (ele, idx) {
+            return ele === 6;
+        });
+    对数组进行排序
+        sort(compareFunction(a,b)) 
+        默认不加compareFunction会使用unicode排序
+        1. 如果compareFunction(a, b)小于0, 那么a会被排列到b之前
+        2. 如果compareFunction(a, b)等于0, a和b的相对位置不变
+            备注: ECMAScript标准并不保证这一行为,而且也不是所有浏览器都会遵守(例如Mozilla在2003年之前的版)
+        3. 如果compareFunction(a, b)大于0,b会被排列到a之前
+        compareFunction(a, b)必须总是对相同的输入返回相同的比较结果,否则排序的结果将是不确定的
+        arr.sort(function (a, b) {
+            // 直接return, 用第一个参数减去第二个参数的结果, 就是升序排序
+            // 直接return, 用第二个参数减去第一个参数的结果, 就是降序排序
+            // return a - b;
+            return b - a;
+        });
+        reverse可以对数组进行翻转
+            arr.reverse()
+    遍历数组
+        forEach
+            会依次取出调用者的每一个元素, 每取出一个元素就会执行一次回调函数
+            并且会将当前取出的元素传递给回调函数
+            arr.forEach(function (ele) {
+                console.log(ele);
+            });
+        map
+            和filter函数差不多, 都用于过滤元素, 只有满足添加的元素才会被添加到新的数组中
+            但是和filter函数的区别是, filter返回的数组中只有满足添加的元素
+            而map返回的数组中不满足条件的元素会存储一个undefined
+            var res = arr.map(function (ele) {
+                if(ele == 3){
+                    return ele;
+                }
+            });
+
+字符串的常用放法
+    字符串的拼接
+        通过字面量创建的字符串, 是一个常量, 是不可以修改的
+        由于每次定义字符串都会重新开辟一块存储空间
+        所以以后在企业开发中, 一定要尽量避免频繁的拼接字符串
+        var res = str1 + str2 // 推荐
+        var res = str1.concat(str2)
+    获取字符串中的字符
+        1. var res = str.charAt(1) 返回字符
+        2. var res = str.charCodeAt(0) 返回ASCII码
+        3. var res = str[1]; 返回字符, 有兼容性问题, 支持H5才支持
+    截取子串
+        1. var res = str.slice(1, 5); 从指定索引开始截取到结束索引,不包括结束的索引
+        2. var res = str.substr(1, 1); 从指定索引开始截取多少个字符
+        3. var res = str.substring(1, 2); 从指定索引开始截取到结束索引,不包括结束的索引
+    字符串查找
+        var res = str.indexOf("6");
+        var res = str.lastIndexOf("6");
+    字符串切割
+        var res = str.split("|");
+
+基本类型调用方法的实现原理
+    在调用方法之前, JS解析器会自动将基本数据类型包装成包装类型
+    var str = "www.it666.com"; // 基本类型
+    str.split(".")背后
+        var _str = new String(str);
+        _str.split(".");
+        _str = null; // 调用完后置空
+
+时间对象
+    创建时间对象
+        var date = new Date();
+        注意点: 如果通过逐个传入参数的方式指定月份, 会出现误差
+                误差是1, 因为月份在JS中的Date对象中是从0开始的
+        var date = new Date(2019, 10, 11, 9, 8, 7);
+        var date = new Date("2019-11-11 9:8:7");
+    获取当前时间距离1970年1月1日相差的毫秒
+        var date = Date.now();
+    默认的时间格式
+        date.toString()
+    以下的方法在不同浏览器输出的格式不同
+        console.log(date.toLocaleString());
+        console.log(date.toTimeString());
+        console.log(date.toLocaleTimeString());
+        console.log(date.toDateString());
+        console.log(date.toLocaleDateString());
+    时间的格式化
+        console.log(date.getFullYear());
+        console.log(date.getMonth() + 1); // 从0开始
+        console.log(date.getDate()); // 获取是第几天
+        console.log(date.getHours());
+        console.log(date.getMinutes());
+        console.log(date.getSeconds());
+
+        var res = formartDate(date);
+
+        function formartDate(date) {
+            // 有性能问题
+            /*
+            var str = "";
+            str += date.getFullYear();
+            str += "-";
+            str += (date.getMonth() + 1);
+            str += "-";
+            str += date.getDate();
+            str += " ";
+            str += date.getHours();
+            str += ":";
+            str += date.getMinutes();
+            str += ":";
+            str += date.getSeconds();
+            */
+            var arr = [];
+            arr.push(date.getFullYear());
+            arr.push("-");
+            arr.push(date.getMonth() + 1);
+            arr.push("-");
+            arr.push(date.getDate());
+            arr.push(" ");
+            arr.push(date.getHours());
+            arr.push(":");
+            arr.push(date.getMinutes());
+            arr.push(":");
+            arr.push(date.getSeconds());
+            return arr.join("");
+        }
+
+Math对象
+    Math和前面学习的Array/String/Date不一样, 前面学习的这些都是内置构造函数
+    Math是一个对象
+    var Math = {
+       PI: 3.1415926,
+       ...
+    }
+    Math.PI; 圆周率
+    Math.floor(num)   向下取整
+    Math.ceil(num)     向上取整
+    Math.round(num)    四舍五入
+    Math.abs(num)      绝对器
+    Math.random() 生成随机数,会生成一个0~1的随机值, 不包括1
+    Math.sin()
+    Math.cos()
+    Math.power()
+    Math.sqrt()
+
+    生成1~10的随机数
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        var res = getRandomIntInclusive(1, 10);
+
+DOM
+    document我们称之为文档对象, 这个对象中保存了当前网页中所有的HTM标签
+
+    console.dir(document) 在控制台中显示指定JavaScript对象的属性，并通过类似文件树样式的交互列表显示
+    
+    通过JS代码动态的找到HTML标签 IE8之后才能用
+        querySelector格式: querySelector("选择器"); 
+            querySelector会将找到的第一个元素返回给我们
+            var div = document.querySelector("#fahter");
+        querySelectorAll格式: querySelectorAll("选择器");
+            querySelectorAll会将找到的所有元素返回给我们
+            var divs = document.querySelectorAll(".box");
+
+    通过JS动态的修改HTML元素的样式
+        var div = document.querySelector("#father");
+        div.style.backgroundColor = "red";
+
+    动态的创建一个HTML元素
+        document.createElement("标签的名称");
+        var div = document.createElement("div");
+
+    将动态创建的元素添加到另一个元素中
+        var div = document.querySelector("#father");
+        var p = document.createElement("p");
+        div.appendChild(p);
+
+    删除一个指定元素
+        var a = document.querySelector("div>a");
+        console.log(a.parentElement); // 通过访问一个元素对象的parentElement属性, 可以找到当前元素对象的父元素(父节点)
+        a.parentElement.removeChild(a);
+
+    将第一个参数的元素插入到第二个参数元素的前面
+        oDiv.insertBefore(oA, op1);
+
+    通过ID获取界面上的元素
+        如果id名称重复了, 返回的是第一个找到的元素
+        var oDiv = document.getElementById("box");
+
+    通过类名获取界面上的元素
+        找到所有类名为指定名称的元素, 放到一个集合对象中返回给我们
+        这个集合对象是一个伪数组(对象)
+        注意点: 有兼容性问题 IE9之后才支持
+        var oDivs = document.getElementsByTagName("div");
+
+    通过name属性名称来获取界面上的元素
+        注意点: 在不同浏览器执行结果可能不同
+        var oDivs = document.getElementsByName("ppp");
+
+    文档的加载过程
+        1. 浏览器在加载一个界面的时候, 是按照从上至下的顺序加载的
+        2. 如果将script标签写在head标签中, 那么执行js代码的时候, 网页还没有加载完毕
+            DOM对象也还没有准备完毕, 所以可能获取不到我们需要的元素
+        3. 如果将script标签写在body标签的最末尾,  DOM对象已经准备完毕了, 所以我们可以获取到我们需要的元素
+        4. 如果非要把script标签写在head标签中, 那么需要执行的代码最好写好onload方法中,
+            onload方法的作用是等待网页上所有的资源加载完毕之后才会执行
+            网页上所有的资源包含所有的标签/图片/CSS文件/JS文件等
+        5. window.onload和将script标签写在body最后的区别:
+            window.onload执行时, 不仅DOM对象准备好了, 网页上所有资源也都准备好了
+            body后的script标签执行时, 仅仅代表DOM对象准备好了, 而网页上的其它资源不一定准备好了
+        综上所述: body后的script标签的效率高于window.onload
+
+    节点之间的关系
+        通过子元素获取父元素
+            parentElement: 获取父元素
+            parentNode: 获取父节点,拿到的不一定是一个元素
+                            因为在DOM有节点有(标签节点/属性节点/文本节点)
+            一般情况下在JS中带Element单词的属性或者方法都有兼容性问题
+            var oFDiv = oSDiv.parentElement || oSDiv.parentNode;
+        通过指定元素找到上一个元素
+            var pre = oLi.previousElementSibling || oLi.previousSibling;
+        通过指定元素找到下一个元素
+            var next = oLi.nextElementSibling || oLi.nextSibling;
+        通过指定元素找到所有的子节点/子元素
+            childNodes获取当前元素所有的子节点(标签节点/属性节点/文本节点)
+                var oLis1= oUl.childNodes;
+            children获取当前元素所有的子元素
+                var oLis2= oUl.children;
+        获取指定元素的第一个子元素
+            var first = this.firstElementChild || this.firstChild;
+        获取指定元素的最后一个子元素
+            var first = this.lastElementChild || this.lastChild;
+        Element是在Dom树中查找父元素, HTML没有父元素
+            var oDiv = document.querySelector("html");
+            console.log(oDiv.parentElement);
+        Node是在Dom树中查找父节点, HTML的父节点就是DOM对象
+            var oDiv = document.querySelector("html");
+            console.log(oDiv.parentNode); // document
+    节点属性的操作
+        获取节点的属性
+            1. DOM就已经将这个元素所有的自带的属性都已经封装到这个对象中了, 所以可以直接通过对象操作属性的方式来操作属性
+                var oImg = document.querySelector("img");
+                console.log(oImg.src);
+                console.log(oImg.alt);
+                console.log(oImg.title);
+                console.log(oImg.lnj); // undefined
+            2. getAttribute
+                console.log(oImg.getAttribute("src"));
+                console.log(oImg.getAttribute("alt"));
+                console.log(oImg.getAttribute("title"));
+                console.log(oImg.getAttribute("lnj"));
+            通过第一种方式 元素.属性 只能获取标签自带的属性
+            通过第二种方式 元素.getAttribute(属性) 既可以获取自带的属性也可以获取自定义属性
+
+        删除属性
+            1. 直接删除
+                oImg.src = "";
+            2. removeAttribute
+                oImg.removeAttribute("src");
+
+        设置属性的值
+            1. 直接设置
+                oImg.title = "新设置的值";
+                oImg.src = "images/1.jpg";
+            2. 通过setAttribute方法来设置
+                有就修改, 没有就新增
+                oImg.setAttribute("title", "新设置的值");
+    innerHTML
+        获取或者设置调用者中的内容
+        注意点:
+            如果是获取, 会原封不动的将调用者中的内容返回给我们(包含标签)
+            如果是设置, 会利用设置的值覆盖调用调用者中所有的内容
+                        并且如果设置的值中包含了HTML标签, 也会解析创建之后再添加
+        console.log(oDiv.innerHTML);
+        oDiv.innerHTML = "<span>我是span</span>";
+    innerText
+        获取或者设置调用者中的内容 有兼容性的问题, 不能很好的支持所有的浏览器
+        注意点:
+            如果是获取, 会去掉调用者中的标签, 将其它的内容返回给我们, 并且会去除两端的空格
+            如果是设置, 会利用设置的值覆盖调用调用者中所有的内容
+                        并且如果设置的值中包含了HTML标签, 不会解析和创建, 会原样添加
+        console.log(oDiv.innerText);
+        oDiv.innerText = "<a href='#'>我是a标签</a>";
+    textContent
+        获取或者设置调用者中的内容 有兼容性的问题, 不能很好的支持所有的浏览器
+        注意点:
+            如果是获取, 会去掉调用者中的标签, 将其它的内容返回给我们, 但是不会去除两端的空格
+            如果是设置, 会利用设置的值覆盖调用调用者中所有的内容
+                        并且如果设置的值中包含了HTML标签, 不会解析和创建, 会原样添加
+        console.log(oDiv.textContent);
+        oDiv.textContent = "<a href='#'>我是a标签</a>";
+    innerText与textContent兼容性的处理
+        function setInnerText(obj, ctx) {
+            if("textContent" in obj){
+                obj.textContent = ctx;
+            }else{
+                obj.innerText = ctx;
+            }
+        }
+    前面的三个属性用于获取或者设置双标签中的内容,如果想获取或者设置input中的内容,需要使用value属性
+        oInput.value
+        oInput.getAttribute("value")
+    设置元素的样式
+        1. 通过style属性来设置
+            注意点: 
+                通过style属性设置的样式都是行内样式, 所以会覆盖掉CSS代码设置的样式
+                如果是设置宽度和高度, 需要添加单位, 否则会报错
+            oDiv.style.width = "100px";
+            oDiv.style.height = "100px";
+            CSS中用-连接的属性名称, 都会去掉-, 将后面一个单词的首字母大写
+                oDiv.style.backgroundColor = "red";
+            console.log(oDiv.style.width); 这里返回给我们的是一个字符串
+            console.log(parseInt(oDiv.style.width));
+        2. 通过className属性来设置
+            这里的className属性和其它的属性有点区别
+            默认情况下通过元素对象操作元素的属性时, 都是自带的是什么名称, 操作的时候就是什么名称
+            因为class是js的一个关键字, 所以这里就将HTML标签的class属性的名称改为了className
+                var oImg = document.querySelector("img");
+                oDiv.className = "box";
+        如果是操作个别的样式, 那么推荐使用style属性
+        如果是操作多个的样式, 那么推荐使用className属性
+    DOM事件
+        点击事件
+            元素.onclick = function(){};
+            注意点:
+                如果是给a标签添加点击事件, 由于a标签对点击事件有默认的实现(跳转)
+                所以需要注意的是我们添加的点击事件不会覆盖掉系统默认的点击事件
+                如果不想使用系统的默认事件, 那么只需要在我们添加的函数中return false即可
+                var oA = document.querySelector("a");
+                oA.onclick = function () {
+                    alert("aaaa我被点击了aaaa");
+                    return false; // 禁用系统默认的事件
+                }
+        鼠标移入移出的事件
+            1. 监听鼠标移入元素 
+                1. onmouseover
+                    oDiv.onmouseover = function () {
+                        console.log("onmouseover");
+                    }
+                2. onmouseenter
+                    对于初学者来说, 为了避免未知的BUG, 建议使用onmouseenter
+                    oDiv.onmouseenter = function () {
+                        console.log("onmouseenter");
+                    }
+
+                onmouseover和onmouseenter的区别
+                    onmouseover移入到子元素也会被触发
+                    onmouseenter移入到子元素不会被触发
+            2. 监听鼠标移出元素
+                1. onmouseout
+                    oDiv.onmouseout = function () {
+                        console.log("onmouseout");
+                    }
+                2. onmouseleave
+                    对于初学者来说, 为了避免未知的BUG, 建议使用onmouseleave
+                    oDiv.onmouseleave = function () {
+                        console.log("onmouseleave");
+                    }
+
+                onmouseout和onmouseleave
+                    onmouseout移出到子元素也会被触发
+                    onmouseleave移出到子元素不会被触发
+            3. 监听鼠标在元素中移动
+                oDiv.onmousemove = function () {
+                    console.log("onmousemove");
+                }
+        焦点事件
+            1. 监听元素获取焦点
+                oInput.onfocus = function () {
+                    console.log("onfocus");
+                }
+            2. 监听元素失去焦点
+                oInput.onblur = function () {
+                    console.log("onblur");
+                }
+            3. 监听元素内容改变
+                1. onchange 
+                    oInput.onchange = function () {
+                        console.log(this.value);
+                    }
+                    注意点: 
+                        onchange事件不能时时获取数据的改变
+                        onchange事件只有失去焦点的时候才会执行
+                2. oninput
+                    oninput事件可以时时获取数据的改变, 但是有兼容性问题
+                    IE9之后才能使用
+                    oInput.oninput = function () {
+                        console.log(this.value);
+                    }
+
+                    低版本的IE特有的事件
+                    oInput.onpropertychange = function () {
+                        console.log(this.value);
+                    }
+
+                    时时监听输入框内容改变的兼容性处理
+                        function inputChange(ele, fn) {
+                            if("oninput" in ele){
+                                ele.oninput = fn;
+                            }else{
+                                ele.onpropertychange = fn;
+                            }
+                        }
+
+定时器
+    无论是反复执行的还是只执行一次的定时器, 都是可以手动关闭的
+    1. 反复执行的定时器
+        返回值: 返回当前定时器的ID
+        setInterval
+            function test(){
+                console.log("test");
+            }
+            timerId = setInterval(test, 1000);
+            clearInterval(timerId);
+    2. 只执行一次的定时器
+        返回值: 返回当前定时器的ID
+        timerId = setTimeout(function () {
+            console.log("多少毫秒之后执行一次");
+        }, 1000);
+        clearTimeout(timerId);
+
+添加事件的三种方式
+    1. 通过onxxx的方式来添加
+        注意点: 由于是添加给了属性, 所以后赋值的会覆盖先赋值
+    2. 通过addEventListener方法添加
+        注意点:
+            1. 事件名称不需要添加on
+            2. 后添加的不会覆盖先添加的
+            3. 只支持最新的浏览器IE9
+        oBtn.addEventListener("click", function () {
+            alert("addEventListener");
+        });
+    3. 通过attachEvent方法添加 
+        注意点:
+            1. 事件名称必须加上on
+            2. 后添加的不会覆盖先添加的
+            3. 只支持低版本的浏览器
+        oBtn.attachEvent("onclick", function () {
+            alert("attachEvent");
+        });
+    兼容性的处理
+        addEvent(oBtn, "click", function () {
+            alert("addEvent");
+        });
+        function addEvent(obj, name, fn) {
+            if(obj.attachEvent){
+                obj.attachEvent("on" +_name, fn);
+            }else{
+                obj.addEventListener(name, fn);
+            }
+        }
+
+事件对象
+    当注册的事件被触发的时候, 系统就会自动创建一个事件对象, 并且返回给我们
+    事件对象就是一个系统自动创建的对象
+    注意点:
+        在高级版本的浏览器中, 会自动将事件对象传递给回到函数
+        在低级版本的浏览器中, 不会自动将事件对象传递给回调函数
+        在低级版本的浏览器中, 需要通过window.event来获取事件对象
+    var oBtn = document.querySelector("button");
+    oBtn.onclick = function (event) {
+        // console.log(event);
+        event = event || window.event;
+    }
+    禁用默认行为
+        1. return false;  开发推荐
+        2. event = event || window.event;
+           event.preventDefault();
+           高级版本浏览器才支持
+           老版本IE需要使用event.returnValue = false;
+
+    事件的三个阶段
+        1. 捕获阶段   (从外向内)
+        2. 当前目标阶段
+        3. 冒泡的阶段 (从内向外)
+        注意点:
+            三個階段不會同時出現
+            要么捕获和当前
+            要么当前和冒泡
+    
+    设置事件是捕获还是冒泡?
+        需要通过addEventListener方法, 因为这个方法接收三个参数
+        第一个参数: 事件的名称
+        第二个参数: 回调函数
+        第三个参数: false冒泡  / true 捕获
+
+        注意点:
+            onXXXX的属性, 不接收任何参数, 所以默认就是冒泡
+            attachEvent方法, 只能接收两个参数, 所以默认就是冒泡
+            所以如果想指定为捕获, 只能使用addEventListener方法
+
+    事件对象中eventPhase属性的作用是用于获取当前事件的阶段
+        oBox.addEventListener("click", function (event) {
+            event = event || window.event;
+            console.log(event.eventPhase, "box");
+        }, false);
+    
+    如何获取当前触发事件的真实元素
+        可以通过事件对象的target属性获取到真正触发事件的那个元素
+        event = event || window.event;
+        console.log(event.target);
+
+    阻止事件冒泡
+        适用于高级版本的浏览器
+        event.stopPropagation();
+        适用于低级版本的浏览器
+        event.cancelBubble = true;
+
+    通过事件对象来获取当前鼠标的位置
+        event.pageX
+        event.pageY
+
+正则表达式
+    创建正则表达式对象
+        1. var reg = new RegExp('规则字符串', '可选项');
+            如果是通过RegExp构造函数创建正则表达式对象,那么规则字符串中的\需要转义
+        2. var reg = /规则字符串/可选项;
+    默认是区分大小写的
+    i就代表忽略大小写
+        var reg = new RegExp('a', 'i');
+    g全局匹配, 一直匹配到末尾
+        var reg = /\d{4}-\d{1,2}-\d{1,2}/g;
+    test
+        检索字符串中的有没有符合规则的值.返回值是true或false
+        var res = reg.test(str);
+    字符串對象match
+        会将符合规则的字符串提取出来返回
+        var resStr = str.match(reg);
+    字符串對象replace
+        会将匹配的字符串替换为指定的字符串
+        var resStr2 = str.replace(reg, "xxoo");
+
+BOM
+    DOM就是一套操作HTML标签的API(接口/方法/属性)
+    BOM就是一套操作浏览器的API(接口/方法/属性)
+
+    BOM中常见的对象
+        window 
+            代表整个浏览器窗口,注意:window是BOM中的一个对象,并且是一个顶级的对象(全局)
+        Navigator
+            代表当前浏览器的信息,通过Navigator我们就能判断用户当前是什么浏览器
+            var agent = window.navigator.userAgent;
+            if(/chrome/i.test(agent)){
+                alert("当前是谷歌浏览器");
+            }else if(/firefox/i.test(agent)){
+                alert("当前是火狐浏览器");
+            }else if(/msie/i.test(agent)){
+                alert("当前是IE浏览器");
+            }else if("ActiveXObject" in window){
+                alert("当前是高级IE浏览器");
+            }
+        Location
+            代表浏览器地址栏的信息
+            获取当前地址栏的地址
+                console.log(window.location.href);
+            设置当前地址栏的地址
+                window.location = "http://www.it666.com";
+                window.location.href = "http://www.it666.com";
+            重新加载界面
+                window.location.reload();
+            如果传递一个true, 会强制清空缓冲
+                window.location.reload(true);
+        History
+            代表浏览器的历史信息,可以通过History来实现刷新/上一步/下一步
+            注意点:出于隐式考虑,我们并不能拿到用户所有的历史记录,只能拿到当前的历史记录
+            history对象的forward就可以前进
+                window.history.forward();
+                只有当前访问过其它的界面, 才能通过forward方法前进
+            history对象的back就可以後退
+                window.history.back();
+                只有当前是从其它界面跳转过来的,才能通过back方法后退
+            history对象的go方法, 也可以实现前进和后退
+                如果给go方法传递1, 就代表前进1个界面, 传递2就代表进行2个界面
+                如果给go方法传递-1, 就代表后退1个界面, 传递-2就代表后退2个界面
+                如果给go方法传递0, 就代表刷新
+                window.history.go(1);
+        Screen
+            代表用户的屏幕信息
+
+getComputedStyle
+    如果想获取到CSS样式,那么可以通过getComputedStyle方法来获取
+        第一个参数: 需要获取样式的元素
+        第二个参数: null
+        返回一个保存了指定元素所有CSS样式的对象
+        getComputedStyle只能用于IE9及以上,否則就必須使用currentStyle(e.g. oDiv.currentStyle.width))
+        var style = window.getComputedStyle(oDiv, null);
+
+    获取样式兼容性的处理  
+        console.log(getStyle(oDiv, "width")); 
+        function getStyle(obj, attr) {
+            if(obj.currentStyle){
+                return obj.currentStyle[attr];
+            }else{
+                return window.getComputedStyle(obj, null)[attr];
+            }
+        }
+
+offsetWidth和offsetHeight
+    获取元素占用空间的大小
+    占用空间 = width + border + paddding
+
+offsetLeft和offsetTop
+    获取元素到第一个定位元素之间的偏移位,
+    如果没有父元素是定位的, 那么就是获取到body的偏移位
+
+    offsetLeft和marginLeft和left的区别
+        offsetLeft: 获取的是距离第一个定位元素或者body的偏移位
+        marginLeft: 获取的是CSS设置的marginLeft的值
+        left: 获取的是CSS设置的left的值
+
+offsetXXXX和style.XXXX的区别
+    offsetXXXX既可以获取行内, 也可以获取CSS样式
+    style.XXXX只能获取行内, 不能获取CSS样式
+    offsetXXXX获取到的宽度和高度, 是元素占用的宽度和高度
+    style.XXXX获取到的宽度和高度, 是元素width和height属性的宽度和高度,也就是不包含border + paddding
+    offsetXXX返回的是数值类型, 而style.XXXX返回的都是字符串
+    offsetXXX是只读的, style.XXXX是可读可写的
+
+offsetX用于获取事件在事件源(触发事件元素)中的偏移位
+    var x = event.offsetX;
+
+client属性
+    console.log(oDiv.clientWidth);
+    console.log(oDiv.clientHeight);
+    console.log(oDiv.clientLeft);
+    console.log(oDiv.clientTop);
+
+    offsetWidth = width + border + padding
+    clientWidth = width + padding
+    offsetLeft = 距离第一个定位元素的偏移位 || body
+    clientLeft = borderLeft
+
+scroll属性
+    console.log(oDiv.scrollWidth);
+    console.log(oDiv.scrollHeight);
+    scrollHeight:
+        如果内容没有超过元素的范围, 那么就是元素的padding + height
+        如果内容超出了元素的范围, 那么就是padding + height + 超出的高度
+    console.log(oDiv.scrollTop);
+    scrollTop:
+        获取滚动时被移出元素范围的距离(参考点不包括border)
+
+获取浏览器可视区域的大小
+    // 高级版本浏览器
+    console.log(window.innerWidth);
+    console.log(window.innerHeight);
+    // IE8-
+    console.log(document.documentElement.clientWidth);
+    console.log(document.documentElement.clientHeight);
+
+    简单的兼容性处理
+        function getScreen() {
+            if(window.innerWidth){
+                return {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                }
+            }else{
+                return {
+                    width: document.documentElement.clientWidth,
+                    height: document.documentElement.clientHeight
+                }
+            }
+        }
+
+获取网页滚动的距离
+    // 监听网页的滚动
+    window.onscroll = function () {
+        // 1 老版本的谷歌
+        // console.log(document.body.scrollTop);
+        // 2 老版本的其它浏览器
+        // console.log(document.documentElement.scrollTop);
+        // 2 新版本的浏览器
+        // console.log(window.pageYOffset);
+        console.log(getPageScroll().top);
+        console.log(getPageScroll().left);
+    };
+
+    // 兼容性处理
+    function getPageScroll() {
+        var top = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+        var left = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft;
+        return {
+            top: top,
+            left: left
+        }
+    }

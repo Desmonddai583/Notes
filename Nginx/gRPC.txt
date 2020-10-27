@@ -1,0 +1,28 @@
+server {
+    listen 80 http2; // 指定协议为http2.0
+    location / {
+        grpc_pass grpc://127.0.0.1:10000;
+    }
+}
+
+lb+https
+    upstream grpcservers {
+        server 192.168.20.21:50051;
+        server 192.168.20.22:50052;
+    }
+    server {
+        listen 1443 ssl http2;
+        ssl_certificate ssl/certificate.pem;
+        ssl_certificate_key ssl/key.pem;
+        location /helloworld.Greeter {
+            grpc_pass grpc://grpcservers;
+            error_page 502 = /error502grpc;
+        }
+        location = /error502grpc {
+            internal; // 表示只有nginx内部才可以call到这个location,如果是外部请求这个location会返回404
+            default_type application/grpc;
+            add_header grpc-status 14;
+            add_header grpc-message "unavailable";
+            return 204;
+        }
+    }

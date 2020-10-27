@@ -1,0 +1,57 @@
+1. proxy_pass URL;
+    context: location, if in location, limit_except
+
+    反向代理
+    server {
+        location ~ /test_proxy.html$ {
+            proxy_pass http://127.0.0.1:8080;
+        }
+    }
+
+    正向代理
+    server {
+        resolver 8.8.8.8; // 加一个dns解析
+        location / {
+            proxy_pass http://$http_host$request_uri;
+        }
+    }
+    在客户端加一个代理指定为配置好的nginx
+
+
+2. proxy_buffering on | off; // defualt on
+    // 减少io损耗,但是默认是存在内存的,如果内存不够就可能会存到一些临时文件中
+    context: http, server, location
+    extend: proxy_buffer_size, proxy_buffers, proxy_busy_buffers_size
+
+3. proxy_redirect default; proxy_redirect off; proxy_redirect redirect replacement;
+    // 默认 default, 跳转重定向,当代理从服务端获取response之后如果是301跳转需要处理的动作
+    context: http, server, location
+
+4. proxy_set_header field value; // 在发给服务器端时增加的头信息
+    default: proxy_set_header Host $proxy_host;
+             proxy_set_header Connection close;
+    context: http, server, location
+    extend: proxy_hide_header, proxy_set_body
+
+5. proxy_connect_timeout time; // 设置代理到服务端的超时
+    defualt: proxy_connect_timeout 60s;
+    context: http, server, location
+    extend: proxy_read_timout(在连接建立后读的超时配置) , proxy_send_timeout(请求完发送给客户端的超时配置) 
+
+location / {
+  proxy_pass http://127.0.0.1:8080;
+  proxy_redirect default;
+
+  proxy_set_header Host $http_host;
+  proxy_set_header X-Real-IP $remote_addr;
+
+  proxy_connect_timeout 30;
+  proxy_send_timeout 60;
+  proxy_read_timeout 60;
+
+  proxy_buffer_size 32k;
+  proxy_buffering on;
+  proxy_buffers 4 128k;
+  proxy_busy_buffers_size 256k;
+  proxy_max_temp_file_size 256k; // 临时文件地址可以通过nginx -V查看proxy-temp-path
+}

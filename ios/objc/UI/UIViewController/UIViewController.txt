@@ -1,0 +1,9 @@
+IBAction
+  从返回值角度上看，作用相当于void
+  只有返回值声明为IBAction的方法，才能跟storyboard中的控件进行连线
+IBOutlet
+  只有声明为IBOutlet的属性，才能跟storyboard中的控件进行连线
+
+// ios9以后新增的属性,判断一个控制器的view是否已被载入
+// 如果做系统适配可以通过判断vc.view.superview取代
+@property(nonatomic, readonly, strong) UIView *viewIfLoaded;

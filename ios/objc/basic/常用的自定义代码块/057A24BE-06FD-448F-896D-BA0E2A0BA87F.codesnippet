@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDECodeSnippetCompletionPrefix</key>
+	<string>njLazyLoading</string>
+	<key>IDECodeSnippetCompletionScopes</key>
+	<array>
+		<string>CodeBlock</string>
+	</array>
+	<key>IDECodeSnippetContents</key>
+	<string>if (_&lt;#propertyName#&gt; == nil) {
+    _&lt;#propertyName#&gt; = [[&lt;#className#&gt; alloc] init];
+}
+return _&lt;#propertyName#&gt;;</string>
+	<key>IDECodeSnippetIdentifier</key>
+	<string>057A24BE-06FD-448F-896D-BA0E2A0BA87F</string>
+	<key>IDECodeSnippetLanguage</key>
+	<string>Xcode.SourceCodeLanguage.Objective-C</string>
+	<key>IDECodeSnippetSummary</key>
+	<string>懒加载实现</string>
+	<key>IDECodeSnippetTitle</key>
+	<string>懒加载</string>
+	<key>IDECodeSnippetUserSnippet</key>
+	<true/>
+	<key>IDECodeSnippetVersion</key>
+	<integer>2</integer>
+</dict>
+</plist>

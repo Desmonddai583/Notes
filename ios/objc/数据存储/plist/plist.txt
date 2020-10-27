@@ -1,0 +1,14 @@
+只有在ios当中才有plist存储,它是ios特有的存储⽅式
+一般可以使用属性列表文件存储NSArray或者NSDictionary之类的数据，这种“属性列表文件”的扩展名是plist，因此也称为“plist文件”
+获得Plist文件的全路径
+  NSBundle *bundle = [NSBundle mainBundle];
+  NSString *path = [bundle pathForResource:@"shops" ofType:@"plist"];
+
+加载plist文件
+  _shops = [NSArray arrayWithContentsOfFile:path];
+
+读写一个NSDictionary对象到一个plist属性列表中
+  [dict writeToFile:path atomically:YES];
+  NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
+
+plist的文件名不能叫做“info”、“Info”之类的,会与项目中的冲突

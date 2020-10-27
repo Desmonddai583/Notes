@@ -1,0 +1,47 @@
+Flutter是一个UI SDK（Software Development Kit）
+美观
+  使用Flutter内置美丽的Material Design和Cupertino widget、丰富的motion API、平滑而自然的滑动效果和平台感知
+快速
+  Flutter 的 UI 渲染性能很好。在生产环境下，Flutter 将代码编译成机器码执行，并充分利用 GPU 的图形加速能力，
+  因此使用Flutter 开发的移动应用即使在低配手机上也能实现每秒 60 帧的 UI 渲染速度
+  Flutter 引擎使用 C++ 编写，包括高效的 Skia 2D 渲染引擎，Dart 运行时和文本渲染库
+高效
+  Hot Reload (热重载)
+开放
+  Flutter 是开放的，它是一个完全开源的项目
+
+Flutter利用Skia绘图引擎，直接通过CPU、GPU进行绘制，不需要依赖任何原生的控件
+Android操作系统中，我们编写的原生控件实际上也是依赖于Skia进行绘制，所以flutter在某些Android操作系统上
+甚至还要高于原生（因为原生Android中的Skia必须随着操作系统进行更新，而Flutter SDK中总是保持最新的）
+而类似于RN的框架，必须通过某些桥接的方式先转成原生进行调用，之后再进行渲染
+
+Flutter绘制原理
+  GPU将信号同步到 UI 线程
+  UI线程用Dart来构建图层树
+  图层树在GPU 线程进行合成
+  合成后的视图数据提供给Skia引擎
+  Skia 引擎通过OpenGL 或者 Vulkan将显示内容提供给GPU
+
+图像是如何显示
+  在屏幕上可以看到的所有内容都是计算机绘制出来的图像
+  无论是视频还是GIF图片，还是操作系统给我们看到的图形化界面中的画面，都是图像
+  当图片连续播放的频率超过16帧（16张图片），人眼就会感觉非常流畅，当少于16帧时，会感觉到卡顿
+  所以我们平时看到的电影，通常都是24帧或者30帧的（李安之前拍摄120帧的电影，目的就是让图片间隔更小，画面更加的流畅）
+
+  帧率和刷新率
+    帧率（fps）：Frames Per Second
+    刷新率：显示器的频率，比如iPhone的 60Hz、iPad Pro的 120Hz
+
+渲染引擎skia
+  Skia就是 Flutter向 GPU提供数据的途径
+  Skia（全称Skia Graphics Library（SGL））是一个由C++编写的开源图形库
+  目前，Skia 已然是 Android 官方的图像渲染引擎了，因此 Flutter Android SDK 无需内嵌 Skia 引擎就可以获得天然的 Skia 支持
+  而对于 iOS 平台来说，由于 Skia 是跨平台的，因此它作为 Flutter iOS 渲染引 擎被嵌入到 Flutter 的 iOS SDK 中，
+  替代了 iOS 闭源的 Core Graphics/Core Animation/Core Text，这也正是 Flutter iOS SDK 打包的 App 包体积比 Android 要大一些的原因
+  底层渲染能力统一了，上层开发接口和功能体验也就随即统一了，开发者再也不 用操心平台相关的渲染特性了。也就是说，Skia 保证了同一套代码调用在 Android 和 iOS 平台上的渲染效果是完全一致的
+
+创建Flutter应用
+  flutter create helloflutter
+
+代码运行到模拟器中
+  flutter run –d 模拟器id

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>饿了么商家版</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html, body{
+            width: 100%;
+            height: 100%;
+        }
+        a{
+            text-decoration: none;
+            font-size: 14px;
+            color: #999;
+        }
+        .div-in{
+            width: 1000px;
+            height: 100%;
+            margin: 0 auto;
+        }
+        .header{
+            width: 100%;
+            height: 60px;
+            background: #fff;
+        }
+        .header .header-logo{
+            float: left;
+            width: 180px;
+            height: 60px;
+            line-height: 60px;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        .header .header-logo img{
+            width: 70px;
+            vertical-align: text-bottom;
+        }
+        .header .header-logo span{
+            color: #999;
+            padding: 0 10px;
+        }
+
+        .header .header-login{
+            float: right;
+            height: 60px;
+            line-height: 60px;
+        }
+        .header .header-login ul{
+            margin-top: 10px;
+        }
+        .header .header-login ul>li{
+            float: left;
+            width: 92px;
+            height: 38px;
+            line-height: 38px;
+            text-align: center;
+            margin-left: 50px;
+            list-style: none;
+        }
+        .header .header-login ul>li a{
+            color: #0091ea;
+            font-weight: 700;
+        }
+        .header .header-login ul>li:nth-child(2) a{
+            color: #999;
+        }
+        .header .header-login ul>li:nth-child(3){
+            border: 1px solid #0091ea;
+            border-radius: 4px;
+        }
+
+
+        .banner{
+            width: 100%;
+            height: 430px;
+            padding-top: 40px;
+            box-sizing: border-box;
+            background: linear-gradient(#0091ea,#0091ea),linear-gradient(to bottom,#0074f6,#0885ea);
+        }
+        .banner .banner-info{
+            float: left;
+            width: 600px;
+            height: 100%;
+            color: #fff;
+        }
+        .banner .banner-info h2{
+            margin-top: 60px;
+            font-size: 38px;
+            line-height: 56px;
+        }
+        .banner .banner-info p{
+            font-size: 16px;
+            line-height: 30px;
+        }
+        .banner .banner-info .banner-app{
+            margin-top: 30px;
+        }
+        .banner .banner-info .banner-app img{
+            float: left;
+            margin-right: 40px;
+            width: 115px;
+            height: 115px;
+        }
+        .banner .banner-info .banner-dowload{
+            float: left;
+        }
+        .banner .banner-info .banner-dowload>div{
+            width: 143px;
+            height: 48px;
+            line-height: 48px;
+            margin-bottom: 20px;
+            background: #000;
+            text-align: right;
+            background: url("images/android.png") no-repeat 10px center;
+        }
+        .banner .banner-info .banner-dowload>div:nth-child(2){
+            background: url("images/ios.png") no-repeat 10px center;
+        }
+        .banner img{
+            float: right;
+            width: 400px;
+            height: 390px;
+        }
+
+
+        .content{
+            width: 100%;
+        }
+        .content .content-section{
+            width: 100%;
+            height: 500px;
+            background: #fff;
+        }
+        .content .content-section img{
+            float: left;
+            width: 600px;
+            height: 100%;
+        }
+        .content .content-section .content-info{
+            float: left;
+            width: 400px;
+            height: 100%;
+            padding: 200px 0;
+            box-sizing: border-box;
+        }
+        .content .content-section .content-info h3{
+            font-size: 38px;
+            line-height: 56px;
+            color: #333;
+            font-weight: 400;
+        }
+        .content .content-section .content-info p{
+            font-size: 18px;
+            color: #666;
+            line-height: 25px;
+            margin-top: 20px;
+        }
+        .content .content-section:nth-child(odd){
+            background: #f5f5f5;
+        }
+
+        .footer{
+            width: 100%;
+            height: 112px;
+            background: deepskyblue;
+        }
+        .footer p{
+            width: 100%;
+            height: 100%;
+            line-height: 112px;
+            text-align: center;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-in div-in">
+        <h1 class="header-logo">
+            <a href="#">
+                <img src="images/eleme_logo.svg" alt="">
+            </a>
+            <span>|</span>
+            商家中心
+        </h1>
+        <div class="header-login">
+            <ul>
+                <li><a href="#">手机端</a></li>
+                <li><a href="#">电脑端</a></li>
+                <li><a href="#">我要开店</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="banner">
+    <div class="banner-in div-in">
+        <div class="banner-info">
+            <h2>饿了么商家版 | 手机端</h2>
+            <p>用手机在网上开餐厅，随时随地接订单。</p>
+            <p>支持 iOS8 及安卓 4.0 以上系统</p>
+            <div class="banner-app">
+                <img src="images/qrcode.png" alt="">
+                <div class="banner-dowload">
+                    <div content="banner-android">Android下载</div>
+                    <div content="banner-ios">iOS下载</div>
+                </div>
+            </div>
+        </div>
+        <img src="images/mobile01.png" alt="">
+    </div>
+</div>
+<div class="content">
+    <div class="content-section">
+        <div class="div-in">
+            <img src="images/mobile02.png" alt="">
+            <div class="content-info">
+                <h3>超快速订单处理</h3>
+                <p>智能自动接单，多场景语音服务支持</p>
+            </div>
+        </div>
+    </div>
+    <div class="content-section">
+        <div class="div-in">
+            <div class="content-info">
+                <h3>超快速订单处理</h3>
+                <p>智能自动接单，多场景语音服务支持</p>
+            </div>
+            <img src="images/mobile03.png" alt="">
+        </div>
+    </div>
+    <div class="content-section">
+        <div class="div-in">
+            <img src="images/mobile04.png" alt="">
+            <div class="content-info">
+                <h3>超快速订单处理</h3>
+                <p>智能自动接单，多场景语音服务支持</p>
+            </div>
+        </div>
+    </div>
+    <div class="content-section">
+        <div class="div-in">
+            <div class="content-info">
+                <h3>超快速订单处理</h3>
+                <p>智能自动接单，多场景语音服务支持</p>
+            </div>
+            <img src="images/mobile05.png" alt="">
+        </div>
+    </div>
+    <div class="content-section">
+        <div class="div-in">
+            <img src="images/mobile06.png" alt="">
+            <div class="content-info">
+                <h3>超快速订单处理</h3>
+                <p>智能自动接单，多场景语音服务支持</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="footer">
+    <div class="footer-in div-in">
+        <p>Copyright ©2018 ele.me, All Rights Reserved.</p>
+    </div>
+</div>
+</body>
+</html>

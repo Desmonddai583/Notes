@@ -1,0 +1,208 @@
+Route
+  Route：一个页面要想被路由统一管理，必须包装为一个Route
+  但是Route是一个抽象类，所以它是不能实例化的
+
+  MaterialPageRoute
+    MaterialPageRoute -> PageRoute -> ModalRoute -> TransitionRoute -> OverlayRoute -> Route
+    MaterialPageRoute在不同的平台有不同的表现
+    对Android平台，打开一个页面会从屏幕底部滑动到屏幕的顶部，关闭页面时从顶部滑动到底部消失
+    对iOS平台，打开一个页面会从屏幕右侧滑动到屏幕的左侧，关闭页面时从左侧滑动到右侧消失
+    当然，iOS平台我们也可以使用CupertinoPageRoute
+
+Navigator 
+  Navigator：管理所有的Route的Widget，通过一个Stack来进行管理的
+  开发中使用的MaterialApp、CupertinoApp、WidgetsApp它们默认是有插入Navigator的
+  直接使用Navigator.of(context)即可
+  Navigator有几个最常见的方法
+    // 路由跳转：传入一个路由对象
+    Future<T> push<T extendsObject>(Route<T> route)
+
+    // 路由跳转：传入一个名称（命名路由）
+    Future<T> pushNamed<T extendsObject>(
+      String routeName, {
+        Object arguments,
+      })
+
+    // 路由返回：可以传入一个参数
+    bool pop<T extendsObject>([ T result ])
+
+路由基本使用
+  核心的跳转代码如下
+    RaisedButton(
+      child: Text("打开详情页"),
+      onPressed: () => _onPushTap(context),
+    ),
+    // 按钮点击执行的代码
+    _onPushTap(BuildContext context) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (ctx) {
+          return DetailPage();
+        }
+      ));
+    }
+
+  核心的返回代码如下
+    RaisedButton(
+      child: Text("返回首页"),
+      onPressed: () => _onBackTap(context),
+    )
+    // 按钮点击执行的代码
+    _onBackTap(BuildContext context) {
+      Navigator.of(context).pop();
+    }
+  
+  参数传递
+    在页面跳转时，会返回一个Future
+    该Future会在详情页面调用pop时，回调对应的then函数，并且会携带结果
+
+    跳转代码
+      // 1.跳转代码
+      final future = Navigator.of(context).push(MaterialPageRoute(
+        builder: (ctx) {
+          return DetailPage("a home message");
+        }
+      ));
+
+      // 2.获取结果
+      future.then((res) {
+        setState(() {
+          _message = res;
+        });
+      });
+
+    返回代码
+      _onBackTap(BuildContext context) {
+        Navigator.of(context).pop("a detail message");
+      }
+    
+    返回细节
+      如果用户是点击右上角的返回按钮，如何监听
+      方法一：自定义返回的按钮（在详情页中修改Scaffold的appBar）
+        appBar: AppBar(
+          title: Text("详情页"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop("a back detail message");
+            },
+          ),
+        ),
+      方法二：监听返回按钮的点击（给Scaffold包裹一个WillPopScope）
+        WillPopScope有一个onWillPop的回调函数，当我们点击返回按钮时会执行
+        这个函数要求有一个Future的返回值：
+          true：那么系统会自动帮我们执行pop操作
+          false：系统不再执行pop操作，需要我们自己来执行
+        return WillPopScope(
+          onWillPop: () {
+            Navigator.of(context).pop("a back detail message");
+            return Future.value(false);
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text("详情页"),
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                    child: Text("返回首页"),
+                    onPressed: () => _onBackTap(context),
+                  ),
+                  Text(_message, style: TextStyle(fontSize: 20, color: Colors.red),)
+                ],
+              ),
+            ),
+          ),
+        );
+
+命名路由使用
+  基本跳转
+    命名路由是将名字和路由的映射关系，在一个地方进行统一的管理
+    有了命名路由，我们可以通过Navigator.pushNamed() 方法来跳转到新的页面
+    可以放在MaterialApp的 initialRoute 和 routes 中
+      initialRoute：设置应用程序从哪一个路由开始启动，设置了该属性，就不需要再设置home属性了
+      routes：定义名称和路由之间的映射关系，类型为Map<String, WidgetBuilder>
+
+      return MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue, splashColor: Colors.transparent
+        ),
+        initialRoute: "/",
+        routes: {
+          "/home": (ctx) => HYHomePage(),
+          "/detail": (ctx) => HYDetailPage()
+        },
+      );
+    修改跳转的代码
+      _onPushTap(BuildContext context) {
+        Navigator.of(context).pushNamed("/detail");
+      }
+  
+  参数传递
+    _onPushTap(BuildContext context) {
+      Navigator.of(context).pushNamed(HYDetailPage.routeName, arguments: "a home message of naned route");
+    }
+    在build方法中ModalRoute.of(context)可以获取到传递的参数
+    Widget build(BuildContext context) {
+      // 1.获取数据
+      final message = ModalRoute.of(context).settings.arguments;
+    }
+  
+  路由钩子
+    onGenerateRoute
+      假如我们有一个HYAboutPage，也希望在跳转时，传入对应的参数message，并且已经有一个对应的构造方法
+        RaisedButton(
+          child: Text("打开关于页"),
+          onPressed: () {
+            Navigator.of(context).pushNamed(HYAboutPage.routeName, arguments: "a home message");
+          },
+        )
+
+        class HYAboutPage extends StatelessWidget {
+          staticconstString routeName = "/about";
+          finalString message;
+
+          HYAboutPage(this.message);
+
+          @override
+          Widget build(BuildContext context) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text("关于页面"),
+              ),
+              body: Center(
+                child: Text(message, style: TextStyle(fontSize: 30, color: Colors.red),),
+              ),
+            );
+          }
+        }
+      但是我们继续使用routes中的映射关系，就不好进行配置了，因为HYAboutPage必须要求传入一个参数
+      这个时候我们可以使用onGenerateRoute的钩子函数：
+        当我们通过pushNamed进行跳转，但是对应的name没有在routes中有映射关系，那么就会执行onGenerateRoute钩子函数；
+        我们可以在该函数中，手动创建对应的Route进行返回；
+        该函数有一个参数RouteSettings，该类有两个常用的属性：
+          name: 跳转的路径名称
+          arguments：跳转时携带的参数
+
+      onGenerateRoute: (settings) {
+        if (settings.name == "/about") {
+          return MaterialPageRoute(
+            builder: (ctx) {
+              return HYAboutPage(settings.arguments);
+            }
+          );
+        }
+        returnnull;
+      }
+
+    onUnknownRoute
+      如果我们打开的一个路由名称是根本不存在，这个时候我们希望跳转到一个统一的错误页面
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (ctx) {
+            return UnknownPage();
+          }
+        );
+      }

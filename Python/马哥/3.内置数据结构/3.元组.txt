@@ -1,0 +1,54 @@
+一个有序的元素组成的集合
+使用小括号 ( ) 表示
+元组是不可变对象
+
+元组的定义 初始化
+  定义
+    tuple() -> empty tuple
+    tuple(iterable) -> tuple initialized from iterable's items
+
+    t = tuple() # 工厂方法
+    t = ()
+    t = tuple(range(1,7,2)) # iteratable
+    t = (2,4,6,3,4,2)
+    t = (1,) # 一个元素元组的定义，注意有个逗号 t = (1,)*5
+    t = (1,2,3) * 6
+
+元组元素的访问
+  支持索引(下标)
+  正索引:从左至右，从0开始，为列表中每一个元素编号
+  负索引:从右至左，从-1开始
+  正负索引不可以超界，否则引发异常IndexError
+
+  元组通过索引访问
+    tuple[index] ，index就是索引，使用中括号访问
+
+元组查询
+  index(value,[start,[stop]])
+    通过值value，从指定区间查找列表内的元素是否匹配
+    匹配第一个就立即返回索引
+    匹配不到，抛出异常ValueError
+    时间复杂度O(n)
+
+  count(value)
+    返回列表中匹配value的次数
+    时间复杂度O(n)
+  
+  len(tuple)
+    返回元素的个数
+    因为不可变,所以一开始就定了长度,不需要遍历
+
+元组是只读的，所以增、改、删方法都没有
+
+命名元组namedtuple
+  namedtuple(typename, field_names, verbose=False, rename=False)
+    命名元组，返回一个元组的子类，并定义了字段
+    field_names可以是空白符或逗号分割的字段的字符串，可以是字段的列表
+  
+  from collections import namedtuple
+  Point = namedtuple('_Point',['x','y']) # Point为返回的类
+  p = Point(11, 22)
+  Student = namedtuple('Student', 'name age') 
+  tom = Student('tom', 20)
+  jerry = Student('jerry', 18)
+  tom.name // 只可读不可改

@@ -1,0 +1,94 @@
+当scrollview包含水平滚动条和垂直滚动条时,subviews中会多两个UIImage对象,即这两个滚动条
+需要注意的是,如果是通过代码创建scrollView,一开始subviews这个数组为nil
+只有到viewDidAppear时才看得到这两个滚动条,但是如果通过storyboard创建,则在viewDidLoad中就可看到
+scrollView背后原理就是通过修改bounds实现
+
+如果UIScrollView无法滚动，可能是以下原因：
+  没有设置contentSize
+  scrollEnabled = NO
+  没有接收到触摸事件:userInteractionEnabled = NO
+
+UIScrollView的常见属性
+  @property(nonatomic) CGPoint contentOffset; 
+  这个属性用来表示UIScrollView滚动的位置
+
+  @property(nonatomic) CGSize contentSize; 
+  这个属性用来表示UIScrollView内容的尺寸，滚动范围
+
+  @property(nonatomic) UIEdgeInsets contentInset; 
+  这个属性能够在UIScrollView的四周增加额外的滚动区域，一般用来避免scrollView的内容被其他控件挡住
+
+  @property(nonatomic) BOOL bounces;
+  设置UIScrollView是否需要弹簧效果
+
+  @property(nonatomic,getter=isScrollEnabled) BOOL scrollEnabled; 
+  设置UIScrollView是否能滚动
+  如果是设置userInteractionEnabled = NO,除了不能滚动,scrollView以及内部所有的子控件都不能跟用户交互
+
+  @property(nonatomic) BOOL showsHorizontalScrollIndicator;
+  是否显示水平滚动条
+
+  @property(nonatomic) BOOL showsVerticalScrollIndicator;
+  是否显示垂直滚动条
+
+  alwaysBounceHorizontal与alwaysBounceVertical
+  当这两个属性为YES时,bounces不管有没有设置contentSize,总是有弹簧效果(下拉刷新)
+
+UIScrollView的代理(UIScrollView未继承UIControl,所以没有addTarget的方法监听事件)
+  需要遵守UIScrollViewDelegate协议
+  当在controller中使用协议推荐写在.m文件中,防止暴露给外界,
+  当然如果协议的代理对象是由其他文件中类产生,那么就需要把协议写在该类的.h文件,否则引用时不知道他是合法的代理对象
+
+  代理方法
+    // 用户开始拖拽时调用
+    - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;
+    // 滚动到某个位置时调用
+    - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
+    // 用户即将停止拖拽scrollView时调用
+    - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset;
+    // 用户结束拖拽时调用(如果此时decelerate为Yes时,则还有惯性会继续滚动)
+    - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate;
+    // scrollView减速完毕会调用,停止滚动
+    - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
+
+缩放实现
+  1. 设置UIScrollView的id<UISCrollViewDelegate> delegate代理对象
+  2. 设置minimumZoomScale ：缩小的最小比例
+  3. 设置maximumZoomScale ：放大的最大比例
+  4. 让代理对象实现下面的方法，返回需要缩放的视图控件
+      - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
+  
+  跟缩放相关的其他代理方法
+    // 即将开始缩放的时候调用 
+    - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
+    // 正在缩放的时候调用
+    - (void)scrollViewDidZoom:(UIScrollView *)scrollView
+
+分页
+  只要将UIScrollView的pageEnabled属性设置为YES，UIScrollView会被分割成多个独立页面，里面的内容就能进行分页展示
+  一般会配合UIPageControl增强分页效果，UIPageControl常用属性如下 
+    一共有多少页
+    @property(nonatomic) NSInteger numberOfPages;
+    当前显示的页码
+    @property(nonatomic) NSInteger currentPage; 
+    只有一页时，是否需要隐藏页码指示器
+    @property(nonatomic) BOOL hidesForSinglePage; 
+    其他页码指示器的颜色
+    @property(nonatomic,retain) UIColor *pageIndicatorTintColor;
+    当前页码指示器的颜色
+    @property(nonatomic,retain) UIColor *currentPageIndicatorTintColor;
+
+  如果想要改变UIPageControl的指示器图片,需要通过KVC的方式,因为image是私有成员变量
+
+scrollView的setContentOffset方法可以使其滚动到一个不合理的位置(即超过contentSize的位置)
+
+iOS7之后,只要是导航控制器下的所有UIScrollView顶部都会添加额外的滚动区域
+设置当前控制器不要调整ScrollView的contentInsets 
+  self.automaticallyAdjustsScrollViewInsets = NO;
+
+UIScrollView在storyboard中做自动布局
+  首先确定scrollView滚动范围
+  搞一个专门view去确定scrollView的滚动范围
+  如何确定:水平和垂直方向能否滚动
+    scrollView水平能否滚动: view的宽度 + 左右两边间距 大于屏幕才可以
+    scrollView垂直能否滚动: view的高度 + 上下两边间距 大于屏幕才可以

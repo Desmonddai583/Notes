@@ -1,0 +1,29 @@
+// docker swarm命令基本只能在manager node上执行(除了docker swarm leave)
+// swarm可以有多个manager node，但只有一个node可以成为leader，leader通过raft协议选举发现
+// manager node也可以作为worker node执行
+
+// task是swarm中最小的调度单位，目前来说就是一个单一的容器
+// services是指一组任务的集合，services定义了任务的属性,services有两种模式
+// 1. replicated services 按照一定规则在各个工作节点上运行指定个数的任务
+// 2. global services 每个工作节点上运行一个任务
+
+// 初始化docker swarm，如果当前manager多于一张网卡就需要使用--advertise-addr指定ip
+// 执行docker swarm init命令的节点自动成为管理节点
+docker swarm init --advertise-addr 192.168.99.101
+
+// 将节点加入swarm成为一个工作节点
+docker swarm join --token token 192.168.99.101:2377
+
+docker node ls // 查看swarm中的node
+docker service ls // 查看swarm中的service
+docker service create --replicas 3 -p 80:80 --name nginx nginx:1.13.7-alpine
+docker service ps nginx
+docker service logs -f nginx // -f会持续输出新的日志
+docker service rm nginx
+
+// 在Swarm集群中也可以使用compose文件(docker-compose.yml)来配置、启动多个服务
+docker stack deploy -c docker-compose.yml wordpress
+docker stack ls
+// 该命令不会移除服务所使用的数据卷
+// 如果你想移除数据卷请使用docker volume rm
+docker stack down wordpress

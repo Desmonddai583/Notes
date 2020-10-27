@@ -1,0 +1,103 @@
+body{
+    background: white url("../images/bg2.jpg") no-repeat center top;
+    font-size: 14px;
+}
+/*头部*/
+.header .header_in{
+    width: 100%;
+}
+.header .header_in>h1{
+    display: none;
+}
+
+/*导航*/
+.nav{
+    width: 100%;
+}
+.nav>ul{
+    width: 100%;
+    display: flex;
+}
+.nav>span:first-child{
+    display: none;
+}
+.nav>span:last-child{
+    display: none;
+}
+
+/*广告*/
+.banner{
+    width: 100%;
+    height: auto;
+}
+.banner img{
+    width: 100%;
+}
+
+/*内容*/
+.content{
+    width: 100%;
+    height: auto;
+    background: none;
+}
+.content .content_top{
+    height: auto;
+    overflow: hidden;
+}
+.content .content_top>ul{
+    padding: 0;
+}
+.content .content_top>ul>li{
+    width:48%;
+    margin: 1%;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: linear-gradient(to top,#fdfdfd, #f0f0f0);
+}
+.content .content_bottom{
+    height: auto;
+    overflow: hidden;
+    background: none;
+}
+.content .content_bottom .content_info{
+    width: 98%;
+    background: linear-gradient(to top,#fdfdfd, #f0f0f0);
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin:1%;
+}
+.content .content_bottom>div>div:last-child>ul{
+    display: flex;
+    justify-content: space-around;
+}
+
+/*子导航*/
+.sub_nav{
+    display: none;
+}
+
+/*底部*/
+.footer{
+    background: none;
+}
+.footer .footer_in{
+    width: 98%;
+    background: linear-gradient(to top,#fdfdfd, #f0f0f0);
+    border: 1px solid #ccc;
+    padding-left:1%;
+    padding-right: 1%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin:1%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.footer .footer_in>p{
+    margin: 0;
+}
+.footer .footer_in>h2>a{
+    margin: 0;
+}

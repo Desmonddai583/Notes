@@ -1,0 +1,294 @@
+Remote Dictionary Server(远程字典服务器)
+Redis是NoSQL类型的数据库,不是传统关系型数据库, 不支持SQL语句
+Redis是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API
+
+NoSQL数据库没有一种通用的语言, 每种NoSQL数据库都有自己的api和语法
+
+Redis特点
+    支持数据的持久化, 可以将内存中的数据保存到磁盘中
+    不仅仅支持简单的key-value类型数据, 同时还提供了list,set,zset,hash等数据结构的存储
+    支持数据的备份, 既master-slave模式的数据备份
+    性能极高, 读取速度能达到10万次/s左右, 写入能到到8万次/秒左右
+
+redis应用场景
+    缓存——热点数据
+        热点数据（经常会被查询，但是不经常被修改或者删除的数据），首选是使用redis缓存
+    排行榜/计数器
+        Redis在内存中对数字进行递增或递减的操作实现的非常好
+        集合（Set）和有序集合（Sorted Set）也使得我们在执行这些操作的时候变的非常简单，
+        Redis只是正好提供了这两种数据结构
+    存储社交关系
+    消息通知
+    https://www.cnblogs.com/echohao/p/5661155.html
+
+配置文件修改
+    绑定IP
+        bind 127.0.0.1
+    绑定端口号
+        port 6379
+    是否以守护进程运行
+        daemonize yes
+            如果以守护进程运行, 则不会在命令行阻塞
+            如果不以守护进程运行, 则会在命令行阻塞
+            yes守护进程, no非守护进程
+    数据库文件
+        dbfilename dump.rdb
+    数据文件存储路径
+        dir ./
+    默认数据库
+        databases 16
+    日志文件
+        logfile "server_log.txt"
+    主从复制(类似于双机备份)
+        slaveof
+    设置密码    
+        requirepass foobared
+
+    http://www.runoob.com/redis/redis-conf.html
+
+Redis数据类型
+    Redis存储的数据都是key-value形式的
+    key无论如何都是字符串类型, Value支持如下的五种数据类型：
+        string（字符串），
+            键是String, 值也是String. 默认
+
+        hash（哈希），
+            键是String, 值hash
+            hash就相当于编程开发中的Map
+            name lnj
+            age 34
+            score 100
+            注意点: hash是无序的
+
+        list（列表），
+            键是String, 值list
+            list就相当于C语言中学习的链表
+            a->b->c->d
+            注意点: list是有序的
+
+        set（集合）
+            键是String, 值set
+            一堆无序的数据
+            a,c,d,f
+            注意点: 存储的数据不能重复
+
+        zset(有序集合)。
+            一堆有序的数据, 通过权重和实现排序
+            a,c,d,f
+            注意点: 存储的数据不能重复
+
+    Redis字符串类型操作
+        新增
+            set key value
+            set name lnj
+        查询
+            get key
+            get name
+        修改
+            set key value
+            如果key已经存在就是修改
+        删除
+            del key
+            del name
+        查询当前表所有的key
+            keys *
+        切换数据库
+            select index
+            select 1
+            注意点: 
+                默认Redis给我们创建了16个数据库(0~15), 
+                如果使用的时候没有明确的选中使用哪个数据库, 那么默认使用第0个
+        清空当前数据库(开发操作)
+            flushdb
+        清空所有数据库(离职操作)
+            flushall
+        批量添加值
+            mset key value key value
+            mset name lnj age 98 score 100
+        批量查询值
+            mget key key key
+            mget name age score
+
+        高级用法
+            在企业开发中我们可以使用Redis来实现Cookie,Session相关的功能
+            Cookie特点: 可以设置过期时间, Redis也可以给数据添加过期时间
+        
+            设置过期时间
+                SETEX key seconds value
+                设置name的值10秒之后过期
+                setex name 10 lnj
+
+            查看过期时间
+                TTL key
+                ttl name
+
+            修改过期时间
+                EXPIRE key seconds
+                如果设置过过期时间, 就是修改过期时间
+                expire name 10
+                如果没有设置过过期时间, 就是添加过期时间
+                expire age 10
+
+    Redis-Hash类型操作
+        Redis的Value除了可以存储普通的字符串类型以外, 还可以存储Hash类型
+        Hash类型就相当于在Go语言中学习的Map, 可以把整个Map当做一个Value存储起来
+
+        增加
+            hset key field value
+            hset user name itzb
+            hset user age 34
+        查询
+            hget key field
+            hget user name
+        查询所有field
+            hkeys key
+            hkeys user
+        查询所有value
+            hvals key
+            hvals user
+        查询所有的field和value
+            hgetall key
+            hgetall user
+        修改
+            如果字段不存在就是新增, 如果字段存在就是修改
+            hset key field value
+            hset user name it666
+        删除
+            删除指定的字段
+                hdel key field
+                hdel user name
+            删除对应key所有的数据
+                del key
+                del user
+        批量新增
+            hmset key field1 value1 field2 value2
+            hmset user name lnj age 34 score 100
+        批量查询
+            hmget key field1 field2 field3
+            hmget user name age score
+        工具指令
+            hlen key    返回key存储的hash表中有多少条数据
+            hlen user
+
+            hexists key field  判断指定的key存储的hash表中是否有指定的字段
+            hexists user name    返回1表示存在
+            hexists user gender  返回0表示不存在
+
+    Redis-List类型操作
+        Redis的Value除了可以存储普通的字符串类型以外, 还可以存储List类型
+        List类型就相当于在C语言中学习的链表, 可以把整个链表当做一个Value存储起来
+        注意点: List是有序的
+
+        增加
+            从第二个Value开始添加到前一个的左边
+                lpush key value1 value2 value3
+                lpush city bj sh gz  // gz sh bj
+            从第二个Value开始添加到前一个的右边
+                rpush key value1 value2 value3
+                rpush city bj sh gz // bj sh gz
+        查询
+            索引从0开始, 如果想取出对应key所有的内容, endIndex可以写-1
+                lrange key startIndex endIndex
+                lrange city 0 2
+                lrange city 0 -1
+        删除
+            count > 0 : 从表头开始向表尾搜索，移除与 value 相等的元素，数量为 count 。
+            count < 0 : 从表尾开始向表头搜索，移除与 value 相等的元素，数量为 count 的绝对值。
+            count = 0 : 移除表中所有与 value 相等的值。
+
+            lrem key count value
+                rpush city bj sh gz bj wh hz gz bj
+
+                执行之前: bj sh gz bj wh hz gz bj
+                lrem city 1 bj
+                执行之后: sh gz bj wh hz gz bj
+
+                执行之前: bj sh gz bj wh hz gz bj
+                lrem city 2 bj
+                执行之后: sh gz wh hz gz bj
+
+                执行之前: bj sh gz bj wh hz gz bj
+                lrem city -1 bj
+                执行之后: bj sh gz  bj wh hz gz
+
+                执行之前: bj sh gz bj wh hz gz bj
+                lrem city -2 bj
+                执行之后: bj sh gz wh hz gz
+
+                执行之前: bj sh gz bj wh hz gz bj
+                lrem city 0 bj
+                执行之后: sh gzwh hz gz
+        追加(修改)
+            继续通过lpush或者rpush指定对应的key即可给原有key增加节点内容
+            例如: 
+                以前city中存储的数据是 bj sh gz
+                rpush city wh
+                bj sh gz wh
+        修改
+            注意 index从0开始 找到之后替换
+            lset key index value
+            lset city 2 yy
+        插入
+            如果通过lpush或者rpush追加内容, 要么追加到链表的最左边, 要么就是追加到链表的最右边
+            linsert key before|after 现有value 新增value
+            linsert www before b f
+            linsert www after b g
+    
+    Redis-Set-ZSet类型操作
+        Redis的Value除了可以存储普通的字符串类型以外, 还可以存储Set/ZSet类型
+        Set就是把一堆无序的数据当做一个Value存储起来
+        ZSet就是把一堆通过权重排序的数据当做一个Value存储起来
+        注意点: 无论是Set还是ZSet都不能存储重复的数据
+
+        Set 
+            新增
+                sadd key value1, value2
+                sadd city bj sh wh
+            查询
+                smembers key
+                smembers city
+            删除
+                srem key value
+                srem city bj
+        
+        ZSet
+            新增
+                zadd key 权重 value 权重 value
+                zadd city 2 sh  1  bj 3 gz
+            查询
+                zrange key startindex endindex
+                zrange city 0 -1
+            查询指定权重范围内的数据
+                zrangebyscore key 权重 权重
+                zrangebyscore city 1 2
+            删除
+                zrem key value
+                zrem city bj
+
+Redis-主从服务器
+    为了降低每个redis服务器的负载，我们可以设置多个服务器一起执行任务，做主从模式
+    一个redis服务器负责写数据(master)，其他的服务器(slave)负责读数据，主服务器的数据也会自动的同步给其他的从服务器
+
+    Redis主从服务器配置
+        修改master
+            bind 192.168.137.1 #改为服务器的IP地址
+                注意点: 服务器的IP地址一定要设置为静态的IP地址
+            daemonize yes
+        修改slave
+            slave1
+                bind 192.168.137.1  
+                port 6380
+                daemonize yes
+                slaveof 192.168.137.1 6379
+
+            slave2
+                bind 192.168.137.1
+                port 6381
+                daemonize yes
+                slaveof 192.168.137.1 6379
+    
+    检查主从关系
+        redis-cli -h 192.168.137.1 -p 6379
+        info Replication
+    
+    扩展阅读: https://www.cnblogs.com/kevingrace/p/5685332.html

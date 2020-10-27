@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EVU-Bk-N78">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p6E-Vb-hfZ" userLabel="确定scrollView滚动范围">
+                                        <rect key="frame" x="0.0" y="0.0" width="750" height="667"/>
+                                        <subviews>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yxx-GG-Tp1">
+                                                <rect key="frame" x="142" y="261" width="51" height="31"/>
+                                            </switch>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="P7W-bQ-5nH">
+                                                <rect key="frame" x="400" y="285" width="51" height="31"/>
+                                            </switch>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="p6E-Vb-hfZ" secondAttribute="bottom" id="3tW-Hl-arV"/>
+                                    <constraint firstItem="p6E-Vb-hfZ" firstAttribute="top" secondItem="EVU-Bk-N78" secondAttribute="top" id="ImR-Hi-o47"/>
+                                    <constraint firstItem="p6E-Vb-hfZ" firstAttribute="leading" secondItem="EVU-Bk-N78" secondAttribute="leading" id="KA4-Ix-yDl"/>
+                                    <constraint firstItem="p6E-Vb-hfZ" firstAttribute="height" secondItem="EVU-Bk-N78" secondAttribute="height" id="Vfl-BH-lwg"/>
+                                    <constraint firstAttribute="trailing" secondItem="p6E-Vb-hfZ" secondAttribute="trailing" id="de0-A8-cuW"/>
+                                    <constraint firstItem="p6E-Vb-hfZ" firstAttribute="width" secondItem="EVU-Bk-N78" secondAttribute="width" multiplier="2" id="vXc-as-dhC"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="EVU-Bk-N78" secondAttribute="trailing" id="1bJ-x3-jKX"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="EVU-Bk-N78" secondAttribute="bottom" id="5xb-CG-TBn"/>
+                            <constraint firstItem="EVU-Bk-N78" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="DLo-I7-68f"/>
+                            <constraint firstItem="EVU-Bk-N78" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="mHW-xG-TY8"/>
+                        </constraints>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>

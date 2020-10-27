@@ -1,0 +1,565 @@
+jQuery和JS入口函数的区别
+    原生JS会等到DOM元素加载完毕,并且图片也加载完毕才会执行
+        window.onload = function (ev) { }
+    jQuery会等到DOM元素加载完毕,但不会等到图片也加载完毕就会执行,所以获取不到图片的宽高
+        $(document).ready(function () { });
+
+    原生的JS如果编写了多个入口函数,后面编写的会覆盖前面编写的
+    jQuery中编写多个入口函数,后面的不会覆盖前面的
+
+jQuery入口函数的写法
+    1. $(document).ready(function () { });
+    2. jQuery(document).ready(function () { });
+    3. $(function () { }); // 推荐
+    4. jQuery(function () { });
+
+jQuery冲突问题
+    当其他库也使用$时
+    1. 释放$的使用权
+        注意点: 释放操作必须在编写其它jQuery代码之前编写
+                释放之后就不能再使用$,改为使用jQuery
+                jQuery.noConflict();
+    2. 自定义一个访问符号
+        var nj = jQuery.noConflict();
+        nj(function () {
+            alert("hello lnj");
+        });
+
+jQuery核心函数
+    $()就代表调用jQuery的核心函数
+    1. 接收一个函数
+        $(function () {
+            alert("hello lnj");
+        });
+    2. 接收一个字符串
+        1. 接收一个字符串选择器
+            返回一个jQuery对象, 对象中保存了找到的DOM元素
+            var $box1 = $(".box1");
+        2. 接收一个字符串代码片段
+            返回一个jQuery对象, 对象中保存了创建的DOM元素
+            var $p = $("<p>我是段落</p>");
+            $box1.append($p);
+    3. 接收一个DOM元素
+        会被包装成一个jQuery对象返回给我们
+        var span = document.getElementsByTagName("span")[0];
+        var $span = $(span);
+
+jQuery对象
+    jQuery对象是一个伪数组
+    有0到length-1的属性, 并且有length属性
+
+jQuery静态方法
+    each
+        原生的forEach方法只能遍历数组, 不能遍历伪数组
+        利用jQuery的each静态方法遍历数组
+            jQuery的each方法是可以遍历伪数组的
+            第一个参数: 当前遍历到的索引
+            第二个参数: 遍历到的元素
+            var obj = {0:1, 1:3, 2:5, 3:7, 4:9, length:5}; // 定义一个伪数组
+            $.each(obj, function (index, value) {
+                console.log(index, value);
+            });
+    map
+        原生的map方法不能遍历的伪数组
+        利用jQuery的map静态方法遍历数组
+            jQuery的map方法是可以遍历伪数组的
+            第一个参数: 要遍历的数组
+            第二个参数: 每遍历一个元素之后执行的回调函数
+            回调函数的参数:
+            第一个参数: 遍历到的元素
+            第二个参数: 遍历到的索引
+            var res = $.map(obj, function (value, index) {
+                console.log(index, value);
+                return value + index;
+            });
+    
+    jQuery中的each静态方法和map静态方法的区别:
+        each静态方法默认的返回值就是, 遍历谁就返回谁
+        map静态方法默认的返回值是一个空数组
+
+        each静态方法不支持在回调函数中对遍历的数组进行处理
+        map静态方法可以在回调函数中通过return对遍历的数组进行处理, 然后生成一个新的数组返回
+
+    trim
+        作用: 去除字符串两端的空格
+        参数: 需要去除空格的字符串
+        返回值: 去除空格之后的字符串
+        var str = "    lnj    ";
+        var res = $.trim(str);
+
+    isWindow
+        作用: 判断传入的对象是否是window对象
+        返回值: true/false
+        var w = window;
+        var res = $.isWindow(w);
+
+    isArray
+        作用: 判断传入的对象是否是真数组
+        返回值: true/false
+        var res = $.isArray(w);
+
+    isFunction
+        作用: 判断传入的对象是否是一个函数
+        返回值: true/false
+        注意点:
+            jQuery框架本质上是一个函数
+        var res = $.isFunction(jQuery);
+
+    holdReady
+        作用: 暂停ready执行
+        $.holdReady(true);
+        $(document).ready(function () {
+            alert("ready");
+        });
+
+        var btn = document.getElementsByTagName("button")[0];
+        btn.onclick = function () {
+            $.holdReady(false); // 传入false代表恢复执行
+        }
+
+jQuery内容选择器
+    :empty 
+        作用:找到既没有文本内容也没有子元素的指定元素
+        var $div = $("div:empty");
+
+    :parent 
+        作用: 找到有文本内容或有子元素的指定元素
+        var $div = $("div:parent");
+    
+    :contains(text) 
+        作用: 找到包含指定文本内容的指定元素
+        var $div = $("div:contains('我是div')");
+    
+    :has(selector) 
+        作用: 找到包含指定子元素的指定元素
+        var $div = $("div:has('span')");
+    
+属性和属性节点
+    属性
+        对象身上保存的变量就是属性
+        如何操作属性
+            对象.属性名称 = 值;
+            对象.属性名称;
+            对象["属性名称"] = 值;
+            对象["属性名称"];
+    
+    属性节点
+        在编写HTML代码时,在HTML标签中添加的属性就是属性节点
+        在浏览器中找到span这个DOM元素之后, 展开看到的都是属性
+        在attributes属性中保存的所有内容都是属性节点
+        如何操作属性节点    
+            DOM元素.setAttribute("属性名称", "值");
+            DOM元素.getAttribute("属性名称");
+
+    任何对象都有属性, 但是只有DOM对象才有属性节点
+
+attr(name|pro|key,val|fn)
+    作用: 获取或者设置属性节点的值
+    可以传递一个参数, 也可以传递两个参数
+    如果传递一个参数, 代表获取属性节点的值 $("span").attr("class")
+    如果传递两个参数, 代表设置属性节点的值 $("span").attr("class", "box");
+
+    注意点:
+        如果是获取:无论找到多少个元素, 都只会返回第一个元素指定的属性节点的值
+        如果是设置:找到多少个元素就会设置多少个元素
+        如果是设置:如果设置的属性节点不存在,那么系统会自动新增
+
+removeAttr
+    删除属性节点
+    注意点:
+        会删除所有找到元素指定的属性节点
+    $("span").removeAttr("class name") // 删除多个用空格隔开
+
+prop
+    特点和attr方法一致
+    $("span").eq(0).prop("demo", "it666");
+    $("span").prop("demo")
+
+removeProp
+    特点和removeAttr方法一致
+    $("span").removeProp("demo");
+
+官方推荐在操作属性节点时,具有true和false两个属性的属性节点，
+如checked,selected或者disabled使用prop(),其他的使用attr()
+
+jQuery操作类相关的方法
+    addClass(class|fn)
+        作用: 添加一个类
+        如果要添加多个,多个类名之间用空格隔开即可
+        $("div").addClass("class1 class2");
+
+    removeClass([class|fn])
+        作用: 删除一个类
+        如果想删除多个,多个类名之间用空格隔开即可
+        $("div").removeClass("class2 class1");
+
+    toggleClass(class|fn[,sw])
+        作用: 切换类
+        有就删除,没有就添加
+        $("div").toggleClass("class2 class1");
+
+jQuery文本值相关的方法
+    html([val|fn])
+        和原生JS中的innerHTML一模一样
+        $("div").html();
+        $("div").html("<p>我是段落<span>我是span</span></p>");
+    text([val|fn])
+        和原生JS中的innerText一模一样
+        $("div").text();
+        $("div").text("<p>我是段落<span>我是span</span></p>");
+    val([val|fn|arr])
+        给input设置和读取value
+        $("input").val();
+        $("input").val("请输入内容");
+
+jQuery操作CSS样式的方法
+    逐个设置
+        $("div").css("width", "100px");
+        $("div").css("height", "100px");
+    链式设置
+        注意点: 链式操作如果大于3步, 建议分开
+        $("div").css("width", "100px").css("height", "100px")
+    批量设置
+        $("div").css({
+            width: "100px",
+            height: "100px",
+            background: "red"
+        });
+    获取CSS样式值
+        $("div").css("background")
+
+jQuery位置和尺寸操作的方法
+    获取元素的宽度(不包含边框,margin,padding等,如果需要考虑进这些的话可以使用innerWidth,outerWidth)
+        $(".father").width()
+    设置元素的宽度
+        $(".father").width("500px")
+    获取元素距离窗口的偏移位
+        $(".son").offset().left
+    设置元素距离窗口的偏移位
+        $(".son").offset({
+            left: 10
+        });
+    获取元素距离定位元素的偏移位
+        $(".son").position().left
+    注意点: position方法只能获取不能设置,可以通过css方法设置
+        $(".son").css({
+            left: "10px"
+        });
+
+scrollTop
+    获取元素滚动的偏移位
+        $(".scroll").scrollTop()
+    设置元素滚动的偏移位
+        $(".scroll").scrollTop(300);
+    获取网页滚动的偏移位
+        注意点: 为了保证浏览器的兼容, 获取网页滚动的偏移位需要按照如下写法
+        $("body").scrollTop()+$("html").scrollTop()
+    设置网页滚动偏移位
+        注意点: 为了保证浏览器的兼容, 设置网页滚动偏移位的时候必须按照如下写法
+        $("html,body").scrollTop(300);
+    scrollLeft用法与scrollTop类似
+
+jQuery事件绑定
+    eventName(fn)
+        编码效率略高/ 部分事件jQuery没有实现,所以不能添加
+        $("button").click(function () {
+            alert("hello lnj");
+        });
+        $("button").click(function () {
+            alert("hello 123");
+        });
+        $("button").mouseleave(function () {
+            alert("hello mouseleave");
+        });
+        $("button").mouseenter(function () {
+            alert("hello mouseenter");
+        });
+    on(eventName, fn)
+        编码效率略低/ 所有js事件都可以添加
+        $("button").on("click", function () {
+            alert("hello click1");
+        });
+        $("button").on("click", function () {
+            alert("hello click2");
+        });
+        $("button").on("mouseleave", function () {
+            alert("hello mouseleave");
+        });
+        $("button").on("mouseenter", function () {
+            alert("hello mouseenter");
+        });
+    注意点:
+        可以添加多个相同或者不同类型的事件,不会覆盖
+    
+jQuery事件移除
+    function test1() {
+        alert("hello lnj");
+    }
+    function test2() {
+        alert("hello 123");
+    }
+    $("button").click(test1);
+    $("button").click(test2);
+    $("button").mouseleave(function () {
+        alert("hello mouseleave");
+    });
+    off方法如果不传递参数, 会移除所有的事件
+        $("button").off();
+    off方法如果传递一个参数, 会移除所有指定类型的事件
+        ("button").off("click");
+    off方法如果传递两个参数, 会移除所有指定类型的指定事件
+        $("button").off("click", test1);
+
+jQuery事件冒泡和默行为
+    $(".son").click(function (event) {
+        alert("son");
+        // return false; // 阻止事件冒泡
+        event.stopPropagation(); // 阻止事件冒泡
+    });
+
+    $("a").click(function (event) {
+        alert("弹出注册框");
+        // return false; // 阻止默认行为(例如表单提交等)
+        event.preventDefault(); // 阻止默认行为
+    });
+
+jQuery事件自动触发
+    trigger
+        如果利用trigger自动触发事件,会触发事件冒泡
+        $(".father").trigger("click");
+        如果利用trigger自动触发事件,会触发默认行为
+        $("input[type='submit']").trigger("click");
+    triggerHandler
+        如果利用triggerHandler自动触发事件, 不会触发事件冒泡
+        $(".father").triggerHandler("click");
+        如果利用triggerHandler自动触发事件, 不会触发默认行为
+        $("input[type='submit']").triggerHandler("click");
+
+jQuery自定义事件
+    想要自定义事件,必须满足两个条件
+    1. 事件必须是通过on绑定的
+    2. 事件必须通过trigger来触发
+    $(".son").on("myClick", function () {
+        alert("son");
+    });
+    $(".son").triggerHandler("myClick");
+
+jQuery事件命名空间
+    想要事件的命名空间有效,必须满足两个条件
+    1. 事件是通过on来绑定的
+    2. 通过trigger触发事件
+    $(".son").on("click.zs", function () {
+        alert("click1");
+    });
+    $(".son").on("click.ls", function () {
+        alert("click2");
+    });
+    $(".son").trigger("click.zs");
+    $(".son").trigger("click.ls");
+
+    利用trigger触发子元素带命名空间的事件,那么父元素带相同命名空间的事件也会被触发.而父元素没有命名空间的事件不会被触发
+    利用trigger触发子元素不带命名空间的事件,那么子元素所有相同类型的事件和父元素所有相同类型的事件都会被触发
+    $(".father").on("click.ls", function () {
+        alert("father click1");
+    });
+    $(".father").on("click", function () {
+        alert("father click2");
+    });
+    $(".son").on("click.ls", function () {
+        alert("son click1");
+    });
+    $(".son").trigger("click.ls");
+    $(".son").trigger("click");
+
+jQuery事件委托
+    $("button").click(function () {
+        $("ul").append("<li>我是新增的li</li>");
+    })
+
+    在jQuery中,如果通过核心函数找到的元素不止一个, 那么在添加事件的时候,jQuery会遍历所有找到的元素,给所有找到的元素添加事件
+    但是当我们新增一个新的li时就无法绑定了,因为新的li不是在入口函数执行时就存在的
+    $("ul>li").click(function () {
+        console.log($(this).html());
+    });
+
+    让ul帮li监听click事件
+    之所以能够监听, 是因为入口函数执行的时候ul就已经存在了, 所以能够添加事件
+    之所以this是li,是因为我们点击的是li, 而li没有click事件, 所以事件冒泡传递给了ul,ul响应了事件,既然事件是从li传递过来的,所以ul必然指定this是谁
+    $("ul").delegate("li", "click", function () {
+        console.log($(this).html());
+    });
+    
+jQuery移入移出事件
+    mouseover/mouseout事件, 子元素被移入移出也会触发父元素的事件
+    $(".father").mouseover(function () {
+        console.log("father被移入了");
+    });
+    $(".father").mouseout(function () {
+        console.log("father被移出了");
+    });
+
+    mouseenter/mouseleave事件,子元素被移入移出不会触发父元素的事件
+    推荐使用
+    $(".father").mouseenter(function () {
+        console.log("father被移入了");
+    });
+    $(".father").mouseleave(function () {
+        console.log("father被移出了");
+    });
+
+    hover既可监听移入也可监听移出,同时子元素被移入移出不会触发父元素的事件
+    $(".father").hover(function () {
+        console.log("father被移入了");
+    },function () {
+        console.log("father被移出了");
+    });
+    如果只放一个函数,则移入移出都触发该函数
+    $(".father").hover(function () {
+        console.log("father被移入移出了");
+    });
+
+jQuery显示和隐藏动画
+    时间是毫秒
+    $("div").show(1000, function () {
+        // 作用: 动画执行完毕之后调用
+        alert("显示动画执行完毕");
+    });
+    $("div").hide(1000, function () {
+        alert("隐藏动画执行完毕");
+    });
+    $("div").toggle(1000, function () {
+        alert("切换动画执行完毕");
+    });
+
+jQuery展开和收起动画
+    $("div").slideDown(1000, function () {
+        alert("展开完毕");
+    });
+    $("div").slideUp(1000, function () {
+        alert("收起完毕");
+    });
+    $("div").slideToggle(1000, function () {
+        alert("收起完毕");
+    });
+
+jQuery淡入淡出动画
+    $("div").fadeIn(1000, function () {
+        alert("淡入完毕");
+    });
+    $("div").fadeOut(1000, function () {
+        alert("淡出完毕");
+    });
+    $("div").fadeToggle(1000, function () {
+        alert("切换完毕");
+    });
+    // 0.2爲透明度
+    $("div").fadeTo(1000, 0.2, function () {
+        alert("淡入完毕");
+    })
+
+jQuery自定义动画
+    第一个参数: 接收一个对象, 可以在对象中修改属性
+    第二个参数: 指定动画时长
+    第三个参数: 指定动画节奏, 默认就是swing(開始慢中間快結尾慢)，可省略
+    第四个参数: 动画执行完毕之后的回调函数
+    $(".two").animate({
+        marginLeft: 500
+    }, 5000, "linear", function () {
+        // alert("自定义动画执行完毕");
+    });
+
+    $("button").eq(1).click(function () {
+        $(".one").animate({
+            width: "+=100" // 可以直接加長度
+        }, 1000, function () {
+            alert("自定义动画执行完毕");
+        });
+    });
+    $("button").eq(2).click(function () {
+        $(".one").animate({
+            // width: "hide" // 隐藏
+            width: "toggle"  // 触发显示与隐藏
+        }, 1000, function () {
+            alert("自定义动画执行完毕");
+        });
+    })
+
+jQuery的stop和delay方法
+    delay方法的作用就是用于告诉系统延迟时长
+        $(".one").animate({
+            width: 500
+            // height: 500
+        }, 1000).delay(2000).animate({
+            height: 500
+        }, 1000);
+    stop 
+        立即停止当前动画, 继续执行后续的动画
+            $("div").stop();
+            $("div").stop(false);
+            $("div").stop(false, false);
+        立即停止当前和后续所有的动画
+            $("div").stop(true);
+            $("div").stop(true, false);
+        立即完成当前的, 继续执行后续动画
+            $("div").stop(false, true);
+        立即完成当前的, 并且停止后续所有的
+            $("div").stop(true, true);
+
+jQuery添加节点相关方法
+    内部插入
+    append(content|fn)
+    appendTo(content)
+    会将元素添加到指定元素内部的最后
+    var $li = $("<li>新增的li</li>");
+    $("ul").append($li);
+    $li.appendTo("ul");
+    
+    prepend(content|fn)
+    prependTo(content)
+    会将元素添加到指定元素内部的最前面
+    $("ul").prepend($li);
+    $li.prependTo("ul");
+
+    外部插入
+    after(content|fn)
+    insertAfter(content)
+    会将元素添加到指定元素外部的后面
+    $("ul").after($li);
+    $li.insertAfter("ul");
+
+    before(content|fn)
+    insertBefore(content)
+    会将元素添加到指定元素外部的前面
+    $("ul").before($li);
+    $li.insertBefore("ul");
+    
+jQuery删除节点相关方法
+    remove([expr]) 删除指定元素
+        参数用来filter指定元素
+        利用remove删除之后再重新添加,原有的事件无法响应
+        $("div").remove();
+        $("li").remove(".item"); 
+    detach([expr]) 删除指定元素
+        利用detach删除之后再重新添加,原有事件可以响应
+        var $div = $("div").detach();
+        $("body").append($div);
+    empty 删除指定元素的内容和子元素, 指定元素自身不会被删除  
+        $("div").empty();
+    
+jQuery替换节点相关方法
+    替换所有匹配的元素为指定的元素
+    replaceWith(content|fn)
+        var $h6 = $("<h6>我是标题6</h6>");
+        $("h1").replaceWith($h6);
+    replaceAll(selector)
+        $h6.replaceAll("h1");
+    
+jQuery复制节点相关方法
+    clone([Even[,deepEven]])
+    如果传入false就是浅复制, 如果传入true就是深复制
+    浅复制只会复制元素, 不会复制元素的事件
+        var $li = $("li:first").clone(false);
+        $("ul").append($li);
+    深复制会复制元素, 而且还会复制元素的事件
+        var $li = $("li:first").clone(true);
+        $("ul").append($li);

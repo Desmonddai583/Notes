@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>137-返回顶部</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        p{
+            line-height: 100px;
+            text-align: center;
+        }
+        span{
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,.3);
+            display: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<p>我是正文</p>
+<span>返回</span>
+<script>
+    var oBackBtn = document.querySelector("span");
+    // 1.注册监听事件
+    window.onscroll = function () {
+        // 获取滚出去的偏移位
+        var offsetTop = getPageScroll().top;
+        // 判断是否达到需要
+        if(offsetTop >= 100){
+            oBackBtn.style.display = "block";
+        }else{
+            oBackBtn.style.display = "none";
+        }
+    }
+    // 2.给返回按钮添加点击事件
+    var timerId = null;
+    oBackBtn.onclick = function () {
+        clearInterval(timerId);
+       timerId = setInterval(function () {
+           var begin = getPageScroll().top;
+           var target = 0;
+           var step = (target - begin) * 0.2;
+           window.scrollTo(0, begin + step);
+           if(begin === target){
+               clearInterval(timerId);
+               alert("abc");
+           }
+       }, 100);
+    }
+
+    function getPageScroll() {
+        var top = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+        var left = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft;
+        return {
+            top: top,
+            left: left
+        }
+    }
+</script>
+</body>
+</html>

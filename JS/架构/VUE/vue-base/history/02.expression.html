@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!--  当前这个表达式 最后会被编译成函数  _xxx(msg === 'hello'? true:false) -->
+        {{ 1+ 1 }}
+        <!-- 不能放js 语法 因为最终会将返回值 传递给函数 -->
+        {{msg === 'hello'? true:false}}
+        <!-- 函数返回结果 -->
+        {{msg.b}} {{arr}}
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let  vm = new Vue({
+            el:'#app',
+            data(){
+                // 1. 响应式的规则
+                // 会递归的去循环vue中的属性 （浪费性能的地方） 会给每个属性都增加getter和setter， 当属性变化时会更新视图
+                // 重写了数组中的方法，当调用数组方法时会触发更新,也会对数组中的每一项进行了监控
+
+                // 对象只监控了默认自带的属性,新增属性是不生效的
+                // 数组 数组的索引放生变化 或者 数组的长度放生变化 不会触发实体更新的
+                // 会监控数组中的引用类型的
+                return {msg:{a:1},arr:[1,2,{a:1}]}
+            }
+        })
+        // vm.$set(vm.arr,0,100); // 内部采用的就是splice方法
+        // vm.$delete(vm.arr,0);
+        // vue2 中的缺陷 vue3.0中通过proxy 进行了结果
+        vm.arr[2].a = 100; 
+    </script>   
+</body>
+</html>

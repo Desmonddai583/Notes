@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>98-淘宝活动倒计时</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .box{
+            width: 300px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #fff;
+            background: deeppink;
+            margin: 50px auto;
+        }
+        .box>div{
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="title">距离双11剩:</div>
+    <div class="time"></div>
+</div>
+
+<script>
+    // 1.拿到需要操作的元素
+    var oTime = document.querySelector(".time");
+    setInterval(function () {
+        setTime();
+    }, 1000);
+    setTime();
+    function setTime() {
+        // 2.设置时间
+        var obj = getTime( "2018/11/10 23:59:59");
+        var timeString = fmTime(obj);
+        // console.log(timeString);
+        oTime.innerText = timeString;
+    }
+    function fmTime(obj) {
+        var arr = [];
+        arr.push(obj.hour < 10 ? ("0" + obj.hour) : obj.hour);
+        arr.push(obj.minute < 10 ? ("0" + obj.minute) : obj.minute);
+        arr.push(obj.second < 10 ? ("0" + obj.second) : obj.second);
+        return arr.join(":")
+    }
+    function getTime(timeStr) {
+        // 1.获取到当前的时间
+        var now = new Date();
+        // 2.创建一个指定的时间  "2018/11/10 23:59:59"
+        var date = new Date(timeStr);
+        // 3.计算当前时间距离未来时间的毫秒
+        var time = date - now;
+        // 将获取到的相差的毫秒转换为秒
+        var allSecond = time / 1000;
+        // 计算天数
+        var d = parseInt(allSecond / (60 * 60 * 24));
+        // 计算小时
+        var h = parseInt(allSecond / (60 * 60) % 24);
+        // 计算分钟
+        var m = parseInt(allSecond / 60  % 60);
+        // 计算秒钟
+        var s = parseInt(allSecond % 60);
+        // 创建一个对象, 用于保存计算之后的结果
+        var obj = {
+            day: d,
+            hour: h,
+            minute: m,
+            second : s
+        }
+        return obj;
+    }
+</script>
+</body>
+</html>

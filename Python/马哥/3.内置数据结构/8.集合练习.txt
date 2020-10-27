@@ -1,0 +1,41 @@
+共同好友 
+  你的好友A、B、C，他的好友C、B、D，求共同好友
+  交集问题：{'A', 'B', 'C'}.intersection({'B', 'C', 'D'})
+
+微信群提醒 
+  X与群里其他人都不是微信朋友关系
+  并集：userid in (A | B | C | ...) == False，A、B、C等是微信好友的并集，用户ID不在这个并集中，说明他和任何人都不是朋友 
+  群里所有其他人IDs都不在X的朋友列表T中 T & IDs == set()
+
+权限判断
+  有一个API，要求权限同时具备A、B、C才能访问，用户权限是B、C、D，判断用户是否能够访问该API
+    API集合A，权限集合P
+    A - P = {} ，A-P为空集，说明P包含A
+    A.issubset(P) 也行，A是P的子集也行
+    A & P = A 也行
+  有一个API，要求权限具备A、B、C任意一项就可访问，用户权限是B、C、D，判断用户是否能够访问该API
+    API集合A，权限集合P
+    A & P != {} 就可以
+    A.isdisjoint(P) == False 表示有交集
+
+一个总任务列表，存储所有任务。一个已完成的任务列表。找出为未完成的任务
+  业务中，任务ID一般不可以重复
+  所有任务ID放到一个set中，假设为ALL
+  所有已完成的任务ID放到一个set中，假设为COMPLETED，它是ALL的子集
+  ALL - COMPLETED = UNCOMPLETED
+
+随机产生2组各10个数字的列表，如下要求：
+  每个数字取值范围[10,20]
+  统计20个数字中，一共有多少个不同的数字？
+  2组之间进行比较，不重复的数字有几个？分别是什么？
+  2组之间进行比较，重复的数字有几个？分别是什么？
+
+  a = [1, 9, 7, 5, 6, 7, 8, 8, 2, 6]
+  b = [1, 9, 0, 5, 6, 4, 8, 3, 2, 3]
+  s1 = set(a) 
+  s2 = set(b) 
+  print(s1) 
+  print(s2) 
+  print(s1.union(s2)) 
+  print(s1.symmetric_difference(s2)) 
+  print(s1.intersection(s2))

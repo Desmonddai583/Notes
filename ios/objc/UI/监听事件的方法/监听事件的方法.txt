@@ -1,0 +1,149 @@
+通知（NSNotificationCenter NSNotification）
+  每一个应用程序都有一个通知中心(NSNotificationCenter)实例，专门负责协助不同对象之间的消息通信
+  任何一个对象都可以向通知中心发布通知(NSNotification)，描述自己在做什么。其他感兴趣的对象(Observer)可以申请在某个特定通知发布时(或在某个特定的对象发布通知时)收到这个通知
+  通知顺序:一定要先监听,再发出,不然收不到
+
+  任何对象之间都可以传递消息
+  使用范围
+    1个对象可以发通知给多个对象
+    1个对象可以接受多个对象发出的通知
+  要求:必须得保证通知的名字在发出和监听时是一致的
+
+  一个完整的通知一般包含3个属性：
+    - (NSString *)name; // 通知的名称
+    - (id)object; // 通知发布者(是谁要发布通知)
+    - (NSDictionary *)userInfo; // 一些额外的信息(通知发布者传递给通知接收者的信息内容)
+  
+  初始化一个通知（NSNotification）对象
+    + (instancetype)notificationWithName:(NSString *)aName object:(id)anObject;
+    + (instancetype)notificationWithName:(NSString *)aName object:(id)anObject userInfo:(NSDictionary *)aUserInfo;
+    - (instancetype)initWithName:(NSString *)name object:(id)object userInfo:(NSDictionary *)userInfo;
+
+  发布通知
+    通知中心(NSNotificationCenter)提供了相应的方法来帮助发布通知
+    // 发布一个notification通知，可在notification对象中设置通知的名称、通知发布者、额外信息等
+    - (void)postNotification:(NSNotification *)notification;
+    
+    // 发布一个名称为aName的通知，anObject为这个通知的发布者
+    - (void)postNotificationName:(NSString *)aName object:(id)anObject;
+    
+    // 发布一个名称为aName的通知，anObject为这个通知的发布者，aUserInfo为额外信息
+    - (void)postNotificationName:(NSString *)aName object:(id)anObject userInfo:(NSDictionary *)aUserInfo;
+    
+  注册通知监听器
+    通知中心(NSNotificationCenter)提供了方法来注册一个监听通知的监听器(Observer)
+      1.
+        observer：监听器，即谁要接收这个通知
+        aSelector：收到通知后，回调监听器的这个方法，并且把通知对象当做参数传入
+        aName：通知的名称。如果为nil，那么无论通知的名称是什么，监听器都能收到这个通知
+        anObject：通知发布者。如果为anObject和aName都为nil，监听器都收到所有的通知
+        - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSString *)aName object:(id)anObject;
+
+      2. 
+        name：通知的名称
+        obj：通知发布者
+        block：收到对应的通知时，会回调这个block
+        queue：决定了block在哪个操作队列中执行，如果传nil，默认在当前操作队列中同步执行
+        - (id)addObserverForName:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *note))block;
+        会返回一个observer对象用于移除
+  
+  取消注册通知监听器
+    只要是添加了监听器都一定要取消注册
+    通知中心不会保留(retain)监听器对象，在通知中心注册过的对象，必须在该对象释放前取消注册。
+    否则，当相应的通知再次出现时，通知中心仍然会向该监听器发送消息。
+    因为相应的监听器对象已经被释放了，所以可能会导致应用崩溃
+
+    通知中心提供了相应的方法来取消注册监听器
+      - (void)removeObserver:(id)observer;
+      - (void)removeObserver:(id)observer name:(NSString *)aName object:(id)anObject;
+
+    一般在监听器销毁之前取消注册（如在监听器中加入下列代码）
+      - (void)dealloc {
+        //[super dealloc];  非ARC中需要调用此句
+          [[NSNotificationCenter defaultCenter] removeObserver:self];
+      }
+
+  常用通知
+    UIDevice
+      UIDevice类提供了一个单粒对象，它代表着设备，通过它可以获得一些设备相关的信息，
+      比如电池电量值(batteryLevel)、电池状态(batteryState)、设备的类型(model，比如iPod、iPhone等)、设备的系统(systemVersion)
+      通过[UIDevice currentDevice]可以获取这个单例对象
+
+      UIDevice对象会不间断地发布一些通知，下列是UIDevice对象所发布通知的名称常量：
+        UIDeviceOrientationDidChangeNotification // 设备旋转
+        UIDeviceBatteryStateDidChangeNotification // 电池状态改变
+        UIDeviceBatteryLevelDidChangeNotification // 电池电量改变
+        UIDeviceProximityStateDidChangeNotification // 近距离传感器(比如设备贴近了使用者的脸部)
+
+    键盘通知
+      键盘状态改变的时候,系统会发出一些特定的通知
+        UIKeyboardWillShowNotification // 键盘即将显示
+        UIKeyboardDidShowNotification // 键盘显示完毕
+        UIKeyboardWillHideNotification // 键盘即将隐藏
+        UIKeyboardDidHideNotification // 键盘隐藏完毕
+        UIKeyboardWillChangeFrameNotification // 键盘的位置尺寸即将发生改变
+        UIKeyboardDidChangeFrameNotification // 键盘的位置尺寸改变完毕
+      系统发出键盘通知时,会附带一下跟键盘有关的额外信息(字典),字典常见的key如下:
+        UIKeyboardFrameBeginUserInfoKey // 键盘刚开始的frame
+        UIKeyboardFrameEndUserInfoKey // 键盘最终的frame(动画执行完毕后)
+        UIKeyboardAnimationDurationUserInfoKey // 键盘动画的时间
+        UIKeyboardAnimationCurveUserInfoKey // 键盘动画的执行节奏(快慢)
+  
+  在多线程中的注意点
+    如果是采用 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSString *)aName object:(id)anObject;
+    则接收通知代码由发出通知线程决定,在接收通知代码中可以通过dispatch_sync(dispatch_get_main_queue())加上主队列任务
+
+    如果是采用 - (id)addObserverForName:(NSString *)name object:(id)obj queue:(NSOperationQueue *)queue usingBlock:(void (^)(NSNotification *note))block;
+    则当queue传入为nil时接收通知代码由发出通知线程决定,如果有queue时,则在该queue中执行,所以一般想在主线程中执行时,可传入[NSOperationQueue mainQueue]
+
+KVO
+  仅仅是能监听对象属性的改变（灵活度不如通知和代理）
+  并且任何会改变属性的地方都会调用,灵活度差
+  并且对一个类使用KVO背后会为这个类生成一个新的子类,性能上不是太好
+
+代理
+  使用范围
+  1个对象只能设置一个代理(假设这个对象只有1个代理属性)
+  1个对象能成为多个对象的代理
+
+  代理使用的一般规律
+    作用：用来监听控件的某些行为 
+    代理：是控制器对象(一般是控制器,但实际可以是任意对象)
+    代理：是id类型，并且是弱指针(weak) (因为一般是控制器,所以为了防止循环引用设计成weak,原理见图例)
+    代理协议的格式：控件类名+Delegate，比如UIScrollViewDelegate、 UITableViewDelegate 
+    代理方法：方法名一般是控件名开头，比如UIScrollView的代理方法一般以scrollView开头
+
+  代理的使用步骤
+    1. 定义一份代理协议
+      协议名字的格式一般是：类名 + Delegate
+        比如UITableViewDelegate
+      设计代理的细节
+        一般都是@optional(让代理可以有选择性去实现一些代理方法)
+        方法名一般都以类名开头
+          比如- (void)scrollViewDidScroll:
+        一般都需要将对象本身传出去
+          比如tableView的代理方法都会把tableView本身传出去
+      必须要遵守NSObject协议(基协议)
+        比如@protocol XMGWineCellDelegate <NSObject>
+    2. 声明一个代理属性
+      代理的类型格式：id<协议> delegate
+      @property (nonatomic, weak) id<XMGWineCellDelegate> delegate;
+    3. 设置代理对象
+    4. 代理对象遵守协议，实现协议里面相应的方法
+    5. 当控件内部发生了一些事情，就可以调用代理的代理方法通知代理
+      如果代理方法是@optional，那么需要判断方法是否有实现,直接调用可能会报错
+        if ([self.delegate respondsToSelector:@selector(wineCellDidClickPlusButton:)]) {
+            [self.delegate wineCellDidClickPlusButton:self];
+        }
+
+通知和代理的选择
+  共同点
+  利用通知和代理都能完成对象之间的通信
+  (比如A对象告诉D对象发生了什么事情, A对象传递数据给D对象)
+
+  不同点
+  代理 : 1个对象只能告诉另1个对象发生了什么事情
+  通知 : 1个对象能告诉N个对象发生了什么事情, 1个对象能得知N个对象发生了什么事情
+
+  代理比通知规范
+  建议使用代理多于通知,能使用代理尽量使用代理

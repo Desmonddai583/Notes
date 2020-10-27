@@ -1,0 +1,57 @@
+数学运算之expr  
+    num1=20
+    num2=100
+    
+    # \用于转义
+    # 是返回1,否返回0,跟shell命令运行结果刚好相反
+    expr $num1 \| $num2
+    expr $num1 \& $num2
+    expr $num1 \< $num2
+    expr $num1 \< $num2
+    expr $num1 \<= $num2
+    expr $num1 \> $num2
+    expr $num1 \>= $num2
+    expr $num1 = $num2
+    expr $num1 != $num2
+    expr $num1 + $num2
+    expr $num1 - $num2
+    expr $num1 \* $num2
+    expr $num1 / $num2
+    expr $num1 % $num2
+
+    提示用户输入一个正整数num，然后计算1+2+3+...+num的值；
+    必须对num是否为正整数做判断，不符合应当允许再此输入
+
+    while true
+    do
+        read -p "Pls enter a positive integer(num>0): " num
+
+        // 判断变量是否为正数
+        expr $num + 1 &> /dev/null
+        // 不为0时报错
+        if [ $? -ne 0 ];then
+            echo "Error,You must input a interger"
+            continue
+        else
+            if [ `expr $num \> 0` -ne 1 ];then
+                echo "Error,You must input a postive interger"
+                continue
+            else
+                sum=0
+                for((i=0;i<=$num;i++))
+                do
+                    sum=`expr $sum + $i`
+                done
+                echo "1+2+3+4+5+...+$num=$sum"
+            fi
+        fi
+    done
+
+数学运算之bc 支持浮点数
+    echo "options;expression" | bc
+    
+    num1=23.5
+    num2=50
+    
+    # scale指定精度,否则会当整数处理
+    var1=`echo "scale=2;$num1 * $num2" | bc`

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>104-缓动动画</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 100px;
+            height: 100px;
+            background: red;
+        }
+    </style>
+</head>
+<body>
+<button class="btn1">开始到1000</button>
+<button class="btn2">开始到500</button>
+<div></div>
+<script>
+    /*
+    1.什么是匀速动画?
+    每次移动的位置都一样
+    2.什么是缓动动画?
+    开始快, 后面慢. 开始慢, 后面快
+     */
+    // 1.获取需要操作的元素
+    var oDiv = document.querySelector("div");
+    var oBtn1 = document.querySelector(".btn1");
+    var oBtn2 = document.querySelector(".btn2");
+
+    oBtn1.onclick = function () {
+        animation(oDiv, 1000);
+    };
+    oBtn2.onclick = function () {
+        animation(oDiv, 500);
+    };
+    function animation(ele, target) {
+        // 1.定义变量记录定时器
+        var timerId = null;
+        // 2.清空定时器
+        clearInterval(timerId);
+        // 定义变量记录偏移位
+        var offset = 0;
+        // 3.重新开启定时器
+        timerId = setInterval(function () {
+            // 定义一个变量获取当前的位置
+            var begin = parseInt(ele.style.marginLeft) || 0;
+            // 计算缓动动画步长的公式
+            // 步长 = (结束位置 - 开始位置) * 缓动系数(0~1)
+            // 由于每次都重新获取begin的位置, 所以每次计算的步长都不一样所以就能让步长每次变短
+            offset = (target - begin) * 0.2;
+            // 改变元素的位置
+            ele.style.marginLeft = begin + offset + "px";
+            // 判断有没有抵达终点
+            console.log(Math.floor(offset));
+            if(Math.floor(offset) === 0){
+                // 微调位置
+                ele.style.marginLeft = target + "px";
+                clearInterval(timerId);
+            }
+        }, 50);
+    }
+</script>
+</body>
+</html>

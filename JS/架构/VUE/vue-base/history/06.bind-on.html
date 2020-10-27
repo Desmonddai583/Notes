@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <!-- 动态绑定样式和绑定style属性 都是可以放 对象或者数组两种格式 -->
+        <div class="red" :class="['hello',red]"></div>
+        <div class="red" :class="{red:true,green:false}"></div>
+
+        <div :style="{color:'red'}">xxx</div>
+        <div :style="[{color:'red'},s]">xxx</div>
+
+        <!-- 其他的指令 事件绑定也是通过指令的方式 -->
+        <!-- <div v-on:click></div> -->
+        <!-- vue里面的事件绑定 直接绑定给当前元素 div.addEventListener -->
+        <a href="http://www.baidu.com">
+            <span @click.prevent="fn(1,2,$event)">点击</span>
+        </a>
+
+        <!-- 事件是绑定给元素的 而且内部是原生事件  -->
+        <!-- 指令的修饰符 .stop(冒泡) .prevent(阻止默认行为) .self .once .passive 提高滚动事件的效率 当前没有阻止默认行为-->
+
+        <!-- v-model  双向绑定 语法糖 -->
+        <hr>
+        {{msg}}
+        <!-- <input type="text" :value="msg" @input="(e)=>msg = e.target.value"> -->
+        <input type="text" v-model="msg">
+
+        <!-- v-model 可以用在复选框？checkd @change -->
+
+        <!-- input textarea select radio checkbox -->
+        {{selected}}
+        <select v-model="selected" multiple>
+            <option value="" disabled>请选择</option>
+            <option v-for="o in opts" :key="o.value" :value="o.value">{{o.name}}</option>
+        </select>
+
+        <!-- checkbox -->
+        {{checked}}
+        游泳<input type="checkbox" v-model="checked" value="游泳">
+        洗澡<input type="checkbox" v-model="checked" value="洗澡">
+        睡觉<input type="checkbox" v-model="checked" value="睡觉">
+        <!-- radio原理一样 textarea -->
+        <hr>
+        ({{msg}}) 
+         <!-- lazy表示懒更新 .trim  .number 只能输入数字 -->
+        <input type="text" v-model.trim="msg">
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        let  vm = new Vue({
+            el:'#app',
+            data(){
+                return {
+                    red:'back',
+                    s:{fontSize:'10px'},
+                    msg:'hello',
+                    opts:[{value:1,name:'a'},{value:2,name:'b'}],
+                    selected:[],
+                    checked:[]
+                }
+            },
+            methods:{
+                // 如果调用时添加() 需要手动传入事件源
+                fn(a,b,e){ // 这里的this指向的都是当前实例 内部使用了bind方法绑定了this，如果再去绑定this 是不生效的
+                    console.log(this)
+                    console.log(e.target,e.currentTarget,e);
+                }
+            }
+        })
+    </script>
+</body>
+</html>

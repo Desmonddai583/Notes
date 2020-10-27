@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        {{msg}} 
+    </div>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+        // vue 响应式 渐进式框架  view
+        // 核心 -> vue组件化开发 -> vue-router -> vuex -> vue-cli
+
+        // 什么是库 什么是框架
+        // jquery 为例 jquery拥有很多方法 组成了一个完整功能，通过这些功能实现我们自己的功能 （主动 手动调用库中的方法）
+        // 框架 我们只需要将特定代码 放到特定位置上 框架会帮我们调用（被动）
+            
+        // mvc 和 mvvm的区别
+        // mvc 后端开发 model (数据库中的数据) view (前端页面) controller （后端的控制器）
+        // 用户操作界面 发送到后端的路由-》 后端的控制器 -》将数据获取到返回给页面
+
+        // view MVVM 双向绑定
+        // model (nmodel js中的数据 viewmodel视图模型  view前端页面)
+        // MVVM模式 不需要用户手动的操作dom的
+
+        // 安装vue
+        // vm => viewModel
+        let vm = new Vue({
+            el:'#app', // 只限vue的版本是 runtime-with-compiler
+            // vue 中渲染的方式 render方法 -> template(将template编译成render方法) -> 会采用外部模板
+            // 你也可以写模板的方式
+            // template:'<div>hello world<div>',
+            // render(h){
+            //     return h('p',['hello'])
+            // },
+            data(){
+                return {msg:'hello'}
+            }
+        })
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>100-长图效果</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 640px;
+            height: 300px;
+            border: 1px solid #000;
+            margin: 50px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        div>span{
+            display: block;
+            width: 100%;
+            height: 150px;
+            position: absolute;
+            left: 0;
+        }
+        .box-top{
+            top: 0;
+        }
+        .box-bottom{
+            bottom: 0;
+        }
+        img{
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <img src="images/long.gif" alt="">
+    <span class="box-top"></span>
+    <span class="box-bottom"></span>
+</div>
+
+<script>
+    // 1.拿到需要操作的元素
+    var oDiv = document.querySelector(".box");
+    var oTopBtn = document.querySelector(".box-top");
+    var oBottomBtn = document.querySelector(".box-bottom");
+    var oImg = document.querySelector("img");
+
+    // 2.计算最大能够移动的偏移位
+    // 2.1获取整个容器的高度
+    var boxHeight = oDiv.offsetHeight;
+    // 2.2获取图片的高度
+    var imgHieght = oImg.offsetHeight;
+    // 2.3保存最大偏移位
+    var maxOffsetY = imgHieght - boxHeight;
+    // 2.4保存每次移动的偏移位
+    var offsetY = 0;
+    // 2.5定义变量保存定时器
+    var timerId = null;
+    // 2.给span添加移入移出事件
+    oTopBtn.onmouseenter = function () {
+        timerId = setInterval(function () {
+            // 累加偏移位
+            offsetY += 10;
+            // 安全校验
+            if(offsetY >= maxOffsetY){
+                clearInterval(timerId);
+                return;
+            }
+            // 修改图片的位置
+            oImg.style.top = -offsetY + "px";
+        }, 50);
+    };
+    oTopBtn.onmouseleave = function () {
+        // 关闭定时器
+        clearInterval(timerId);
+    };
+
+
+    oBottomBtn.onmouseenter = function () {
+        timerId = setInterval(function () {
+            // 累加偏移位
+            offsetY -= 10;
+            // 安全校验
+            if(offsetY <= 0){
+                clearInterval(timerId);
+                return;
+            }
+            // 修改图片的位置
+            oImg.style.top = -offsetY + "px";
+        }, 50);
+    };
+    oBottomBtn.onmouseleave = function () {
+        // 关闭定时器
+        clearInterval(timerId);
+    };
+</script>
+</body>
+</html>

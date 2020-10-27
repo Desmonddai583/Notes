@@ -1,0 +1,115 @@
+Go语言中操作文件也是通过一个FILE结构体
+type file struct {
+    pfd     poll.FD
+    name    string
+    dirinfo *dirInfo 
+}
+type File struct {
+    *file // os specific
+}
+
+// Open用于打开文件,如果文件不存在不会自动创建,并且只能读取不能写入
+fp, err := os.Open("/var/log/test.log")
+
+文件不存在时会自动创建一个新的,文件存在会覆盖以前的
+fp, err := os.Create('/var/log/syslog')
+
+os.OpenFile(name string, flag int, perm FileMode) (file *File, err error)
+第一个参数: 需要打开文件的路径
+第二个参数: 以什么模式打开文件,模式可以同时指定多个,多个之间使用|分隔 e.g. O_CREATE | O_WRONLY
+    const (
+        O_RDONLY int = syscall.O_RDONLY // 只读模式打开文件
+        O_WRONLY int = syscall.O_WRONLY // 只写模式打开文件
+        O_RDWR   int = syscall.O_RDWR   // 读写模式打开文件
+        O_APPEND int = syscall.O_APPEND // 写操作时将数据附加到文件尾部
+        O_CREATE int = syscall.O_CREAT  // 如果不存在将创建一个新文件
+        O_EXCL   int = syscall.O_EXCL   // 和O_CREATE配合使用，文件必须不存在
+        O_SYNC   int = syscall.O_SYNC   // 打开文件用于同步I/O
+        O_TRUNC  int = syscall.O_TRUNC  // 如果可能，打开时清空文件
+    )
+第三个参数: 指定文件权限,只对Linux系统有效
+    0.没有任何权限
+    1.执行权限(如果是可执行程序, 可以运行)
+    2.写权限
+    3.写权限和执行权限
+    4.读权限
+    5.读权限和执行权限
+    6.读权限和写权限
+    7.读权限和写权限以及执行权限
+    const (
+        // 单字符是被String方法用于格式化的属性缩写。
+        ModeDir        FileMode = 1 << (32 - 1 - iota) // d: 目录
+        ModeAppend                                     // a: 只能写入，且只能写入到末尾
+        ModeExclusive                                  // l: 用于执行
+        ModeTemporary                                  // T: 临时文件（非备份文件）
+        ModeSymlink                                    // L: 符号链接（不是快捷方式文件）
+        ModeDevice                                     // D: 设备
+        ModeNamedPipe                                  // p: 命名管道（FIFO）
+        ModeSocket                                     // S: Unix域socket
+        ModeSetuid                                     // u: 表示文件具有其创建者用户id权限
+        ModeSetgid                                     // g: 表示文件具有其创建者组id的权限
+        ModeCharDevice                                 // c: 字符设备，需已设置ModeDevice
+        ModeSticky                                     // t: 只有root/创建者能删除/移动文件
+        // 覆盖所有类型位（用于通过&获取类型位），对普通文件，所有这些位都不应被设置
+        ModeType = ModeDir | ModeSymlink | ModeNamedPipe | ModeSocket | ModeDevice
+        ModePerm FileMode = 0777 // 覆盖所有Unix权限位（用于通过&获取类型位）
+
+// Close用于关闭文件
+// 通常在打开之后直接使用defer调用
+defer func() {
+    if err = fp.Close(); err != nil {
+        fmt.Println("Close Failed")
+    }
+}()
+
+读取文件方式:
+    1. Read
+        // 会接收一个切片,将读取到的数据放到切片中
+        // 会一次性将文件中的数据全部读取进来,前提是切片大小足够
+        buff := make([]byte, 7)
+        for {
+            len, err := fp.Read(buff)
+            if err != nil || len <= 0 {
+                break
+            }
+            fmt.Print(string(buff[:len]))
+        }
+    2. bufio.NewReader
+        r := bufio.NewReader(fp)
+        // 接受一个参数用于指定读取到什么地方结束
+        // 如果读取到文件的末尾会给err赋值一个os.EOF
+        // 可以读取bytes也可以读取string
+        buf, err := r.ReadBytes('\n') 
+        str, err := r.ReadString('\n')
+    3. ioutil.ReadFile
+        buf, err := ioutil.ReadFile("/var/log/syslog")
+
+文件写入方式
+    1. Write 一次性将数据写入,所以不适合数据量比较大的情况
+        buf := []byte['1', 'm']
+        len, err := fp.Write(buf)
+    2. bufio.WriteBytes
+        通过缓冲区的方式写入,那么必须在写入完毕之后刷新一下缓冲区,才会将数据真正写入到文件中
+        w := bufio.NewWriter(fp)
+        buf := []byte['1', 'm']
+        len, err := w.Write(buf)
+        len, err := w.WriteString("123")
+        w.Flush()
+    3. ioutil.WriteFile
+        buf := []byte{'1', 'n', 'j'}
+        err := ioutil.WriteFile("/var/log/syslog", buf, 0666)
+
+// 获取文件信息及确定文件是否存在
+// 返回值error等于nil,代表文件存在
+// 返回值error不等于nil, 可以进一步通过IsNotExist判断, 如果返回true代表文件不存在
+// 返回值error如果返回其它错误, 则不确定文件是否存在
+finfo, err := os.Stat("/var/log/syslog")
+finfo.Name()
+finfo.Size()
+finfo.ModTime()
+finfo.IsDir()
+
+// 文件拷贝,背后就是通过缓冲区的方式拷贝
+r := bufio.NewReader(rp)
+w := bufio.NewWriter(wp)
+len, err := io.Copy(w, r)

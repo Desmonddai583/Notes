@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>103-定时器动画</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 100px;
+            height: 100px;
+            background: red;
+        }
+        .box1{
+            width: 500px;
+            height: 20px;
+            background: blue;
+        }
+    </style>
+</head>
+<body>
+<button class="btn1">开始到500</button>
+<button class="btn2">开始到250</button>
+<div></div>
+<div class="box1"></div>
+<script>
+    // 1.获取需要操作的元素
+    var oDiv = document.querySelector("div");
+    var oBtn1 = document.querySelector(".btn1");
+    var oBtn2 = document.querySelector(".btn2");
+
+    // 2.注册点击事件
+    oBtn1.onclick = function () {
+        linearAnimation(oDiv, 500);
+    };
+    oBtn2.onclick = function () {
+        linearAnimation(oDiv, 250);
+    };
+
+    /**
+     * 做匀速动画
+     * @param ele  需要做动画的元素
+     * @param target  动画结束的位置
+     */
+    function linearAnimation(ele, target) {
+        // 定义一个变量记录定义时
+        var timerId = null;
+        // 关闭原有的定时器
+        clearInterval(timerId);
+        // 2.2重新开启定时器
+        timerId = setInterval(function () {
+            // 定义一个变量获取当前的位置
+            var begin = parseInt(ele.style.marginLeft) || 0;
+            // 定义一个变量记录步长
+            //           10    >   0
+            var step = (begin > target) ? -10 : 10;
+            // 重新设置left
+            ele.style.marginLeft = begin + step + "px"; // 0
+            // 判断有没有抵达终点
+            if(Math.abs(target - begin) <= Math.abs(step)){
+                // 微调位置
+                ele.style.marginLeft = target + "px";
+                clearInterval(timerId);
+            }
+        }, 100);
+    }
+</script>
+</body>
+</html>

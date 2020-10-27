@@ -1,0 +1,944 @@
+文字相关属性
+    font-style: 文字样式
+        normal
+        italic
+    font-weight:
+        bold 加粗
+        bolder 比加粗还要粗 
+        lighter 细线,默认就是细线
+        100-900之间整百的数
+    font-size: 10px 文字大小属性
+    font-family: '字体1', '字体2' 文字字体属性,可设置多个用做备选方案
+        但凡是中文字体,里面都包含了英文
+        但凡是英文字体,里面都没有包含中文
+        即中文字体可以处理英文,但英文字体不能处理中文
+        所以如果想给界面中的英文单独设置字体,那么英文的字体必须写在中文的前面
+        开发中建议全部使用英文
+    font 属性简写,可以一次设置上面的属性
+        style,weight可以省略,并且style和weight的位置可以交换
+        font italic bold 10px '楷体';
+
+文本装饰属性
+    text-decoration: underline | line-through | overline | none(多用于去掉超链接的下划线);
+    text-align: left | right | center;
+    text-indent: 2em | 10px; 缩进两个文字的宽度或10个像素,建议使用em
+
+CSS选择器 
+    id选择器
+    类选择器
+    后代选择器(包括嵌套的)
+      标签1 标签2 {
+
+      }  
+    子元素选择器(>之间不能有空格)
+      标签1>标签2 {
+
+      }
+    交集选择器
+      找出两个选择器相交的
+      选择器1选择器2 {
+
+      }
+    并集选择器
+      选择器1,选择器2 {
+
+      }
+    兄弟选择器
+      1. 相邻兄弟选择器 CSS2
+           意思是给紧跟在选择器1之后的选择器2赋予css属性
+           选择器1+选择器2 {
+
+           }
+      2. 通用兄弟选择器 CSS3
+           意思是给在选择器1之后的所有选择器2赋予css属性(不需紧跟在后)
+           选择器1～选择器2 {
+
+           }
+    序选择器
+        1 标签:first-child 所有同级别中的第一个,不区分类型,取出来的标签可能不满足指定的标签就不会赋值
+        2 标签:first-of-type 所有同级别同类型中的第一个
+        3 标签:last-child 类似first-child,只是取最后一个
+        4 标签:last-of-type 类似last-of-type,只是取最后一个
+        5 标签:nth-child(3) 类似first-child,只是取指定的次序 
+            nth-child(odd) 代表所有奇数
+            nth-child(even) 代表所有偶数
+            nth-child(2n+0) 按个数下标带入公式计算,如果返回的数字是个数范围内的,则套用到对应的标签上
+        6 标签:nth-of-type(3) 类似first-of-type,只是取指定的次序
+        7 标签:nth-last-child(2) 类似first-child,只是取指定的倒的次序
+        8 标签:nth-last-of-type(2) 类似first-of-type,只是取指定的倒的次序
+            同样可以使用odd,even
+        9 标签:only-child 选出同级中唯一的元素(必须只有自己一个元素)
+        10 标签:only-of-type 选出同级中唯一的元素(但是不是一定非要只有自己一个元素,如果出现其他类型也可以)
+    属性选择器
+        标签[attribute]
+        标签[attribute=value] 
+            是否以value的取值开头
+            [attribute|=value] CSS2 
+            [attribute^=value] CSS3
+            CSS2中的只能找到value开头,并且value是被-和其他内容隔开的
+            CSS3中的只要是以value开头的都可以找到,无论有没有被-隔开
+
+            是否以value的取值结尾
+            [attribute$=value] CSS3
+
+            属性的取值是否包含某个特定的值
+            [attribute~=value] CSS2
+            [attribute*=value] CSS3
+            CSS2中的只能找到独立的单词,也就是包含value并且value是被空格隔开的
+            CSS3中的只要包含value就可以找到
+    通配符选择器
+        给所有标签赋值,会遍历所有标签,所以当页面标签比较多时,性能就会比较差,所以一般不会使用
+        * {
+
+        }
+
+CSS三大特性
+    1. 继承性
+        并不是有的属性都可以继承
+        只有以color/font-/text-/line开头的属性才可以继承
+        不仅仅是儿子,只要是后代都可以继承
+        特例
+            1. a标签的文字颜色和下划线是不能继承自父代的
+            2. h标签的文字大小是不能继承自父代的
+    2. 层叠性
+        就是CSS处理冲突的一种能力
+        冲突也就是多个选择器选中同一个标签,然后又设置了相同的属性
+        优先级判断
+            1. 是否是直接选中(间接选中就是指继承)
+                如果是间接选中,谁离目标标签比较近就用谁
+            2. 是否是相同的选择器
+                如果都是直接选中,并且都是同类型的选择器,那么就是谁写在后面的就用谁
+            3. 不同选择器
+                如果都是直接选中,并且不是相同类型选择器,就会按照选择器的优先级来层叠
+                id > 类 > 标签 > 通配符 > 继承 > 浏览器默认
+    3. !important
+        可以将被指定的属性的优先级提升为最高
+        important只能用于直接选中,不能用于间接选中
+        通配符选择器选中的标签也是直接选中的
+
+    当多个选择器混合在一起使用时,可以通过计算权重来判断谁的优先级高
+        1. 首先计算选择其中有多少个id,id多的选择器优先级最高
+        2. 如果id的个数一样,那么再看类名的个数,类名多的优先级最高
+        3. 如果类名的个数一样,那么再看标签名称的个数,标签名多的优先级最高
+        4. 如果上面3种都一样,那么就不会继续往下计算了,那么此时谁写在后面听谁的
+    只有选择器是直接选中标签的才需要计算权重
+
+div和span区别
+    div会单独占一行,span不会
+    div是容器级别标签,span是文本级别的标签
+    容器级标签中可以嵌套其他所有的标签
+    文本级别的标签只能嵌套文字/超链接/图片
+    容器级标签
+        div h ul ol dl li dt dd ...
+    文本级的标签
+        span p buis stong em ins del ...
+        
+块级元素(会独占一行;display: block)
+    块级元素会独占一行
+    如果没有设置宽度,那么默认和父元素一样宽
+    p div h ul ol dl li dt dd
+行内元素(display: inline)
+    行内诶元素不会独占一行
+    如果没有设置宽度,那么默认和父元素一样宽
+    行内元素是不可以设置宽度和高度的
+    span buis stong em ins del
+行内块级元素(display: inline-block)
+    为了能让元素既能够不独占一行,又可以设置宽度和高度
+
+背景   
+    background-repeat用来控制background-image的显示
+        repeat | no-repeat | repeat-x | repeat-y
+    同一个标签可以同时设置背景颜色和背景图片,如果颜色和图片同时存在,那么图片会覆盖颜色
+    background-position用来设置背景图片定位
+        background-position: 水平方向(left | center | right) 垂直方向(top | center | bottom)
+        background-position: 100px 200px (利用像素)
+    背景关联
+        默认情况下背景图片会随着滚动条的滚动而滚动,如果不想让背景图片随着滚动条滚动,就可以修改关联方式(fixed)
+        background-attachment: scroll(default) | fixed
+
+    背景属性缩写(任何一个属性都可以被省略)
+    background: 背景颜色 背景图片 平铺方式 关联方式 定位方式;
+    
+css精灵图
+    是一种图像合成技术
+    可以减少请求的次数以及降低服务器处理压力
+    需要配合背景图片和背景定位来使用
+    体积相对较大,传输速度较慢
+    图片变大失真
+
+字体图标
+    可以做出和图片一样的效果
+    本质是文字,可以很随意改变颜色,大小等等
+    本身体积更小,传输速度更快
+    几乎支持所有浏览器
+    移动端设备必备
+
+    字体图标使用步骤
+        1 设计师设计svg格式图标
+        2 上传生成字体包 http://www.iconfont.cn/icons/upload或者fontawesome
+        3 下载兼容字体包
+        4 使用字体包
+            unicode形式
+                1 声明字体
+                    font-family: '字体名称, 可以自定义';
+                    src: url('被拷贝进来文件的路径');
+
+                    @font-face {
+                        font-family: 'iconfont';
+                        src: url('fonts/iconfont.eot');
+                        src: url('fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+                        url('fonts/iconfont.woff') format('woff'),
+                        url('fonts/iconfont.ttf') format('truetype'),
+                        url('fonts/iconfont.svg#iconfont') format('svg');
+                    }
+
+                2 定义使用的样式
+                    .iconfont {
+                        font-family:"iconfont" !important;
+                        font-size:16px;font-style:normal;
+                        -webkit-font-smoothing: antialiased;
+                        -webkit-text-stroke-width: 0.2px;
+                        -moz-osx-font-smoothing: grayscale;
+                    }
+                3 应用于页面
+                    <i class="iconfont">&#xe601;</i>
+            font-class形式
+                <link rel="stylesheet" href="fonts/iconfont.css">
+                <i class="iconfont icon-gouwuchekong"></i>
+
+box
+    边框
+        连写(同时设置四条边)
+            border: 边框的宽度 边框的样式 边框的颜色;
+        连写(分别设置四条边)
+            border-top: 边框的宽度 边框的样式 边框的颜色;
+            border-right: 边框的宽度 边框的样式 边框的颜色;
+            border-bottom: 边框的宽度 边框的样式 边框的颜色;
+            border-left: 边框的宽度 边框的样式 边框的颜色;
+        连写格式中颜色属性可以省略,默认就是黑色
+        样式不能省略,宽度可以省略
+
+        border-width: 上 右 下 左;
+        border-style: 上 右 下 左;
+        border-color: 上 右 下 左;
+        取值省略时的规律
+            上 右 下  左边的取值和右边的一样
+            上 右     左边的取值和右边的一样,下边的取值和上边的一样
+            上       右下左边和上边一样
+
+        不想设置任何边框属性就用none
+
+        border-radius: 左上角 右上角 右下角 左下角
+            会以水平方向和垂直方向相交的地方作为圆心, 开始画圆
+            如果省略了一个参数, 那么就等于对角
+            如果只传递了一个参数, 那么四个角一样
+        border-top-left-radius: 设置左上角
+        border-top-right-radius: 设置右上角
+        border-bottom-left-radius: 设置左下角
+        border-bottom-right-radius: 设置右下角
+
+        如果在开发中想画圆,那么只需要设置圆角等于宽度的一半即可
+
+        如果想画椭圆,那么只需要设置圆角宽高一半即可
+
+        如果想画椭圆,那么只需要设置左上角和右上角宽度为宽度的一半,并且将height设置为一半
+        div{
+            width: 400px;
+            height: 200px;
+            border: 1px solid #000;
+            margin: 100px auto;
+            border-top-left-radius: 200px;
+            border-top-right-radius: 200px;
+        }
+
+        绘制空心圆
+            <div></div>
+            div{
+                width: 400px;
+                height: 400px;
+                border: 100px solid #000;
+                margin: 100px auto;
+                box-sizing: border-box;
+                /*
+                特点:
+                border-radius的大小如果小于border的大小, 那么内边框是直角
+                border-radius的大小如果大于border的大小, 那么内边框是圆角
+                */
+                border-radius: 20 0px;
+            }
+
+        简化写法
+            border-radius: 200px / 100px;
+            前面代表水平方向,后面代表垂直方向
+
+        边框图片
+            border-image-source	用在边框的图片的路径
+            border-image-slice	图片边框向内偏移  
+                border-image-slice: 70 70 70 70; 上 右 下 左
+                border-image-slice的取值不需要添加单位
+                切割之后, 默认会让四个角显示切割的图片, 中间会拉伸
+            border-image-width	图片边框的宽度
+            border-image-outset	边框图像区域超出边框的量
+            border-image-repeat	图像边框是否应平铺(repeated)、铺满(rounded)或拉伸(stretched,默认)
+    边距
+        在默认布局的垂直方向上,默认情况下外边距是不会叠加的,会出现合并现象,谁的外边距比较大就听谁的
+
+    box-sizing
+        这个属性可以保证我们给盒子新增padding和border之后,盒子元素(边框 + 内边距 + 内容宽高)的宽度和高度不变
+        取值 content-box(default) | border-box
+        content-box
+            元素的宽高 = 边框 + 内边距 + 内容宽高
+        border-box
+            元素的宽高 = width或height属性 (如果有padding或者border,就会减去一部分内容的宽度或高度)
+
+    如果两个盒子是嵌套关系,那么设置了里面一个盒子顶部的外边距,外面一个盒子也会被顶下来
+    如果外面的盒子不想被一起顶下来,那么可以给外面的盒子添加一个边框属性
+    在开发中,一般如果需要控制嵌套关系盒子之间的距离,应该首先考虑padding,其次再考虑margin
+    在嵌套关系的盒子中,我们可以利用margin: 0 auto;的方式来让里面的盒子在外面的盒子中水平居中(外面的盒子依然需要增加边框属性),但是只对水平方向有效,对垂直方向无效
+
+    text-align:center和margin: 0 auto区别
+        text-align:center是让盒子中的内容/图片水平居中
+        margin: 0 auto是让盒子自己水平居中
+
+    在企业开发中默认会先清掉默认边距
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    不过通配符的性能比较低,所以可以使用第三方写好的(cssreset-min.css)
+
+    行高
+        line-height
+        文字在行高中默认是垂直居中的
+        所以在开发中,经常将盒子的高度和行高设置为一样,就可以保证一行文字在盒子的高度中是垂直居中的
+        注意只有在一行文字时才能使用以上方法,如果有多行的话就必须通过设置padding达成
+
+    开发中,如果一个盒子存储的是文字,那么一般情况下我们会以盒子左边的内边距为基准
+    不会以右边的内边距为基准,因为右边有误差,因为吐过右边放不下一个文字,那么文字就会换行显示,
+    所以文字和内边距之间的距离就有了误差
+
+    盒子阴影
+        默认情况下是外阴影
+        快速添加阴影值需要水平偏移/垂直偏移/模糊度就够,默认情况下阴影的颜色和盒子内容的颜色一致
+        box-shadow: h-shadow(水平偏移) v-shadow(垂直偏移) blur(模糊度) spread(阴影扩展) color(阴影颜色) inset(内外阴影);
+        box-shadow: 10px 10px 10px 10px skyblue inset;
+    文字阴影
+        box-shadow: h-shadow(水平偏移) v-shadow(垂直偏移) blur(模糊度) color(阴影颜色);
+
+网页布局方式
+    1. 标准流(默认)
+        如果是块级元素就会垂直排版
+        如果是行内/行内块级元素就会水平排版
+    2. 浮动流
+        float
+        在浮动流中是不可以使用margin: 0 auto的
+        浮动流中是不区分块级/行内/行内块级元素
+        在浮动流中块级/行内/行内块级元素都可以设置宽高
+        综上浮动流中的元素和标准流中的行内块级元素很像
+
+        浮动元素脱标
+            当某一个元素浮动之后,那么这个元素看上去就像被从标准流中删除了一样,这个指的就是脱标
+            如果前面一个元素浮动了,后面一个元素没有,那么此时前面一个就会盖住后面一个
+
+        浮动元素排序规则
+            1 相同方向上的浮动元素,先浮动的元素会显示在前面,后浮动的元素会显示在后面
+            2 不同方向上的浮动元素,左浮动会找左浮动,右浮动会找右浮动
+            3 浮动元素浮动之后的位置,由浮动元素浮动之前在标准流中的位置来确定
+
+        浮动元素贴靠现象
+        浮动元素字围现象
+
+        在标准流中内容的高度可以撑起父元素的高度,浮动流中则不可以
+
+        清除浮动的方式
+            1 给前面一个父元素设置高度
+                企业开发中不推荐使用(因为尽量不要设置高度)
+            2 给后面的盒子添加clear none(default) | left | right | both
+                当给某个元素添加clear属性之后,这个元素的margin属性就会失效
+                开发中不常用
+            3 隔墙法
+                外墙法
+                    在两个盒子中间添加一个额外的块级元素并设置clear: both属性
+                    外墙法可以让第二个盒子使用margin-top属性,
+                    但是不可以让第一个盒子使用margin-bottom属性
+                    通常使用外墙法不会直接使用margin-top和margin-bottom,会直接设置额外块级元素的高度来实现两个盒子之间的间隔
+                内墙法
+                    在第一个盒子中所有子元素最后添加一个额外的块级元素并设置clear: both属性
+                    内墙法可以让第二个盒子使用margin-top属性,
+                    也可以让第一个盒子使用margin-bottom属性
+                    也可以直接设置额外块级元素的高度来实现两个盒子之间的间隔
+                外墙法不能撑起第一个盒子的高度,而内墙法可以
+                开发中不常用
+            4 利用伪元素选择器
+                伪元素选择器
+                   给指定标签内容前面或后面添加子元素 
+                   e.g.
+                    div::before {
+                        content: 'hahaha';
+                        width: 50px;
+                        height: 50px;
+                        display: block;
+                    }
+                    div::after {
+                        ...
+                    }
+                .box::after {
+                    content: "";
+                    display: block;
+                    height: 0;
+                    visibility: hidden;
+                    clear: both;
+                }
+                .box {
+                    /*兼容IE6*/
+                    *zoom:1;
+                }
+                开发中推荐使用
+            5 给第一个盒子添加overflow: hidden
+                overflow: hidden作用
+                    1 可以将超出标签范围的内容剪裁掉
+                    2 清除浮动
+                    3 可以通过给外面的盒子添加该属性让里面的盒子设置margin-top之后,外面的盒子不被顶下来
+                类似内墙法可以让第二个盒子使用margin-top属性,
+                也可以让第一个盒子使用margin-bottom属性
+                .box {
+                    /*兼容IE6*/
+                    *zoom:1;
+                }
+                开发中推荐使用
+    3. 定位流
+        1 相对定位
+            position: relative;
+            相对定位是不脱离标准流的,会继续在标准流中占用一份空间
+            相对定位就是相对于自己以前在标准流中的位置来移动
+            top | left | bottom | right
+            注意同一个方向上只能有一个定位属性(不要同时定义top/bottom或者left/right)
+            由于相对定位是不脱离标准流的,所以在相对定位中是区分块级/行内/行内块级元素的
+            由于相对定位是不脱离标准流并且相对定位的元素会占用标准流中的位置,所以当给相对定位的元素
+            设置margin/padding等属性时会影响到标准流的中的位置,而不是定位后的位置
+
+            应用场景
+                1. 用于对元素进行微调
+                2. 配合绝对定位来使用
+        2 绝对定位
+            position: absolute;
+            绝对定位的元素是脱离标准流的
+            所以是不区分块级/行内/行内块级元素的,所有元素都可以设置宽高
+            规律
+                1. 默认情况下所有的绝对定位元素,无论有没有祖先,都会相对于body来定位的
+                2. 如果一个绝对定位元素有祖先元素,并且祖先元素也是定位流(相对|绝对|固定可以,静态不行),那么这个绝对定位的元素就会以定位流的那个祖先元素作为参考点
+                3. 如果一个绝对定位元素有祖先元素,并且祖先元素也是定位流(相对|绝对|固定可以,静态不行),而且祖先元素中有多个元素都是定位流,那么这个绝对定位的元素会以
+                    离他最近的那个定位流的祖先元素为参考点
+            如果一个绝对定位元素是以body作为参考点,那么其实是以网页首屏(首屏不包括可滚动的区域)的宽高作为参考点,而不是以整个网页的宽高作为参考点
+            一个绝对定位元素会忽略祖先元素的padding
+
+            开发中,子元素用绝对定位,父元素用相对定位
+
+            如何让绝对定位的元素水平居中
+                只需要设置绝对定位元素的left:50%;
+                然后再设置绝对定位元素的margin-left: -元素宽度的一半px;
+                还可以使用(开发中推荐使用这种,因为上一种必须知道宽度)
+                    left: 50%;
+                    transform: translateX(-50%);
+        3 固定定位
+            固定定位的元素是脱离标准流的
+            所以是不区分块级/行内/行内块级元素的,所有元素都可以设置宽高
+            固定定位可以让某个盒子不随着滚动条的滚动而滚动
+        4 静态定位(默认)
+
+        z-index
+            默认情况下所有的元素都有一个默认的z-index属性,取值是0,
+            z-index属性的作用是专门用于控制定位流元素的覆盖关系的
+            1. 默认情况下定位流的元素会盖住标准流的元素
+            2. 默认情况下定位流的元素后面编写的会盖住前面编写的
+            3. 如果定位流的元素设置了z-index属性,那么谁的z-index属性比较大,谁就是显示在上面
+            注意点
+                从父现象
+                    1 如果两个元素的父元素都没有设置z-index,那么谁的z-index属性比较大谁就显示在上面
+                    1 如果过两个元素的父元素设置了z-index属性,那么子元素的z-index属性就会失效,谁的父元素z-index属性比较大就显示在上面
+            
+
+开发中通常在css中会先做以下几个步骤
+    1. 清空默认边距
+    2. 设置html标签和body标签的宽度和高度
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+    3. 清空默认样式
+            a {
+                text-decoration: none;
+            }
+            ul, ol {
+                list-style: none;
+            }
+    4. body设置整个界面文字信息
+            文字大小font-size 文字字体font-family 文字颜色color
+
+a标签伪类选择器
+    专门用来修改a标签不同状态的样式的
+        从未被访问过状态下的样式
+        a:link { 
+            ...
+        }
+        被访问过的状态下的样式
+        a.visited {
+            ...
+        }
+        鼠标悬停在a标签上状态下的样式
+        a:hover {
+            ...
+        }
+        鼠标长按状态下的样式
+        a:active {
+            ...
+        }
+    注意如果伪类选择器同时出现(定义多个)时,必须要按照以上的顺序定义
+    如果未访问和访问过状态的样式一样时,可以直接通过设置a的样式来缩写
+        a {
+            ...
+        }
+    开发中a标签的伪类选择器最好写在标签选择器的后面
+    和a标签盒子相关的属性建议都写在标签选中器中(显示模式/宽度/高度)
+    a标签文字/背景相关的属性都建议写在伪类选择器中
+
+过渡模块
+    过渡3要素
+        1 必须要有属性发生变化
+        2 必须告诉系统哪个属性需要执行过渡效果
+        3 必须告诉系统过渡效果持续时长
+    注意当多个属性需要同时执行过渡效果时需使用逗号隔开
+    告诉系统哪个属性需要执行过渡
+    transition-property: width, background-color;
+    告诉系统过渡效果持续时长
+    transition-duration: 5s, 5s;
+    告诉系统延迟多少秒之后才开始过渡动画
+    transition-delay: 2s, 2s;
+    告诉系统过渡动画的运动速度
+    transition-timing-function: linear|ease|ease-in|ease-out|ease-in-out;
+
+    过渡连写格式(多个属性用逗号隔开)
+        transition: 过渡属性 过渡时长 运动速度 延迟时间, 过渡属性 过渡时长 运动速度 延迟时间, ...;
+        一次定义所有属性
+        transition: all 5s;
+
+2D转换模块
+    旋转几度
+    transform: rotate(45deg);
+    水平与垂直方向移动多少长度
+    transform: translate(100px, 100px);
+    水平与垂直方向伸缩多少比例
+    如果水平与垂直缩放比例一样,可以简写为一个参数
+    只要父元素被拉伸,子元素也会被拉伸
+    transform: scale(1.5, 1);
+    注意点
+        1. 如果进行多个转换,用空格隔开
+        2. 2D转换模块会修改元素的坐标系,所以旋转之后再平移就不是水平平移的 
+
+    transform: none; 清除转换样式
+
+    默认情况下所有的元素都是以自己为中心点作为参考来旋转的,我们可以通过改变中心点属性来修改它的参考点
+        第一个参数: 水平方向
+        第二个参数: 垂直方向
+        三种取值方式
+            1 具体像素
+            2 百分比
+            3 特殊关键字(center left top right bottom)
+        transform-origin: 0px 0px
+
+    默认情况下都是围绕Z轴(面向我们)进行rotate的,所以rotate等同于rotateZ
+    如果想要围绕X或Y轴,就使用rotateX或rotateY
+    但是rotateX或rotateY需要配合透视属性perspective
+        需要将改属性添加到需要呈现近大远小效果的元素的父元素上面
+        perspective: 10px (近大远小)
+
+动画模块
+    过渡模块和动画的异同
+        不同点
+            过渡必须人为触发,动画不需要
+        相同点
+            过渡和动画都要满足三要素才行
+
+    告诉系统需要执行哪个动画
+    animation-name: test;
+    告诉系统动画持续时长
+    animation-duration: 3s;
+    告诉系统要创建一个叫做test的动画
+    @keyframes test {
+        from {
+            margin-left: 0;
+        }
+        to {
+            margin-left: 500px;
+        }
+    }
+    也可以通过百分比来设定
+    @keyframes test {
+        0% {
+            ...
+        }
+        1% {
+            ...
+        }
+        10% {
+            ...
+        }
+        ...
+    }
+    如果动画中有和默认样式中同名的属性,会覆盖掉默认样式中的同名属性
+    编写动画时,固定不变的值要写在前面,需要变化的值写在后面,否则效果会出问题
+
+    告诉系统延迟多少秒之后才开始动画
+    animation-delay: 2s;
+    告诉系统动画的运动速度
+    animation-timing-function: linear|ease|ease-in|ease-out|ease-in-out;
+    告诉系统动画运行几次
+    animation-iteration-count: 3|infinite;
+    告诉系统是否需要执行往返动画
+    animation-direction: normal|alternate(做往返,返也算动画执行一次);
+    告诉系统当前的动画是否需要暂停
+    animation-play-state: running|paused;
+
+    动画是有一定的状态的
+        1. 等待状态
+        2. 执行状态
+        3. 结束状态
+    animation-fill-mode是用来指定动画等待状态和结束状态的样式
+        none 不作任何改变
+        forwards 让元素结束状态保持动画最后一帧的样式
+        backwards 让元素等待状态的时候显示动画第一帧的样式
+        both 同时包括forwards和backwards
+    animation-fill-mode: none|forwards|backwards|both;
+
+    连写
+        animation:动画名称 动画时长 动画运动速度 延迟时间 执行次数 往返动画;
+        简写 animation:动画名称 动画时长;
+
+3D转换模块
+    transform-style: flat(默认,2D)|preserve-3d;
+
+背景尺寸属性
+    background-size 专门用于设置背景图片大小
+        background-size: 宽度px 高度px;
+        background-size: 50% 50%;
+        background-size: auto 100px; 宽度等比拉伸
+        background-size: 100px auto; 高度等比拉伸
+        background-size: cover; 等比拉伸到宽高都填满元素
+        background-size: contain; 等比拉伸到宽或高其中之一填满元素
+    background-origin 告诉系统背景图片从什么区域开始显示
+        padding-box(默认) 背景图片从padding区域开始显示
+        border-box 背景图片从border区域开始显示
+        content-box 背景图片从content区域开始显示
+    background-clip 专门用于指定从哪个区域开始绘制背景的,默认从border开始
+        padding-box 背景从padding区域开始显示
+        border-box(默认) 背景从border区域开始显示
+        content-box 背景从content区域开始显示
+
+    文字背景剪裁e.g.
+        <div>NBA</div>
+        div {
+            width: 400px;
+            height: 600px;
+            border: 1px solid #000;
+            margin: 100px auto;
+
+            font-size: 150px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 600px;
+
+            background: url("images/KB.jpg") no-repeat;
+            -webkit-background-clip: text;
+            /*设置文本的填充颜色为透明的颜色*/
+            -webkit-text-fill-color: transparent;
+        }
+
+    ktv文字效果
+        <div>我要学习, 不要打扰</div>
+        div{
+            width: 800px;
+            height: 78px;
+            line-height: 78px;
+            border: 1px solid #000;
+            margin: 100px auto;
+            font-size: 90px;
+            font-weight: bold;
+            /*0.设置背景颜色为红色*/
+            background-color: red;
+            /*1.设置背景图片*/
+            background-image: url("images/text_bg.jpg");
+            /*2.让背景图片不平铺*/
+            background-repeat: no-repeat;
+            /*3.设置背景图片的位置*/
+            background-position: -800px 0;
+            /*4.设置文本的填充颜色为透明色*/
+            -webkit-text-fill-color: transparent;
+            /*5.设置背景的绘制区域为文字的区域*/
+            -webkit-background-clip: text;
+            animation: loop 10s linear 0s infinite normal;
+        }
+        @keyframes loop {
+            0%{
+                background-position: -800px 0;
+            }
+            100%{
+                background-position: 0px 0;
+            }
+        }
+
+多重背景图片
+    多张背景图片之间用逗号隔开即可
+    先添加的背景图片会盖住后添加的
+    background: url("1.png") no-repeat left top, url("2.png") no-repeat right top
+    建议编写时拆开编写e.g.
+    background-image: ...
+    background-repeat: ...
+    background-position: ...
+
+CSS书写格式
+    1. 行内样式
+    2. 内嵌样式
+    3. 外链样式(开发中推荐使用这种)
+    4. 导入样式
+        <style>
+            @import "test.css";
+        </style>
+    外链样式和导入样式区别:
+        @import是CSS2.1推出的,所以可能有兼容性问题
+        外链样式在显示界面时会先加载CSS样式,在加载结构,所以用户看到界面时一定已经设置了样式
+        导入样式在显示界面的时候,会先加载结构,再加载样式,所以用户看到界面时不一定已经设置了样式
+
+如果图片宽度大于父元素的宽度,可以使用margin:0 -100%;来居中图片,但是父元素必须设置text-align: center;
+
+CSS Hack
+    针对IE的不同版本设置不同的CSS属性,就称之为CSS Hack
+    可以让我们在编写CSS代码时,只在我们指定的IE版本浏览器下有效
+    e.g.
+    background: green\9;  \9就是让该属性在IE10及以下的浏览器下有效
+    +background: pink;    +就是让该属性在IE7及以下的浏览器下有效
+    *background: blue;    *就是让该属性在IE7及以下的浏览器下有效
+    _background: skyblue; _就是让该属性在IE6及以下的浏览器下有效
+
+vertical-align 设置元素垂直方向对齐方式
+    baseline(default) 让图片和当前行文字中x的底部对齐(参照vertical-align.jpg)
+    top 设置图片和所在盒模型的顶部对齐, 不包括边框
+    bottom 设置图片和所在盒模型的底部对齐, 不包括边框
+    text-top 文字最高的位置对齐
+    text-bottom 文字最低的位置对齐
+    middle 盒模型的中间
+
+    通过修改元素的该属性可以用来去除img底部空白的问题,可参考
+    https://www.zhihu.com/question/21558138
+
+如果按钮采用一个图片作为背景,当图片是固定大小时,那么当我们将按钮变宽之后,图片会变形
+在开发中如果按钮的宽度是不确定的, 那么就可以使用三个标签嵌套的形式来实现
+    1 最外层的标签的背景是1px的背景的图片, 然后让它平铺
+    2 第二层标签的背景是左边的图片, 然后不平铺
+    3 第三层的标签背景是右边的图片, 然后也不平铺
+在前端开发中这种布局方式, 我们称之为`滑动门`
+要想实现`滑动门`除了可以利用三个标签以外, 还可以利用两个标签
+只不过两个标签的扩展性没有三个标签的好, 两个标签的宽度扩展到一定程度的时候(超出一张图片的宽度), 会有问题
+滑动门中注意文字内容必须放到最里面的一个标签中
+
+添加私有前缀之后,那么这个当前的属性,就只针对某一种浏览器有效
+    1 -moz代表firefox浏览器私有属性
+    2 -ms代表ie浏览器私有属性
+    3 -webkit代表safari、chrome私有属性
+
+线性渐变
+    1. 默认情况下, 线性渐变是从上至下的渐变的
+    2. 可以通过在所有颜色的最前面添加to XXX的方式, 来指定往哪个方向渐变,可以指定多个方向
+        background: linear-gradient(to top,red, green)
+        background: linear-gradient(to top right,red, green)
+    3. 还可以通过在所有颜色的最前面添加一个度数的方式, 来指定往哪个方向渐变
+        background: linear-gradient(45deg, red, green)
+
+    可以在每一个颜色后面添加一个单位
+    如果是第一个颜色: 那么代表着指定单位的区域不渐变
+    如果是第二个颜色: 那么代表从第一个颜色指定的位置开始渐变, 渐变到第二个颜色指定的位置, 后面剩余的全部纯色
+    background: linear-gradient(to right, red 100px, green 200px, deepskyblue 300px)
+
+径向渐变
+    1.默认情况下径向渐变会从盒子的中心点开始向四周扩散
+        background: radial-gradient(red, green);
+    2.我们可以通过在所有颜色前面加上at方向
+        background: radial-gradient(at left top,red, green)
+    3.除了可以通过关键字指定方向以外, 还可以直接指定像素
+        background: radial-gradient(at 100px 100px,red, green)
+    4.我们可以通过在所有颜色前面加上像素来指定扩散的范围
+        background: radial-gradient(100px at left bottom,red, green)
+
+伸缩布局
+    1 如何使用伸缩布局?
+        只需要给元素修改 display: flex;
+    2 给谁添加了display: flex;谁就是伸缩容器
+    3 伸缩容器中的盒子, 我们称之为伸缩项
+
+    只要将一个元素变为了伸缩的容器, 那么里面的伸缩项自动就会水平排版
+    默认会按照主轴从左向右的方向排版
+    flex-direction:属性就是专门用于设置主轴的方向的
+    默认取值是row(从左至右)
+    row-reverse(从右至左)
+    默认情况下主轴是在水平方向的, 但是只要设置了flex-direction: column;
+    就会将主轴修改为垂直方向
+    只要主轴变为了垂直方向, 那么侧轴就会自动变为水平方向
+    主轴和侧轴永远都是十字交叉的
+    column(从上至下)
+    column-reverse(从下至上)
+
+    justify-content: flex-start 默认,设置伸缩容器中的伸缩项,和伸缩容器主轴的起点对齐
+    justify-content: flex-end 设置伸缩容器中的伸缩项,和伸缩容器主轴的终点对齐
+    justify-content: center 设置伸缩容器中的伸缩项居中
+    justify-content: space-between
+        两端对齐, 第一个伸缩项会和主轴的起点对齐
+        最后一个伸缩项会和主轴的终点对齐,其它项目平分多余的间隙
+        间隙的计算公式: (伸缩容器宽度 - 所有伸缩项的宽度) / (伸缩项 - 1);
+    justify-content: space-around
+        环绕对齐, 给所有伸缩项的两遍都添加间隙
+        间隙的计算公式: (伸缩容器宽度 - 所有伸缩项的宽度) / (伸缩项 * 2);
+
+    侧轴的默认对齐方式: 和侧轴的起点对齐
+    align-items: flex-start
+    align-items: flex-end
+    align-items: center
+    align-items: baseline 按照所有伸缩项内容的基线对齐
+    align-items: stretch 让所有伸缩项的高度都变成父元素的高度
+    注意侧轴没有主轴的两端对齐和环绕对齐
+    
+    如果只想修改某几个伸缩项,可以对需要修改的伸缩项进行一下的单独设置
+    align-self: flex-end;
+
+    无论主轴变为从上至下, 还是从下至上
+    侧轴永远都会和主轴十字交叉, 但是侧轴的起点永远都在左边
+
+    伸缩布局换行
+        伸缩容器宽度小于所有伸缩项宽度时, 系统会自动等比缩放伸缩项
+        如果不想让系统自动等比缩放伸缩项, 那么可以设置一个属性
+        flex-wrap: wrap; 默认为nowrap
+        flex-wrap: wrap-reverse 将最前面一行显示到最后一行, 其它行依次往上显示
+    
+    伸缩布局换行的对齐方式
+        align-content: flex-start|flex-end|center|space-between|space-around|stretch
+        拉伸对齐就是行的默认对齐方式
+        计算公式: (伸缩容器的高度 / 行数)
+
+    伸缩项排序
+        在伸缩布局中,可以利用order属性来给伸缩项进行排序
+        默认情况下order的取值是0,那么order会按照取值的大小来排序
+        值小的排在前面,值大的排在后面
+
+    伸缩项的放大比例
+        如果想让伸缩项按照一定的比例分配伸缩容器的宽度, 那么就可以通过flex-grow属性来设置
+        flex-grow: 1; 那么就代表着所有伸缩项占用一份宽度
+        计算公式:
+            首先:会计算多余的宽度: 伸缩容器的宽度 - 所有伸缩项的宽度 = 多余宽度
+            多余的宽度 = 800 - 600 = 200
+            其次:会计算每份分配多大的宽度: 多余宽度 / flex-grow 值的总和
+
+    伸缩项的缩小比例
+        如果伸缩容器的宽度小于伸缩项的宽度,我们可以通过flex-shrink来设置每个伸缩项的缩小比例
+        计算公式:
+        首先:会计算溢出的宽度: 伸缩容器的宽度 - 所有伸缩项的宽度 = 多余宽度
+        多余的宽度 = 400 - 600 = -200
+
+        其次: 会计算权重
+        用当前元素flex-shrink:设置的值 * 各个元素的宽度
+
+        最后: 计算收缩的空间
+        算溢出的宽度 * 当前元素flex-shrink:设置的值 * 当前元素的宽度 / 总权重
+        -200 * 1 * 200 / 1200 = -26;  --> 200 - 26
+
+    伸缩项宽度设置
+        在伸缩布局中,如果同时通过width和flex-basis给伸缩项设置宽度,那么会听flex-basis, width会失效
+        如果flex-basis是auto,那么就会听width属性
+
+    伸缩项属性的连写
+        flex: flex-grow flex-shrink flex-basis;
+              放大比例    缩小比例     宽度
+        放大比例: 默认值是0, 默认不会放大
+        缩小比例: 默认值是1, 等比缩小
+
+BFC 块级格式化上下文
+它是一个独立的与外界隔离的渲染区域,它规定了内部的盒子如何布局
+符合BFC的规范:
+    display为inline-block, block, flex, table-cell, table-caption等
+    float属性不为none
+    position为absolute或fixed
+    overflow不为visible
+具备生产BFC元素的特点:
+    有宽度高度,有外边距margin,有内边距padding,有边框border
+BFC布局规则:
+    1. 内部盒子会在垂直方向一个接一个地排列
+    2. 盒子垂直方向的距离由margin决定,属于同一个BFC的两个相邻盒子的margin会发生重叠
+    3. BFC区域不会和float区域重叠
+    4. 计算BFC的高度时,自然也会检测浮动或者定位的盒子高度
+BFC应用场景: 
+    清除浮动
+    清除margin层叠
+
+编写网站步骤
+    1. 新建站点文件夹
+        1.1 文件夹名称不能是中文
+        1.2 里面至少应该包含css/js/images三个子文件夹
+        1.3 里面至少应该包含index.html文件
+    2. 设置favorites icon网页图标
+        显示在网页选项卡和收藏夹中的图标, 我们称之为favicon
+        2.1 生成网页图标
+            搜索ico图标生成--上传图标--下载生成好的图标
+        2.2 放到站点目录根目录下
+        2.3 在head标签中间添加
+            <link rel="shortcut icon" href="favicon.ico"  type="image/x-icon"/>
+    3. 网站优化三大标签
+        3.1 网页title标题
+            - title是网页中第一重要的标签，是搜索引擎了解网页的入口，和对网页主题归属的最佳判断点
+            - 标题长度: Google 35个中文, baidu 28个中文
+            - 格式: 网站名（产品名）- 网站的介绍
+                <title>淘宝网 - 淘！我喜欢</title>
+                <title>京东(JD.COM)-正品低价、品质保障、配送及时、轻松购物！</title>
+            - 特点: 越先出现的词语, 权重越高
+
+        3.2 Keywords 关键字
+                Keywords是页面关键词，是搜索引擎重点关注点之一。
+                - Keywords应该限制在6～8个关键词左右，电商类网站可以多几个。
+
+                <meta name="keyword" content="淘宝,掏宝,网上购物,C2C,在线交易,交易市场,网上交易,交易市场,网上买,网上卖,购物网站,团购,网上贸易,安全购物,电子商务,放心买,供应,买卖信息,网店,一口价,拍卖,网上开店,网络购物,打折,免费开店,网购,频道,店铺" />
+
+                <meta name="Keywords" content="网上购物,网上商城,手机,笔记本,电脑,MP3,CD,VCD,DV,相机,数码,配件,手表,存储卡,京东" />
+
+        3.3 Description网站说明
+                对于关键词的作用明显降低,但由于很多搜索引擎,仍然大量采用网页的MATA标签中描述部分作为搜索结果的“内容摘要”.就是简要说明我们网站的主要做什么的
+
+                - 补充在title和keywords中未能充分表述的说明.
+                - 字符数含空格在内不要超过120个汉字
+                - 描述中出现关键词,与正文内容相关,这部分内容是给人看的,所以要写的很详细，让人感兴趣， 吸引用户点击
+
+                <meta name="description" content="淘宝网 - 亚洲较大的网上交易平台，提供各类服饰、美容、家居、数码、话费/点卡充值… 数亿优质商品，同时提供担保交易(先收货后付款)等安全交易保障服务，并由商家提供退货承诺、破损补寄等消费者保障服务，让你安心享受网上购物乐趣！" />
+                <meta name="description" content="京东JD.COM-专业的综合网上购物商城,销售家电、数码通讯、电脑、家居百货、服装服饰、母婴、图书、食品等数万个品牌优质商品.便捷、诚信的服务，为您提供愉悦的网上购物体验!" />
+    4. 导入CSS Rest类库,将所有的浏览器的自带样式重置掉,保持各浏览器渲染的一致性
+        4.1 reset.css
+            无论是否有用,一律清零
+
+        4.2 normalize.css(推荐)
+            - 保护有用的浏览器默认样式而不是完全去掉它们
+            - 一般化的样式：为大部分HTML元素提供
+            - 修复浏览器自身的bug并保证各浏览器的一致性
+            - 优化CSS可用性：用一些小技巧
+            - 解释代码：用注释和详细的文档来
+            - https://github.com/necolas/normalize.css/
+    5. 值得思考的问题,优雅降级和渐进增强
+        5.1 渐进增强
+            针对低版本浏览器进行构建页面，保证最基本的功能，然后再针对高级浏览器进行效果、交互等改进和追加功能达到更好的用户体验
+
+        5.2 优雅降级
+            一开始就构建完整的功能，然后再针对低版本浏览器进行兼容
+
+        5.3 个人建议:
+            - 现在微软都抛弃了ie浏览器转而支持edge了，所以我们很多情况下没有必要再时刻想着低版本浏览器了，而是一开始就构建完整的效果，根据实际情况，修补低版本浏览器问题
+            - 修补时现在最常见的做法就是为低版本浏览器单独制作一个跳转页面
+            www.zhihu.com
+            www.jd.com
+            www.taobao.com
+
+CSS校验与压缩
+    css validation service的网站可用于验证css是否满足指定版本
+    oschina提供了压缩格式化css

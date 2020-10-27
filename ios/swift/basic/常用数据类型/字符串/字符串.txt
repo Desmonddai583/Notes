@@ -1,0 +1,211 @@
+在OC中字符串类型时NSString,在Swift中字符串类型是String
+OC中字符串@"",Swift中字符串""
+String 是一个结构体，性能更高
+NSString 是一个 OC 对象，性能略差
+String 支持直接遍历
+Swift 提供了 String 和 NSString 之间的无缝转换
+
+字符、字符串也能使用区间运算符，但默认不能用在for-in中
+  let stringRange1 = "cc"..."ff" // ClosedRange<String> 
+  stringRange1.contains("cb") // false 
+  stringRange1.contains("dz") // true 
+  stringRange1.contains("fg") // false
+  // 这里range类型依旧是ClosedRange<String>,如果想表示字符类型一定要显示指定类型为Character
+  let stringRange2 = "a"..."f" 
+  stringRange2.contains("d") // true 
+  stringRange2.contains("h") // false
+
+  // \0到~囊括了所有可能要用到的ASCII字符 
+  let characterRange: ClosedRange<Character> = "\0"..."~" 
+  characterRange.contains("G") // true
+
+字符串拼接
+  两个字符串的拼接
+    let str1 = "Hello"
+    let str2 = "World"
+    let str3 = str1 + str2
+  字符串和其他数据类型的拼接
+    let name = "why"
+    let age = 18
+    let info = "my name is \(name), age is \(age)"
+  字符串的格式化
+    let min = 3
+    let second = 4
+    let time = String(format: "%02d:%02d", arguments: [min, second])
+
+字符串截取
+  Swift中提供了特殊的截取方式
+    该方式非常麻烦
+    Index创建较为麻烦
+  简单的方式是将String转成NSString来使用
+  在标识符后加:as NSString即可
+    let myStr = "www.520it.com"
+    var subStr = (myStr as NSString).substringFromIndex(4)
+    subStr = (myStr as NSString).substringToIndex(3)
+    subStr = (myStr as NSString).substringWithRange(NSRange(location: 4, length: 5))
+
+字符串创建类
+  不可以直接通过类型来获取对应的类
+  因为Swift有命名空间,类前需要加上命名空间的名称
+
+  获取命名空间的名称
+    let executable = NSBundle.mainBundle().infoDictionary!["CFBundleExecutable"] as? String
+  
+  通过字符串创建对象
+    获取类的名称
+    获取类的真实类型
+    创建对应类的对象
+    // 1.获取对应的类
+    guard let childVcClass : AnyClass = NSClassFromString(executable + "." + childCVcName) else {
+        XMGLog("转成对应的类失败")
+        return
+    }
+    // 2.拿到对应的类
+    let childClass = childVcClass as! UITableViewController.Type
+    let childVc = childClass.init()
+  
+字符串插值
+  可选项在字符串插值或者直接打印时，编译器会发出警告
+    var age: Int? = 10 
+    print("My age is \(age)")
+  至少有3种方法消除警告
+    1. print("My age is \(age!)") // My age is 10
+    2. print("My age is \(String(describing: age))") // My age is Optional(10)
+    3. print("My age is \(age ?? 0)") // My age is 10
+  
+string底层内存
+  如果不超过15个字符,会将字符串的内容直接存储在变量中,前2位存放类型和长度,后14位存放内容
+  如果超过15个字符,前8个字节存放长度,后8个字节是由字符串的真实地址+0x7fffffffffffffe0,背后字符串的真实地址在常量区中,所以内容就存在这里面
+
+  如果对String进行拼接操作,低于15个字符依然是遵循原来的原则放在变量中
+  如果是超过15个字符(不管原来有没有超过15个),那么因为常量区是不可以修改的所以会创建一个新的堆空间来存放,
+  那此时后8个字节存放的就是这个堆空间的地址值,而实际的内容存放在堆空间地址偏移32个字节的位置(这32个字节是用来存放堆空间的一些信息的)
+
+空字符串 
+  var emptyStr1 = "" 
+  var emptyStr2 = String()
+
+hasPrefix & hasSuffix
+  var str = "123456" 
+  print(str.hasPrefix("123")) // true 
+  print(str.hasSuffix("456")) // true
+
+字符串拼接
+  var str: String = "1" 
+  // 拼接，jack_rose 
+  str.append("_2") 
+  // 重载运算符 + 
+  str = str + "_3" 
+  // 重载运算符 += 
+  str += "_4" 
+  // \()插值 
+  str = "\(str)_5" 
+  // 长度，9，1_2_3_4_5 
+  print(str.count)
+
+插入和删除
+  startIndex和endIndex背后其实是一个结构体,startIndex代表字符串索引0的位置,endIndex代表字符串最后一个索引值加1的位置
+
+  var str = "1_2" 
+  // 1_2_ 
+  str.insert("_", at: str.endIndex) 
+  // 1_2_3_4 
+  str.insert(contentsOf: "3_4", at: str.endIndex) 
+  // 1666_2_3_4 
+  str.insert(contentsOf: "666", at: str.index(after: str.startIndex)) 
+  // 1666_2_3_8884 
+  str.insert(contentsOf: "888", at: str.index(before: str.endIndex)) 
+  // 1666hello_2_3_8884 
+  str.insert(contentsOf: "hello", at: str.index(str.startIndex, offsetBy: 4))
+
+  // 666hello_2_3_8884 
+  str.remove(at: str.firstIndex(of: "1")!)
+  // hello_2_3_8884 
+  str.removeAll { $0 == "6" } 
+  var range = str.index(str.endIndex, offsetBy: -4)..<str.index(before: str.endIndex) 
+  // hello_2_3_4 
+  str.removeSubrange(range)
+
+Substring
+  String可以通过下标、 prefix、 suffix等截取子串，子串类型不是String，而是Substring
+
+  var str = "1_2_3_4_5" 
+  // 1_2 
+  var substr1 = str.prefix(3) 
+  // 4_5 
+  var substr2 = str.suffix(3) 
+  // 1_2 
+  var range = str.startIndex..<str.index(str.startIndex, offsetBy: 3) 
+  var substr3 = str[range]
+  // 最初的String，1_2_3_4_5 
+  print(substr3.base)
+  // Substring -> String 
+  var str2 = String(substr3)
+
+  Substring和它的base，共享字符串数据
+  Substring发生修改 或者 转为String时，会分配新的内存存储字符串数据
+
+String 与 Character
+  for c in "jack" { // c是Character类型 
+    print(c) 
+  }
+
+  var str = "jack" 
+  // c是Character类型 
+  var c = str[str.startIndex]
+
+String相关的协议
+  BidirectionalCollection 协议包含的部分内容
+    startIndex 、 endIndex 属性、index 方法
+    String、Array 都遵守了这个协议
+    
+  RangeReplaceableCollection 协议包含的部分内容
+    append、insert、remove 方法
+    String、Array 都遵守了这个协议
+  
+  Dictionary、Set 也有实现上述协议中声明的一些方法，只是并没有遵守上述协议
+
+多行String
+  let str = """ 
+  1
+    "2" 
+  3
+    '4' 
+  """
+
+  如果要显示3引号，至少转义1个引号 
+    let str = """ 
+    Escaping the first quote \""" 
+    Escaping two quotes \"\"" 
+    Escaping all three quotes \"\"\" 
+    """
+
+  缩进以结尾的3引号为对齐线 
+    let str = """
+        1 
+      2 
+    3 
+      4 
+    """
+  
+  以下2个字符串是等价的 
+    let str1 = "These are the same." 
+    let str2 = """ 
+    These are the same.
+    """
+
+String 与 NSString
+  String 与 NSString 之间可以随时随地桥接转换
+    如果你觉得String的API过于复杂难用，可以考虑将String转为NSString
+
+    var str1: String = "jack" 
+    var str2: NSString = "rose"
+    var str3 = str1 as NSString 
+    var str4 = str2 as String
+    // ja 
+    var str5 = str3.substring(with: NSRange(location: 0, length: 2)) 
+    print(str5)
+  
+  比较字符串内容是否等价
+    String使用 == 运算符
+    NSString使用isEqual方法，也可以使用 == 运算符（本质还是调用了isEqual方法）

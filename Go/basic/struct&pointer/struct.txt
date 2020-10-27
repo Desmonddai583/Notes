@@ -1,0 +1,181 @@
+结构体
+    type Person struct {
+        name string
+        age int
+    }
+
+    var per Person
+    per = Person{"desmond", 18} // 完全初始化
+    per = Person{"desmond"} // 错误写法,部分初始化必须通过属性名称指定要给谁初始化
+    per = Persion{name: "desmond"} // 正确写法
+
+    结构体类型和数组类型一样,在GO语言中都是值传递
+
+    如果结构体的属性是切片和字典类型,那么就不能直接操作(因为本身切片和字典就必须初始化才可以操作)
+    必须先给切片或者字典初始化
+
+    结构体变量之间可以互相转换,但是必须保证结构体类型的
+    属性名称 属性类型 属性顺序 属性个数 都一样
+    type Person1 struct {
+        name string
+        age int
+    }
+    type Person2 struct {
+        name string
+        age int
+    }
+    var p1 Person1 = Person1{}
+    var p2 Person2
+    p2= Person2(p1) // 必须保证以上条件才可以互相转换
+
+    匿名结构体属性 没有名称的属性 
+        go中的继承就是通过匿名属性来实现的
+        type Person2 struct {
+            int
+            name string
+        }
+        var per Person = Person{666, "desmond"}
+
+        匿名属性的数据类型就是匿名属性的名称,可以通过匿名属性的数据类型来操作
+        var per Person
+        per.int = 666
+
+        一般用于结构体的嵌套定义
+        type Date struct {
+            year int 
+            month int
+            day int
+        }
+
+        type Person struct {
+            name string
+            Date
+        }
+        
+        匿名类型的可见方法也同样被内嵌，这在效果上等同于继承
+
+    结构体嵌套定义的几种方式
+        1. 
+            type 结构体名称1 struct {
+                结构体类型名称
+            }
+            type 结构体名称2 struct {
+                结构体名称1
+            }
+            嵌套属性访问
+                type Person struct {
+                    name string
+                    age int
+                }
+                type Student struct {
+                    Person
+                    score float32
+                }
+
+                stu := Student{Person{"zs", 18}, 99.5}
+                1.
+                    stu.Person.name
+                2.
+                    stu.name // 会在当前结构体中查找,如果没有就会进入嵌套的结构体中查找
+                    当然如果当前结构体中已经有该属性名,那就必须显式指定
+        2.
+            type 结构体名称1 struct {
+            }
+            type 结构体名称2 struct {
+                结构体名称1
+            }
+            type 结构体名称3 struct {
+                结构体名称2
+            }
+            嵌套属性访问
+                type Object struct {
+                    name string
+                }
+                type Person struct {
+                    Object
+                    age int
+                }
+                type Student struct {
+                    Person
+                    score float32
+                }
+
+                stu := Student{Person{Object{"desmond"}, 18}, 99.5}
+                1.
+                    stu.Person.Object.name
+                2.
+                    // 会在当前结构体中查找,如果没有就会进入嵌套的结构体中查找
+                    // 当然如果当前结构体中已经有该属性名,那就必须显式指定
+                    stu.Person.name
+                    stu.name 
+        3.
+            type 结构体名称1 struct {
+            }
+            type 结构体名称2 struct {
+            }
+            type 结构体名称3 struct {
+                结构体名称1
+                结构体名称2
+            }
+            嵌套属性访问
+                type Object struct {
+                    name string
+                }
+                type Person struct {
+                    age int
+                }
+                type Student struct {
+                    Object
+                    Person
+                    score float32
+                }
+
+                stu := Student{Object{"123"}, Person{"456"}, 99.5}
+                1.
+                    stu.Person.name
+                    stu.Object.name
+                2.
+                    // 会在当前结构体中查找,如果没有就会进入嵌套的结构体中查找
+                    // 当然如果当前结构体中已经有该属性名,那就必须显式指定
+                    stu.Person.name
+                    stu.Object.name
+                    stu.name 
+    结构体不可以嵌套自己的类型  
+        // 以下定义错误
+        type Person struct {
+            Person // 如果是指针就可以,其实就是一个链表结构
+            name string
+        }
+    只有匿名属性才会进入嵌套结构体中查找
+        type Person struct {
+            name string
+            age int
+        }
+        type Student struct {
+            per Person // 非匿名属性
+            score float32
+        }
+
+        stu := Student{Person{"zs", 18}, 99.5}
+        此时就不可以通过stu.name来获取Person结构体中的name
+    
+    定义结构体方法
+        // 给结构体定义的函数叫方法，前面需要带上结构体指针的声明
+        func (book *Book) String() string {
+            return fmt.Sprintf("id=%d,title=%s,author=%s,subject=%s",
+                book.id, book.title,
+                book.author, book.subject)
+        }
+
+    使用new函数给一个新的结构体变量分配内存，它返回指向已分配内存的指针
+        book := new(Book)
+    
+    如果想要强制使用工厂函数可以通过将结构体编程小写(私有),然后添加一个New开头的工厂函数,这样就可以做到强制使用工厂函数来初始化
+
+    带标签的结构体
+        type Book struct { // 标签(tag)
+            id      int    "书籍编号"
+            title   string "书籍标题"
+            author  string "书籍作者"
+            subject string "书籍主题"
+        }

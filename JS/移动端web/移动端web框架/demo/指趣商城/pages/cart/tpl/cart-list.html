@@ -1,0 +1,50 @@
+<div class="cart-list">
+    <div class="cart-list-title">
+        <a href="#" class="cart-list-checkbox checked-all"></a>
+        <p>平台自营</p>
+    </div>
+    <div class="cart-list-content">
+        <% for (var i = 0; i < list.length; i ++) { %>
+        <div class="cart-list-item clearfix">
+            <div class="cart-item-left f-left">
+                <a href="#" class="cart-list-checkbox cart-list-check"></a>
+                <img src="<%=list[i].goods_pic%>" alt="">
+            </div>
+            <div class="cart-item-right">
+                <p class="cart-item-name"><a href="#"><%=list[i].goods_name%></a></p>
+
+                <%
+                var str = "";
+                for (var j = 0; j < list[i].attr_list.length; j ++) {
+                    str += list[i].attr_list[j].attr_group_name + ":";
+                    str += list[i].attr_list[j].attr_name + " ";
+                }
+                %>
+
+                <p class="cart-item-attr"><%=str%></p>
+                <p class="cart-item-price">
+                    <span class="iconfont">&#xeb1e;</span>
+                    <span class="price"><%=list[i].price%></span>
+                </p>
+                <div class="cart-item-step">
+                    <span class="cart-step-sub">-</span>
+                    <input type="text" value="<%=list[i].num%>" class="num">
+                    <span class="cart-step-add">+</span>
+                </div>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<div class="cart-bottom clearfix">
+    <div class="cart-bottom-left f-left">
+        <a href="#" class="cart-list-checkbox checked-all"></a>
+        <span>全选</span>
+        <span class="cart-totle-price">总计: 0</span>
+    </div>
+    <div class="cart-bottom-right f-right">
+        <button class="cart-bottom-edit">编辑</button>
+        <button class="cart-bottom-accounts">结算</button>
+    </div>
+</div>

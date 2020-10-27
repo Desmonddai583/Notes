@@ -1,0 +1,35 @@
+rewrite regex replacement [flag];
+context: server, location, if
+
+// 匹配()之间的内容可以通过$1,$2...调用
+// flag类型
+//    last 停止rewrite检测,last会在rewrite之后创建一个新的request往后面的location继续去查找匹配rewrite之后的路径
+//    break 停止rewrite检测,break会在rewrite之后停留在当前location下面,不会往后面的location查找
+//    redirect 返回302临时重定向,地址栏会显示跳转后的地址
+//    permanent 返回301永久重定向,地址栏会显示跳转后的地址
+//    临时重定向的话在下一次访问还是会经过rewrite,永久的话下一次会直接跳转去跳转之后地址
+rewrite ^(.*)$ /pages/maintain/$1 break;
+
+location / {
+    // 从Chrome浏览器发来的请求就跳转
+    if ($http_user_agent ~* Chrome) {
+        rewrite ^/nginx http://desmond.com/class/121.com redirect;
+    }
+
+    // 请求的文件名不存在就跳转
+    if (!-f $request_filename) {
+        rewrite ^/(.*)$ http://www.baidu.com/$1 redirect;
+    }
+}
+
+server {
+    server_name www.nginx.org nginx.org;
+    if ($http_host = nginx.org) {
+        rewrite (.*) http://www.nginx.org$1;
+    }
+}
+
+rewrite优先级
+    1 server块的rewrite
+    2 location匹配
+    3 执行选定的location中的rewrite

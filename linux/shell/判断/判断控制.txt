@@ -1,0 +1,61 @@
+if-then
+  if command | condition
+  then
+    commands
+  elif command | condition
+  then
+    commands
+  else
+    commands
+  fi
+
+  &> /dev/null 不会改变前面命令的返回值,所以常用于判断之后将输出内容丢弃
+    if ps -ef | grep mysqld | grep -v grep &> /dev/null 
+    then
+      echo "MYSQL IS RUNNING"
+    else 
+      echo "MYSQL IS STOPPED"
+    fi
+
+复合条件测试
+  if condition (&& | ||) condition2 
+  then 
+    commands
+  fi
+
+双括号
+  使用双括号进行算数运算
+    使用双括号可以进行算数运算,可以写类C语言的运算表达式
+    a++或者b--或者a+=1或者a<b或者a!=b
+
+  if ((expression))
+  then
+    commands
+  fi
+
+  双括号结构中,变量名引用可以加$,也可以不加
+  运算符前后可以有空格,也可以没有
+  可以用于if,for,while等循环控制结构中
+  多个运算符使用逗号隔开
+
+双方括号条件测试语法
+  在单方括号中多个条件需要写成
+    if [condition1] && [condition2]
+  在双方括号中可以写成
+    if [[ condition1 && condition2 ]] 
+    而且condition中也可以直接使用运算符
+    双方括号结构中,变量名引用必须加$
+    [[后面必须有空格,]]前面也必须有空格
+
+case
+  case $var in
+    pattern1)
+      commands
+      ;;
+    pattern2)
+      commands;
+      ;;
+    *）
+      commands;
+      ;;
+  esac

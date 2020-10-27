@@ -1,0 +1,446 @@
+Ajax GET
+    创建一个异步对象
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+    设置请求方式和请求地址
+        method：请求的类型；GET 或 POST
+        url：文件在服务器上的位置
+        async：true（异步）或 false（同步）
+        xmlhttp.open("GET", "04-ajax-get.php", true);
+        注意点:
+            在IE浏览器中, 如果通过Ajax发送GET请求, 那么IE浏览器认为
+            同一个URL只有一个结果,所以IE中如果URL没有变化,是不能获取到实时的数据的
+            解决方法就是添加一些随机参数
+            xmlhttp.open("GET","05-ajax-get.txt?t="+(new Date().getTime()),true);
+    发送请求
+        xmlhttp.send();
+    监听状态的变化
+        xmlhttp.onreadystatechange = function (ev2) {
+            /*
+            0: 请求未初始化
+            1: 服务器连接已建立
+            2: 请求已接收
+            3: 请求处理中
+            4: 请求已完成，且响应已就绪
+            */
+            if(xmlhttp.readyState === 4){
+                // 判断是否请求成功
+                if(xmlhttp.status >= 200 && xmlhttp.status < 300 ||
+                    xmlhttp.status === 304){
+                    // 5.处理返回的结果
+                    console.log(xmlhttp.responseText);
+                }else{
+                    console.log("没有接收到服务器返回的数据");
+                }
+            }
+        }
+
+Ajax POST
+    var xhr;
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xhr=new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+        xhr=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    // var xhr = new XMLHttpRequest();
+    xhr.open("POST","08-ajax-post.php",true);
+    // 注意点: 以下代码必须放到open和send之间
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xhr.send("userName=zs&userPwd=321");
+    xhr.onreadystatechange = function (ev2) {
+        if(xhr.readyState === 4){
+            if(xhr.status >= 200 && xhr.status < 300 ||
+            xhr.status === 304){
+                // alert("请求成功");
+                alert(xhr.responseText);
+            }else{
+                alert("请求失败");
+            }
+        }
+    }
+
+Ajax封装get和post方法
+    function obj2str(data) {
+        /*
+        {
+            "userName":"lnj",
+            "userPwd":"123456",
+            "t":"3712i9471329876498132"
+        }
+        */
+        data = data || {}; // 如果没有传参, 为了添加随机因子,必须自己创建一个对象
+        data.t = new Date().getTime();
+        var res = [];
+        for(var key in data){
+            // 在URL中是不可以出现中文的, 如果出现了中文需要转码
+            // 可以调用encodeURIComponent方法
+            // URL中只可以出现字母/数字/下划线/ASCII码
+            res.push(encodeURIComponent(key)+"="+encodeURIComponent(data[key])); // [userName=lnj, userPwd=123456];
+        }
+        return res.join("&"); // userName=lnj&userPwd=123456
+    }
+    function ajax(option) {
+        // 0.将对象转换为字符串
+        var str = obj2str(option.data); // key=value&key=value;
+        // 1.创建一个异步对象
+        var xmlhttp, timer;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        // 2.设置请求方式和请求地址
+        /*
+        method：请求的类型；GET 或 POST
+        url：文件在服务器上的位置
+        async：true（异步）或 false（同步）
+        */
+        if(option.type.toLowerCase() === "get"){
+            xmlhttp.open(option.type, option.url+"?"+str, true);
+            // 3.发送请求
+            xmlhttp.send();
+        }else{
+            xmlhttp.open(option.type, option.url,true);
+            // 注意点: 以下代码必须放到open和send之间
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xmlhttp.send(str);
+        }
+
+        // 4.监听状态的变化
+        xmlhttp.onreadystatechange = function (ev2) {
+            /*
+            0: 请求未初始化
+            1: 服务器连接已建立
+            2: 请求已接收
+            3: 请求处理中
+            4: 请求已完成，且响应已就绪
+            */
+            if(xmlhttp.readyState === 4){
+                clearInterval(timer);
+                // 判断是否请求成功
+                if(xmlhttp.status >= 200 && xmlhttp.status < 300 ||
+                    xmlhttp.status === 304){
+                    // 5.处理返回的结果
+                    // console.log("接收到服务器返回的数据");
+                    option.success(xmlhttp);
+                }else{
+                    // console.log("没有接收到服务器返回的数据");
+                    option.error(xmlhttp);
+                }
+            }
+        }
+        // 判断外界是否传入了超时时间
+        if(option.timeout){
+            timer = setInterval(function () {
+                console.log("中断请求");
+                xmlhttp.abort();
+                clearInterval(timer);
+            }, option.timeout);
+        }
+    }
+
+    // ajax get
+    ajax({
+        url:"04-ajax-get.php",
+        data:{
+            "userName":"lnj",
+            "userPwd":"123456"
+        },
+        timeout: 3000,
+        type:"get",
+        success: function (xhr) {
+            alert(xhr.responseText);
+        },
+        error: function (xhr) {
+            alert("请求失败");
+        }
+    });
+
+    // ajax post
+    ajax({
+        url:"04-ajax-post.php",
+        data:{
+            "userName":"lnj",
+            "userPwd":"123456"
+        },
+        timeout: 3000,
+        type:"post",
+        success: function (xhr) {
+            alert(xhr.responseText);
+        },
+        error: function (xhr) {
+            alert("请求失败");
+        }
+    });
+
+jQuery封装Ajax
+    $.ajax({
+        url: "09-ajax-jquery.php",
+        type: "get",
+        data: "userName=lnj&userPwd=654321",
+        success: function(msg){
+            alert(msg );
+        },
+        error: function (xhr) {
+            alert(xhr.status);
+        }
+    });
+
+Ajax XML
+    ajax({
+        type:"get",
+        url:"11-ajax-xml.php",
+        success: function (xhr) {
+            // console.log(xhr.responseXML);
+            // console.log(document);
+            var res = xhr.responseXML;
+            console.log(res.querySelector("name").innerHTML);
+            console.log(res.querySelector("age").innerHTML);
+        },
+        error: function (xhr) {
+            console.log(xhr.status);
+        }
+    })
+
+Ajax JSON
+    ajax({
+        type:"get",
+        url:"12-ajax-json.php",
+        success: function (xhr) {
+            // console.log(xhr.responseText);
+            var str = xhr.responseText;
+            /*
+            在低版本的IE中, 不可以使用原生的JSON.parse方法, 但是可以使用json2.js这个框架来兼容
+            */
+            var obj = JSON.parse(str);
+            // console.log(obj);
+            console.log(obj.name);
+            console.log(obj.age);
+        },
+        error: function (xhr) {
+            console.log(xhr.status);
+        }
+    })
+
+Cookie
+    cookie:   会话跟踪技术 客户端
+    session:  会话跟踪技术 服务端
+
+    date.setDate(date.getDate() + 1);
+    document.cookie = "age=33;expires="+date.toGMTString()+";";
+
+    cookie作用: 将网页中的数据保存到浏览器中
+
+    cookie生命周期:
+        默认情况下生命周期是一次会话(浏览器被关闭)
+        如果通过expires=设置了过期时间, 并且过期时间没有过期, 那么下次打开浏览器还是存在
+        如果通过expires=设置了过期时间, 并且过期时间已经过期了,那么会立即删除保存的数据
+    
+    cookie注意点:
+        cookie默认不会保存任何的数据
+        cookie不能一次性保存多条数据, 要想保存多条数据,只能一条一条的设置
+        cookie有大小和个数的限制
+        个数限制: 20~50
+        大小限制: 4KB左右
+    
+    cookie作用范围:
+        同一个浏览器的同一个路径下访问
+        如果在同一个浏览器中, 默认情况下下一级路径就可以访问
+            例如:
+                保存到了www.it666.com/jQuery/Ajax/路径下,
+                我们想在 www.it666.com/jQuery/Ajax/13-weibo/,
+                和 www.it666.com/jQuery/ 路径下也能访问
+        如果在同一个浏览器中, 想让上一级目录也能访问保存的cookie, 那么需要添加一个path属性才可以;
+            document.cookie = "name=zs;path=/;";
+        如果在同一个浏览器中想让同一个domain下面都可以访问的话,可以通过添加一个domain属性设置
+            我们在www.it666.com下面保存了一个cookie,
+            那么我们在edu.it666.com中是无法访问的
+            如果想在edu.it666.com中也能访问, 那么我们需要再添加一个domain属性才可以;
+            document.cookie = "name=zs;path=/;domain=it666.com;";
+    
+    cookie封装
+        function addCookie(key, value, day, path, domain) {
+            // 1.处理默认保存的路径
+            // if(!path){
+            //     var index = window.location.pathname.lastIndexOf("/")
+            //     var currentPath = window.location.pathname.slice(0, index);
+            //     path = currentPath;
+            // }
+            var index = window.location.pathname.lastIndexOf("/")
+            var currentPath = window.location.pathname.slice(0, index);
+            path = path || currentPath;
+            // 2.处理默认保存的domain
+            domain = domain || document.domain;
+            // 3.处理默认的过期时间
+            if(!day){
+                document.cookie = key+"="+value+";path="+path+";domain="+domain+";";
+            }else{
+                var date = new Date();
+                date.setDate(date.getDate() + day);
+                document.cookie = key+"="+value+";expires="+date.toGMTString()+";path="+path+";domain="+domain+";";
+            }
+        }
+        addCookie("gender", "male");
+        addCookie("score", "998", 1, "/", "127.0.0.1");
+
+        function getCookie(key) {
+            // console.log(document.cookie);
+            var res = document.cookie.split(";");
+            // console.log(res);
+            for(var i = 0; i < res.length; i++){
+                // console.log(res[i]);
+                var temp = res[i].split("=");
+                // console.log(temp);
+                if(temp[0].trim() === key){
+                    return temp[1];
+                }
+            }
+        }
+        console.log(getCookie("name"));
+
+        // 默认情况下只能删除默认路径中保存的cookie, 如果想删除指定路径保存的cookie, 那么必须在删除的时候指定路径才可以
+        function delCookie(key, path) {
+            addCookie(key, getCookie(key), -1, path);
+        }
+        delCookie("name", "/");
+
+Hash
+    设置hash
+    window.location.hash = 3;
+    获取hash
+    console.log(window.location.hash.substring(1));
+    
+H5提供的新的存储方案
+    1 设置、读取方便、页面刷新不丢失数据
+    2 容量较大，sessionStorage约5M、localStorage约20M
+    3 只能存储字符串，可以将对象JSON.stringify()编码后存储
+
+    window.sessionStorage
+    1 生命周期为关闭浏览器窗口
+    2 在同一个窗口(页面)下数据可以共享
+    window.sessionStorage.setItem('name', 'lnj');
+    var data = window.sessionStorage.getItem('name');
+    window.sessionStorage.removeItem('name'); // 删除指定数据
+    window.sessionStorage.clear(); // 删除所有数据
+    
+    window.localStorage
+    1 永久生效，除非手动删除 关闭页面也会存在
+    2 可以多窗口（页面）共享（同一浏览器可以共享）
+    window.localStorage.setItem('name', 'lnj');
+    var data = window.localStorage.getItem('name');
+    window.localStorage.removeItem('name'); // 删除指定数据
+    window.localStorage.clear(); // 删除所有数据
+
+浏览器同源策略
+    同源策略是浏览器的一种安全策略, 
+    所谓的同源策略指的是请求的URL地址中的协议/域名和端口都相同, 
+    只要其中一个不同就是跨域
+
+    e.g.
+        http://www.it666.com:8080/index.html
+        http://www.it666.com:8080/abc.html   // 同源的
+
+        https://www.it666.com:8080/abc.html // 协议不同, 所以不同源
+
+        http://edu.it666.com:8080/index.html // 二级域名不同,  所以不同源
+        http://www.itzt.com:8080/index.html  // 一级域名不同,  所以不同源
+
+        http://www.it666.com:8090/index.html // 端口号不同, 所以不同源
+    
+    在同源策略下, 浏览器不允许Ajax获取不同源地址的数据
+    但是在企业开发中, 一般情况下为了保证访问的速度,
+    网页都会单独存储在一个服务器上, 而数据又会单独的存储在另一个服务器上
+
+    解决方案:
+        1. jsonP
+        2. window.postMessage(兼容问题)
+
+jsonP
+    由于script标签的src可以从远程服务器加载数据, 并且没有同源的限制
+        <script src="http://127.0.0.1:80/Ajax/20-jsonp.php"></script>
+    所以在企业开发中先获取不同源的数据, 都是通过script标签的src属性来获取的
+    那这种获取不同源数据的方式, 我们就称之为jsonP
+    json和jsonp的关系: 老婆和老婆饼 / 雷锋和雷峰塔
+
+    jsonP的优化
+        当前使用方式相关的问题
+            1 服务器返回的变量名称, 或者函数的名称必须和本地定义的一致才能使用
+              在企业开发中99.9%的情况都是返回一个函数, 函数中存储了需要的数据
+            2 当前的使用方式有加载顺序的限制, 必须先定义再使用, 否则会报错
+              默认情况下script标签是同步加载(前面加载完才会加载后面)
+
+        解决客户端和服务器函数名称必须一致的问题
+            客户端通过URL参数告诉服务器, 需要执行函数的名称
+            服务器动态获取客户端传递的参数, 返回该参数名称的函数调用即可
+            <script src="http://127.0.0.1:80/Ajax/20-jsonp.php?callback=abc"></script>
+
+        解决script标签先后顺序的问题
+            不要编写script标签, 通过js代码来手动创建添加script标签
+            通过手动创建的script标签会异步获取数据
+            var sEle = document.createElement("script");
+            sEle.src = "http://127.0.0.1:80/Ajax/20-jsonp.php?callback=abc";
+            document.body.appendChild(sEle);
+
+    jQuery中的jsonP
+        只要指定jQuery的Ajax方法的dataType等于jsonp, 就可以使用跨域获取数据
+        jQuery的Ajax方法会将服务器存储到返回函数中的数据提取出来返回给我们
+            jQuery在发送请求的时候通过URL的参数已经告诉服务器回调函数的名称了
+            这个名称是jQuery随机生成的一个名称, 通过callback=jQuery233217392718
+            如果不想使用jQuery随机生成的函数名称, 可以自定义
+
+        $.ajax({
+            url: "http://127.0.0.1:80/Ajax/20-jsonp.php",
+            type: "get",
+            dataType: "jsonp", // 告诉jQuery以jsonp形式来请求数据
+            jsonp: "callback", // 指定服务器提取函数名称的key
+            jsonpCallback: "lnj", // 指定回调函数的名称
+            success: function(msg){
+                console.log(msg);
+            },
+            error: function (xhr) {
+                alert(xhr.status);
+            }
+        });
+
+JS模板引擎
+    在企业开发中经常都会遇到很多小盒子的长相一样,内容不一样.
+    那么这个时候就可以使用JS模板引擎来简化代码
+
+    使用步骤:
+        1 引入模板引擎
+        2 从服务器获取数据
+        3 编写模板相关的代码
+    注意点: 模板相关的代码必须放到获取数据之前
+
+    <script src="js/template-web.js"></script>
+    <script id="nj" type="text/html">
+        <!--
+        <%=对象中的key%>
+        以上代码的含义: 根据指定的key获取传递过来对象中的数据
+        -->
+        <h1><%=title%></h1>
+        <ul>
+            <% for( var i = 0, len = list.length; i < len; i++){ %>
+                <li><%=list[i]%></li>
+            <% } %>
+        </ul>
+    </script>
+
+    var data = {
+        title: "王者荣耀",
+        list: ['荆轲', '兰陵王', '孙悟空', '鲁班', '孙尚香', '百日守约']
+    };
+    var html = template('nj', data);

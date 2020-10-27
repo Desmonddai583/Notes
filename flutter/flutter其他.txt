@@ -1,0 +1,18 @@
+JSON
+  JSON资源读取
+    可以使用package:flutter/services.dart包中的rootBundle
+    在rootBundle中有一个loadString方法，可以去加载JSON资源
+    这个操作是一个异步的
+    import'package:flutter/services.dart' show rootBundle;
+    // 打印读取的结果是一个字符串
+    rootBundle.loadString("assets/yz.json").then((value) => print(value));
+  
+  JSON字符串转化
+    可以通过dart:convert包中的json.decode方法将其进行转化
+    // 1.读取json文件
+    String jsonString = await rootBundle.loadString("assets/yz.json");
+    // 2.转成List或Map类型
+    final jsonResult = json.decode(jsonString);
+
+
+

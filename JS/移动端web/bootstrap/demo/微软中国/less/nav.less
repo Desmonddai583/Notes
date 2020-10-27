@@ -1,0 +1,59 @@
+.navbar{
+  //padding: 0 5%;
+  height: 49px;
+  line-height: 49px;
+  margin-bottom: 0;
+  .navbar-brand{
+    padding-top: 10px;
+    img{
+      width: 137px;
+    }
+  }
+  .navbar-search, .navbar-shop, .navbar-login{
+    display: none;
+  }
+  // PC端导航布局
+  .navbar-nav{
+    a{
+      padding-left: 9px;
+      padding-right: 9px;
+    }
+    .dropdown-menu{
+      background: #f2f2f2;
+      dt{
+        margin-top: 20px;
+      }
+      .btn-link{
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .btn-more{
+        background: #e6e6e6;
+      }
+    }
+  }
+  // 移动端导航布局
+  .navbar-header{
+    .navbar-toggle{
+      float: left;
+      border-width: 0;
+    }
+  }
+  @media screen and (max-width: 859px){
+    padding: 0 0;
+    .navbar-brand{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+    .navbar-search, .navbar-shop, .navbar-login{
+      display: inline-block;
+      margin-right: 15px;
+      font-size: 16px;
+      span{
+        font-size: 25px;
+      }
+    }
+  }
+}

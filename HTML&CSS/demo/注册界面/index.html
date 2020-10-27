@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录 - Originoo锐景创意 - 全国领先的正版图片库</title>
+    <style>
+        /* 1. 清空所有元素默认的边距 */
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        /* 2.设置html标签和body标签的宽度和高度*/
+        html,body{
+            width: 100%;
+            height: 100%;
+        }
+        /*顶部的区域*/
+        .header{
+            width: 100%;
+            height: 65px;
+            line-height: 65px;
+            background: #333;
+            padding: 0 50px;
+            box-sizing: border-box;
+        }
+        /*设置全局a标签的样式*/
+        a{
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+        }
+        /*顶部的左边*/
+        .header .header-left{
+            float: left;
+            width: 40%;
+            height: 100%;
+        }
+        /*顶部LOGO*/
+        .header .header-left h1{
+            float: left;
+            width: 125px;
+            height: 28px;
+        }
+        .header .header-left h1 a{
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            /*background: url("images/logo.png") no-repeat;*/
+            /*background-size: 125px 28px;*/
+        }
+        .header .header-left h1 a img{
+            width: 100%;
+            height: 100%;
+        }
+        /*顶部导航条*/
+        .header .header-left .header-nav{
+            float: right;
+            list-style: none;
+            margin-right: 50px;
+        }
+        .header .header-left .header-nav li{
+            float: left;
+            padding: 0 20px;
+        }
+        .header .header-left .header-nav li a{
+            display: inline-block;
+            line-height: 65px;
+        }
+        /*顶部的右边*/
+        .header .header-right{
+            float: right;
+            width: 50%;
+            height: 100%;
+        }
+        /*顶部的搜索框*/
+        .header .header-right .header-search{
+            float: left;
+            width: 600px;
+            height: 40px;
+            line-height: 40px;
+            margin-top: 12px;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .header .header-right .header-search span{
+            float: left;
+            padding: 0 10px;
+            color: #f89300;
+        }
+        .header .header-right .header-search input{
+            float: left;
+            width: 50%;
+            height: 40px;
+            border-style: none;
+            outline: none;
+        }
+        .header .header-right .header-search div{
+            float: right;
+            height: 100%;
+            /*添加小手指*/
+            cursor: pointer;
+        }
+        .header .header-right .header-search .search-camera{
+            width: 8%;
+            background:url("images/camera.png") no-repeat center center;
+        }
+        .header .header-right .header-search .search-icon{
+            width: 8%;
+            background:#F39800 url("images/search.png") no-repeat center center;
+        }
+        /*顶部的登录*/
+        .header .header-right .header-login{
+            float: right;
+            width: 150px;
+            height: 65px;
+            list-style: none;
+        }
+        .header .header-right .header-login li{
+            float: left;
+            width: 60px;
+            height: 65px;
+            line-height: 65px;
+        }
+        .header .header-right .header-login li:nth-child(2) a{
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background: #f39800;
+            border-radius: 5px;
+        }
+
+        /*内容区域*/
+        .main{
+            width: 100%;
+            height: 800px;
+            background: url("images/bg.jpg") no-repeat;
+            overflow: hidden;
+        }
+        .main .main-container{
+            width: 820px;
+            height: 600px;
+            margin: 100px auto 0 auto;
+            background: deepskyblue;
+        }
+        .main .main-container .main-left{
+            float: left;
+            width: 370px;
+            height: 100%;
+            background: url("images/main-left.jpg") no-repeat;
+        }
+        .main .main-container .main-right{
+            float: right;
+            width: 450px;
+            height: 100%;
+            padding: 0 30px;
+            box-sizing: border-box;
+            text-align: center;
+            background: #fff;
+        }
+        /*从上至下的布局表单界面*/
+        .main .main-container .main-right h2{
+            font-size: 24px;
+            color: #eb6e2e;
+            font-weight: normal;
+            line-height: 100px;
+        }
+        .main .main-container .main-right div{
+            width: 100%;
+            height: 44px;
+            line-height: 44px;
+            margin-top: 35px;
+        }
+        .main .main-container .main-right input{
+            width: 100%;
+            height: 100%;
+            border-style: none;
+            outline: none;
+            border-bottom: 1px solid #ccc;
+        }
+        /*对特殊放的特殊处理*/
+        .main .main-container .main-right div:nth-child(2) input{
+            float: left;
+            width: 60%;
+        }
+        .main .main-container .main-right div:nth-child(2) img{
+            float: right;
+        }
+        .main .main-container .main-right div:nth-child(3) input{
+            float: left;
+            width: 60%;
+        }
+        .main .main-container .main-right div:nth-child(3) span{
+            float: right;
+            width: 135px;
+            height: 44px;
+            line-height: 44px;
+            text-align: center;
+            font-size: 18px;
+            color: #fff;
+            border-radius: 5px;
+            background: #F39801;
+        }
+        .main .main-container .main-right input[type=submit]{
+            font-size: 18px;
+            color: #fff;
+            line-height: 40px;
+            text-align: center;
+            background: #F39801;
+        }
+        /*表单底部处理*/
+        .main .main-container .main-right p{
+            margin-top: 50px;
+            color: #333;
+        }
+        .main .main-container .main-right p a{
+            color: #F39801;
+        }
+
+        .footer{
+            width: 100%;
+            height: 400px;
+            background: #333;
+        }
+        .footer .footer-top{
+            width: 100%;
+            height: 300px;
+            background: #666;
+            overflow: hidden;
+        }
+        .footer .footer-top .footer-link{
+            width: 1200px;
+            height: 40px;
+            margin: 20px auto 20px auto;
+            border-top: 1px solid #999;
+            border-bottom: 1px solid #999;
+        }
+        .footer .footer-top .footer-link li{
+            list-style: none;
+            float: left;
+            line-height: 40px;
+            margin-right: 30px;
+            color: #ccc;
+            font-size: 14px;
+        }
+        .footer .footer-top .footer-link li a{
+            color: #ccc;
+            font-size: 14px;
+        }
+        .footer .footer-top .footer-about{
+            width: 1200px;
+            height: 320px;
+            margin: 0 auto;
+            /*background: skyblue;*/
+        }
+        .footer .footer-top .footer-about div{
+            float: left;
+        }
+        /*最左边的列表*/
+        .footer .footer-top .footer-about .footer-about-one dl{
+            float: left;
+            margin-right: 150px;
+        }
+        .footer .footer-top .footer-about .footer-about-one dt{
+            line-height: 40px;
+            font-size: 14px;
+            color: #F2F2F2;
+        }
+        .footer .footer-top .footer-about .footer-about-one dd{
+            line-height: 30px;
+            font-size: 14px;
+            color: #F2F2F2;
+        }
+        /*中间的联系方式*/
+        .footer .footer-top .footer-about .footer-about-two p{
+            font-size: 14px;
+            line-height: 40px;
+            color: #F2F2F2;
+        }
+        .footer .footer-top .footer-about .footer-about-two p:nth-child(2){
+            font-size: 30px;
+            font-weight: bold;
+            line-height: 40px;
+            color: #f39800;
+        }
+        .footer .footer-top .footer-about .footer-about-two p:nth-child(3){
+            width: 165px;
+            height: 42px;
+            line-height: 42px;
+            font-size: 18px;
+            color: #fff;
+            text-align: center;
+            background: #f39800;
+        }
+        /*右边的二维码*/
+        .footer .footer-top .footer-about  .footer-about-three{
+            float: right;
+        }
+        .footer .footer-top .footer-about  .footer-about-three p{
+            width: 120px;
+            line-height: 40px;
+            color: #F2F2F2;
+            text-align: center;
+        }
+
+        /*最底部区域*/
+        .footer .footer-bottom{
+            width: 100%;
+            height: 100px;
+            background: #333;
+        }
+        .footer .footer-bottom p{
+            width: 1200px;
+            line-height: 40px;
+            margin: 0 auto;
+            font-size: 13px;
+            color: #a1a1a1;
+        }
+        .footer .footer-bottom p:nth-child(1) a{
+            display: inline-block;
+            font-size: 13px;
+            color: #000;
+            margin-right: 30px;
+        }
+        .footer .footer-bottom p:nth-child(2) a{
+            font-size: 13px;
+            color: #a1a1a1;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-left">
+        <h1><a href="#">
+            <img src="images/logo.png" alt="">
+        </a></h1>
+        <ul class="header-nav">
+            <li><a href="#">免费</a></li>
+            <li><a href="#">素材</a></li>
+            <li><a href="#">云摄影 </a></li>
+            <li><a href="#">企业版</a></li>
+            <li><a href="#">价格</a></li>
+            <li><a href="#">供图</a></li>
+        </ul>
+    </div>
+    <div class="header-right">
+        <div class="header-search">
+            <span>|</span>
+            <input type="text" placeholder="输入中英文的关键字">
+            <div class="search-icon"></div>
+            <div class="search-camera"></div>
+            <div class="search-pic">全部图片</div>
+        </div>
+        <ul class="header-login">
+            <li><a href="#">登录</a></li>
+            <li><a href="#">注册</a></li>
+        </ul>
+    </div>
+</div>
+<div class="main">
+    <div class="main-container">
+        <div class="main-left"></div>
+        <div class="main-right">
+            <h2>新会员注册</h2>
+            <form>
+                <div><input type="text" placeholder="手机号"></div>
+                <div>
+                    <input type="text" placeholder="请输入右面图片中的验证码">
+                    <img src="images/code.jpg" alt="">
+                </div>
+                <div>
+                    <input type="text" placeholder="验证码">
+                    <span>获取验证码</span>
+                </div>
+                <div><input type="text" placeholder="密码 6~16位数字、字母组合, 区分大小写"></div>
+                <div><input type="submit" value="注册"></div>
+            </form>
+            <p>已是锐景创意会员？<a href="#">登录</a></p>
+        </div>
+    </div>
+</div>
+<div class="footer">
+    <div class="footer-top">
+        <div class="footer-link">
+            <ul>
+                <li>友情链接：</li>
+                <li><a href="#">平面设计</a></li>
+                <li><a href="#">优阁网</a></li>
+                <li><a href="#">秀设计</a></li>
+                <li><a href="#">模库网</a></li>
+                <li><a href="#">海报设计</a></li>
+                <li><a href="#">导视方案下载</a></li>
+                <li><a href="#">设计干货</a></li>
+                <li><a href="#">乐贝网</a></li>
+                <li><a href="#">更多>></a></li>
+            </ul>
+        </div>
+        <div class="footer-about">
+            <div class="footer-about-one">
+                <dl>
+                    <dt>我们的产品</dt>
+                    <dd>照片</dd>
+                    <dd>矢量</dd>
+                    <dd>视频</dd>
+                </dl>
+                <dl>
+                    <dt>我们的产品</dt>
+                    <dd>照片</dd>
+                    <dd>矢量</dd>
+                    <dd>视频</dd>
+                </dl>
+                <dl>
+                    <dt>我们的产品</dt>
+                    <dd>照片</dd>
+                    <dd>矢量</dd>
+                    <dd>视频</dd>
+                </dl>
+            </div>
+            <div class="footer-about-two">
+                <p>联系方式</p>
+                <p>4000-365-890</p>
+                <p>联系客服</p>
+                <p>工作时间：</p>
+                <p>周一~周五 9:00 - 18:00</p>
+            </div>
+            <div class="footer-about-three">
+                <p>锐景创意公众号</p>
+                <img src="images/qrcode.jpg" alt="">
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>
+            <a href="#">微博</a>
+            <a href="#">花瓣</a>
+            <a href="#">Instagram</a>
+        </p>
+        <p>
+            苏州原本图像科技有限公司  Copyright©2016 - 2018   All rights reserved.|<a href="#">备案号：苏ICP备14011639号</a>|增值业务经营许可证：苏B2-20180385
+        </p>
+    </div>
+</div>
+</body>
+</html>

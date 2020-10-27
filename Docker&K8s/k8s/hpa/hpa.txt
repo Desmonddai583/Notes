@@ -1,0 +1,17 @@
+HPA在kubernetes集群中被设计成一个controller，我们可以简单的通过kubectl autoscale命令来创建一个HPA资源对象，
+HPA Controller默认30s轮询一次(可通过kube-controller-manager的标志--horizontal-pod-autoscaler-sync-period进行设置)，
+查询指定的资源(RC或者Deployment)中Pod的资源使用率，并且与创建时设定的值和指标做对比，从而实现自动伸缩的功能。
+
+当创建了HPA后，HPA会从Heapster或者用户自定义的RESTClient端获取每一个一个Pod利用率或原始值的平均值，
+然后和HPA中定义的指标进行对比，同时计算出需要伸缩的具体值并进行相应的操作。
+目前，HPA可以从两个地方获取数据：
+  1. Heapster：仅支持CPU使用率
+  2. 自定义监控：我们到后面的监控的课程中再给大家讲解这部分的使用方法
+
+如果使用的是heapster的話，記得去/etc/kubernetes/manifests文件夾下的controller-manager.yaml文件中配置
+--horizontal-pod-autoscaler-use-rest-clients=false
+
+# 下面這條命令创建了一个关联资源的HPA，最小的pod副本数为1，最大为10。
+# HPA会根据设定的cpu使用率(10%)动态的增加或者减少pod数量
+kubectl autoscale deployment <deployment-name> --cpu-percent=10 --min=1 --max=10
+kubectl get hpa // 獲取hpa對象

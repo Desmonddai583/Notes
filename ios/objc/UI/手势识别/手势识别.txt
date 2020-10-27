@@ -1,0 +1,94 @@
+如果想监听一个view上面的触摸事件，之前的做法是
+自定义一个view
+实现view的touches方法，在方法内部实现具体处理代码
+
+通过touches方法监听view触摸事件，有很明显的几个缺点
+  必须得自定义view
+  由于是在view内部的touches方法中监听触摸事件，因此默认情况下，无法让其他外界对象监听view的触摸事件
+  不容易区分用户的具体手势行为
+
+iOS 3.2之后，苹果推出了手势识别功能（Gesture Recognizer），在触摸事件处理方面，大大简化了开发者的开发难度
+
+UIGestureRecognizer是一个抽象类，定义了所有手势的基本行为，使用它的子类才能处理具体的手势
+  UITapGestureRecognizer(敲击)
+  UIPinchGestureRecognizer(捏合，用于缩放)
+  UIPanGestureRecognizer(拖拽)
+  UISwipeGestureRecognizer(轻扫)
+  UIRotationGestureRecognizer(旋转)
+  UILongPressGestureRecognizer(长按)
+
+使用步骤
+  创建手势识别器对象
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    设置手势识别器对象的具体属性
+    // 连续敲击2次
+    tap.numberOfTapsRequired = 2;
+    // 需要2根手指一起敲击
+    tap.numberOfTouchesRequired = 2;
+  添加手势识别器到对应的view上
+    [self.iconView addGestureRecognizer:tap];
+  监听手势的触发
+    [tap addTarget:self action:@selector(tapIconView:)];
+
+手势识别的状态(UIGestureRecognizerState)
+  // 没有触摸事件发生，所有手势识别的默认状态
+  UIGestureRecognizerStatePossible,
+  // 一个手势已经开始但尚未改变或者完成时
+  UIGestureRecognizerStateBegan,
+  // 手势状态改变
+  UIGestureRecognizerStateChanged,
+  // 手势完成
+  UIGestureRecognizerStateEnded,
+  // 手势取消，恢复至Possible状态
+  UIGestureRecognizerStateCancelled, 
+  // 手势失败，恢复至Possible状态
+  UIGestureRecognizerStateFailed,
+  // 识别到手势识别
+  UIGestureRecognizerStateRecognized = UIGestureRecognizerStateEnded
+
+代理⽅法
+  ⼿势也可以设置代理 
+    tap.delegate = self;
+  
+  是否允许接收⼿指 
+  -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+  是否允许同时支持多个手势(比如同时间缩放和旋转)
+  -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+
+⻓按⼿势
+  UILongPressGestureRecognizer *longP = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longP:)]; 
+  [self.imageV addGestureRecognizer:longP];
+  // 这个⽅法会调⽤很多次, 当⼿指⻓按在上⾯不松,来回移动时,会持续调⽤. 所以要判断它的状态
+  - (void)longP:(UILongPressGestureRecognizer *)longP{
+    if (longP.state == UIGestureRecognizerStateBegan) { 
+      NSLog(@"开始⻓按"); 
+    } else if (longP.state == UIGestureRecognizerStateChanged) {
+      NSLog(@"⻓按时⼿指移动"); 
+    } else if (longP.state == UIGestureRecognizerStateEnded) {
+      NSLog(@"⼿指离开屏幕"); 
+    }
+  }
+
+轻扫⼿势
+  轻扫⼿势默认是向右边称轻扫 
+  可以设置轻扫的方向
+    swipe.direction = UISwipeGestureRecognizerDirectionLeft;
+  ⼀个轻扫⼿势只能设置⼀个⽅法的轻扫.想要让它有多个⽅向的⼿势,必须得要设置多个轻扫⼿势对象
+
+拖动⼿势
+  这里的translation是相对于最原始的点
+  CGPoint transP = [pan translationInView:self.imageV];
+  所以需要复位,让它相对于上⼀次
+  [pan setTranslation:CGPointZero inView:self.imageV];
+
+捏合⼿势
+  这里的scale是相对于最原始的点
+  pin.scale
+  所以需要复位,让它相对于上⼀次
+  [pin setScale:1];
+
+旋转⼿势
+  这里的rotation是相对于最原始的点
+  rotation.rotation
+  所以需要复位,让它相对于上⼀次
+  [rotation setRotation:0];

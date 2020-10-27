@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-滑动侧边栏</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+        }
+        html,body{
+            width: 100%;
+            height: 100%;
+        }
+        #wrapper{
+            width: 85px;
+            height: 100%;
+            border: 1px solid #000;
+            position: relative;
+        }
+        #wrapper ul{
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+        #wrapper ul>li{
+            list-style: none;
+            width: 100%;
+            height: 45px;
+            line-height: 45px;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <ul>
+        <li>热门推荐</li>
+        <li>指趣学院</li>
+        <li>手机数码</li>
+        <li>家用电脑</li>
+        <li>电脑办公</li>
+        <li>计生情趣</li>
+        <li>美妆护肤</li>
+        <li>个护清洁</li>
+        <li>汽车用品</li>
+        <li>京东超市</li>
+        <li>男装</li>
+        <li>男鞋</li>
+        <li>女装</li>
+        <li>女鞋</li>
+        <li>母婴童装</li>
+        <li>图书音像</li>
+        <li>运动户外</li>
+        <li>内衣配饰</li>
+        <li>食品生鲜</li>
+        <li>酒水饮料</li>
+        <li>家具家装</li>
+        <li>箱包手袋</li>
+        <li>钟表珠宝</li>
+        <li>玩具乐器</li>
+        <li>医疗保健</li>
+        <li>宠物生活</li>
+        <li>礼品鲜花</li>
+        <li>生活旅行</li>
+        <li>奢侈品</li>
+        <li>艺术邮币</li>
+        <li>二手商品</li>
+
+    </ul>
+</div>
+<script>
+    // 1.找到需要操作的元素
+    var oBox = document.querySelector("#wrapper");
+    var oUl = document.querySelector("ul");
+    // 定义变量记录往下拖和往上拖最大能够拖动的固定距离
+    var offsetMax = 0;
+    var offsetMin = -(oUl.offsetHeight - oBox.offsetHeight);
+    // 定义变量记录往下拖和往上拖最大能够拖动的动态距离
+    var bounceMax = offsetMax + 100;
+    var bounceMin = offsetMin - 100;
+
+    var startY, moveY, offsetY, currentY = 0;
+    // 2.监听盒子手指按下事件
+    oBox.addEventListener("touchstart", function (event) {
+        // 记录手指按下的位置
+        startY = event.targetTouches[0].clientY;
+    });
+    // 3.监听盒子手指移动事件
+    oBox.addEventListener("touchmove", function () {
+        // 记录手指移动的位置
+        moveY = event.targetTouches[0].clientY;
+        // 计算移动的偏移位
+        offsetY = moveY - startY;
+        // 做安全校验
+        if(currentY + offsetY > bounceMax ||
+            (currentY + offsetY) < bounceMin){
+            return;
+        }
+        // 让ul移动起来
+        // oUl.style.top = offsetY + "px";
+        oUl.style.top = currentY + offsetY + "px";
+    });
+    // 4.监听盒子手指抬起事件
+    oBox.addEventListener("touchend", function () {
+        /*
+        第一次移动出去了100, current = 100
+        第二次移动出去了50, 所以移动的距离就是 100 + 50 = 150  current = 50
+         */
+        // 记录这一次移动的距离
+        // currentY = offsetY;
+        currentY += offsetY;
+        // 判断有没有超出范围, 如果超出了范围需要归为
+        if(currentY > 0){
+            oUl.style.top = offsetMax + "px";
+            currentY = offsetMax;
+        }else if(currentY < offsetMin){
+            oUl.style.top = offsetMin + "px";
+            currentY = offsetMin;
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+从StoryBoard加载
+  1.创建窗⼝ 
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  2.加载控制器 
+    UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil]; 
+    // 加载箭头指向的控制器 
+    UIViewController *vc = [storyBoard instantiateInitialViewController];
+  3.设置窗⼝根控制器 
+    self.window.rootViewController = vc;
+  4.显⽰窗⼝ 
+    [self.window makeKeyAndVisible];
+
+  如果要加载指定的控制器而非箭头所指可以调用(需要在对应的控制器中设置Storyboard ID)
+    UIViewController *vc = [storyBoard instantiateViewControllerWithIdentiﬁer:@"VCStoryBoardID"];
+
+从Xib加载控制器
+  1.创建窗⼝ 
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  2.设置窗⼝根控制器
+    MyViewController *vc = [[MyViewController alloc] initWithNibName:@"VC" bundle:nil]; 
+    self.window.rootViewController = vc;
+  3.显⽰窗⼝ 
+    [self.window makeKeyAndVisible];
+
+  initWithNibName:如果指定了名称,那么它就会去加载指定名称的Xib
+  如果没有指定名称.指定为nil,那么它就会去先加载跟它相同名称的Xib
+  如果没有跟它相同名称的Xib,那么它就会再去加载跟它相同名称去掉Controller的名字的Xib
+
+  控制器的init⽅法会调⽤initWithNibName:⽅法.
+    MyViewController *vc = [[MyViewController alloc] init];
+
+loadview
+  loadView作用,用来创建控制器的View.
+  什么时候调用:当控制器的View第一次使用的时候调用(懒加载)
+  loadView调用完之后就会接着调用viewDidLoad
+
+  loadView底层原理:
+  1.先判断当前控制器是不是从storyBoard当中加载的,如果是从storyBoard加载的控制器.那么它就会从storyBoard当中加载的控制器的View,设置当前控制器的view.
+  2.当前控制器是不是从xib当中加载的,如果是从xib当中加载的话,把xib当中指定的View,设置为当前控制器的View.
+  3.如果也不是从xib加载的,它会创建空白的view.
+
+  一但重写了loadView方法,就说明要自己定义View.
+  一般使用的场景:当控制器的View一显示时,就是一张图片,或者UIWebView.节省内存
+
+开始创建的控制器的颜色是透明的,并不是控件是透明的,如果是空间本身透明,它是不能够接收事件的

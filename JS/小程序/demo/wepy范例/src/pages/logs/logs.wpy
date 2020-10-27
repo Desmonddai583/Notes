@@ -1,0 +1,63 @@
+<style lang="less" type="text/less" scoped>
+
+</style>
+
+<template>
+  <view>我是第二个界面</view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class Logs extends wepy.page {
+        config = {};
+      onLoad(options) {
+        // 页面加载时触发。一个页面只会调用一次
+        console.log("two onLoad");
+      }
+      onReady() {
+        // 页面初次渲染完成时触发。一个页面只会调用一次，代表页面已经准备妥当，可以和视图层进行交互
+        console.log("two onReady");
+        // console.log(this.route);
+      }
+      onShow() {
+        // 页面显示/切入前台时触发
+        console.log("two onShow");
+      }
+      onHide() {
+        // 页面隐藏/切入后台时触发
+        console.log("two onHide");
+      }
+      onPullDownRefresh() {
+        // 监听用户下拉刷新事件
+        console.log("two onPullDownRefresh");
+      }
+      onPageScroll() {
+        // 监听用户滑动页面事件
+        console.log("onPageScroll");
+      }
+      onReachBottom() {
+        // 监听用户上拉触底事件
+        console.log("two onReachBottom");
+      }
+      onShareAppMessage(res) {
+        // 监听用户点击页面内转发按钮（<button> 组件 open-type="share"）或右上角菜单“转发”按钮的行为，并自定义转发内容。
+        console.log("two onShareAppMessage");
+        if (res.from === 'button') {
+          // 来自页面内转发按钮
+          console.log(res.target)
+        }
+        return {
+          title: '自定义转发标题',
+        }
+      }
+      onUnload() {
+        // 页面卸载时触发
+        console.log("two onUnload");
+      }
+      onResize() {
+        // 小程序屏幕旋转时触发
+        console.log("onResize");
+      }
+    }
+</script>

@@ -1,0 +1,225 @@
+只要创建一个对象默认引用计数器的值就是1
+只要给对象发送一个retain消息, 对象的引用计数器就会+1
+只要对象接收到release消息, 引用计数器就会-1
+只要对象接收到retainCount消息, 就会返回当前的引用计数
+只要一个对象的引用计数器为0, 系统就会释放对象
+注意: release并不代表销毁\回收对象, 仅仅是计数器-1
+
+ARC: Automatic(自动) Reference(引用) Counting(计数)
+什么是自动引用计数? 
+不需要程序员管理内容, 编译器会在适当的地方自动给我们添加release/retain等代码
+注意点: OC中的ARC和java中的垃圾回收机制不太一样, java中的垃圾回收是系统干的, 而OC中的ARC是编译器干的
+
+MRC: Manul(手动) Reference(引用) Counting(计数)
+什么是手动引用计数?
+所有对象的内容都需要我们手动管理, 需要程序员自己编写release/retain等代码
+
+内存管理的原则就是有加就有减
+也就是说, 一次alloc对应一次release, 一次retain对应一次relese
+
+类定义dealloc,当对象释放时会执行
+- (void)dealloc
+{
+    // 等同于NSLog(@"Person dealloc");
+    NSLog(@"%s", __func__);
+    // 注意:super dealloc一定要写到所有代码的最后
+    // 一定要写在dealloc方法的最后面
+    [super dealloc];
+}
+
+野指针&空指针
+  只要一个对象被释放了, 我们就称这个对象为 "僵尸对象"
+  当一个指针指向一个僵尸对象, 我们就称这个指针为野指针
+  只要给一个野指针发送消息就会报错
+
+  空指针  nil  0
+  为了避免给野指针发送消息会报错, 一般情况下, 当一个对象被释放后我们会将这个对象的指针设置为空指针
+  因为在OC中给空指针发送消息是不会报错的
+
+多个对象的内存管理
+  当A对象想使用B对象一定要对B对象进行一次retain, 这样才能保证A对象存在B对象就存在, 也就是说这样才能保证无论在什么时候在A对象中都可以使用B对象
+  当A对象释放的时候, 一定要对B对象进行一次release, 这样才能保证A对象释放了, B对象也会随之释放, 避免内存泄露
+  总结一句话: 有增就有减
+
+  Set方法的内存管理
+    - (void)setRoom:(Room *)room // room = r
+    {
+        // 只有房间不同才需用release和retain
+        if (_room != room) {// 0ffe1 != 0ffe1
+            
+            // 将以前的房间释放掉 -1
+            [_room release];
+            
+            // retain不仅仅会对引用计数器+1, 而且还会返回当前对象
+            _room = [room retain];
+        }
+    }
+
+    - (void)dealloc
+    {
+        // 人释放了, 那么房间也需要释放
+        [_room release];
+        NSLog(@"%s", __func__);
+        [super dealloc];
+    }
+
+  property修饰符
+    retain: 就会自动帮我们生成getter/setter方法内存管理的代码
+    assign: 不会帮我们生成set方法内存管理的代码, 仅仅只会生成普通的getter/setter方法,默认什么都不写就是assign
+
+    OC本身的对象类型使用assign即可,因为是放在栈中(int, struct, bool等)
+    非OC本身的对象类型就是用retain(NSString,自定义的类型等)
+    
+    多线程
+    atomic ：性能低（默认）
+    nonatomic ：性能高
+    在iOS开发中99.99%都是写nonatomic
+
+    相同类型的property修饰符不能同时使用
+    不同类型的property修饰符可以多个结合在一起使用, 多个之间用,号隔开
+    iOS开发中只要写上property, 那么就立刻写上nonatomic
+
+  dealloc最简洁的写法
+    - (void)dealloc
+    {
+      // 下面这句话相当于调用了set方法
+      // 先release旧值, 然后再将新值赋值给属性
+      self.text = nil;
+      self.picture = nil;
+      self.author = nil;
+      self.repostStatus = nil;
+    }
+  
+  循环retain
+    如果A对用要拥有B对象, 而B对应又要拥有A对象, 此时会形成循环retain
+    如何解决这个问题: 不要让A retain B, B retain A
+    让其中一方不要做retain操作即可
+
+autorelease
+  不用关心对象什么时候释放, 只要能够访问p的地方都可以使用p
+  自动释放池本质就只是将release延迟了而已
+  @autoreleasepool { // 创建一个自动释放池
+    Person *p = [[Person alloc] init]; // 1 
+    p = [p autorelease]; // 只要调用了autorelease,就会将对象置入自动释放池中,那么就不用调用release了
+      
+    [p run];
+  } // 自动释放池销毁了, 给自动释放池中所有的对象发送一条release消息
+
+  autorelease其它写法
+    @autoreleasepool {
+        Person *p  = [[[Person alloc] init] autorelease];
+        [p run];
+    }
+  
+  autorelease注意事项
+    1.一定要在自动释放池中调用autorelease, 才会将对象放入自动释放池中
+    2.在自动释放池中创建了对象, 一定要调用autorelease,才会将对象放入自动释放池中
+    3.只要在自动释放池中调用autorelease, 就会将对象放入自动释放池
+    4.不要再自动释放池中使用比较消耗内存的对象, 占用内存比较大的对象
+      @autoreleasepool {
+          Person *p = [[[Person alloc] init] autorelease];
+          
+          // 假如p对象只在100行的地方使用, 以后都不用了
+          
+          // 一万行代码
+      }
+    5.尽量不要再自动释放池中使用循环, 特别是循环的次数非常多, 并且还非常占用内存
+      @autoreleasepool {
+          for (int i = 0; i < 99999; ++i) {
+              // 每调用一次都会创建一个新的对象
+              // 每个对象都会占用一块存储空间
+              Person *p = [[[Person alloc] init] autorelease];
+          }
+      } 
+      可以使用
+      for (int i = 0; i < 99999; ++i) {
+          @autoreleasepool {
+              Person *p = [[[Person alloc] init] autorelease];
+          } // 执行到这一行, 自动释放池就释放了
+      }
+    6.一个程序中可以创建N个自动释放池, 并且自动释放池还可以嵌套
+      如果存在多个自动释放池的时候, 自动释放池是以 "栈" 的形式存储的
+    7.千万不要写多次autorelease,一个alloc, new对应一个autorelease
+      如果写了autorelease就不要写release
+      总之记住: 一个alloc/new对应一个autorelease或者release
+
+  auatorelease应用场景
+    + (instancetype)personWithAge:(int)age
+    {
+        return [[[self alloc] initWithAge:age] autorelease];
+    }
+
+    @autoreleasepool {
+      Person *p = [Person personWithAge:10];
+    }
+
+    Foundation框架的类, 但凡是通过类工厂方法创建的对象都是autorelease的
+
+ARC 
+  ARC的判断准则: 只要没有强指针指向对象, 对象就会释放
+  默认情况下所有的指针都是强指针
+    __strong Person *p = [[Person alloc] init];
+
+  在开发中, 千万不要使用一个弱指针保存一个刚刚创建的对象,因为对象会立即释放
+    __weak Person *p2 = p;
+  
+  单个内存管理 
+    Person *p = [[Person alloc] init];
+    // 不想要对象时直接将栈中指针赋值为空指针即可
+    p = nil;
+  
+  多个内存管理
+    MRC, A对象想拥有B对象, 需要对B对象进行一次retain
+        A对象不用B对象了, 需要对B对象进行一次release
+        property的时候进行retain, dealloc的时候进行release
+
+    ARC, A对象想拥有B对象, 那么就需要用一个强指针指向B对象
+        A对象不用B对象了, 什么都不需要做, 编译器会自动帮我们做
+
+    // 在ARC中保存一个对象用strong, 相当于MRC中的retain
+    @property(nonatomic, strong)Dog *dog;
+  
+    ARC中循环引用的问题同MRC一样, 让其中一方不要是strong即可
+    在ARC中如果保存对象不要用assign, 用weak
+    assign是专门用于保存基本数据类型的, 如果保存对象用weak
+    @property(nonatomic, weak)Person *owner;
+
+    weak,assgin本质区别
+      weak:__weak 弱指针,不会让引用计数器+1,如果指向对象被销毁,指针会自动清空
+      assgin:__unsafe_unretained修饰,不会让引用计数器+1,如果指向对象被销毁,指针不会清空
+      所以使用weak即便对象销毁了,调用对象方法也不会产生bad access,但是assign就会
+
+集合对象的内存管理
+  MRC下才需要考虑
+  如果将一个对象添加到一个数组中, 那么数组会对对象进行一个retain
+  当数组对象释放之后, 会给数组中所有的对象发送一条release消息
+  当数组移除一个对象之后, 会给这个对象发送一条release消息
+
+// 如何判断当前是ARC还是MRC?
+// 可以在编译的时候判断当前是否是ARC
+#if __has_feature(objc_arc)
+    NSLog(@"ARC");
+#else
+    NSLog(@"MRC");
+#endif
+
+@class
+// 取代 #import "Car.h"
+@class Car;
+
+由于import是一个预编译指令, 他会将""中的文件拷贝到import所在的位置
+并且import有一个特点, 只要""中的文件发生了变化, 那么import就会重新拷贝一次(更新操作)
+
+@class仅仅是告诉编译器, @class后面的名称是一个类, 不会做任何拷贝操作
+注意: 由于@class仅仅是告诉编译器后面的名称是一个类, 所以编译器并不知道这个类中有哪些属性和方法, 所以在.m中使用这个类时需要import这个类, 才能使用
+
+作用1 提升编译效率
+  1.如果都在.h中import, 假如A拷贝了B, B拷贝了C ,  如果C被修改了, 那么B和A都需要重新拷贝. 因为C修改了那么B就会重新拷贝, 而B重新拷贝之后相当于B也被修改了, 那么A也需要重新拷贝. 也就是说如果都在.h中拷贝, 只要有间接关系都会重新拷贝
+  2.如果在.h中用@class, 在.m中用import, 那么如果一个文件发生了变化, 只有和这个文件有直接关系的那个文件才会重新拷贝
+  3.所以在.h中用@class可以提升编译效率
+
+作用2 解决循环引用
+  如果两个类相互拷贝, 例如A拷贝B, B拷贝A, 这样会报错
+  如何解决: 在.h中用@class, 在.m中用import
+  因为如果.h中都用import, 那么A拷贝B, B又拷贝A, 会形成死循环
+  如果在.h中用@class, 那么不会做任何拷贝操作, 而在.m中用import只会拷贝对应的文件, 并不会形成死循环

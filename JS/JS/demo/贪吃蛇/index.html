@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>指趣贪吃蛇</title>
+    <link rel="stylesheet" href="css/index.css">
+
+</head>
+<body>
+<div id="map"></div>
+<p class="tips">通过方向键(↑↓←→)控制蛇的方向</p>
+<p class="tips">利用蛇头碰撞到食物之后蛇就会变长</p>
+
+<!--
+<script src="js/tools.js"></script>
+<script src="js/food.js"></script>
+<script src="js/snake.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+<script>
+    // 当前构造函数存在的问题:
+    // 如果需要传递的参数比较多的时候, 比较麻烦
+    // function Person(name, age) {
+    //     this.name = name;
+    //     this.age = age;
+    // }
+    // var p = new Person("lnj", 18);
+    /*
+    以下方式给构造函数传递参数的好处:
+    1.原来的方式如果参数太多, 我们需要不断的编写, 而且如果参数发生改变, 构造函数的形参列表也需要发生改变
+    2.现在的方式不用关心有多少个参数, 而且如果参数发生改变, 构造函数的形参列表也不用发生改变
+     */
+    /*
+    function Person(options) {
+        // 逻辑或如果参与运算的不是Boolean类型, 会先转换为Boolean类型
+        // 然后如果条件A为真就返回条件A
+        //     如果添加A不为真, 无论条件B是否为真, 都返回条件B
+        options = options || {};
+        this.name = options.name;
+        this.age = options.age;
+    }
+   // var p = new Person({name:"lnj", age: 18});
+   //  console.log(p);
+    var p = new Person();
+    console.log(p);
+    */
+
+    // var oMap = document.querySelector("#map");
+    // var game = new Game({map: oMap});
+    // game.start();
+</script>
+
+<script>
+    // 注意点:
+    // 1.只要是script标签中就是全局作用域
+    // 2.所以通过script src=导入的js都在全局作用域中
+    // 3.在企业开发中大部分都是协同开发, 也就是多个人同时编写不同的js文件
+    // 4.所以当同时导入多个不同js文件的时候, 可能会发生命名冲突的问题
+    // 5.默认情况下只要是在全局作用域中定义的变量和函数都是属于window的
+    var num = 123;
+    console.log(window.num);
+
+    // (function () {
+    //     var value = 777;
+    // })();
+    // console.log(value);
+</script>
+<script>
+    var num = 456;
+</script>
+<script>
+    console.log(num);
+</script>
+-->
+<script src="js/index.js"></script>
+
+<!--
+<script>
+    console.log((function () {
+        console.log("test");
+    })()); // undefined
+
+    // (function () {
+    //     console.log("test");
+    // })()
+    // (function () {
+    //     console.log("demo");
+    // })()
+    /*
+    执行时候演变的代码
+    undefined(function () {
+        console.log("demo");
+    })()
+     */
+    // 企业开发一般情况下, 如果需要通过只调用函数来隔离命名空间
+    // 都会在只调用函数前面加上一个分号, 再后面也加上一个分号
+    // 前面加上一个分号, 避免不要受到其它垃圾的影响
+    // 后面加上一个分号, 做一个优秀的人, 避免影响到其它人
+    ;(function () {
+        console.log("demo");
+    })();
+
+</script>
+-->
+</body>
+</html>

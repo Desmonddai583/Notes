@@ -1,0 +1,57 @@
+UIButton的状态
+  normal（普通状态）
+    默认情况（Default）
+    对应的枚举常量：UIControlStateNormal
+  highlighted（高亮状态）
+    按钮被按下去的时候（手指还未松开）
+    对应的枚举常量：UIControlStateHighlighted
+  disabled（失效状态，不可用状态）
+    如果enabled属性为NO，就是处于disable状态，代表按钮不可以被点击
+    对应的枚举常量：UIControlStateDisabled
+
+常见设置
+  - (void)setTitle:(NSString *)title forState:(UIControlState)state; 设置按钮的文字
+  - (void)setTitleColor:(UIColor *)color forState:(UIControlState)state; 设置按钮的文字颜色
+  - (void)setImage:(UIImage *)image forState:(UIControlState)state; 设置按钮内部的小图片
+  - (void)setBackgroundImage:(UIImage *)image forState:(UIControlState)state; 设置按钮的背景图片
+  btn.titleLabel.font = [UIFont systemFontOfSize:13]; 设置按钮的文字字体（需要拿到按钮内部的label来设置）
+  - (NSString *)titleForState:(UIControlState)state; 获得按钮的文字
+  - (UIColor *)titleColorForState:(UIControlState)state; 获得按钮的文字颜色
+  - (UIImage *)imageForState:(UIControlState)state; 获得按钮内部的小图片
+  - (UIImage *)backgroundImageForState:(UIControlState)state; 获得按钮的背景图片
+
+仅仅是显示数据，不需要点击
+  建议选择UIImageView、UILabel
+不仅显示数据，还需要监听点击
+  建议选择UIButton
+  其实UIImageView、UILabel也可以通过手势识别器来监听
+长按控件后，会改变显示的内容
+  选择UIButton
+同时显示2张图片：背景图片、内容图片
+  选择UIButton
+
+UIButton内部子控件位置
+  UIButton内部有两个子控件UILabel和UIImageView
+  不可以直接改变UIButton内部子控件的位置,如果要修改的话需要自定义Button,有两个重写方法来改变
+    1.
+      - (CGRect)titleRectForContentRect:(CGRect)contentRect{}
+      - (CGRect)imageRectForContentRect:(CGRect)contentRect{}
+    2.
+      - (void)layoutSubviews
+
+UIButton的内边距属性
+  contentEdgeInsets 所有内容的内边距
+  titleEdgeInsets 文字的内边距
+  imageEdgeInsets 图片的内边距
+
+监听事件(UIButton无代理)
+  UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+  [btn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
+
+取消高亮状态
+  内部代码为空即表示高亮时不作任何处理,即取消高亮
+  -(void)setHighlighted:(BOOL)highlighted {
+  }
+
+根据按钮内部控件自动调整button大小
+  [btn sizeToFit]

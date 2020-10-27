@@ -1,0 +1,20 @@
+# Step before using tmuxinator
+#   1. gem install tmuxinator
+#   2. export EDITOR=vim
+#   3. tmuxinator open development
+# Usage
+#   tmuxinator development
+# Edit config (config file default locate at ~/.tmuxinator/)
+#   tmuxinator open development 
+# Generate config from your yaml file
+# tmuxinator debug development
+
+name: development
+root: ~/devproject
+windows:
+  - editor:
+      layout: main-horizontal
+      panes:
+       - vim
+       - #empty, will just run plain bash
+  - console: # empty

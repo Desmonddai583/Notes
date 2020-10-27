@@ -1,0 +1,127 @@
+函数式编程（Funtional Programming，简称FP）是一种编程范式，也就是如何编写程序的方法论
+  主要思想：把计算过程尽量分解成一系列可复用函数的调用
+  主要特征：函数是“第一等公民”
+          函数与其他数据类型一样的地位，可以赋值给其他变量，也可以作为函数参数、函数返回值
+
+函数式写法
+  func add(_ v: Int) -> (Int) -> Int { { $0 + v } } 
+  func sub(_ v: Int) -> (Int) -> Int { { $0 - v } } 
+  func multiple(_ v: Int) -> (Int) -> Int { { $0 * v } } 
+  func divide(_ v: Int) -> (Int) -> Int { { $0 / v } } 
+  func mod(_ v: Int) -> (Int) -> Int { { $0 % v } }
+
+  infix operator >>> : AdditionPrecedence
+  func >>><A, B, C>(_ f1: @escaping (A) -> B, 
+                    _ f2: @escaping (B) -> C) -> (A) -> C { { f2(f1($0)) } }
+  
+  var fn = add(3) >>> multiple(5) >>> sub(1) >>> mod(10) >>> divide(2) 
+  fn(num)
+
+高阶函数（Higher-Order Function）
+  高阶函数是至少满足下列一个条件的函数:
+    接受一个或多个函数作为输入（map、filter、reduce等）
+    返回一个函数
+  
+  FP中到处都是高阶函数
+    func add(_ v: Int) -> (Int) -> Int { { $0 + v } }
+
+柯里化（Currying）
+  将一个接受多参数的函数变换为一系列只接受单个参数的函数
+    func add(_ v1: Int, _ v2: Int) -> Int { v1 + v2 } 
+    add(10, 20)
+
+    变换成
+
+    func add(_ v: Int) -> (Int) -> Int { { $0 + v } } 
+    add(10)(20)
+
+  Array、Optional的map方法接收的参数就是一个柯里化函数
+
+  --------------------
+
+  func add1(_ v1: Int, _ v2: Int) -> Int { v1 + v2 } 
+  func add2(_ v1: Int, _ v2: Int, _ v3: Int) -> Int { v1 + v2 + v3 }
+
+  func currying<A, B, C>(_ fn: @escaping (A, B) -> C) 
+    -> (B) -> (A) -> C { 
+    { b in { a in fn(a, b) } } 
+  }
+
+  func currying<A, B, C, D>(_ fn: @escaping (A, B, C) -> D) 
+      -> (C) -> (B) -> (A) -> D { 
+        { c in { b in { a in fn(a, b, c) } } } 
+  }
+
+  let curriedAdd1 = currying(add1)
+  print(curriedAdd1(10)(20)) 
+  let curriedAdd2 = currying(add2) 
+  print(curriedAdd2(10)(20)(30))
+
+  --------------------
+
+  func add(_ v1: Int, _ v2: Int) -> Int { v1 + v2 } 
+  func sub(_ v1: Int, _ v2: Int) -> Int { v1 - v2 } 
+  func multiple(_ v1: Int, _ v2: Int) -> Int { v1 * v2 } 
+  func divide(_ v1: Int, _ v2: Int) -> Int { v1 / v2 } 
+  func mod(_ v1: Int, _ v2: Int) -> Int { v1 % v2 }
+
+  prefix func ~<A, B, C>(_ fn: @escaping (A, B) -> C)
+        -> (B) -> (A) -> C { { b in { a in fn(a, b) } } }
+
+  infix operator >>> : AdditionPrecedence
+  func >>><A, B, C>(_ f1: @escaping (A) -> B,
+                    _ f2: @escaping (B) -> C) -> (A) -> C { { f2(f1($0)) } }
+  
+  var num = 1
+  var fn = (~add)(3) >>> (~multiple)(5) >>> (~sub)(1) >>> (~mod)(10) >>> (~divide)(2)
+  fn(num)
+
+函子（Functor）
+  像Array、Optional这样支持map运算的类型，称为函子（Functor）
+
+  // Array<Element> 
+  public func map<T>(_ transform: (Element) -> T) -> Array<T>
+
+  // Optional<Wrapped> 
+  public func map<U>(_ transform: (Wrapped) -> U) -> Optional<U>
+
+  适用函子（Applicative Functor）
+    对任意一个函子 F，如果能支持以下运算，该函子就是一个适用函子
+      func pure<A>(_ value: A) -> F<A> 
+      func <*><A, B>(fn: F<(A) -> B>, value: F<A>) -> F<B>
+    Optional可以成为适用函子
+      func pure<A>(_ value: A) -> A? { value }
+      infix operator <*> : AdditionPrecedence
+      func <*><A, B>(fn: ((A) -> B)?, value: A?) -> B? {
+        guard let f = fn, let v = value else { return nil }
+        return f(v)
+      }
+    
+      var value: Int? = 10 
+      var fn: ((Int) -> Int)? = { $0 * 2} 
+      // Optional(20) 
+      print(fn <*> value as Any)
+    Array可以成为适用函子
+      func pure<A>(_ value: A) -> [A] { [value] }
+      func <*><A, B>(fn: [(A) -> B], value: [A]) -> [B] {
+        var arr: [B] = []
+        if fn.count == value.count {
+          for i in fn.startIndex..<fn.endIndex {
+            arr.append(fn[i](value[i]))
+          }
+        }
+        return arr
+      }
+
+      // [10] 
+      print(pure(10))
+      var arr = [{ $0 * 2}, { $0 + 10 }, { $0 - 5 }] <*> [1, 2, 3]
+      // [2, 12, -2] 
+      print(arr)
+
+单子（Monad） 
+  对任意一个类型 F，如果能支持以下运算，那么就可以称为是一个单子（Monad）
+    func pure<A>(_ value: A) -> F<A>
+    func flatMap<A, B>(_ value: F<A>, _ fn: (A) -> F<B>) -> F<B>
+  很显然，Array、Optional都是单子
+

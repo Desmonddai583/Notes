@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-http
+  labels:
+    app: liveness
+spec:
+  containers:
+  - name: liveness
+    image: cnych/liveness
+    args:
+    - /server
+    # 该探针将向容器中的server的8080端口发送一个HTTP GET 求。
+    # 如果server的/healthz路径的handler返回一个成功的返回码，kubelet就会认定该容器是活着的并且很健康,如果返回失败的返回码，kubelet将杀掉该容器并重启
+    # 通常来说，任何大于200小于400的返回码都会认定是成功的返回码。其他返回码都会被认为是失败的返回码。
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3

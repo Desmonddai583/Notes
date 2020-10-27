@@ -1,0 +1,94 @@
+关键字
+  可以用于属性,方法返回值和参数中
+  不能用于基本数据类型(int,float),nil只用于对象
+  关键字作用:提示作用,告诉开发者属性信息
+  关键字目的:迎合swift,swift是个强语言,swift必须要指定一个对象是否为空
+  关键字好处:提高代码规划,减少沟通成本
+  关键字仅仅是提供警告,并不会报编译错误
+
+  nullable
+    nullable作用:可能为空
+ 
+    nullable 3种语法
+      @property (nonatomic, strong, nullable) NSString *name;
+      @property (nonatomic, strong) NSString * _Nullable name;
+      @property (nonatomic, strong) NSString * __nullable name;
+    
+  nonnull
+    nonnull作用:不能为空
+
+    如果通过宏,在NS_ASSUME_NONNULL_BEGIN和NS_ASSUME_NONNULL_END之间默认就会是nonnull
+
+    nonnull 3种语法
+      @property (nonatomic, strong, nonnull) NSString *name;
+      @property (nonatomic, strong) NSString * _Nonnull name;
+      @property (nonatomic, strong) NSString * __nonnull name;
+  
+  null_resettable
+    null_resettable:必须要处理为空情况,重写get方法
+    null_resettable作用:get方法不能返回nil,set可以传入为空
+
+    null_resettable 1种语法
+      @property (nonatomic, strong, null_resettable) NSString *name;
+  
+  _Null_unspecified
+    不确定是否为空
+
+泛型
+  泛型作用:
+    1.限制类型 
+    2.提高代码规划,减少沟通成本
+  泛型定义用法:类型<限制类型>
+  泛型声明:在声明类的时候,在类的后面<泛型名称>
+  泛型仅仅是报警告
+  泛型好处:1.从数组中取出来,可以使用点语法(id是不能使用点语法)
+          2.给数组添加元素,有提示
+  泛型在开发中使用场景:1.用于限制集合类型
+
+  在声明类的时候,不确定某些属性或者方法类型,在使用这个类的时候才确定,就可以采用泛型,例如
+  自定义Person,会一些编程语言(iOS,Java),在声明Person,不确定这个人会什么,在使用Person才知道这个Person会什么语言,如果没有定义泛型.默认就是id
+
+  泛型注意点:在数组中,一般用可变数组添加方法,泛型才会生效,如果使用不可变数组,添加元素,泛型没有效果
+
+  @interface Person<ObjectType> : NSObject
+  @property (nonatomic, strong) ObjectType language;
+  @end
+
+  iOS *ios = [[iOS alloc] init];
+  Person<iOS *> *p = [[Person alloc] init];
+  p.language = ios;
+
+  协变和逆变
+    用于父子类型转换
+
+    __covariant:协变 子类转父类
+      @interface Person<__covariant ObjectType> : NSObject
+      @property (nonatomic, strong) ObjectType language;
+      @end
+
+      Person<iOS *> *p = [[Person alloc] init];
+      p.language = ios;
+      Person<Language *> *p1;
+      p1 = p;
+    __contravariant:逆变 父类转子类
+      @interface Person<__contravariant ObjectType> : NSObject
+      @property (nonatomic, strong) ObjectType language;
+      @end
+
+      Person<Language *> *p = [[Person alloc] init];
+      p.language = language;
+      Person<iOS *> *p1;
+      p1 = p;
+
+__kindof
+  表示当前类或者它的子类
+
+  @interface Person : NSObject
+  + (__kindof Person *)person;
+  @end
+
+  // 这里如果使用id会导致可以调用任何对象方法,不能进行编译检查
+  // 如果使用instancetype又会出现类型不匹配警告
+  // 所以可以使用__kindof解决
+  SubPerson *p = [SubPerson person]; 
+

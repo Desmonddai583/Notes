@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        /*字体图标相关的样式*/
+        /*声明字体图标*/
+        @font-face {
+            font-family: 'iconfont';
+            src: url('fonts/iconfont.eot');
+            src: url('fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+            url('fonts/iconfont.woff') format('woff'),
+            url('fonts/iconfont.ttf') format('truetype'),
+            url('fonts/iconfont.svg#iconfont') format('svg');
+        }
+        /*定义使用iconfont的样式*/
+        .iconfont{
+            font-family:"iconfont" !important;
+            font-size:12px;font-style:normal;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-stroke-width: 0.2px;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        i{
+            display: inline-block;
+            transform: scale(0.2);
+        }
+    </style>
+</head>
+<body>
+<p>我是一个段落</p>
+<p><i class="iconfont">&#xf0179;</i></p>
+</body>
+</html>
