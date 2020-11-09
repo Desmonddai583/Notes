@@ -37,9 +37,19 @@ const(
     yao = iota // 2
 )
 
+const(
+    a,b,c = iota,iota,iota // 0,0,0
+)
+
 fmt.Scanf(格式化字符串, 地址列表) // 如果接收的不是字符类型(%c),会忽略空格和TAB,但是不会忽略回车
 fmt.Scanln(地址列表) // 如果接收的不是字符类型(%c),会忽略空格和TAB,但是不会忽略回车
 fmt.Scan(地址列表) // 如果接收的不是字符类型(%c),会忽略空格,TAB,回车
+%v 值的默认格式表示
+%+v 类似%v,但是输出结构体时会添加字段名
+%#v 值的GO语法表示
+%T 值的类型的GO语法表示
+%% 百分号
+%t bool值,单词true或false
 
 接收命令行参数(main函数不接收任何参数)
     1. os.Args获取,获得的是一个数组,弊端就是无论传入是什么类型,最终获取到的都是字符串类型
@@ -68,3 +78,15 @@ go中多了一个位运算符&^, a &^ b,如果b的当前二进制位为1,那么�
     math.MaxUint32
 
 string 是值类型，其默认的初始化值为空字符串，⽽不是 nil
+
+复数
+  实数+虚数i
+  complex64(32 位实数 + 32 位虚数+i虚数单位)
+  complex128（默认）(64 位实数 + 64 位虚数+i虚数单位)
+
+  var complexVariables1 
+  complex64 complexVariables1 = 3.14+12i 
+  complexVariables2 := complex(3.14,12)
+
+  //打印复数的实数部分与虚数部分 
+  fmt.Println(real(complexVariables1),imag(complexVariables1))
