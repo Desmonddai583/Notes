@@ -15,3 +15,8 @@ Micro Kernel
     将可变或可扩展部分规划为扩展点
     抽象扩展点⾏为，定义接⼝
     利⽤插件进⾏扩展
+
+Chaos Engineering
+  相关开源项⽬
+    https://github.com/Netﬂix/chaosmonkey
+    https://github.com/easierway/service_decorators/blob/master/README.md

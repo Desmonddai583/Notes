@@ -1,6 +1,6 @@
 CSP vs. Actor
-    和Actor的直接通讯不同，CSP模式则是通过Channel进⾏通讯的，更松耦合⼀ 些
-    Go中channel是有容量限制并且独⽴于处理Groutine，⽽如Erlang，Actor模式 中的mailbox容量是⽆限的，接收进程也总是被动地处理消息
+    和Actor的直接通讯不同，CSP模式则是通过Channel进⾏通讯的，更松耦合⼀些
+    Go中channel是有容量限制并且独⽴于处理Groutine，⽽如Erlang，Actor模式中的mailbox容量是⽆限的，接收进程也总是被动地处理消息
 
 runtime.Gosched() // 让出当前的执行权限,之后还会恢复执行
 runtime.Goexit() // 退出当前协程

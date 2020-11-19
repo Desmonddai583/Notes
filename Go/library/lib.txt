@@ -1,0 +1,61 @@
+时间
+    now := time.Now() // 获取当前时间
+    now.Year()
+    now.Month()
+    ...
+    now.Second()
+    str := now.Format("2006/01/02 15:04:05") // 按照指定格式输出,注意这里这些数字都是固定的,格式是可以变的
+
+    prev := time.Date(2019, 08, 08, 17, 20, 34, 12340, time.UTC)
+    prev.Before(now)
+    prev.After(now)
+    prev.Equal(now)
+
+    now.Sub(prev) // 计算时间差
+
+    时间常量多用于Sleep
+        time.Sleep(time.Second)
+
+    时间戳多用于产生生成随机数的因子
+        Unix()返回秒的时间戳 UnixNano()返回纳秒的时间戳
+        rand.Seed(time.Now().Unix())
+        res := rand.Intn(3) // 生成[0, 3)的随机int值,小于0会panic
+
+json
+    br := BaseResponse{
+        Code: 1,
+        Data: ResponseData{
+            Name: "Desmond",
+            Age:  30,
+        },
+    }
+    jsonBytes, _ := json.Marshal(&br)
+    fmt.Println(string(jsonBytes))
+
+    var b2 BaseResponse
+    _ := json.unMarshal(jsonBytes, &br2)
+    fmt.Println(br2.Data.Name)
+
+    更快的JSON解析
+      EasyJSON 采⽤代码⽣成⽽⾮反射
+      使⽤
+        easyjson -all <结构定义>.go
+
+HTTP Server
+  路由规则
+    URL 分为两种，末尾是 /：表示⼀个⼦树，后⾯可以跟其他⼦路径； 末尾不是/，表示⼀个叶⼦，固定的路径
+      以/ 结尾的 URL 可以匹配它的任何⼦路径，⽐如 /images 会匹配 /images/ cute-cat.jpg
+    它采⽤最⻓匹配原则，如果有多个匹配，⼀定采⽤匹配路径最⻓的那个进⾏处理
+    如果没有找到任何匹配项，会返回 404 错误
+  
+  更好的 Router
+    https://github.com/julienschmidt/httprouter
+    func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+      fmt.Fprintf(w, "hello, %s!\n", ps.ByName("name"))
+    }
+    func main() {
+      router := httprouter.New()
+      router.GET("/", Index)
+      router.GET("/hello/:name", Hello)
+      log.Fatal(http.ListenAndServe(":8080", router))
+    }

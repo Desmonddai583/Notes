@@ -1,0 +1,150 @@
+Go访问C
+    1. C代码需要用单行注释或者多行注释注释起来
+    2. 在C代码紧随其后的位置写上import "C"
+    3. 接着就可以在go中通过C.函数名称的方式来访问C语言函数
+    /*
+    #include <stdio.h>
+
+    void say() {
+        printf("hello world")
+    }
+    */
+    import "C"
+
+    func main() {
+        C.say()
+    }
+C访问Go
+    /*
+    #include <stdio.h>
+
+    void demo() {
+        extern void say(); // 声明
+        say(); // 调用
+    }
+    */
+    import "C"
+
+    func main() {
+        C.demo()
+    }
+
+    // 将以下代码放到一个单独的文件,Go的编译器不允许在一个文件的C和Go中声明同一个函数
+    // 这里一定要写上export 方法名 才可以在C中extern声明
+    // 也一定要写上import "C"才可以顺利go build
+    import "C"
+    //export say
+    func say() {
+        fmt.Println("hello world")
+    }
+Go访问C的基本类型变量
+    /*
+    #include <stdio.h>
+
+    char ch = 'b';
+    int num = 123;
+    double value = 3.14;
+    */
+    import "C"
+
+    func main() {
+        fmt.Println(C.ch)
+        fmt.Println(C.num)
+        fmt.Println(C.value)
+
+        // 需要强制转换将C类型转为Go类型
+        var ch byte
+        ch = byte(C.ch)
+        ...
+    }
+Go使用C中的字符串
+    C
+        char *str1 = "desmond";
+        char str2[20] = "desmond"
+    Go
+        var str1 string
+        var str2 string
+        str1 = C.GoString(C.str1)
+        // 不能讲数组直接通过GoString转换为Go的字符串,所以这里需要使用C中字符串的首地址
+        str2 = C.GoString(&C.str2[0])
+C中使用Go字符串
+    需要注意的是Go转为C之后的字符串不受Go的GC控制,需要自己手动回收
+    var str string = "desmond"
+    str2 := C.CString(str)
+    C.free(unsafe.Pointer(str2))
+Go使用C的指针
+    C
+        int num = 123;
+        int *p1 = &num;
+        void *p2 = &num;
+    Go
+        var p1 *C.int = C.p1
+        fmt.Println(*p1)
+        // 其他类型都可以按照上面的格式来使用
+        // 但是对于void *类型,必须使用Go中的unsafe.Pointer来保存
+        var p2 unsafe.Pointer = C.p2
+        fmt.Println(*p2)
+Go使用C的枚举
+    C
+        enum Gender {
+            GenderMale,
+            GenderFemale,
+            GenderYao
+        }
+    Go
+        var gender C.enum_Gender = C.GenderMale
+        fmt.Println(gender)
+Go使用C结构体
+    C
+        struct Point {
+            float x;
+            float y;
+        }
+    Go
+        // 当前支持不够好,如果结构体属性是复杂类型,可能会有问题
+        var pi C.struct_Point = C.struct_Point{1.1, 2.2}
+        fmt.Println(pi.x)
+        fmt.Println(pi.y)
+Go使用C数组
+    C
+        int cArray[5] = {1, 2, 3, 4, 5};
+    Go
+        // 现在官方还没有很好的支持直接转换,所以使用以下方法
+        var arr [5]C.int = C.cArray
+        fmt.Println(arr[0])
+Go中利用C实现无缓冲输入
+    package main
+    /*
+    #include <stdio.h>
+    char lowerCase(char ch){
+        // 1.判断当前是否是小写字母
+        if(ch >= 'a' && ch <= 'z'){
+            return ch;
+        }
+        // 注意点: 不能直接编写else, 因为执行到else不一定是一个大写字母
+        else if(ch >= 'A' && ch <= 'Z'){
+            return ch + ('a' - 'A');
+        }
+        return ' ';
+    }
+    char getCh(){
+        // 1.接收用户输入的数据
+        char ch;
+        scanf("%c", &ch);
+        setbuf(stdin, NULL);
+        // 2.大小写转换
+        ch = lowerCase(ch);
+        // 3.返回转换好的字符
+        return ch;
+    }
+    */
+    import "C"
+    import "fmt"
+
+    func main() {
+        for {
+            fmt.Println("请输入一个字符")
+            ch := C.getCh()
+            fmt.Printf("%c\n", ch)
+        }
+    }

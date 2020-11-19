@@ -1,0 +1,19 @@
+GOROOT: SDK安装的目录
+GOPATH: go源代码存放的目录
+GOBIN: 将来编译的可执行程序存放的目录,GOBIN目录,必须放在GOPATH目录里面
+
+go env // 查看go配置的环境变量
+go install main.go // 将包编译并放到GOPATH下的bin(命令文件)或者pkg目录(非命令文件)
+go run main.go // 将包编译并运行,但是会将编译后的文件放到临时目录而不是GOBIN下
+go build // 编译检查当前目录下的go文件,如果不是命令文件(main.go)，那么执行完后不会产生文件,如果是命令文件,则在目录下产生一个编译好的二进制文件
+env GOOS=linux GOARCH=amd64 go build // 跨平台编译
+go fmt // 格式化当前目录下的go文件
+
+获取系统架构和Int Size
+cpuArch := runtime.GOARCH
+intSize := strconv.IntSize
+
+清空控制台
+cmd := exec.Command("cmd", "/c", "cls")
+cmd.Stdout = os.Stdout
+cmd.Run()

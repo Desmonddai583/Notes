@@ -1,6 +1,7 @@
-go test . 测试当前目录下的test
+go test . 测试当前目录下的test,测试程序必须属于被测试的包
 test所在文件必须以_test.go结尾
 test方法都以Test开头并且会传一个*testing.T
+测试程序不会被普通的 Go 编译器编译
 
 Fail, Error: 该测试失败，该测试继续，其他测试继续执⾏
 FailNow, Fatal: 该测试失败，该测试中⽌，其他测试继续执⾏
