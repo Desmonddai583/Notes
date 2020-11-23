@@ -1,0 +1,150 @@
+.container {
+    max-width: 960px;
+}
+
+/*
+ * Custom translucent site header
+ */
+
+.site-header {
+    background-color: rgba(0, 0, 0, .85);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+}
+.site-header a {
+    color: #999;
+    transition: ease-in-out color .15s;
+}
+.site-header a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+/*
+ * Dummy devices (replace them with your own or something else entirely!)
+ */
+
+.avatar {
+    /*px em 1em=16px*/
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    color: #fff;
+    text-align: center;
+    line-height: 2em;
+    cursor: pointer;
+}
+
+.product-device {
+    position: absolute;
+    right: 10%;
+    bottom: -30%;
+    width: 300px;
+    height: 540px;
+    background-color: #333;
+    border-radius: 21px;
+    -webkit-transform: rotate(30deg);
+    transform: rotate(30deg);
+}
+
+.product-device::before {
+    position: absolute;
+    top: 10%;
+    right: 10px;
+    bottom: 10%;
+    left: 10px;
+    content: "";
+    background-color: rgba(255, 255, 255, .1);
+    border-radius: 5px;
+}
+
+.product-device-2 {
+    top: -25%;
+    right: auto;
+    bottom: 0;
+    left: 5%;
+    background-color: #e5e5e5;
+}
+
+
+/*
+ * Extra utilities
+ */
+
+.flex-equal > * {
+    -ms-flex: 1;
+    flex: 1;
+}
+@media (min-width: 768px) {
+    .flex-md-equal > * {
+        -ms-flex: 1;
+        flex: 1;
+    }
+}
+
+.overflow-hidden { overflow: hidden; }
+
+
+.products-wrapper {
+    padding: 50px;
+}
+.products-wrapper h3 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.products-wrapper .products-date {
+    margin-bottom: 20px;
+}
+.products-wrapper .products-item {
+    padding: 10px;
+}
+.products-wrapper .products-item:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
+.products-item .external-link {
+    color: #212529;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+.products-wrapper .upvote-link {
+    position: relative;
+    width: 40px;
+    height: 45px;
+    margin-right: 32px;
+    border-radius: 2px;
+    background: #fff;
+    border: 1px solid #007bff;
+    padding: 5px;
+    color: #007bff;
+}
+.upvote-link > span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 0);
+}
+.upvote-link > svg {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+.upvote-link:hover, .upvote-active {
+    background-color: #007bff !important;
+    color: #fff !important;
+}
+.upvote-link.disabled {
+    pointer-events: none;
+}
+.products-wrapper .products-action {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 3rem;
+    }
+    .products-wrapper {
+        padding: 10px;
+    }
+}
