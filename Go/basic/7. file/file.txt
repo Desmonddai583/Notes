@@ -113,3 +113,18 @@ finfo.IsDir()
 r := bufio.NewReader(rp)
 w := bufio.NewWriter(wp)
 len, err := io.Copy(w, r)
+
+bufio.scanner 带缓冲区的迭代器
+  Scanner 方法
+    NewScanner 创建 Scanner
+    Scanner.Split 设置处理函数
+    Scanner.Scan 获取当前token, 扫描下一token
+    Scanner.Bytes 将token以 []byte 的形式返回
+    Scanner.Text 将token以 string 的形式返回
+    Scanner.Err 获取处理方法返回的错误 
+  Scanner处理方法
+    ScanBytes 将token处理为单一字节
+    ScanRunes 将token处理为utf-8编码的unicode码
+    ScanWords 以空格分隔
+    tokenScanLines 以换行符分分割token 
+

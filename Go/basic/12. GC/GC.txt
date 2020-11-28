@@ -36,3 +36,36 @@ GC 友好的代码
       go test -trace trace.out
     可视化 trace 信息
       go tool trace trace.out    
+
+内存逃逸
+  逃逸分析是Go在编译阶段确定内存是分配在栈还是堆上的一种行为
+
+  栈内存分配和释放非常快
+  堆内存需要依靠Go垃圾回收(占CPU)
+  通过逃逸分析，可以尽量把那些不需要分配到堆上的变量直接分配到栈上
+
+  Go的主要目的并不希望程序员关注分配，而是通过编译时的代码分析自动决定
+
+  逃逸分析命令 go build -gcflags=-m src/main.go
+
+  不会逃逸
+    fun test() {
+      a := []int{1,2,3}
+      a[1] = 4
+    }
+    func main() {
+      test()
+    }
+    
+  逃逸
+    fun test() []int {
+      a := []int{1,2,3}
+      a[1] = 4
+      return a
+    }
+
+    局部变量原本应该在栈中分配，在栈中回收。由于返回时被外部引用
+
+    另外参数为interface类型，比如fmt.Println(a ...interface{}),编译期间很难确定其参数的具体类型，也能产生逃逸
+    
+  

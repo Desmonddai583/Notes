@@ -80,3 +80,28 @@ type 新类型名=原类型名
     type error interface {
         Error() string
     }
+
+明明是nil却!=nil的问题
+  var f func()
+  var a *struct{}
+
+  list:=[]interface{}{f,a}
+  for _,item:=range list{
+      if item==nil{
+        fmt.Println("nil")
+    }
+  }
+
+  此时不会有任何输出
+  原因是interface{} 背后其实是由类型和值组成，所以比较时虽然值是nil但是类型却不是
+
+  解决方法
+    list:=[]interface{}{f,a}
+    for _,item:=range list{
+      if v,ok:=item.(func());ok && v==nil{
+        fmt.Println("nil func")
+      }
+      if v,ok:=item.(*struct{});ok && v==nil{
+        fmt.Println("nil struct{}")
+      }
+    }

@@ -1,6 +1,6 @@
 CSP vs. Actor
-    和Actor的直接通讯不同，CSP模式则是通过Channel进⾏通讯的，更松耦合⼀些
-    Go中channel是有容量限制并且独⽴于处理Groutine，⽽如Erlang，Actor模式中的mailbox容量是⽆限的，接收进程也总是被动地处理消息
+  和Actor的直接通讯不同，CSP模式则是通过Channel进⾏通讯的，更松耦合⼀些
+  Go中channel是有容量限制并且独⽴于处理Groutine，⽽如Erlang，Actor模式中的mailbox容量是⽆限的，接收进程也总是被动地处理消息
 
 runtime.Gosched() // 让出当前的执行权限,之后还会恢复执行
 runtime.Goexit() // 退出当前协程
@@ -208,3 +208,23 @@ Context与关联任务的取消
     适合于通过复⽤，降低复杂对象的创建和 GC 代价
     协程安全，会有锁的开销
     ⽣命周期受 GC 影响，不适合于做连接池等，需⾃⼰管理⽣命周期的资源的池化
+
+go默认使用所有cpu核
+runtime.GOMAXPROCS(1)就变成单核运行的了
+单核情况下，所有协程运行在同一个线程中，线程维护一个上下文
+线程就绪后，默认先执行的是最后一个创建的协程，然后在继续执行其他协程，此时其他协程就是按顺序来的了
+
+Go Channel的底层机制
+  1. chan创建在堆中，返回指针
+  2. 使用唤醒队列作为缓冲区
+  3. 每次操作都要加锁，并更新操作(send或recv的index)
+  4. 缓冲满，进入等待队列，并让出M。等待被唤醒
+  5. 被唤醒后，重新加入G列
+
+Go协程调度机制
+  参考文章
+    https://medium.com/@ankur_anand/illustrated-tales-of-go-runtime-scheduler-74809ef6d19b
+    https://lessisbetter.site/2019/03/10/golang-scheduler-1-history/
+    https://zhuanlan.zhihu.com/p/27056944
+
+  

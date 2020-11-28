@@ -71,3 +71,18 @@ copy(目的切片, 源切片)
     func sum(nums []int) int {
         ...
     }
+
+go中自带的双向链表
+  "container/list"
+
+  data:=list.New()
+  e8:=data.PushBack(8)
+  data.PushBack(9)
+  data.PushBack(10)
+  data.PushFront(7)
+
+  e85:=data.InsertAfter(8.5,e8)
+  data.MoveAfter(e8,e85)
+  for e:=data.Front();e!=nil;e=e.Next(){
+    fmt.Printf("%v ",e.Value)
+  }

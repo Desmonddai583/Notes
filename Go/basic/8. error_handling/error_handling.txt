@@ -49,3 +49,45 @@ error 类型实现了 error 接⼝
         …
     }
 
+defer链式调用
+  type test struct {}
+  func NewTest() *test  {
+    return &test{}
+  }
+  func(this *test) do(i int) *test {
+    fmt.Println(i)
+    return this
+  }
+  func main()  {
+      t:=NewTest()
+      defer t.do(1).do(2)
+      t.do(3)
+  }
+  输出 1 3 2
+  只有在defer链式调用最末端的函数才会在defer时调用
+
+循环执行defer
+  for i := 0; i < 5; i++ {
+    defer func() {
+      fmt.Println(i)
+    }()
+  }
+  输出 5 5 5 5 5
+
+  for i := 0; i < 5; i++ {
+    defer func(input int) {
+      fmt.Println(input)
+    }(i)
+  }
+  输出 4 3 2 1 0
+
+defer&panic执行顺序
+  defer func(){
+    defer func() { fmt.Println("打印前") }()
+    defer func() { fmt.Println("打印中") }()
+    defer func() { fmt.Println("打印后") }()
+    panic("触发异常1")
+  }()
+  panic("触发异常2")
+
+  输出 打印后 打印中 打印前 触发异常2 触发异常1

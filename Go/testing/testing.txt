@@ -16,6 +16,8 @@ go tool cover -html=c.out
 测试当前目录下的benchmark测试
 函数名必须是BenchmarkZzz形式，要使用*testing.B参数
 go test -bench . -benchmem
+	-count num 重复执行benchmark测试几次
+	-bench=Join$ 执行已Join结尾的测试函数
 
 性能分析
 	常⻅分析指标
