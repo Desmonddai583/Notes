@@ -1,0 +1,27 @@
+Google Protocol Buffer(简称 Protobuf)
+
+轻便高效的序列化数据结构的协议，可以用于网络通信和数据存储。
+特点：性能高、传输快、维护方便
+一些第三方rpc库都会支持protobuf
+
+github地址：
+https://github.com/protocolbuffers/protobuf
+
+golang库所属地址
+https://github.com/golang/protobuf
+
+proto语法
+https://developers.google.com/protocol-buffers/docs/proto3
+
+使用步骤
+  1. 安装protobuf
+  2. 安装插件
+    go get github.com/golang/protobuf/protoc-gen-go
+    此时会在你的GOPATH 的bin目录下生成可执行文件. protobuf的编译器插件protoc-gen-go
+    等下我们执行protoc 命令时 就会自动调用这个插件
+
+    安装go开发库
+    go get github.com/golang/protobuf/proto
+  3. 创建proto文件
+  4. 编译proto文件
+    protoc --go_out=. ProdService.proto

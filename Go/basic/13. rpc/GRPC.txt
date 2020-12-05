@@ -1,0 +1,16 @@
+gRPC是Google的RPC框架,使用HTTP/2协议并用ProtoBuf作为序列化工具。支持多语言版本，如c、java、go等
+
+github地址：
+https://github.com/grpc/grpc-go
+
+安装
+go get google.golang.org/grpc 
+
+定义service
+  service ProdService {
+    rpc GetProdStock (ProdRequest) returns (ProdResponse);
+  }
+
+
+生成文件
+protoc --go_out=plugins=grpc:. proto文件

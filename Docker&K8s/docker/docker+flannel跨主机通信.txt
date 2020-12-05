@@ -1,0 +1,93 @@
+准备工作
+  1、关闭firewalld
+    systemctl stop firewalld
+    systemctl disable firewalld
+
+  2、关闭selinux
+    setenforce 0
+
+  3、下载etcd
+    https://github.com/coreos/etcd/releases
+
+etcd
+  1、创建三个文件夹
+    mkdir /usr/local/etcd/{data,log,bin} -p
+  2、把可执行程序拷贝进去
+    sudo cp etcd /usr/local/etcd/bin
+    sudo cp etcdctl /usr/local/etcd/bin
+  3、加入环境变量
+    sudo vi /etc/profile
+    加入 export PATH=$PATH:/usr/local/etcd/bin
+    保存后执行 source /etc/profile
+
+  编写systemd文件 
+    vi /lib/systemd/system/etcd.service
+
+    [Unit]
+    Description=etcd
+    Conflicts=etcd.service
+
+    [Service]
+    Type=notify
+    Restart=always
+    RestartSec=5s
+    LimitNOFILE=40000
+    TimeoutStartSec=0
+
+    ExecStart=/usr/local/etcd/bin/etcd --name myetcd1 --data-dir /usr/local/etcd/data \
+    --listen-client-urls http://192.168.29.135:2379,http://127.0.0.1:2379 \
+    --advertise-client-urls http://192.168.29.135:2379
+
+    [Install]
+    WantedBy=multi-user.target
+
+  执行
+    1、Systemctl start etcd
+    2、初始化一个值
+      etcdctl --endpoints http://192.168.29.135:2379 set /flannel/network/config '{"Network": "10.3.0.0/16", "SubnetLen": 24, "SubnetMin": "10.3.20.0","SubnetMax": "10.3.100.0", "Backend": {"Type": "vxlan"}}'
+
+Flannel
+  Github地址
+    https://github.com/coreos/flannel
+  集群中不同节点的容器都有一个唯一的虚拟IP，将TCP数据包装在另一种网络包里进行路由转发和通信
+
+  拷贝文件
+    sudo cp flanneld /usr/local/bin
+    sudo cp mk-docker-opts.sh  /usr/local/bin
+
+  编写systemd文件
+    sudo  vi /lib/systemd/system/flanneld.service
+
+    [Unit]
+    Description=Flanneld
+
+    [Service]
+    User=root
+    ExecStart=/usr/local/bin/flanneld \
+    -etcd-endpoints=http://192.168.29.135:2379 \
+    -etcd-prefix=/flannel/network
+
+    ExecStartPost=/usr/local/bin/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker         
+    Restart=on-failure
+    [Install]
+    WantedBy=multi-user.target
+
+  启动
+    systemctl daemon-reload
+    systemctl start flanneld.service
+
+配置Docker、容器互通测试
+  修改docker启动配置
+    vi /lib/systemd/system/docker.service
+
+    加一行
+      EnvironmentFile=/run/flannel/docker
+
+      ExecStart=/usr/bin/dockerd $DOCKER_NETWORK_OPTIONS
+
+    保存好后，重启docker
+      systemctl daemon-reload
+      systemctl restart docker
+
+    设置iptables(两个节点都要执行)
+      sudo iptables -P FORWARD ACCEPT

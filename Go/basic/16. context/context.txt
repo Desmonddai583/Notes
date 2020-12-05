@@ -1,0 +1,35 @@
+context包被称为上下文包，go1.7加入，用于协程之间的上下文数据的传递、中止和控制超时。
+在网络编程中可用于请求的中止，譬如服务访问链的中止： A用户注册->B调用用户服务->C调用积分服务,其中A调用B，B调用C。如果由于A和B 之间由于某些原因取消或超时了，那么B和C之间也要取消
+
+核心接口
+  type Context interface {
+    //返回一个超时时间
+    Deadline() (deadline time.Time, ok bool)
+
+    // 返回只读channel。一旦可读代表父context发起取消操作，通过该方法可以收到此信号。就可以完成协程退出，并返回Err()
+    Done() <-chan struct{}
+
+    //返回context被取消的原因
+    Err() error
+
+    // 获取Context上的绑定值(根据key).线程安全
+    Value(key interface{}) interface{}
+  }
+
+空上下文
+  在进行上下文控制前，首先要创建一个顶层context，然后在此基础上生出子context。
+  go内置包提供了一个方法:
+    context.Background() 用于main函数、初始化以及测试代码中，作为根Context，不能被取消
+
+子上下文
+  func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+  参数：父Context，返回子Context，以及一个取消函数用来取消Context
+
+  func WithDeadline(parent Context, deadline time.Time) (Context, CancelFunc)
+  同上。传递一个截止时间参数，到该时间点自动取消
+
+  func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
+  同上，多少时间后自动取消
+
+  func WithValue(parent Context, key, val interface{}) Context 
+  生成一个绑定了一个键值对数据的Context
