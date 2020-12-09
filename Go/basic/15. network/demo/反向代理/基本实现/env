@@ -1,0 +1,9 @@
+[proxy]
+
+[proxy.a]
+path=/web1
+pass=http://localhost:9091
+
+[proxy.b]
+path=/web2
+pass=http://localhost:9092

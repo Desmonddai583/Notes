@@ -1,0 +1,16 @@
+T__0=1
+T__1=2
+T__2=3
+T__3=4
+StringArg=5
+FloatArg=6
+IntArg=7
+AnnotationName=8
+Dot=9
+Float=10
+WHITESPACE=11
+'@'=1
+'('=2
+')'=3
+','=4
+'.'=9
