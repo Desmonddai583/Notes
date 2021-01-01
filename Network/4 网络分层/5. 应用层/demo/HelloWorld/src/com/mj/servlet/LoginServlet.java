@@ -33,9 +33,40 @@ public class LoginServlet extends HttpServlet {
         response.setHeader("Content-Type", "text/html; charset=UTF-8");
         if ("123".equals(username) && "456".equals(password)) {
             // 登录成功
+            // 让客户端重定向到home.html
+            response.sendRedirect("/hello/html/home.html");
+//            response.setStatus(302);
+//            response.setHeader("Location", "/hello/html/home.html");
+
+            // response.getWriter().write("<h1 style=\"color: red\">登录成功!!!</h1>");
+        } else {
+            // 登录失败
+            response.setStatus(400);
+            response.getWriter().write("<h1 style=\"color: blue\">登录失败!!!</h1>");
+        }
+    }
+
+    private void test(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setHeader("Content-Type", "text/html; charset=UTF-8");
+
+        try {
+            System.out.println(1 / 0);
+        } catch (Exception e) {
+            response.setStatus(400);
+            response.getWriter().write("客户端异常，请稍后再试！");
+            return;
+        }
+        // 1.获取客户端发送的数据（请求参数）
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        // 2.判断
+        if ("123".equals(username) && "456".equals(password)) {
+            // 登录成功
             response.getWriter().write("<h1 style=\"color: red\">登录成功!!!</h1>");
         } else {
             // 登录失败
+            response.setStatus(400);
             response.getWriter().write("<h1 style=\"color: blue\">登录失败!!!</h1>");
         }
     }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表单提交</title>
+</head>
+<body>
+
+
+<!--<form action="http://localhost:8080/hello/form">-->
+
+<!--<form action="/hello/form" method="post" enctype="application/x-www-form-urlencoded">-->
+<!--    <div>-->
+<!--        <span>姓名</span>-->
+<!--        <input type="text" name="name">-->
+<!--    </div>-->
+
+<!--    <div>-->
+<!--        <span>年龄</span>-->
+<!--        <input type="text" name="age">-->
+<!--    </div>-->
+
+<!--    <button type="submit">保存</button>-->
+<!--</form>-->
+
+<form action="/hello/form" method="post" enctype="multipart/form-data">
+    <div>
+        <span>姓名</span>
+        <input type="text" name="name">
+    </div>
+
+    <div>
+        <span>年龄</span>
+        <input type="text" name="age">
+    </div>
+
+    <div>
+        <span>照片</span>
+        <input type="file" name="photo">
+    </div>
+
+    <button type="submit">保存</button>
+</form>
+
+
+
+</body>
+</html>

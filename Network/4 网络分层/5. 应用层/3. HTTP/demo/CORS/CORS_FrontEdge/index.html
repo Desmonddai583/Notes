@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        td {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+
+<a href="http://www.baidu.com">百度</a>
+
+<img src="http://www.baidu.com/img/bd_logo.png" alt="">
+
+<button id="load-btn">显示用户数据</button>
+<table>
+    <tr>
+        <th>用户名</th>
+        <th>年龄</th>
+    </tr>
+</table>
+
+<script src="js/jquery.min.js"></script>
+<script>
+    $('#load-btn').click(() => {
+        // AJAX请求（异步请求）
+        $.getJSON('http://localhost:8080/cors/users', (users) => {
+            const $table = $('table')
+            for (const user of users) {
+                const $tr = $('<tr>')
+                $tr.append($(`<td>${user.name}</td>`))
+                $tr.append($(`<td>${user.age}</td>`))
+                $table.append($tr)
+            }
+        })
+    })
+</script>
+</body>
+</html>
