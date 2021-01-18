@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="0" http-equiv="Expires"/>
+    <meta content="no-cache" http-equiv="Pragma"/>
+    <meta content="no-cache" http-equiv="Cache-control"/>
+    <meta content="no-cache" http-equiv="Cache"/>
+
+    <title>Title</title>
+    <script src="core/vue.js"></script>
+    <script src="core/router.js"></script>
+    <script src="core/vueloader.js"></script>
+    <script src="core/axios.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+     <!-- 引入组件库 -->
+    <script src="core/element.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <div style="text-align: center;height: 80px;">
+        <el-breadcrumb separator="/">
+            <router-link :to="{ path: '/' }">图书列表</router-link>
+        </el-breadcrumb>
+    </div>
+   <router-view></router-view>
+
+</div>
+<script type="module">
+    import router from "./config/router.js?v=1"
+    new Vue({
+        el: '#app',
+        router
+    })
+</script>
+</body>
+</html>
