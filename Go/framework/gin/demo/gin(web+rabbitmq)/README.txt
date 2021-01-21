@@ -122,7 +122,7 @@ RabbitMQ
       delay:=msg.Headers["x-delay"]
       if isfail {
         r:=Helper.SetNotify(userID)
-        if r==0{
+        if r==0 {
           log.Printf("%s向userID=%s的用户发送邮件---不再重发\n",c,string(msg.Body))
           msg.Ack(false)
           return
