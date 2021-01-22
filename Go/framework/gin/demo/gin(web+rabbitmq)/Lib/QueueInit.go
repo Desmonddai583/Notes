@@ -38,7 +38,26 @@ func UserDelayInit() error {
 		return fmt.Errorf("DelayExchange error", err)
 	}
 	qs := fmt.Sprintf("%s", QUEUE_NEWUSER)
-	err = mq.DecQueueAndBind(qs, ROUTER_KEY_USERREG, EXCHANGE_USER)
+	err = mq.DecQueueAndBind(qs, ROUTER_KEY_USERREG, EXCHANGE_USER_DELAY)
+	if err != nil {
+		return fmt.Errorf("Queue Bind error", err)
+	}
+	return nil
+}
+
+//转账相关队列初始化
+func TransInit() error {
+	mq := NewMQ()
+	if mq == nil {
+		return fmt.Errorf("mq init error")
+	}
+	defer mq.Channel.Close()
+	//申明交换机
+	err := mq.Channel.ExchangeDeclare(EXCHANGE_TRANS, "direct", false, false, false, false, nil)
+	if err != nil {
+		return fmt.Errorf("Exchange_Trans error", err)
+	}
+	err = mq.DecQueueAndBind(QUEUE_TRANS, ROUTER_KEY_TRANS, EXCHANGE_TRANS)
 	if err != nil {
 		return fmt.Errorf("Queue Bind error", err)
 	}

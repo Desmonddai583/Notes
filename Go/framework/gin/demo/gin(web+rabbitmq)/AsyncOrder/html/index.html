@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache"/>
+    <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"/>
+    <meta HTTP-EQUIV="expires" CONTENT="0"/>
+    <script src="core/vue.js"></script>
+    <script src="core/router.js"></script>
+    <script src="core/vueloader.js"></script>
+    <script src="core/axios.js"></script>
+</head>
+<body>
+<div id="app">
+  <router-view>
+
+  </router-view>
+</div>
+<script type="module">
+    import router from "./config/router.js"
+    new Vue({
+        el: '#app',
+        router
+    })
+</script>
+</body>
+</html>

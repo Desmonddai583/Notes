@@ -1,6 +1,7 @@
 package Lib
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -15,6 +16,9 @@ const (
 	EXCHANGE_USER_DELAY = "UserExchangeDelay"
 	ROUTER_KEY_USERREG  = "userreg" //注册用户的路由key
 
+	EXCHANGE_TRANS   = "TransExchange" //转账相关交换机
+	ROUTER_KEY_TRANS = "trans"         //转账相关路由key
+	QUEUE_TRANS      = "TransQueueA"   //转账相关队列
 )
 
 type MQ struct {
@@ -48,13 +52,27 @@ func (this *MQ) DecQueueAndBind(queues string, key string, exchange string) erro
 	}
 	return nil
 }
-
+func (this *MQ) DecQueueAndBindWithArgs(queues string, key string, exchange string, args map[string]interface{}) error {
+	qList := strings.Split(queues, ",")
+	for _, queue := range qList {
+		q, err := this.Channel.QueueDeclare(queue, false, false, false, false, args)
+		if err != nil {
+			return err
+		}
+		err = this.Channel.QueueBind(q.Name, key, exchange, false, nil)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 func (this *MQ) NotifyReturn() {
 	this.notifyReturn = this.Channel.NotifyReturn(make(chan amqp.Return))
 	go this.listenReturn() //使用协程执行
 }
 func (this *MQ) listenReturn() {
 	ret := <-this.notifyReturn
+	fmt.Println(ret.Headers)
 	if string(ret.Body) != "" {
 		log.Println("消息没有正确入列:", string(ret.Body))
 	}
