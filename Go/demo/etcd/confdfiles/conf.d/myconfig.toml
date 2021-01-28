@@ -1,0 +1,8 @@
+[template]
+prefix="/myconfig"
+src = "myconfig.conf.tmpl"
+dest = "/etc/confd/dest/myconfig.conf"
+keys = [
+    "/mysql/user",
+    "/mysql/pass",
+]

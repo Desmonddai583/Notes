@@ -1,0 +1,9 @@
+[template]
+prefix="/myconfig"
+src = "my.ini.conf.tmpl"
+dest = "/mygo/my.ini"
+keys = [
+  "/mygo/db_user",
+  "/mygo/db_pass",
+]
+reload_cmd = "curl http://192.168.29.135:8001/reload"
