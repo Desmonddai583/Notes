@@ -1,0 +1,18 @@
+syntax="proto3";
+
+package Services;
+import "google/api/annotations.proto";
+message TestRequest{
+    int32 id=1;
+}
+message TestResponse{
+    string data=1;
+}
+
+service TestService{
+    rpc Call(TestRequest) returns(TestResponse){
+        option (google.api.http) = {
+            get: "/test/{id}"
+        };
+    }
+}
