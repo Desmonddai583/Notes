@@ -1,6 +1,7 @@
 package Injector
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/shenyisyn/goft-expr/src/expr"
@@ -31,17 +32,13 @@ func (this *BeanFactoryImpl) Config(cfgs ...interface{}) {
 		if t.Kind() != reflect.Ptr {
 			panic("required ptr object") //必须是指针对象
 		}
-		if t.Elem().Kind() != reflect.Struct {
-			continue
-		}
 		this.Set(cfg)                       //把config本身也加入bean
 		this.ExprMap[t.Elem().Name()] = cfg //自动构建 ExprMap
-		this.Apply(cfg)                     //处理依赖注入 (new)
 		v := reflect.ValueOf(cfg)
 		for i := 0; i < t.NumMethod(); i++ {
 			method := v.Method(i)
 			callRet := method.Call(nil)
-
+			fmt.Println("--------------------")
 			if callRet != nil && len(callRet) == 1 {
 				this.Set(callRet[0].Interface())
 			}
@@ -58,9 +55,6 @@ func (this *BeanFactoryImpl) Get(v interface{}) interface{} {
 	}
 	return nil
 }
-func (this *BeanFactoryImpl) GetBeanMapper() BeanMapper {
-	return this.beanMapper
-}
 
 //处理依赖注入
 func (this *BeanFactoryImpl) Apply(bean interface{}) {
@@ -74,24 +68,25 @@ func (this *BeanFactoryImpl) Apply(bean interface{}) {
 	if v.Kind() != reflect.Struct {
 		return
 	}
+
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		if v.Field(i).CanSet() && field.Tag.Get("inject") != "" {
-			if field.Tag.Get("inject") != "-" { //多例模式
+			if field.Tag.Get("inject") != "-" {
+				//表达式方式支持
 				ret := expr.BeanExpr(field.Tag.Get("inject"), this.ExprMap)
 				if ret != nil && !ret.IsEmpty() {
 					retValue := ret[0]
 					if retValue != nil {
 						v.Field(i).Set(reflect.ValueOf(retValue))
-						this.Apply(retValue)
 					}
 				}
-			} else { //单例模式
+			} else { //这里做了改动
 				if get_v := this.Get(field.Type); get_v != nil {
 					v.Field(i).Set(reflect.ValueOf(get_v))
-					this.Apply(get_v)
 				}
 			}
+
 		}
 	}
 }
