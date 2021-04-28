@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="core/vue.js"></script>
+    <script src="core/qs.js"></script>
+    <script src="core/router.js"></script>
+    <script src="core/vueloader.js"></script>
+    <script src="core/axios.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="core/element.css">
+     <!-- 引入组件库 -->
+    <script src="core/element.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <div style="text-align: center;height: 80px;">
+        <navbar/>
+    </div>
+   <router-view></router-view>
+
+</div>
+<script type="module">
+    import router from "./config/router.js"
+    var oauth_config={
+        //accessToken请求地址
+        accessTokenUri : "http://oauth.me.com/token",
+        client_id:"mainweb",
+        client_secret:"123",
+
+    }
+    const nologin=["/login","/","/auth_code"];
+    router.beforeEach((to, from, next) => {
+        if (nologin.indexOf(to.path)>-1) {
+            next();
+        } else {
+            let token = localStorage.getItem('login_user');
+            if (token === null || token === '') {
+                next('/login');
+            } else {
+                next();
+            }
+        }
+    });
+    const refreshHttp=axios.create({
+        timeout: 1000,
+    })
+    axios.interceptors.request.use(async config=>{
+        let getToken = localStorage.getItem('login_user');
+        if(getToken!=null && getToken!==""){
+            let {access_token,refresh_token,expire}=JSON.parse(getToken)
+            // 默认的时间是 7200 ==3600*2
+            if(parseInt(expire-new Date().getTime()/1000)<7195){
+                    const postData = {
+                        grant_type: 'refresh_token',
+                        scope: 'all',
+                        refresh_token: refresh_token
+                    }
+
+                    try {
+                        const rsp=await refreshHttp.post(oauth_config.accessTokenUri,Qs.stringify(postData),{
+                            headers:{"Content-type":"application/x-www-form-urlencoded"},
+                            auth: {
+                                username: oauth_config.client_id,
+                                password: oauth_config.client_secret
+                            }
+                        })
+                        access_token=rsp.data.access_token
+                        refresh_token=rsp.data.refresh_token
+                        expire=new Date().getTime()/1000+rsp.data.expires_in
+                        console.log(rsp.data)
+                        localStorage.setItem("login_user",
+                            JSON.stringify({
+                                access_token,
+                                refresh_token,
+                                expire:expire}))
+                    }
+                   catch(e){
+                        localStorage.removeItem("login_user")
+                        alert("续期失败，你需要重新登录"+e);
+                        return config
+                    }
+            }
+            if(config["params"])
+                config.params["token"] = access_token
+            else
+                config["params"]={token:access_token}
+            console.log("index:"+access_token)
+        }
+
+        return config;
+    })
+    new Vue({
+        el: '#app',
+        router,
+        components:{
+            navbar:  httpVueLoader( 'components/navbar.vue' )
+        }
+    })
+</script>
+</body>
+</html>
