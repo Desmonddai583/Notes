@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "UserModel.proto";
+option go_package = ".;services";
+
+message UserRequest{
+    int32 user_id=1;
+}
+message UserResponse{
+    UserModel result=1;
+}
+service UserService {
+    rpc GetUserInfo(UserRequest) returns (UserResponse);
+
+}

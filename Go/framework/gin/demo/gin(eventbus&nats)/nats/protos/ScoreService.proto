@@ -1,0 +1,13 @@
+syntax = "proto3";
+option go_package = ".;services";
+
+message ScoreRequest{
+    int32 user_id=1;
+}
+message ScoreResponse{
+    int32 score=1;
+}
+service ScoreService {
+    rpc GetScore(ScoreRequest) returns (ScoreResponse);
+
+}
