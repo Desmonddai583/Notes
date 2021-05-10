@@ -1,0 +1,2 @@
+E:\video\2021-2\grpcpath\grpcwebproxy\dist\grpcwebproxy --backend_addr=test.grpc.jtthink.com:8081 --server_http_debug_port=8082 --allow_all_origins --server_tls_cert_file=E:/video/2021-2/grpcpath/grpcpro/certs/server.pem  --server_tls_key_file=E:/video/2021-2/grpcpath/grpcpro/certs/server.key  --backend_client_tls_cert_file=E:/video/2021-2/grpcpath/grpcpro/certs/client.crt --backend_client_tls_key_file=E:/video/2021-2/grpcpath/grpcpro/certs/client.key --backend_tls_ca_files=E:/video/2021-2/grpcpath/grpcpro/certs/ca.crt --backend_tls=true
+

@@ -1,0 +1,8 @@
+
+p, member, /ProdService/GetProd
+
+p, admin, /ProdService/UpdateProd
+
+g, admin, member
+g, shenyi, admin
+g, lisi, member

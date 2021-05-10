@@ -1,0 +1,6 @@
+syntax = "proto3";
+option go_package = "grpcpro/src/pbfiles";
+import "models.proto";
+service ProdService {
+    rpc GetProd(ProdRequest) returns (ProdResponse);
+}
