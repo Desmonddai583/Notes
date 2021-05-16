@@ -1,0 +1,15 @@
+server-name: myraft-1
+server-id: 1
+logstore: /n1/log_store.bolt
+stablestore: /n1/stable_store.bolt
+snapshot: /n1
+transport: 127.0.0.1:3001
+port: 8081
+local-cache: tmp1
+servers:
+  - id: 1
+    address: 127.0.0.1:3001
+    http: http://127.0.0.1:8081
+  - id: 2
+    address: 127.0.0.1:3002
+    http: http://127.0.0.1:8082

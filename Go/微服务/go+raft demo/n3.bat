@@ -1,0 +1,1 @@
+go run src/cmd/main.go -c n3.yaml

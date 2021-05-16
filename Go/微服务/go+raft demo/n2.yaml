@@ -1,0 +1,14 @@
+server-name: myraft-2
+server-id: 2
+logstore: /n2/log_store.bolt
+stablestore: /n2/stable_store.bolt
+snapshot: /n2
+transport: 127.0.0.1:3002
+port: 8082
+servers:
+  - id: 1
+    address: 127.0.0.1:3001
+    http: http://127.0.0.1:8081
+  - id: 2
+    address: 127.0.0.1:3002
+    http: http://127.0.0.1:8082
