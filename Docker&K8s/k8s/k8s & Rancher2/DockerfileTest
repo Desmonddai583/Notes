@@ -1,0 +1,7 @@
+FROM golang:1.14.4-alpine3.12
+ADD . /src
+WORKDIR /src
+ENV GOPROXY=https://goproxy.cn
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk add build-base
+cmd ["go","test"]
