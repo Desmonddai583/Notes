@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myngx
+  namespace: myweb
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      nodeSelector:
+        name: a2
+      containers:
+        - name: nginxtest
+          image: nginx:1.18-alpine
+          # 只有镜像不存在时进行镜像拉取
+          imagePullPolicy: IfNotPresent
+          ports:
+            # Pod 端口
+            - containerPort: 80

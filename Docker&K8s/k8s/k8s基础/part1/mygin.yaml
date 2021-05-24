@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mygin
+  namespace: myweb
+spec:
+  selector:
+    matchLabels:
+      app: mygin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mygin
+    spec:
+      nodeSelector:
+        name: a1
+      containers:
+        - name: ginweb
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: [ "/app/myserver" ]
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: v1
+              mountPath: /app
+      volumes:
+        - name: v1  #挂载宿主机上面的目录
+          hostPath:
+            path: /home/shenyi/myweb

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myngx-service
+  namespace: myweb
+spec:
+  selector:
+    app: nginx   #这个和前面的app也是对应
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP    #ClusterIP、NodePort和LoadBalancer
