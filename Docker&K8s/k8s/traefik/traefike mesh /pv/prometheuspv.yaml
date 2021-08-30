@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    field.cattle.io/creatorId: user-mtxnk
+    pv.kubernetes.io/bound-by-controller: "yes"
+  creationTimestamp: "2021-01-19T08:46:23Z"
+  finalizers:
+  - kubernetes.io/pv-protection
+  labels:
+    cattle.io/creator: norman
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:field.cattle.io/creatorId: {}
+        f:labels:
+          .: {}
+          f:cattle.io/creator: {}
+      f:spec:
+        f:accessModes: {}
+        f:capacity:
+          .: {}
+          f:storage: {}
+        f:hostPath:
+          .: {}
+          f:path: {}
+          f:type: {}
+        f:nodeAffinity:
+          .: {}
+          f:required:
+            .: {}
+            f:nodeSelectorTerms: {}
+        f:persistentVolumeReclaimPolicy: {}
+        f:storageClassName: {}
+        f:volumeMode: {}
+    manager: Go-http-client
+    operation: Update
+    time: "2021-01-19T08:46:23Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:pv.kubernetes.io/bound-by-controller: {}
+      f:spec:
+        f:claimRef:
+          .: {}
+          f:apiVersion: {}
+          f:kind: {}
+          f:name: {}
+          f:namespace: {}
+          f:resourceVersion: {}
+          f:uid: {}
+      f:status:
+        f:phase: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2021-01-19T08:47:41Z"
+  name: prometheuspv
+  resourceVersion: "33277220"
+  selfLink: /api/v1/persistentvolumes/prometheuspv
+  uid: 8affec58-fbee-4b77-8394-ac04dd5a0097
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: prometheus-storage
+    namespace: traefik-mesh
+    resourceVersion: "33277214"
+    uid: 9bd976ae-b549-4c29-a68e-943f2aca9252
+  hostPath:
+    path: /home/shenyi/traefikpv/prometheus
+    type: ""
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - dsjs
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: prometheus-storage
+  volumeMode: Filesystem
+status:
+  phase: Bound

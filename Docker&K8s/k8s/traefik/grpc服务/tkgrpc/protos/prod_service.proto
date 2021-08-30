@@ -1,0 +1,7 @@
+syntax = "proto3";
+import "prod_model.proto";
+option go_package = ".;pbfiles";
+service ProdService {
+    rpc GetStock(ProdRequest) returns (ProdStockResponse);
+
+}

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx1
+spec:
+  selector:
+    matchLabels:
+      app: ngx1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ngx1
+    spec:
+      nodeName: jtthink1
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: app
+#                    operator: In
+#                    values:
+#                      - ngx
+#          preferredDuringSchedulingIgnoredDuringExecution:
+#            - weight: 1
+#              preference:
+#                matchExpressions:
+#                - key: age
+#                  operator: In
+#                  values:
+#                   - "19"
+      containers:
+        - name: ngx1
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+
+

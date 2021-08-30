@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx2
+spec:
+  selector:
+    matchLabels:
+      app: ngx2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ngx2
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - ngx1
+              topologyKey: name
+      containers:
+        - name: ngx2
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+
+

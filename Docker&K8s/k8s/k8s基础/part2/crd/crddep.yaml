@@ -1,0 +1,7 @@
+apiVersion: extensions.jtthink.com/v1
+kind: MyRoute
+metadata:
+  name: mygw
+spec:
+  name: "shenyi"
+  age: 19

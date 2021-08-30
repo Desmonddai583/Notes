@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web1
+spec:
+  selector:
+    matchLabels:
+      app: myweb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myweb
+    spec:
+      nodeName: jtthink2
+      containers:
+        - name: web1test
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/stress"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+      volumes:
+        - name: app
+          hostPath:
+            path: /home/shenyi/goapi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web1
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:  #service通过selector和pod建立关联
+    app: myweb

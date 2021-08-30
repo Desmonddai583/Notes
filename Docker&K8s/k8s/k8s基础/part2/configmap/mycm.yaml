@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mycm
+data:
+  # 每一个键对应一个简单的值,以字符串的形式体现
+  username: "shenyi"
+  userage: "19"
+  user.info: |
+    name=shenyi
+    age=19
+

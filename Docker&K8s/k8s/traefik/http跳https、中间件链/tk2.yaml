@@ -1,0 +1,34 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tk2
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`tk2.jtthink.com`) && Path(`/a`)
+      kind: Rule
+      middlewares:
+        - name: ngx-stripprefix
+        - name: ngx-ratelimit
+      services:
+        - name: myngx
+          port: 80
+    - match: Host(`tk2.jtthink.com`) && Path(`/b`)
+      kind: Rule
+      middlewares:
+        - name: ngx-stripprefix
+        - name: cross-header
+      services:
+          - name: myngx
+            port: 80
+    - match: Host(`wx.jtthink.com`)
+      kind: Rule
+      middlewares:
+        - name: ngx-secure
+      services:
+        - name: myngx
+          port: 80
+  tls:
+     secretName: mytls

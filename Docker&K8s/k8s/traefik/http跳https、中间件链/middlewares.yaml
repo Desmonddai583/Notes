@@ -1,0 +1,57 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ngx-stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /a
+      - /b
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ngx-ratelimit
+spec:
+  rateLimit:
+    average: 1
+    burst: 5
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: cross-header
+spec:
+  headers:
+    customResponseHeaders:
+      Myname: "shenyi"
+      Myage: "19"
+      Access-Control-Allow-Origin: "*"
+      Access-Control-Allow-Methods: "POST, GET, OPTIONS, PUT, DELETE, UPDATE"
+      Access-Control-Allow-Headers: "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      Access-Control-Allow-Credentials: "true"
+      Access-Control-Expose-Headers: "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Cache-Control, Content-Language, Content-Type"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+spec:
+  redirectScheme:
+    scheme: "https"
+    port: "9443"
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ngx-secure
+spec:
+  chain:
+    middlewares:
+      - name: redirect-https
+      - name: cross-header
+

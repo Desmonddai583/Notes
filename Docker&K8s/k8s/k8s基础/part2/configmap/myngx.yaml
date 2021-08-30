@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myngx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: ngx
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: cmdata
+              mountPath: /data/user.txt
+              subPath: user.info
+          env:
+            - name: TEST
+              value: testvalue
+            - name: USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mycm           #  ConfigMap的名称
+                  key: username # 需要取值的键
+      volumes:
+        - name: cmdata
+          configMap:
+            defaultMode: 0655
+            name: mycm
+#            items:
+#              - key: user.info
+#                path: user.txt
+
+
+
+

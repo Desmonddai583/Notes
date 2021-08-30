@@ -1,0 +1,48 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: token-check
+  namespace: tk
+spec:
+  forwardAuth:
+    address: http://authapi/auth
+    authResponseHeaders:
+      - X-Auth-User
+    trustForwardHeader: true
+    tls:
+      insecureSkipVerify: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: access-check
+  namespace: tk
+spec:
+  forwardAuth:
+    address: http://casbinaccess/
+    trustForwardHeader: true
+    tls:
+      insecureSkipVerify: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: depts-route
+  namespace: tk
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`depts.jtthink.com`)
+      kind: Rule
+      middlewares:
+        - name: token-check
+        - name: access-check
+      services:
+        - name: deptapi
+          port: 80
+    - match: Host(`token.jtthink.com`)
+      kind: Rule
+      services:
+        - name: authapi
+          port: 80

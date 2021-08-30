@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx1
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: ngx1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ngx1
+    spec:
+      containers:
+        - name: ngx1
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: htmldata
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: h1
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: htmldata
+          configMap:
+            defaultMode: 0644
+            name: html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngx1-svc
+  namespace: tk
+  annotations:
+    mesh.traefik.io/ratelimit-average: "1"
+    mesh.traefik.io/ratelimit-burst: "1"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: ngx1
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx2
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: ngx2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ngx2
+    spec:
+      containers:
+        - name: ngx2
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: htmldata
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: h2
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: htmldata
+          configMap:
+            defaultMode: 0644
+            name: html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngx2-svc
+  namespace: tk
+  annotations:
+    mesh.traefik.io/ratelimit-average: "1"
+    mesh.traefik.io/ratelimit-burst: "1"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: ngx2

@@ -1,0 +1,30 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mirrorlb
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`tk1.jtthink.com`)
+      kind: Rule
+      services:
+        - name: mirror1
+          kind: TraefikService
+          namespace: tk
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TraefikService
+metadata:
+  name: mirror1
+spec:
+  mirroring:
+    name: ngx1-svc
+    kind: Service
+    port: 80
+    mirrors:
+      - name: ngx2-svc
+        port: 80
+        percent: 50
+        kind: Service

@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tk1
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`tk1.jtthink.com`)
+      kind: Rule
+      services:
+        - name: myngx
+          port: 80
+
+

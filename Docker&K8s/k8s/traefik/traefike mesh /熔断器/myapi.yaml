@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapi
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: myapi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: myapi
+    spec:
+      nodeName: dsjs  # 指定主机
+      containers:
+        - name: myapi
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/mycb"]
+          volumeMounts:
+            - name: appdata
+              mountPath: /app
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: appdata
+          hostPath:
+            path: /home/shenyi/myweb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapi
+  namespace: tk
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: myapi

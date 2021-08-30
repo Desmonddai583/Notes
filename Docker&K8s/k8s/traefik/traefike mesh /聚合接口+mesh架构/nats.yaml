@@ -1,0 +1,8 @@
+apiVersion: nats.io/v1alpha2
+kind: NatsCluster
+metadata:
+  name: mynats
+spec:
+  size: 1
+  version: "2.1.8"
+

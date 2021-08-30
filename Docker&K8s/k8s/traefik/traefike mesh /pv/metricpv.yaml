@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    field.cattle.io/creatorId: user-mtxnk
+    pv.kubernetes.io/bound-by-controller: "yes"
+  creationTimestamp: "2021-01-19T08:45:28Z"
+  finalizers:
+  - kubernetes.io/pv-protection
+  labels:
+    cattle.io/creator: norman
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:field.cattle.io/creatorId: {}
+        f:labels:
+          .: {}
+          f:cattle.io/creator: {}
+      f:spec:
+        f:accessModes: {}
+        f:capacity:
+          .: {}
+          f:storage: {}
+        f:hostPath:
+          .: {}
+          f:path: {}
+          f:type: {}
+        f:nodeAffinity:
+          .: {}
+          f:required:
+            .: {}
+            f:nodeSelectorTerms: {}
+        f:persistentVolumeReclaimPolicy: {}
+        f:storageClassName: {}
+        f:volumeMode: {}
+    manager: Go-http-client
+    operation: Update
+    time: "2021-01-19T08:45:28Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:pv.kubernetes.io/bound-by-controller: {}
+      f:spec:
+        f:claimRef:
+          .: {}
+          f:apiVersion: {}
+          f:kind: {}
+          f:name: {}
+          f:namespace: {}
+          f:resourceVersion: {}
+          f:uid: {}
+      f:status:
+        f:phase: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2021-01-19T08:47:41Z"
+  name: metricpv
+  resourceVersion: "33277216"
+  selfLink: /api/v1/persistentvolumes/metricpv
+  uid: bb626b04-eb25-4908-ac44-282717b89abc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: metrics-storage
+    namespace: traefik-mesh
+    resourceVersion: "33277213"
+    uid: 74ab1f47-1e06-43b5-bf5d-74ed9ad83253
+  hostPath:
+    path: /home/shenyi/traefikpv/metric
+    type: ""
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - dsjs
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: metric-storage
+  volumeMode: Filesystem
+status:
+  phase: Bound

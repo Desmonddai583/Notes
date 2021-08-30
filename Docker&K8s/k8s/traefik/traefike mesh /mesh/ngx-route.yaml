@@ -1,0 +1,24 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ngx-route
+  namespace: tk
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`tk1.jtthink.com`)
+      kind: Rule
+#      middlewares:
+#        - name: ngx-ratelimit
+      services:
+        - name: ngx1-svc
+          port: 80
+    - match: Host(`tk2.jtthink.com`)
+      kind: Rule
+#      middlewares:
+#        - name: ngx-ratelimit
+      services:
+        - name: ngx2-svc
+          port: 80
+

@@ -1,0 +1,22 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ngx-stripprefix
+  namespace: tk
+spec:
+  stripPrefix:
+    prefixes:
+      - /a
+      - /b
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: ngx-ratelimit
+  namespace: tk
+spec:
+  rateLimit:
+    average: 1
+    burst: 1
+
+

@@ -1,0 +1,21 @@
+syntax = "proto3";
+option go_package = ".;pbfiles";
+message  ProdRequest {
+    int32 prod_id =1;   //传入的商品ID
+}
+message ProdStockResponse{
+    int32 prod_id=1;  //商品ID
+    int32 prod_stock=2;//商品库存
+}
+//以下是商品相关
+message ProdModel {
+    int32 id=1;
+    string name=2;
+}
+//热门商品的请求
+message  HotProdRequest {
+    int32 size =1;   //取多少条
+}
+message  HotProdResponse {
+    repeated ProdModel result=1;   //结果
+}

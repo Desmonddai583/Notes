@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prodservice
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: prodservice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prodservice
+    spec:
+      nodeName: dsjs  # 指定主机
+      containers:
+        - name: prodservice
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/prodservice"]
+          volumeMounts:
+            - name: appdata
+              mountPath: /app
+          ports:
+            - containerPort: 8080
+      volumes:
+        - name: appdata
+          hostPath:
+            path: /home/shenyi/myweb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prodservice
+  namespace: tk
+  annotations:
+    mesh.traefik.io/traffic-type: "http"
+    mesh.traefik.io/scheme: "h2c"
+    mesh.traefik.io/circuit-breaker-expression: "LatencyAtQuantileMS(50.0) > 1000"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: prodservice

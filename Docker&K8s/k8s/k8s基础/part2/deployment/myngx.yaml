@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myngx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      initContainers:
+        - name: init-mydb
+          image: alpine:3.12
+          command: ['sh', '-c', 'echo wait for db && sleep 35 && echo done']
+      containers:
+        - name: ngx
+          image: nginx:1.18-alpine
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: sharedata
+              mountPath: /data
+        - name: alpine
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["sh","-c","echo this is alpine && sleep 36000"]
+          volumeMounts:
+            - name: sharedata
+              mountPath: /data
+      volumes:
+        - name:  sharedata
+          emptyDir: {}

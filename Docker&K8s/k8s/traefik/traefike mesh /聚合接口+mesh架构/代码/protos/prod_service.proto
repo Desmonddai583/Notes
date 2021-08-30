@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "prod_model.proto";
+option go_package = ".;pbfiles";
+import "google/api/annotations.proto";
+
+service ProdService {
+  rpc GetStock(ProdRequest) returns (ProdStockResponse){
+    option (google.api.http) = {
+       get: "/v1/prod/stock/{prod_id}"
+     };
+  }
+  rpc GetHotProds(HotProdRequest) returns (HotProdResponse);
+
+}

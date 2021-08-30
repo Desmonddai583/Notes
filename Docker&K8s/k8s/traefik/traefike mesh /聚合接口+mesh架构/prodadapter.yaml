@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prodadapter
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: prodadapter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prodadapter
+    spec:
+      nodeName: dsjs  # 指定主机
+      containers:
+        - name: prodadapter
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/prodAdapter"]
+          env:
+           - name: "NATSURL"
+             value: "natstest.default:4222"
+          volumeMounts:
+            - name: appdata
+              mountPath: /app
+      volumes:
+        - name: appdata
+          hostPath:
+            path: /home/shenyi/myweb

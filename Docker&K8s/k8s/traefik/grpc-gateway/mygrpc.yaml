@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mygrpc
+  namespace: tk
+spec:
+  selector:
+    matchLabels:
+      app: mygrpc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mygrpc
+    spec:
+      nodeName: dsjs
+      containers:
+        - name: mygrpc
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/server"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+          ports:
+            - containerPort: 8080
+        - name: mygrpc-gateway
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/serverhttp"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+          ports:
+            - containerPort: 8081
+      volumes:
+        - name: app
+          hostPath:
+            path: /home/shenyi/mygrpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mygrpc-svc
+  namespace: tk
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      name: grpcport
+      targetPort: 8080
+    - port: 8081
+      name: grpcgwport
+      targetPort: 8081
+  selector:
+    app: mygrpc
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grpc-route
+  namespace: tk
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`wx.jtthink.com`)
+      kind: Rule
+      services:
+        - name: mygrpc-svc
+          scheme: h2c
+          port: 8080
+  tls:
+    secretName: mytls
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grpc-httproute
+  namespace: tk
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`prod.jtthink.com`)
+      kind: Rule
+      services:
+        - name: mygrpc-svc
+          port: 8081
+

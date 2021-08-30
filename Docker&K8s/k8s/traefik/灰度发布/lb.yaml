@@ -1,0 +1,37 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tklb
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`tk1.jtthink.com`) && Headers(`version`,`v2`)
+      kind: Rule
+      services:
+          - name: ngx2-svc
+            kind: Service
+            port: 80
+            namespace: tk
+    - match: Host(`tk1.jtthink.com`)
+      kind: Rule
+      services:
+        - name: wrr1
+          kind: TraefikService
+          namespace: tk
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TraefikService
+metadata:
+  name: wrr1
+spec:
+  weighted:
+    services:
+      - name: ngx1-svc
+        port: 80
+        weight: 0
+        kind: Service
+      - name: ngx2-svc
+        port: 80
+        weight: 1
+        kind: Service

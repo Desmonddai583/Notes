@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdmtest
+spec:
+  selector:
+    matchLabels:
+      app: cmtest
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cmtest
+    spec:
+      serviceAccount: cmuser
+      nodeName: jtthink2
+      containers:
+        - name: cmtest
+          image: alpine:3.12
+          imagePullPolicy: IfNotPresent
+          command: ["/app/cmtest"]
+          volumeMounts:
+            - name: app
+              mountPath: /app
+      volumes:
+        - name: app
+          hostPath:
+            path: /home/shenyi/goapi
+            type: Directory
