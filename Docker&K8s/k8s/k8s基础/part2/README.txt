@@ -1,6 +1,25 @@
 kubeadm安装
   https://kubernetes.io/zh/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
+  1. 
+    sudo cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+    [kubernetes]
+    name=Kubernetes
+    baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+    enabled=1
+    gpgcheck=1
+    repo_gpgcheck=1
+    gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+            https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+    EOF
+
+    yum makecache
+    注意：切换到root （su - root）把上述执行。然后再切回普通用户，各个主机都要执
+  2. 
+    sudo yum -y install kubelet-1.20.2  kubeadm-1.20.2  kubectl-1.20.2
+    执行 rpm -aq kubelet kubectl kubeadm   看下列表，如果OK就是装好了
+    sudo systemctl enable kubelet 把kubelet设置为开机启动
+
 初始化集群
   主要有三个：Kubeadm init、kubeadm join、kubeadm token
     kubeadm init：集群的快速初始化，部署Master节点的各个组件  
