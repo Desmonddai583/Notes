@@ -1,0 +1,135 @@
+Rust 安装
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+cargo new 新建 Rust 项 目
+
+VSCode插件
+  1. rust-analyzer：它会实时编译和分析你的 Rust 代码，提示代码中的错误，并对类型进 行标注。你也可以使用官方的 rust 插件取代。
+  2. rust syntax：为代码提供语法高亮。
+  3. crates：帮助你分析当前项目的依赖是否是最新的版本。
+  4. better toml：Rust 使用 toml 做项目的配置管理。better toml 可以帮你语法高亮，并展示 toml 文件中的错误。
+  5. rust test lens：可以帮你快速运行某个 Rust 测试。
+  6. Tabnine：基于 AI 的自动补全，可以帮助你更快地撰写代码。
+
+Rust 使用名为 cargo 的工具来管理项目，它类似 Node.js 的 npm、Golang 的 go，用来做依赖管理以及开发过程中的任务管理，比如编译、运行、测试、代码格式化等等
+
+Rust 的整体语法偏 C/C++ 风格。函数体用花括号 {} 包裹，表达式之间用分号 ; 分隔，访问结构体的成员函数或者变量使用点 . 运算符，
+而访问命名空间 （namespace）或者对象的静态函数使用双冒号 :: 运算符。
+如果要简化对命名空间内部 的函数或者数据类型的引用，可以使用 use 关键字，比如 use std::fs。此外，可执 行体的入口函数是 main()
+
+Rust 虽然是一门强类型语言，但编译器支持类型推导
+Rust 支持宏编程，很多基础的功能比如 println!() 都被封装成一个宏
+Rust 的变量默认是不可变的，如果要修改变量的值，需要显式地使用 mut 关键字。
+除了 let / static / const / fn 等少数语句外，Rust 绝大多数代码都是表达式 （expression）。
+所以 if / while / for / loop 都会返回一个值，函数最后一个表达式就 是函数的返回值，这和函数式编程语言一致。
+Rust 支持面向接口编程和泛型编程。
+Rust 有非常丰富的数据类型和强大的标准库。
+Rust 有非常丰富的控制流程，包括模式匹配（pattern match）
+
+变量和函数
+  Rust 支持类型推导，在编译器能够推导类型的情况下，变量类型一般可以省 略，但常量（const）和静态变量（static）必须声明类型
+  定义变量的时候，根据需要，你可以添加 mut 关键字让变量具备可变性。默认变量不可变 是一个很重要的特性，它符合最小权限原则（Principle of Least Privilege），有助于我们 写出健壮且正确的代码。
+  当你使用 mut 却没有修改变量，Rust 编译期会友好地报警，提 示你移除不必要的 mut
+  Rust 下，函数是一等公民，可以作为参数或者返回值
+
+  Rust 函数参数的类型和返回值的类型都必须显式定义，如果没有返回值可以省略，返回 unit。
+  函数内部如果提前返回，需要用 return 关键字，否则最后一个表达式就是其返回 值。如果最后一个表达式后添加了; 分号，隐含其返回值为 unit
+
+数据结构
+  Rust可以用 struct 定义结构体，用 enum 定义标签联合体（tagged union），还可以像 Python 一样随手定义元组（tuple）类型(它的域都是匿名的，可以用索 引访问，适用于简单的结构体)
+  一般我们用 impl 关键字为数据结构实现 trait, Rust提供了派生宏（derive macro），可以大大简化一些标准接口的定义，
+  比如 #[derive(Debug)] 为数据结构实 现了 Debug trait，提供了 debug 能力，这样可以通过 {:?}，用 println! 打印出来
+
+控制流程
+  Rust 支持分支跳转、模式匹配、错误跳转和异步跳转
+  分支跳转就是我们熟悉的 if/else； 
+  Rust 的模式匹配可以通过匹配表达式或者值的某部分的内容，来进行分支跳转； 
+  在错误跳转中，当调用的函数返回错误时，Rust 会提前终止当前函数的执行，向上一层 返回错误。 
+  在 Rust 的异步跳转中 ，当 async 函数执行 await 时，程序当前上下文可能被阻塞，执 行流程会跳转到另一个异步任务执行，直至 await 不再阻塞。
+
+  Rust 的 for 循环可以用于任何实现了 IntoIterator trait 的数据结构
+  在执行过程中，IntoIterator 会生成一个迭代器，for 循环不断从迭代器中取值，直到 迭代器返回 None 为止。
+  因而，for 循环实际上只是一个语法糖，编译器会将其展开使用 loop 循环对迭代器进行循环访问，直至返回 None
+
+  Rust中Range不支持负数，所以你不能使用 arr[1..-1] 这样的代码，因为Range 的下标上标都是 usize 类型，不能为负数
+
+模式匹配
+  可以用于 struct / enum 中匹配部分或者全部内容
+    fn process_event(event: &Event) {
+      match event {
+        Event::Join((uid, _tid)) => println!("user {:?} joined", uid), 
+        Event::Leave((uid, tid)) => println!("user {:?} left {:?}", uid, tid), 
+        Event::Message((_, _, msg)) => println!("broadcast: {}", msg),
+      }
+    }
+  除了使用 match 关键字做模式匹配外，我们还可以用 if let / while let 做简单的匹配，如 果上面的代码我们只关心 Event::Message，可以这么写
+    fn process_message(event: &Event) { 
+      if let Event::Message((_, _, msg)) = event { 
+        println!("broadcast: {}", msg); 
+      } 
+    }
+
+错误处理
+  Rust借鉴 Haskell，把错误封 装在 Result<T, E> 类型中，同时提供了 ? 操作符来传播错误，方便开发。
+  Result<T, E> 类型是一个泛型数据结构，T 代表成功执行返回的结果类型，E 代表错误类型
+
+  let body = reqwest::blocking::get(url).unwrap().text().unwrap();
+  使用了 unwrap() 方法，只关心成功返回的结果，如果出 错，整个程序会终止
+  如果想让错误传播，可以把所有的 unwrap() 换成 ? 操作符，并让 main() 函数返回一个 Result<T, E>
+  fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let url = "https://www.rust-lang.org/";
+    let output = "rust.md";
+
+    let body = reqwest::blocking::get(url)?.text()?;
+
+    let md = html2md::parse_html(&body);
+
+    fs::write(output, md.as_bytes())?;
+
+    Ok(())
+  }
+
+Rust 项目的组织
+  当 Rust 代码规模越来越大时，我们就无法用单一文件承载代码了，需要多个文件甚至多个 目录协同工作，这时我们可以用 mod 来组织代码
+  在项目的入口文件 lib.rs / main.rs 里，用 mod 来声明要加载的其它代码文 件。如果模块内容比较多，可以放在一个目录下，在该目录下放一个 mod.rs 引入该模块的其它文件
+  这个文件，和 Python 的 __init__.py 有异曲同工之妙。这样处理之后， 就可以用 mod + 目录名引入这个模块了
+
+  Rust 里，一个项目也被称为一个 crate。crate 可以是可执行项目，也可以是一个库， 我们可以用 cargo new <name> -- lib 来创建一个库。
+  当 crate 里的代码改变时，这 个 crate 需要被重新编译
+  在一个 crate 下，除了项目的源代码，单元测试和集成测试的代码也会放在 crate 里
+  Rust 的单元测试一般放在和被测代码相同的文件中，使用条件编译 #[cfg(test)] 来确 保测试代码只在测试环境下编译
+    #[cfg(test)] 
+    mod tests {
+      #[test] 
+      fn it_works() {
+        assert_eq!(2 + 2, 4);
+      }
+    }
+  
+  集成测试一般放在 tests 目录下，和 src 平行。和单元测试不同，集成测试只能测试 crate 下的公开接口，编译时编译成单独的可执行文件
+  在 crate 下，如果要运行测试用例，可以使用 cargo test
+
+  当代码规模继续增长，把所有代码放在一个 crate 里就不是一个好主意了，因为任何代码 的修改都会导致这个 crate 重新编译，这样效率不高。我们可以使用 workspace
+  一个 workspace 可以包含一到多个 crates，当代码发生改变时，只有涉及的 crates 才需 要重新编译。当我们要构建一个 workspace 时，需要先在某个目录下生成一个Cargo.toml，包含 workspace 里所有的 crates，然后可以 cargo new 生成对应的 crates
+    Cargo.toml
+      [workspace]
+
+      members = {
+        "core",
+        "network",
+        "server",
+        "client",
+      }
+
+Cargo常用命令
+  cargo new 生成新的项目模板 
+  cargo build 构建项目, 生成可执行文件或依赖 
+  cargo run 构建并运行项目 
+  cargo test 运行测试用例 
+  cargo check 检查项目代码, 由于 Rust 编译较慢, 因此在开发中常用 check 代替 build 命令 
+  cargo doc 生成项目文档 
+  cargo publish 将库发布到 crates.i
+  
+  rustfmt 是一个可以自定义风格的 rust 代码格式化工具
+    rustup component add rustfmt
+  cargo fmt

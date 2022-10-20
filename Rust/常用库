@@ -1,0 +1,21 @@
+reqwest 是一个 HTTP 客户端，它的使用方式和 Python 下的 request 类似
+  let body = reqwest::blocking::get(url).unwrap().text().unwrap();
+
+html2md 把 HTML 文本转换成 Markdown
+  let md = html2md::parse_html(&body);
+
+clap 命令行解析
+
+colored 命令终端多彩显示
+
+anyhow 错误处理
+
+jsonxf 格式化 JSON 响应
+
+mime 处理 mime 类型
+
+tokio 异步处理
+
+syntect 语法高亮库
+
+rand 随机数

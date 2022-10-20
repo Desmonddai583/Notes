@@ -1,0 +1,8 @@
+cargo build 编译出来的二进制，在项目根目录的 target/debug 下
+使用 cargo build —release，会编译出 release 版本
+
+FromStr 是 Rust 标准库定义的 trait，实现它之后，就可以调用字符串的 parse() 泛型函数，很方便 地处理字符串到某个类型的转换
+
+对于 async main，我们需要 使用 #[tokio::main] 宏来自动添加处理异步的运行时
+
+Rust 支持 条件编译，#[cfg(test)] 表明整个 tests 都只在 cargo test 时才编译
