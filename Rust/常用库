@@ -21,3 +21,5 @@ syntect 语法高亮库
 rand 随机数
 
 chrono 处理日期时间
+
+dynasm JIT 汇编预处理器和微型运行时库
