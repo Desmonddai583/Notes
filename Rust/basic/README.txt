@@ -296,7 +296,8 @@ Struct
   对于Debug方法
     只要加入一个类似注解的文字
     #[derive(Debug)]  派生属性 
-    会自动实现一些功能,例如打印结构体变量,此时在println中就可以通过{:?}来打印
+    会自动实现一些功能,例如打印结构体变量,此时在println中就可以通过{:?}来打印 
+    {:#?} pretty print
   
   结构体的可见性
     结构体中的字段和方法默认是私有的，通过加上 pub 修饰语可使得结构体中的字段和方法可以在定义结构体的模块之外被访问。
@@ -628,6 +629,31 @@ println!
         fn show_prod<T:Prods>(p: T) {
           println!("商品价格是{}", p.get_price());
         }
+      
+    函数中传两个trait参数
+      fn sum<T: Prods, U: Prods>(p1: T, p2: U) {
+          println!("商品总价是:{}", p1.get_price() + p2.get_price());
+      }
+
+    一个struct对应多个trait 
+      第一种
+        fn show_detail<T:Prods+Stock>(p:T) {
+          println!("商品的库存是:{}",p.get_stock());
+        } 
+      第二种
+        fn show_detail<T>(p:T) 
+        where T:Prods+Stock{
+          println!("商品的库存是:{}",p.get_stock());
+        } 
+      
+    重载操作符
+      impl std::ops::Add<Book> for Book {
+          // add code here
+          type Output=f32;
+          fn add(self, rhs: Book) -> f32{
+              self.get_price()+rhs.get_price()
+          }
+      }
 
 字符串
   Rust主要有 &str 和String 
@@ -788,6 +814,37 @@ println!
           let s1_ref = &mut s;
           let s2_ref = &mut s; // cannot borrow as mutable
       }
+  
+  结构体变量声明与绑定，所有权，借用，引用
+    fn main() {    
+      struct Xxx{        
+        a:i32,        
+        b:i16,        
+        c:bool,   
+      }    
+      //这是绑定的意思，将100这个值创建出来，然后将x1这个名称绑定到这个值上    
+      let x1:i32 = 100;    
+      //这也是绑定的意思，将Xxx这个结构体创建出来，然后将x2的名称绑定到这个x2上。    
+      let x2 = Xxx{a:14, b:15, c:false};   
+      //这里将从x1拷贝一份新的，然后将y1绑定到这份新的上    
+      let mut y1:i32 = x1;   
+      //将x2所对应结构体的所有权转让给y2，之后x2就不能再使用了    
+      let mut y2 = x2;    
+      //用&表示借用，意思是借用下这个内容，可以读取，但是不能修改。    
+      //let z1 = &y1;    
+      //let z2 = &y2;    
+      //&mut 表示引用，引用就可以修改所引用的值得内容了，但是指导引用者被析构才会归还所有权，引用过程中被引用这不具有所有权。    
+      let a1 = &mut y1;    
+      let a2 = &mut y2;
+    }
+  所有系统默认有的变量类型
+  有符号整数: i8, i16, i32, i64 和isize (指针大小)
+  无符号整数: u8, u16, u32, u64 和 usize (指针大小)
+  浮点: f32, f64
+  char Unicode标值一样 ‘a’, ‘α’ 和 ‘∞’ (每4字节)
+  bool 以及 true 或 false
+  这些类型，在=的过程中，都使用的是拷贝（其实是语言内部实现了copy），而其他的自定义的类型，如struct在未实现copy前，都是转移所有权的意思。
+  而数组和元组，是根据其变量的类型决定到底是copy还是转移所有权
 
   生命周期注解
     生命周期参数名称必须以撇号 ' 开头，其名称通常全是小写，类似于泛型其名称非常短。 
@@ -1037,3 +1094,37 @@ SystemTime
       now.checked_add(Duration::from_secs(60))
   }
 
+宏
+  macro_rules! echo {
+      () => (
+          println!("shenyi");
+      )
+  }
+
+  带参数的宏
+    macro_rules! echo {
+        () => (
+            println!("shenyi");
+        );
+        ($exp:expr) => (
+            println!("{}",stringify!($exp));
+        );
+        // 可变参数
+        ($($exp:expr),+) => (
+            $(
+                println!("{}",stringify!($exp));     
+            )+
+        );
+    }
+  
+  利用宏自定义函数
+    macro_rules! func {
+        ($fn_name:ident) => {
+            fn $fn_name(){
+                println!("my function,name is :{}",stringify!($fn_name));
+            }
+        };
+    }
+
+    func!(php);
+    php();
