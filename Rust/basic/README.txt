@@ -935,6 +935,16 @@ println!
             Err(err) => println!("{:?}", err),
         }
     }
+
+    Result 值类型是 Ok，unwrap 会返回 Ok 中的值,否则，会主动调用panic!
+    expect的好处在于可以传递自定义的错误信息
+      result.expect("my error")
+    默认值写法
+      result.unwrap_or("def value".to_string())
+    闭包处理
+      ret.unwrap_or_else(|error|{
+          (error+1).to_string()
+      })
   
   自定义错误与问号表达式
     许多时候，尤其是在我们编写库的时候，不仅仅希望获取错误，更希望错误可以在上下文中的进行传递
@@ -1026,7 +1036,16 @@ println!
         // 另一种等价写法
         // let zero_one = List2::Cons(0, Rc::new(List2::Cons(1, Rc::clone(&four))));
         let two_three = List2::Cons(2, Rc::new(List2::Cons(3, four)));
+
+        // 获取计数
+        Rc::strong_count(&four)
     }
+  
+  几个特性
+    当rc指针全部销毁则值也销毁
+    不能通过rc获得可变引用
+    rc只能用于单线程，多线程用arc
+      Arc::new
 
 Vector动态数组
   vector 是动态大小的数组。与切片一样，它们的大小在编译时是未知的，但它们可以随时增长或收缩，向量使用 3 个参数表示：
@@ -1128,3 +1147,220 @@ SystemTime
 
     func!(php);
     php();
+
+文件操作
+  读取内容
+    let cnt=fs::read_to_string("./src/test.txt").expect("no file");
+  通过File对象读取
+    一次性读取可以使用上面fs::read_to_string，如果需要对File进项额外操作再使用以下方式
+    use std::fs::File;
+    use std::io::prelude::*;
+
+    let mut f=File::open("./src/test.txt").expect("file err");
+    let mut buf=String::new();
+    f.read_to_string(&mut buf).expect("read err");
+    println!("{}",buf);
+
+多线程
+  sleep
+    std::thread
+    std::time::Duration
+
+     for i in 0..5{
+        println!("{}",i);
+        thread::sleep(Duration::from_millis(500));
+    }
+
+  开启线程
+    let t=thread::spawn();
+    里面需要传个匿名函数（闭包）
+    并通过t.join()方法等待执行完毕
+
+  利用channel进行传递数据
+    use std::sync::mpsc
+    // tx（transmitter）和 rx（receiver）
+    let (tx,rx) =mpsc::channel();
+    
+    thread::spawn( ||{
+        for i in 0..5{
+            thread::sleep(Duration::from_millis(500));
+            tx.send(i).unwrap();
+        }
+    });
+
+    let received = rx.recv().unwrap();
+    println!("{}", received);
+
+  异步通道和同步通道
+    默认就是异步通道
+      // 完整写法
+      // let (tx,rx):(mpsc::Sender<i32>,mpsc::Receiver<i32>)=mpsc::channel();
+      let (tx,rx)=mpsc::channel();
+  
+      thread::spawn(move ||{
+          for i in 0..5{
+              thread::sleep(Duration::from_millis(500));
+              tx.send(i).unwrap()
+          }
+      });
+      thread::sleep(Duration::from_secs(3));
+      // 此时会一次性全打印出来
+      for ret in rx{
+          println!("{}",ret);
+      }
+    
+    改成同步通道
+      let (tx,rx):(mpsc::SyncSender<i32>,mpsc::Receiver<i32>)=mpsc::sync_channel(0);
+      // 这里如果传5就等于给了5个消息的buffer，出来的效果就跟异步是一样的了
+      mpsc::sync_channel(0);
+
+  克隆
+    有时候tx在循环多线程时会出现被借用的情况，此时可以通过clone来解决
+    let (tx,rx)=mpsc::channel();
+    for i in 0..5{
+        let clone_tx=tx.clone();
+        // 也可以写成 let clone_tx = mpsc::Sender::clone(&tx);
+        thread::spawn(move ||{
+             curl(i,clone_tx);
+         });
+    }
+    // 原本的tx一定要send消息,不然for循环不会结束
+    thread::spawn(move ||tx.send(String::from("开始抓取")).unwrap());
+    for ret in &rx{
+         println!("{}",ret);   
+    }
+
+  Mutex 多线程修改共享变量
+     let share_num = Arc::new(Mutex::new(0));
+      let mut pool = Vec::new();
+
+      for _ in 0..5 {
+          let share_num_thread = share_num.clone();
+          pool.push(thread::spawn(move || {
+              let mut num = share_num_thread.lock().unwrap();
+              *num += 1;
+          }))
+      }
+      for t in pool {
+          t.join().unwrap();
+      }
+      println!("{:?}", share_num.lock().unwrap());
+      
+异步编程
+  安装库
+    [dependencies]
+    futures = "0.3"
+
+  Rust本身具有Future API
+    pub trait Future {
+        type Output; //异步结束时产生的结果类型
+        fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output>;
+    }
+  实际开发主要 使用futures和Tokio这两个库
+
+  futures
+    use std::thread;
+    use std::time::Duration;
+    use futures::executor::block_on;
+
+    async fn getscore()->i32{
+        100
+    }
+    async fn getuser() ->String{
+        
+        thread::sleep(Duration::from_secs(2));
+        format!("user is {},score is {}","shenyi",getscore().await)
+    }
+    fn main() {
+    
+        let ret=block_on(getuser());
+        println!("{}",ret);
+        println!("{}","done");
+      
+    }
+  
+  Tokio
+    1、多线程调度、利用多核
+    2、非阻塞IO模型。 Linux 使用的epoll模型, bsd 使用kqueue模型,win里面是IOCP模型
+    3、开箱即用。提供异步语法
+
+    配置
+      [dependencies]
+      futures = "0.3"
+      tokio = { version = "0.2", features = ["full"] }
+
+    异步main
+      use tokio::time::{delay_for, Duration};
+      #[tokio::main]
+      async fn main() {
+          delay_for(Duration::from_secs(3)).await;
+          println!("3 秒后执行");
+      }
+
+    模拟setTimeOut
+      async fn job() ->String  {
+          return String::from("abc")
+      }
+      #[tokio::main]
+      async fn main() {
+          let res=timeout(Duration::from_secs(1), job()).await;
+          println!("{:?}",res.unwrap());
+      }
+
+    传统的IO譬如有：TCP/UDP连接和传输，读取和写入文件
+    RUST标准库提供的都是阻塞的,而Tokio提供了异步版本
+
+    传统实现(阻塞)
+      use std::io::prelude::*;
+      use std::net::TcpListener;
+      use std::net::TcpStream;
+
+      // 一次响应就结束
+      fn main() {
+          let server = TcpListener::bind("0.0.0.0:8080").unwrap();
+          let stream = server.incoming().next().unwrap();
+
+          handler(stream.unwrap());
+      }
+      fn handler(mut stream: TcpStream) {
+          let rsp = String::from("http/1.1 200 ok \r\n\r\n rust server");
+          stream.write(rsp.as_bytes()).unwrap();
+      }
+
+      // 多次响应
+      fn main() {
+          let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
+          for stream in listener.incoming() {
+              let stream = stream.unwrap();
+              handle(stream);
+          }
+      }
+      fn handle(mut stream: TcpStream) {
+          let response = format!("HTTP/1.1 200 ok\r\n\r\n{}", "rust server");
+          stream.write(response.as_bytes()).unwrap();
+      }
+  
+    tokio异步实现
+      use tokio::net::TcpListener;
+      use tokio::prelude::*;
+
+      let mut server=TcpListener::bind("0.0.0.0:8080").await.unwrap();
+      loop {
+          let (mut socket, _) = server.accept().await.unwrap();
+          let rsp=String::from("HTTP/1.1 200 OK\r\n\r\n rust server");
+          socket.write_all(rsp.as_bytes()).await.unwrap();
+      }
+
+    tokio运行时调度(不由os调度) 类似go的协程
+      task::spawn(async move{
+          let mut rsp=String::from("HTTP/1.1 200 OK\r\n\r\nrust server");
+          // blocking thread用于那些长时间计算的或阻塞整个线程的任务
+          let ret=task::spawn_blocking(||{
+                  "bloking"
+            }).await;
+            if let Ok(s)=ret{
+                rsp.push_str(s);
+            }
+          stream.write(rsp.as_bytes()).await.unwrap();
+      });
+
