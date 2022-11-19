@@ -48,4 +48,20 @@
             map_err(de::Error::custom)
     }
 
-  
+Polars
+  https://github.com/pola-rs/polars  
+  参考文档 https://pola-rs.github.io/polars-book/user-guide/introduction.html
+  拥有 和pandas差不多的语法。但是速度快很多
+
+  静态数据创建
+    let df = df! [
+      "代码" => ["001", "002", "003"],
+      "开盘价" => [20.0, 30.0, 33.0],
+      "收盘价" => [Some(19), None, Some(33)]
+    ]?;
+
+  手工
+    let s1 = Series::new("名称", &["001", "002", "003"]);
+    let s2 = Series::new("开盘价", &[Some(1), None, Some(3)]);
+    let df = DataFrame::new(vec![s1, s2])?;
+    print!("{:?}",df);

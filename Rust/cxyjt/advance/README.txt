@@ -253,4 +253,43 @@ JSON
       1. 如移动所捕获的变量所有权，则只实现FnOnce
       2. 如没有移动所捕获的变量所有权(引用)，并且对变量进行了可变操作，则实现FnMut
       3. 引用+不可变，则实现Fn
-    
+
+生命周期
+  生命周期的三条规则的理解
+    官方文档：https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html
+    1、每一个引用参数都会获得独自的生命周期
+      fn change(str1:&String,str2:&String)->&String{}
+      会被推导为:
+      fn change<'a,'b>(str1:&'a String,str2:&'b String)
+    2、若只有一个输入生命周期，那么该生命周期会被赋给所有的输出生命周期，也就是所有返回值的生命周期都等于该输入生命周期
+      fn change2<'a>(str1:&'a String)->&String
+      被推导为 
+      fn change2<'a>(str1:&'a String)->&'a String
+    3、若存在多个输入生命周期，且其中一个是 &self 或 &mut self，则 &self 的生命周期被赋给所有的输出生命周期
+        struct User {
+          name:String 
+        }
+        impl User {
+            fn get_name(&self,id:&String)->&String{
+              return &self.name;
+            }
+        }
+
+  生命周期在Struct中的应用
+    #[derive(Debug)]
+    struct User<'a> {
+      name:&'a String 
+    }
+    impl<'a> User<'a> {
+        fn get_name(&self)->&String{
+            return &self.name;
+        }
+    }
+
+    let name=String::from("shenyi");
+    let u:User;
+    {
+        u=User{name:&name};
+    }  
+    println!("{:?}",u);
+    User引用了 name 。这个name必须比struct活的更久
