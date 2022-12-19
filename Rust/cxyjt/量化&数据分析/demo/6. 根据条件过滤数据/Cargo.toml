@@ -1,0 +1,15 @@
+[package]
+name = "pro"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ 
+chrono = "0.4.22"
+
+ 
+polars = {version="0.24.3",features =["lazy","strings","rolling_window","round_series"]}
+ color-eyre = {version = "0.6.2"}
+ rand = {version = "0.8.5"}

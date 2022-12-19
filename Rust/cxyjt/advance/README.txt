@@ -293,3 +293,49 @@ JSON
     }  
     println!("{:?}",u);
     User引用了 name 。这个name必须比struct活的更久
+
+chrono Rust的第三方时间库
+    use chrono::Utc;
+    let start_time = Utc::now().time();
+    //xxxx
+    let end_time = Utc::now().time();
+    println!("Total time taken to run is {}", (end_time-start_time).num_milliseconds());
+
+tokio
+    Rust标准库  std:Future (它是一个trait,Rust异步编程都抽象为Future) 制定了标准和规范 
+    第三方厂家 提供了 对标准的实现
+    tokio： https://github.com/tokio-rs/tokio  
+    文档 https://tokio.rs/tokio/tutorial
+    tokio = { version = "1.21.2", features = ["full"] }
+
+    tokio的runtime : 异步运行时环境
+    提供运行异步任务所必需的 I/O 驱动、任务调度、定时器等。
+
+    spawn创建异步任务
+        let h1= rt.spawn(job(123));
+        let h2= rt.spawn(job(234));
+        let h3= rt.spawn(job(456));
+        let  start_time=Utc::now().time();
+
+        rt.block_on(async {
+            let r1=h1.await.unwrap();
+            let r2=h2.await.unwrap();
+            let r3=h3.await.unwrap();
+            println!("执行结果是:{},{},{}",r1,r2,r3);
+        });
+
+    tokio提供了简化的异步运行时创建方式
+        #[tokio::main(flavor = "multi_thread", worker_threads = xx)]
+        #[tokio::main]
+
+        // 线程数 默认和 CPU核数 一致
+        tokio1::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+
+    tokio task、创建和运行
+        绿色线程 https://docs.rs/tokio/1.12.0/tokio/task/index.html
+        1、轻量级、非阻塞的执行单元。 
+        2、类似于 OS 线程，但不是由OS调度。而是由Tokio runtime管理
+        官方把它比作 类似go的协程.   并且不应该执行 可能阻塞的代码

@@ -1,0 +1,15 @@
+[package]
+name = "pro"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4"
+sqlx = { version = "0.6", features = [ "runtime-tokio-rustls","mysql" ] }
+tokio = { version = "1", features = ["full"] }
+polars = {version="0.25",features =["lazy","strings","rolling_window","round_series"]}
+color-eyre = {version = "0.6"}
+rand = {version = "0.8"}
+once_cell = "1.16"

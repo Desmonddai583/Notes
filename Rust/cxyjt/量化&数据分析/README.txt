@@ -65,3 +65,16 @@ Polars
     let s2 = Series::new("开盘价", &[Some(1), None, Some(3)]);
     let df = DataFrame::new(vec![s1, s2])?;
     print!("{:?}",df);
+
+  lazy api
+    默认的叫做Eager API
+    文档 https://pola-rs.github.io/polars-book/user-guide/introduction.html
+
+    polars = {version="0.24.3",features =["lazy","rolling_window","round_series"]}
+
+全局变量
+  https://github.com/matklad/once_cell
+  once_cell提供了unsync::OnceCell和sync::OnceCell这两种Cell（ 前者用于单线程，后者用于多线程），用来存储堆上的信息，并且具有最多只能赋值一次的特性。
+
+  use once_cell::sync::OnceCell;
+  static POOL:OnceCell<Pool<MySql>>= OnceCell::new();
