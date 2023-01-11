@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+#![allow(unsafe_code)]
+#![allow(unused)]
 mod helper;
 use std::ops::Add;
 
@@ -7,21 +9,26 @@ mod echarts;
 use echarts::*;
 use polars_io::SerReader;
 //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
-use wasm_bindgen::{JsCast,JsValue};
+use wasm_bindgen::{JsCast,JsValue, __rt::RefMut};
 mod funcs;
 use funcs::*;
 
-// use chrono::{prelude::*, Duration};
+  use chrono::{prelude::*, Duration};
  
-// // 从 10-1 开始 生成30天数据
-// fn mock_date()->Vec<String>{
-//         let mut  ret=Vec::new();
-//         let mut start=NaiveDate::parse_from_str("2020-10-1", "%Y-%m-%d").unwrap();
-//         for i in 0..30{
-//                 start=start+Duration::days(i+1);
-//                 ret.push(start.format("%Y-%m-%d").to_string());
-//         }
-//         ret
+// 临时函数 。得到trade_date最大值，减掉4个月
+// 返回切片， 其中 第一个值是最小值，  第二个值是最大值
+// fn zoom_range(df:&DataFrame)->[i32;2]{
+ 
+//   let mut ret=[0,0];
+ 
+//   let max:i32=df.column("trade_date").unwrap().max().unwrap();
+//   log_str(max.to_string().as_str());
+//         let   start=NaiveDate::parse_from_str(max.to_string().as_str(), "%Y%m%d").
+//               unwrap()-chrono::Months::new(4);
+//         let start= start.format("%Y%m%d").to_string();
+//         ret[0]=start.parse().unwrap();
+//         ret[1]=max;
+//         ret 
 // }
  
 use polars_core::prelude::*;
@@ -29,49 +36,38 @@ use polars_core::prelude::*;
 use polars_lazy::prelude::*;
 //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 fn main() {
-   
+ 
          wasm_bindgen_futures::spawn_local(async {
-            let data=get_dayk("600031.SH").await;
-            match data {
-                Ok(list)=>{
-                  let mut ts_code_builder=Utf8ChunkedBuilder::new("ts_code",list.len(),list.len()*10);
-                  let mut ma5_builder=PrimitiveChunkedBuilder::<Float64Type>::new("ma5", list.len());
+            let list=get_dayk("600031.SH").await.unwrap();
+            let df=build_df(&list);
+            
+             let trade_date:Vec<Option<i32>>=df.column("trade_date").unwrap().i32().unwrap().into_iter().collect();
 
-                  list.iter().for_each(|v|{
-                    ts_code_builder.append_value(&v.ts_code);
-                    ma5_builder.append_value(v.ma5);
-                  });
-                  let ts_code_series:Series=ts_code_builder.finish().into();
-                  let ma5_series:Series=ma5_builder.finish().into();
-                  
-                  let df=DataFrame::new(vec![
-                    ts_code_series,ma5_series
-                  ]).unwrap();
-                     
-                  log_str(df.column("ts_code").unwrap().to_string().as_str());
-                  log_str(df.column("ma5").unwrap().to_string().as_str());
-                }
-                Err(e)=>{
-                  log_str(e.as_ref().to_string().as_str());
-                }
-            }
+            let ma5:Vec<Option<f64>>=df.column("ma5").unwrap().f64().unwrap().into_iter().collect();
+            let ma10:Vec<Option<f64>>=df.column("ma10").unwrap().f64().unwrap().into_iter().collect();
+            let ma20:Vec<Option<f64>>=df.column("ma20").unwrap().f64().unwrap().into_iter().collect();
+               
+            if   let Some(mychart)=init_chart("main"){            
+              unsafe{        
+                // 蜡烛图的数据
+                      let candles_data=JsValue::from(gen_candles_data(&df));
+                      let mut chart_opt=opt::EchartOption::new();
+                      let opt_data=chart_opt.set_title("日K模拟展现，数据别当真")
+                      .set_xaxis(&trade_date)
+                      .set_yaxis()
+                      .set_grid()
+                      .set_series_candles(&candles_data)// 设置蜡烛图   第一个调用
+                      .set_series("MA5",&ma5,Some("#ff9100"))
+                      .set_series("MA10", &ma10,Some("#76a8db"))
+                      .set_series("MA20", &ma20,Some("#e74dc3"))
+                      .build();
+                      set_option(&mychart, &opt_data);
+              }
+            } 
          });
         
     
-         if   let Some(mychart)=init_chart("main"){
-             
-        unsafe{
-                let mut chart_opt=opt::EchartOption::new();
-                let opt_data=chart_opt.set_title("日K模拟展现，数据别当真")
-                .set_xaxis()
-                .set_yaxis()
-                .set_series("MA5",&[5.0, 20.0, 36.0, 10.0, 10.0, 20.12,26.0,29.0,22.3,24.5],Some("#7096ff"))
-                .set_series("MA10", &[5.5, 20.1, 26.0, 9.0, 12.0, 19.12,27.5,27.0,24.3,27.5],Some("#e6b547"))
-                .set_series("MA20", &[4.5, 18.1, 24.0, 7.5, 11.0, 20.12,24.0,28.0,25.3,26.5],Some("#ff3aff"))
-                .build();
-                set_option(&mychart, &opt_data);
-        }
-      } 
+       
         
        
        //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
