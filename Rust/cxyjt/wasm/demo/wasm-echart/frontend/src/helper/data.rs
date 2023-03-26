@@ -39,9 +39,13 @@ pub fn build_df(list:&Vec<DayK>)->DataFrame{
 
     //增加开盘、收盘、最低、最高价 四个series
     let mut open_builder=PrimitiveChunkedBuilder::<Float64Type>::new("open", list.len());
+    let mut pre_close_builder=PrimitiveChunkedBuilder::<Float64Type>::new("pre_close", list.len());
+
     let mut close_builder=PrimitiveChunkedBuilder::<Float64Type>::new("close", list.len());
     let mut low_builder=PrimitiveChunkedBuilder::<Float64Type>::new("low", list.len());
     let mut high_builder=PrimitiveChunkedBuilder::<Float64Type>::new("high", list.len());
+    let mut amount_builder=PrimitiveChunkedBuilder::<Float64Type>::new("amount", list.len());
+
 
     let mut ma5_builder=PrimitiveChunkedBuilder::<Float64Type>::new("ma5", list.len());
     let mut ma10_builder=PrimitiveChunkedBuilder::<Float64Type>::new("ma10", list.len());
@@ -55,8 +59,10 @@ pub fn build_df(list:&Vec<DayK>)->DataFrame{
 
       open_builder.append_value(v.open);
       close_builder.append_value(v.close);
+      pre_close_builder.append_value(v.pre_close);
       low_builder.append_value(v.low);
       high_builder.append_value(v.high);
+      amount_builder.append_value(v.amount);
 
       ma5_builder.append_value(v.ma5);
       ma10_builder.append_value(v.ma10);
@@ -70,8 +76,10 @@ pub fn build_df(list:&Vec<DayK>)->DataFrame{
 
         open_builder.finish().into_series(),
         close_builder.finish().into_series(),
+        pre_close_builder.finish().into_series(),
         low_builder.finish().into_series(),
         high_builder.finish().into_series(),
+        amount_builder.finish().into_series(),
 
         ma5_builder.finish().into_series(),
         ma10_builder.finish().into_series(),
@@ -86,7 +94,7 @@ pub fn build_df(list:&Vec<DayK>)->DataFrame{
 use wasm_bindgen::JsValue;
 
 use super::log_str;
-// 辅助函数 ，把anyvalue 转为 f64 ，不符合的类型 返回0
+// 辅助函数 ，把anyvalue 转为 f64(JSvalue)，不符合的类型 返回0
 fn any_to_f64value(v:&AnyValue) -> JsValue{
   if let AnyValue::Float64(v)=v{
    return JsValue::from(v.clone()) ;
@@ -96,7 +104,19 @@ fn any_to_f64value(v:&AnyValue) -> JsValue{
   }
   JsValue::from(0.0)
 }
-
+fn any_to_f64(v:&AnyValue) -> f64{
+  if let AnyValue::Float64(v)=v{
+   return  v.clone();
+  }
+  0.0
+}
+fn any_to_i32(v:&AnyValue) -> i32{
+ 
+  if let AnyValue::Int32(v)=v{
+   return  v.clone() as i32;
+  }
+  0
+}
 
 //生成蜡烛图 数据  ,格式看下面
 // [
@@ -104,7 +124,7 @@ fn any_to_f64value(v:&AnyValue) -> JsValue{
 //]
 pub fn gen_candles_data(df:&DataFrame)->js_sys::Array{
   
-  let ret_array=js_sys::Array::new(); //最外层的数组
+  let ret_array=js_sys::Array::new(); //最外层的数组   二维的
   let df=df.select(&["open","close","low","high"]).unwrap();
 
     
@@ -125,4 +145,40 @@ pub fn gen_candles_data(df:&DataFrame)->js_sys::Array{
      }
      ret_array
     
+}
+//生成成交量数据
+// 上节课是 就是一个 一维数组[123,23,4456,2345]
+// 这节课是 是一个二维数组 ,格式如下图
+// [
+//   [0,123456,1]     第一个元素序号   第二个是成交量 ，第三个1 代表阳线 0 是阴线
+// ]
+pub fn gen_amount_data(df:&DataFrame)->js_sys::Array{
+  let ret_array=js_sys::Array::new();
+  // 取出三个
+  let df=df.select(&["open","close","amount","pre_close"]).unwrap();
+  for i in 0..df.shape().0 {
+    let   child_array=js_sys::Array::new(); 
+    let get_row=df.get_row(i).0;
+
+    let open=any_to_f64(get_row.get(0).unwrap());
+    let close=any_to_f64(get_row.get(1).unwrap());
+    let pre_close=any_to_f64(get_row.get(3).unwrap());
+    let amount=any_to_f64value(get_row.get(2).unwrap());
+ 
+    let mut bar_type=0; //默认是绿柱 （阴线)
+    if close>open {
+      bar_type=1;
+    }
+    if close==open{ //开盘价和收盘价相等
+        if close>pre_close{
+           bar_type=1;
+        }
+    }
+    child_array.push(&JsValue::from(i));
+    child_array.push(&amount);
+    child_array.push(&JsValue::from(bar_type));
+
+    ret_array.push(&child_array);
+  }
+  ret_array
 }

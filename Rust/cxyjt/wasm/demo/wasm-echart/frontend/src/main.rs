@@ -51,6 +51,8 @@ fn main() {
               unsafe{        
                 // 蜡烛图的数据
                       let candles_data=JsValue::from(gen_candles_data(&df));
+                      //成交量数据
+                      let amount_data=JsValue::from(gen_amount_data(&df));
                       let mut chart_opt=opt::EchartOption::new();
                       let opt_data=chart_opt.set_title("日K模拟展现，数据别当真")
                       .set_xaxis(&trade_date)
@@ -60,6 +62,7 @@ fn main() {
                       .set_series("MA5",&ma5,Some("#ff9100"))
                       .set_series("MA10", &ma10,Some("#76a8db"))
                       .set_series("MA20", &ma20,Some("#e74dc3"))
+                      .set_series_amount(&amount_data)
                       .build();
                       set_option(&mychart, &opt_data);
               }

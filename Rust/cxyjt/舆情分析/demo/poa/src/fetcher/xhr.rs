@@ -9,11 +9,14 @@
  
  pub struct XhrOption<'a>{
      text_pat:String,   //标题 以及正文正则    正则必须包含 title 和content 名称
-     time_getter: Option<Box<dyn Fn(&str)->String+'a>>
+   //  time_getter: Option<Box<dyn Fn(&str)->String+'a>>
+    time_getter: Option<&'a str>,  //这里改成了字符串 。 
+    // 传进来的是脚本函数名 ，如 date_to_timestamp('{}','写死的格式')   {}是为了替换
+    //content_getter:Option<&'a str> 
      
  }
  impl<'a> XhrOption<'a> {
-     pub fn new<>(pattern:&str,time_fn:Option<Box<dyn Fn(&str)->String+'a>>)->Self{
+     pub fn new<>(pattern:&str,time_fn:Option<&'a str>)->Self{
         XhrOption { text_pat: pattern.to_string(),time_getter:time_fn}
      }
  }
@@ -36,6 +39,7 @@ pub struct Xhr<'a>{
 use std::pin::Pin;
 
 use super::News;
+use super::js_exec;
 use regex::Regex;
 // 本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
 impl<'a>  Xhr<'a> {
@@ -101,11 +105,16 @@ impl<'a>  Xhr<'a> {
                     let mut  news=News::new();
                     news.set_title(title.to_string());
                     news.set_content(content.to_string());
-                    if let Some(tf)=time_fn.as_ref()   {
+                    if let Some(tf)=time_fn.as_ref() {
                         if create_time!="" {
-                            let get_time=tf(create_time);
+                            let js_func=tf.replace("{}", create_time);
+                         let get_time=js_exec(js_func.as_str(), //执行脚本
+                          chrono::Utc::now().timestamp().to_string()
+                        );
                          news.set_time(get_time);
                         }
+                    }else{
+                        news.set_time(create_time.to_string()); //无脑设置 
                     }
                     NewsList.push(news);
                    }

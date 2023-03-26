@@ -55,6 +55,8 @@ pub struct EchartOption{
     return JsValue::from(data);
  }
  
+ static  GREEN_COLOR:&str="#06B800";
+ static  RED_COLOR:&str="#FA0000";
 
 impl EchartOption {
     pub fn new()->Self{
@@ -78,8 +80,8 @@ impl EchartOption {
     fn make_candles_style(&mut self)->js_sys::Object{
         let item_style=js_sys::Object::new();
         let normal=js_sys::Object::new();
-        self.set_prop(&normal, "color", &JsValue::from_str("#06B800"));
-        self.set_prop(&normal, "color0", &JsValue::from_str("#FA0000"));
+        self.set_prop(&normal, "color", &JsValue::from_str(GREEN_COLOR));
+        self.set_prop(&normal, "color0", &JsValue::from_str(RED_COLOR));
         self.set_prop(&normal, "borderColor", &JsValue::NULL);
         self.set_prop(&normal, "borderColor0", &JsValue::NULL);
         self.set_prop(&item_style, "normal", &normal);
@@ -113,13 +115,71 @@ impl EchartOption {
     pub fn set_grid(&mut self)->&mut Self{
         let grid_array=js_sys::Array::new();
         unsafe{
-            let grid_obj1=js_sys::Object::new();
+            let grid_obj1=js_sys::Object::new();  //蜡烛图的位置
             self.set_prop(&grid_obj1, "left", &JsValue::from_str("10%"));
             self.set_prop(&grid_obj1, "right", &JsValue::from_str("8%"));
             self.set_prop(&grid_obj1, "height", &JsValue::from_str("50%"));
             grid_array.push(&grid_obj1);
 
+
+            let grid_obj2=js_sys::Object::new(); //成交量图的位置
+            self.set_prop(&grid_obj2, "left", &JsValue::from_str("10%"));
+            self.set_prop(&grid_obj2, "right", &JsValue::from_str("8%"));
+            self.set_prop(&grid_obj2, "top", &JsValue::from_str("75%"));
+            self.set_prop(&grid_obj2, "height", &JsValue::from_str("16%"));
+            grid_array.push(&grid_obj2);
+
             self.add_to_object("grid", &grid_array);
+        }
+        self
+    }
+
+    // 设置视觉映射
+    pub fn set_visual_map(&mut self)->&mut Self{
+        let visual_obj=js_sys::Object::new();
+        unsafe{
+            // 第几个图形的数据，0是蜡烛图，2-3 是MA5/10/20   4代表的是成交量的柱状图
+            self.set_prop(&visual_obj, "show", &JsValue::from_bool(false));
+            self.set_prop(&visual_obj, "seriesIndex", &JsValue::from(4));
+            self.set_prop(&visual_obj, "dimension", &JsValue::from(2));
+            
+            let pieces=js_sys::Array::new();
+
+            let piece_obj1=js_sys::Object::new();
+            self.set_prop(&piece_obj1, "value", &JsValue::from(1));
+            self.set_prop(&piece_obj1, "color", &JsValue::from_str(RED_COLOR));
+            pieces.push(&piece_obj1);
+
+            let piece_obj2=js_sys::Object::new();
+            self.set_prop(&piece_obj2, "value", &JsValue::from(0));
+            self.set_prop(&piece_obj2, "color", &JsValue::from_str(GREEN_COLOR));
+            pieces.push(&piece_obj2);
+
+
+            self.set_prop(&visual_obj, "pieces", &pieces);
+        }
+        self.add_to_object("visualMap", &visual_obj);
+        self
+    }
+    //设置成交量series
+    pub fn set_series_amount(&mut self,data:&JsValue)->&mut Self{
+        unsafe{
+            // 其中一个对象
+            let series_obj=js_sys::Object::new();
+           
+            self.set_prop(&series_obj, "name", &JsValue::from_str("成交量"));
+            self.set_prop(&series_obj, "type", &JsValue::from_str("bar"));
+           
+            //设置为第二个坐标系，否则会把上面的曲线图给覆盖了
+            self.set_prop(&series_obj, "xAxisIndex", &JsValue::from(1));
+            self.set_prop(&series_obj, "yAxisIndex", &JsValue::from(1));
+            self.set_prop(&series_obj, "data", data);
+
+            
+
+            self.series.push(series_obj);
+           
+   //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
         }
         self
     }
@@ -141,8 +201,6 @@ impl EchartOption {
 
             self.series.push(series_obj);
            
-         
-    
    //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
         }
         self
@@ -234,8 +292,8 @@ impl EchartOption {
             }
             
 
-            y_array.push(&y_object1);
-            // y_array.push(&y_object2);   //后面再加。暂时不动
+            y_array.push(&y_object1);   //曲线图 用
+            y_array.push(&y_object2);   //   为了 成交量 柱状图显示用
            }
            self.add_to_object("yAxis", &y_array);
             self
@@ -248,12 +306,29 @@ impl EchartOption {
         let x_array=js_sys::Array::new();
      
         unsafe{
-            let x_object=js_sys::Object::new();
-            self.set_prop(&x_object, "type", &JsValue::from_str("category"));
-            let arr=vec_to_i32_array(data);
-            self.set_prop(&x_object, "data", &arr);
 
-            x_array.push(&x_object);
+            {
+                let x_object1=js_sys::Object::new();
+                self.set_prop(&x_object1, "type", &JsValue::from_str("category"));
+                let arr=vec_to_i32_array(data);
+                self.set_prop(&x_object1, "data", &arr);
+                self.set_prop(&x_object1, "scale", &JsValue::from_bool(true));
+    
+                x_array.push(&x_object1); //曲线图 x轴
+            }
+
+            {
+                let x_object2=js_sys::Object::new();
+                self.set_prop(&x_object2, "type", &JsValue::from_str("category"));
+                let arr=vec_to_i32_array(data);
+                self.set_prop(&x_object2, "data", &arr);
+                self.set_prop(&x_object2, "scale", &JsValue::from_bool(true));
+                self.set_prop(&x_object2, "gridIndex", &JsValue::from(1));
+                x_array.push(&x_object2); //成交量图 x轴
+            }
+           
+
+
       
          self.add_to_object("xAxis", &x_array);
         }
@@ -272,16 +347,27 @@ impl EchartOption {
         {
             let zoom1=js_sys::Object::new();
             {
-                // self.set_prop(&zoom1, "id", &JsValue::from("zoom1"));
+            
                 self.set_prop(&zoom1, "type", &JsValue::from("inside"));
                 self.set_prop(&zoom1, "xAxisIndex", &to_i32_array(&[0,1]));
 
-                // self.set_prop(&zoom1, "filterMode", &JsValue::from("filter"));
+            
                 self.set_prop(&zoom1, "start", &JsValue::from(70));
                 self.set_prop(&zoom1, "end", &JsValue::from(100));
             
             }
+            let zoom2=js_sys::Object::new();
+            {
+                self.set_prop(&zoom2, "type", &JsValue::from("inside"));
+                self.set_prop(&zoom2, "xAxisIndex", &to_i32_array(&[0,1]));
+
+                self.set_prop(&zoom2, "top", &JsValue::from_str("80%"));
+                self.set_prop(&zoom2, "start", &JsValue::from(70));
+                self.set_prop(&zoom2, "end", &JsValue::from(100));
+            
+            }
             dataZoom.push(&zoom1);
+            dataZoom.push(&zoom2);
         }
         self.add_to_object("dataZoom", &dataZoom);
     }
@@ -310,6 +396,10 @@ impl EchartOption {
        
         // 设置缩放
         self.set_datazoom();
+
+        // 设置视觉映射
+        self.set_visual_map();
+
         JsValue::from(&self.object)
     }
 }

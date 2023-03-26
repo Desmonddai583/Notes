@@ -1,0 +1,22 @@
+
+
+
+
+
+
+
+
+
+Compare with odoo
+onlhy for update and delete (two way update plus delete, when delete account must be inactive)
+How to handle sub account when delete or update (we suggest not to delete if has sub account and for update will check looping and move all subs with account)
+
+if ask auto sync 
+Portal Updated but alert not sync yet difference in maintenance 
+
+Login flow
+Session存什么 sign in
+User does not exist  unthorized page
+Admin and normal user   root account? type root 
+
+ask rolland which name to use

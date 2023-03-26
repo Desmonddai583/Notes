@@ -1,0 +1,33 @@
+“:q!”：退出 Vim
+“:wq”：存盘退出
+“:s”：执行替换
+“:!”：执行外部命令
+“:edit”（一般缩写为 “:e”）：编辑文件
+“:w”：写文件
+“:r”：读文件
+“:help”：查看帮助
+
+<Esc> 表示 Esc 键
+<CR> 表示回车键 
+<Space> 表示空格键
+<Tab> 表示 Tab 键
+<BS> 表示退格键
+<Del> 表示删除键
+<lt> 表示 < 键
+<Up> 表示光标上移键
+<Down> 表示光标下移键
+<Left> 表示光标左移键
+<Right> 表示光标右移键 
+<PageUp> 表示 Page Up 键
+<PageDown> 表示 Page Down 键
+<Home> 表示 Home 键
+<End> 表示 End 键
+<F1> - <F12> 表示功能键 1 到 12
+<S-…> Shift 组合键（较少使用，因为我们需要写 ! 而不是 <S-1>；和 特殊键组合时仍然有用）
+<C-…> Control 组合键
+<M-…> Alt 组合键
+<D-…> Command 组合键
+
+:set ft?<CR> 用来显示当前编辑文件的文 件类型
+:help<CR>  描述帮助命令
+
