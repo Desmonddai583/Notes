@@ -1,0 +1,35 @@
+{
+  "name": "typescript-lesson",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "rollup -c -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/qs": "^6.9.14",
+    "rollup": "^4.12.0",
+    "rollup-plugin-serve": "^1.1.1",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@types/jquery": "^3.5.29",
+    "@types/lodash": "^4.17.0",
+    "@types/react": "^18.2.69",
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "mitt": "^3.0.1",
+    "parse-headers": "^2.0.5",
+    "qs": "^6.12.0",
+    "reflect-metadata": "^0.2.1",
+    "tslib": "^2.6.2"
+  }
+}

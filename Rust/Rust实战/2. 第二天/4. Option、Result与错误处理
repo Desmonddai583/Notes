@@ -1,0 +1,71 @@
+空值，是任何一个程序语言中都会出现的概念，可以说到处都是。空字符串，空数组，空哈稀，对象刚创建还没初始化时可能的值 nil, null, NULL, 0, false等等。
+有些语言甚至不仔细分辨这些类型。
+
+Option<T>
+  Rust中丢弃了Null值，变量声明时必须初始化。使用这样一个枚举Option来代替。来自函数式语言。
+  enum Option<T> {
+    Some(T),
+    None,
+  }
+
+  我们看到，它带有一个泛型参数。正如空值在程序语言中无处不在，Option在Rust中也是无处不在。
+  Option<T> 相当于把原来的类型T包裹了一层。将空概念从原来的类型值隔离开来，单独建立了一个维度。（可以看成一个正交的二维图像）
+  let a: Option<u32> = None;
+
+  Option的匹配
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=73fd3f066f5bbdbce4aae9245cd52450
+
+  Option的解包
+    expect()
+    unwrap()
+    unwrap_or()
+
+Result<T, E>
+  错误分两大类：可恢复的和不可恢复的。
+  可恢复的，比如：文件没找到
+  不可恢复的，比如：缓冲区访问溢出
+  有些语言统一用exception来处理。Rust没有这种异常机制（它本身就是一个奇怪的东西）。而是用Result和panic!分别处理它们。
+  enum Result<T, E> {
+    Ok(T),
+    Err(E),
+  }
+
+  use std::fs::File;
+  fn main() {
+    let greeting_file_result = File::open("hello.txt");
+  }
+  std::io::Error
+
+  use std::fs::File;
+  fn main() {
+    let greeting_file_result = File::open("hello.txt");
+    let greeting_file = match greeting_file_result {
+      Ok(file) => file,
+      Err(error) => panic!("Problem opening the file: {:?}", error),
+    };
+  }
+
+  传递错误
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3dcf92f6f2dcb72b52560d11d0c9ac80
+  
+  使用？传递错误
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=8f7126b958104ae8d57cbf0e7641124b
+  
+  如何正确使用？
+    函数体内的错误类型要统一。
+    fn main() -> Result<(), std::io::Error> {
+      let greeting_file = File::open("hello.txt")?;
+      // let a = "100".parse::<u32>()?;
+      Ok(())
+    }
+
+    一个函数返回值为Result或者Option的时候，能用，但不能混合使用。
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=242e0bc9304fdfad834bfc12fe9e5967
+  
+  给main函数添加返回值
+    use std::error::Error;
+    use std::fs::File;
+    fn main() -> Result<(), std::io::Error> {
+      let greeting_file = File::open("hello.txt")?;
+      Ok(())
+    }

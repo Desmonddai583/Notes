@@ -1,0 +1,162 @@
+枚举这种类型容纳选项的可能性，每一种可能的选项都是一个变体。
+Rust中的枚举非常强大，可能是最强大的数据结构了。enum就像一个筐，什么都往里面装。
+
+enum中的变体（variant）可以作为名字附带各种形式的结构。什么元组结构体，结构体，也可以作为enum的一个变体存在。
+  enum WebEvent {
+    // An `enum` variant may either be `unit-like`,
+    PageLoad,
+    PageUnload,
+    // like tuple structs,
+    KeyPress(char),
+    Paste(String),
+    // or c-like structures.
+    Click { x: i64, y: i64 },
+  }
+
+实例化变体
+  实例化变体的时候，也是一致的写法：
+  let a = WebEvent::PageLoad;
+  let b = WebEvent::PageUnload;
+  let c = WebEvent::KeyPress('c');
+  let d = WebEvent::Paste(String::from("batman"));
+  let e = WebEvent::Click { x: 320, y: 240 };
+
+类C枚举
+  也可以定义C那样的枚举
+  // enum with explicit discriminator
+  enum Color {
+    Red = 0xff0000,
+    Green = 0x00ff00,
+    Blue = 0x0000ff,
+  }
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0107c6db2b651b75aaca551d9d684fcf
+
+空枚举
+  也可以定义空枚举：
+    enum MyEnum {};
+  其实与空结构体一样，都表示一个类型。
+
+  但是它不能被实例化：
+  enum Foo {} 
+  let a = Foo; // 错误的expected struct, variant or union type, found enum `Foo`not a struct, variant or union type
+
+Impl enum
+  枚举同样能够被 impl。
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a6c1d36e91f0abb66d9b858fd02e9d50
+
+  但是不能对枚举的变体直接 
+  implenum Foo {
+    AAA,
+    BBB,
+    CCC
+  }
+  impl Foo::AAA { // 错误的
+  }
+
+模式匹配
+  一般情况下，枚举更多的是用来作配置，并结合 match 使用。下面我们就进入模式匹配的环节。
+  Rust中的模式匹配非常强大。这个概念直接来自于函数式语言Haskell等。意思就是按对象值的结构形态进行匹配。 
+
+  使用match来做分支流程
+    初看有点类似于C/C++/Java 的 switch .. case 。但实际很不一样。
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3263d9d00bdec1e596ab7e7f26e0dace
+  
+  Match结合枚举
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0c554a8eb1fe26db3c512eb9e3d9edd1
+    从上面例子可以看到，match 是可以返回值的
+  
+  全部分支必须处理
+
+  _ 占位符
+    有时，确实想测试一些东西，或就是不想处理一些分支，可以用 _ 偷懒。
+    match实际是模式匹配的入口。
+  
+  if let
+    只有两个分支或在这个位置先只想处理一个分支的情况，
+    let mut count = 0;
+    match coin {
+      Coin::Quarter(state) => println!("State quarter from {:?}!", state),
+      _ => count += 1,
+    }
+
+    就可以使用 if let
+      let mut count = 0;
+      if let Coin::Quarter(state) = coin {
+        println!("State quarter from {:?}!", state);
+      } else {
+        count += 1;
+      }
+    
+    并且相对于match，在分支体代码比较多的情况下，if let 可以少一层括号。
+        
+  while let
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0d08d066da340d8db46f57db8419aa2c
+
+  let
+    let本身就支持模式匹配，实际前面if let, while let都是用的let的能力
+  
+  匹配元组
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=28c32300d5ac78914f64b3e3739d6538
+  
+    这种用法，常常叫作元组体的析构。常用来从函数的多返回值中取出数据。比如：
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=285ed83a9cfb4df34356127923b87d0a
+  
+  匹配枚举
+    fn value_in_cents(coin: Coin) -> u8 {
+      match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter(state) => {
+          println!("State quarter from {:?}!", state);
+          25
+        }
+      }
+    }
+  
+  匹配结构体
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=2ea883b8da0c18cf266ffcddd144f732
+
+    再用一下a会是什么效果
+    fn main() {
+      let a = User {
+          name: String::from("mike"),
+          age: 20,
+          student: false,
+      };
+      let User {
+          name,
+          age,
+          student,
+      } = a;
+      
+      println!("{}", name);
+      println!("{}", age);
+      println!("{}", student);
+
+      println!("{:?}", a); // 报错,因为name是String,所以这里产生部分借用
+    }
+
+    解决方法
+      fn main() {
+        let a = User {
+            name: String::from("mike"),
+            age: 20,
+            student: false,
+        };
+        let User {
+            ref name,
+            age,
+            student,
+        } = a;
+        
+        println!("{}", name);
+        println!("{}", age);
+        println!("{}", student);
+
+        println!("{:?}", a); 
+      }
+
+  函数中的模式匹配
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=39746546513d79053e3f48e2f681a6ae
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=c98b78fc58d53ab72b17ce16d090dcea

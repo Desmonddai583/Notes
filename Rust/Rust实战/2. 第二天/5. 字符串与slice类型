@@ -1,0 +1,35 @@
+切片，就是一个连续内存块的一部分。
+
+引用到切片引用的自动转换
+  &String -> &str
+  &Vec<u8> -> &[u8]
+  &Vec<T> -> &[T]
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=c2430367e27d846ca26a4a1117a19556
+
+from_utf8 系列函数
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=4ad7b3f43d01aafe6fa7be3a83f1980f
+
+as_bytes()
+  to &[u8]
+
+  let bytes = "bors".as_bytes();
+  assert_eq!(b"bors", bytes);
+
+  to_vec() -> Vec<u8>
+
+bytes()
+  To a Iterator
+
+字符串切割成chars
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=2366a6ba39d48e1ed3f94ea0ad6541ef
+
+parse() 
+  非常强大，可以从字符串转到任意类型。只要它实现了从字符串转换的能力。
+
+  let four: u32 = "4".parse().unwrap();
+  assert_eq!(4, four);
+  let four = "4".parse::<u32>();
+  assert_eq!(Ok(4), four);
+
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=d96a4a30412ec3b19947c1cb5b08d32d
+  https://doc.rust-lang.org/std/str/trait.FromStr.html#implementors

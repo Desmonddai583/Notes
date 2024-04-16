@@ -1,0 +1,164 @@
+lifetime 与 scope
+  https://doc.rust-lang.org/nomicon/lifetimes.html
+
+  因为Rust从所有权出发，发展了引用及其相关规则。光有scope不够用
+  lifetime - 更精细和更紧凑的分析
+  主要是对引用进行分析，只有引用情况才比较复杂
+  对于资源所有权变量，这两个概念往往混用
+
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=dbb3c80ba388266f5f7fc264a11b7151
+
+  代码编译到汇编/机器码后，每一条指令的执行，都需要一定的时间。所以一个程序运行的时间的长度也可以映射到一个指令序列。指令序列又映射到代码的先后罗列。
+  所以在代码层面，去分析变量/资源/引用的运行时的存在范围，是有可能的。
+  同时，因为程序的复杂性，不能按纸面的代码行数来界定一个变量的运行时的存在范围。
+  比如，一个函数中的局部变量，在外部函数调用这个函数的时候，会生成，这个函数结束的时候，会消亡并回收。
+  但是，外部函数对这个函数的多次调用，会让这个函数中的局部变量在不同的时间段多次产生和消亡。
+  如果从变量定义的字面行数去分析，是无法准确表达这种复杂性的。所以需要一种新的形式化方法。
+
+  生命周期分析的静态性
+    生命周期是静态概念。生命周期分析是编译器在编译阶段静态分析引用有效性的一门技术。它不是动态的概念，跟其它带gc的运行时的语言不一样。
+  
+  生命周期标注 ‘a
+    生命周期 lifetime 标注是Rust语言在引用上做的一种标注。
+    用于指代一片代码区域，对于一个正确的Rust程序，被标注的那个引用在这片代码区域中必须有效。‘a实际是对这片代码区域的命名。
+    ‘a就是Rust采用的对lifetime作分析的形式化方法。
+    我们所指的lifetime, 一般就是指endtime, 也即引用或资源结束的时刻。因为我们一般不需要关心lifetime开始的时刻：只要产生了引用，那么在那之前资源的lifetime一定开始了。
+    注意：只在引用上做标注。
+  
+  基本规则
+    引用的lifetime/endtime不能超过资源（所有权变量）的lifetime/endtime.
+    ⇒ 如果引用的lifetime超过(outlive)了资源（所有权变量）的lifetime，那就是无效的。
+    ⇒ “被标注的那个引用在’a指代的这片代码区域中必须有效”，需要理解为一个有效的lifetime就是能让引用在其所在的代码区域中有效的lifetime
+      ● 它是代码能编译通过的要求，就是说如果要能编译通过，那么引用在’a中必须有效
+      ● ‘a的范围的计算其实是另外一件事情：最小作用原理，分析最后使用的位置
+    ⇒ 这里其实隐含了一个比较操作，也就是利用上述规则去判断引用的lifetime与资源的lifetime. 要符合上述唯一规则的引用的lifetime才是一个有效的lifetime. （这就是borrow checker的工作原理）
+    ⇒ 如果分析出来，出现了无效的lifetime，那就被 borrow checker 逮到了错误。
+  
+  从一个引用参数的函数中返回引用
+    情况1：
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=12e02f087def6453a08e15ee81392bf0
+    
+    情况2：
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=9185806d3c59a8d9746332c94f488240
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=2c830ef199d0059fc6db3e62db489564    
+    
+    情况3：
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=c034bb6f97cb1ec78f1d77beedac5a59
+  
+  资源先于返回的引用释放的情况
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a59d1d7d47e95900f6112d77360953e0
+  
+  当函数参数有两个引用的情况
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=d90a2e563fadcf7486c5311e3236121d
+
+    这里入口参数有两个字符串的引用，返回值引用用哪个呢？不知道。这个其实跟这个函数中的逻辑没有关系，Rust编译器不会去分析里面的逻辑（但是会检查返回值的类型）。
+  
+  我们即使把逻辑全部删除，也还是会报错。比如像下面这样：
+  不检查逻辑
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=5e0807652e23974d6ec1234e68fc7733
+
+  按提示改正确的版本
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=552607b9de1920355a43368ad758fd14
+  
+    这里，在入口两个参数和返回值的引用上，都加了一个 'a 的符号。这个符号就叫生命期符号。
+    a是一个名称，是可以随便命名的。'b, 'c, 'x, 'abcge, 都是可以的。'a 就是给予了我们要描述的生命期的一个名字。要名字后才好研究对象。
+    像这种'a 这种符号，除了那个 'static 单独使用有意义，其它的'xxx 单独使用是没有意义的。
+    得像上面例子一下，同时在几个地方标注。那它像这样标注在参数和返回值上，具体的意义是什么呢？
+    ‘a 表示 Lifetimes are named regions of code that a reference must be valid for 。 要保证程序正确，引用必须有效的代码片断。
+    第一，不能超过资源的scope/lifetime.
+    第二，计算到引用最后一次使用时为止。
+
+    ‘a出现了3次的作用
+      先关联：
+        1. 起关联作用，将3个引用建立关系
+        2. 起关联作用，将入参的两个引用所指向的资源建立关系
+      并计算（由rust编译器中的borrow checker计算）：
+        a. 在计算过程中，‘a 指代计算出的3个引用所存在的代码的覆盖范围，取最后的那个endtime, 记为 endtime_p
+        b. 同时将两个资源的scope做交集，取最早的那个endtime，记为 endtime_q
+      再比较：
+        ● 要求 endtime_p <= endtime_q
+        ● 如果 endtime_p > endtime_q，不合法，报错。
+  
+    普遍的计算法则
+      有了这个规则，可以扩展到任意多个引用型参数。
+
+      示例：
+        https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=2028afdc9f231ae9ea93c3b1fd0bd2c3
+  
+    对比示例：
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=5ebd97e7b87b691111a8fb935c16d0fc
+
+      上面示例中，我们取最长串，其实取的是 string1 的引用，而不是 string2。但是rust仍然不允许我们编译通过。
+      因为这里这个string2的endtime已经到了，result这个引用型变量还存在。这可能出现问题！于是Rust编译器不允许我们编译通过。是不是有点神奇。
+      前面说过，Rust编译器不会帮我们分析逻辑。现在这个函数简单，当然我们一眼就看出返回的什么，但是真实的应用逻辑是非常复杂的，Rust编译器也不会去做那些画蛇添足的事情。
+    
+    回到前面的例子
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=6efb6e98ed4cecffb4ad6606720519ca
+      只有一个引用型参数的情况下，也是可以把生命期参数标注出来的。只是因为这个不会有歧义，所以就可以省略它。少写一些。
+    
+Generic
+  这里，要再说明一下：
+  foo<'a>
+  这个'a 写在这里，是定义生命期参数 'a 的意思。这里定义了，后面函数签名上才能用。还可以发现，它也是用尖括号括起来的。好像跟泛型参数 定义的方式是一样的。
+  fn foo<'a>(x: &'a str) -> &'a str;
+  fn foo<T>(x: T) -> T;
+  这个'a 其实也是一种generic , generic type叫泛型。那这里可以叫 generic lifetime, 泛生存期。
+
+  我们再尝试仔细理解：
+  fn foo<'a>(x: &'a str) -> &'a str;
+  为什么 'a 会定义成泛生命期参数呢？我们想一下，一个函数定义了，是不是可能会在不同的地方被调用。
+  其每次调用，这个函数返回的引用它的lifetime都不一样，对吧。
+  类似于泛型，在我们每个使用具体的类型的时候，去把泛型参数替换成具体的类型（是由人来驱使替换成具体的哪个类型）。
+  这里这个也是一样，每次调用函数的时候，根据具体计算出的引用的作用范围算出一个区间替代‘a参数符号（是由编译器自动计算来驱使替换成具体的哪个代码区间）。
+  这，正是编译期分析技术！在编译时分析运行时的不合格情况。
+
+  以下代码能通过吗？
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=1e4cdcca1071f0046eea4d42aa5f6baf
+
+  两个lifetime标注：
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=08591a77859a6bbd0648180872a8620a
+  
+  lifetime之间的约束
+    ‘a: ‘b
+    谁比谁活得久。'a: 'b. ‘a （指代那个资源）要比 ’b （指代那个资源）活得久。
+    
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=bdea9ff85eb26c5267f82061101c42e8
+
+    这个却不行：
+      https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=6d6f5276f3c6f58b9ee798dfaea5b70e
+  
+    冒号表示约束
+      冒号前面表示长，冒号后面表示短。这个怎么理解，
+      x: u32 是对 x 取值范围的约束
+      x: T 也是对x取值范围的约束
+      T: Atrait 是对T的类型范围的约束
+      'a: 'b 是对生命期 'a 的约束，要求 'a 必须活得超过 'b （而不是短于。outlive也是一种约束，要求它不短于，把短的那个区间剔除了）
+      ‘static 是'a 的极大值。也就是： 'static: 'a
+  
+  结构体中的生命期符号
+    表示结构体实例不能超过所引用的资源的lifetime. 通过标注把整体和里面具体的哪个，关联起来。
+    如果有多个，也是计算资源中最短的那个endtime.
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3a3cd4831ad10701e2b3c8fb2bcdfbfe
+  
+  传染性
+    Generic都具有传染性。与泛型一样，generic lifetime标注也具有传染性。
+
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=42e8a675bce2c562dc00e67d5bf586c5
+
+    传染性说明的标注的必要性：标注的目的是为了构成类型链时，让外层知道里面有引用。如果不标注在结构体上，外层就不知道里面竟然还有个引用。
+  
+  Lifetime消除规则
+    三条，也是我们上面见过的：
+    1. 输入参数中有多个引用，会自动为每个引用生成一个生命期参数；
+    2. 如果输入参数中只有一个引用，会自动把这个引用（背后资源）的生命期关联到所有输出引用上；
+    3. 如果是所有输入参数中有一个&self或&mut self（方法），会自动把self 的生命期关联到所有输出引用上。
+  
+  方法中的生命期符号
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=1f107ef67d0d1cca045a76d6857e53c7
+    根据上一节的规则 3，可以在方法中省略'a。
+  
+  对带生命期符号的结构体进行impl实现
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=6c061fed1289083d4f8da36f780508e8
+  
+  生命周期符号可用于类型约束（了解）
+    T: Display + Clone + 'static

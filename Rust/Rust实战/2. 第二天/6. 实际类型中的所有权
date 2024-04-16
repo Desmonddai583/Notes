@@ -1,0 +1,38 @@
+循环中的move
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=1833cb4f05ddcca68cecb18cb590c704
+
+结构体字段被Move
+  https://doc.rust-lang.org/rust-by-example/scope/move/partial_move.html
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=b22029a92c545e80ecaf8dda9b4fb1d0
+
+枚举中的所有权
+  因为枚举中可携带其它任意类型，所以结构体中的Move行为也适用于枚举。
+
+Vec中的所有权
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=08349953f10e74e08727339e0834cf2b
+
+  Vec<String> 是对String带有所有权的。那Vec<>中，自然也能放 Vec<&str> 这种引用。
+  可以看到，有时所有权不能move出来，只能使用引用去访问。
+
+HashMap中的所有权
+  HashMap是不会把里面内容的所有权让出来的。
+  Insert, entry, get, get_mut, iter, iter_mut
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=70356a11c153c3cc4163944a6da515ec
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=c0f187bbd9e6ff907a8be784ac94e97e
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=ae01217bfc7fc59a95715e087ac4373c
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=24b00e7021bca832f57b2b7e051c3627
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=57118410cf09bab756f4aaee1e72f18a
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=f386499fdd50a2500dc37fb1d852f3dd
+
+Option和Result中的所有权
+  https://doc.rust-lang.org/std/option/enum.Option.html#method.map
+  https://doc.rust-lang.org/std/option/enum.Option.html#method.as_ref
+
+Option的 take
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=aad3625dfd25992f42d64beb0087887f
+
+  有时，在结构体或其它容器中实在想把所有权拿出来。把元素弄成 Option<T> 就可以绕开各种引用分析
+  Struct A {
+    field_a: Option<String>
+  }
+  Vec<Option<String>>

@@ -1,0 +1,140 @@
+结构体往往是一个程序的骨干。
+  User {
+    active: true,
+    username: String::from("someusername123"),
+    email: String::from("someone@example.com"),
+    sign_in_count: 1,
+  };
+
+结构体的更新
+  fn main() {
+    let mut user1 = User {
+      active: true,
+      username: String::from("someusername123"),
+      email: String::from("someone@example.com"),
+      sign_in_count: 1,
+    };
+    user1.email = String::from("anotheremail@example.com");
+  }
+
+更新时的便捷写法
+  fn main() {
+    let active = true;
+    let username = String::from("someusername123");
+    let email = String::from("someone@example.com");
+    let user1 = User {
+      active,
+      username,
+      email,
+      sign_in_count: 1,
+    };
+  }
+
+基于已有的实例的值来创建新实例，并只更新部分字段
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=98ac30401e3f494effed158314ab4af2
+
+元组结构体
+  所谓元组结构体，也就是元组和结构体的结合体！就是下面这个样子struct Color(i32, i32, i32);
+  struct Point(i32, i32, i32);
+  fn main() {
+    let black = Color(0, 0, 0);
+    let origin = Point(0, 0, 0);
+  }
+  元组结构体有类型名，但是无字段名，也即字段是匿名的。
+  这在有些情况下很有用，因为想名字很头痛，并且明显元组结构体更紧凑。
+  上述示例元组部分其实是一样的，但是类型名不同，它们就是不同的类型。
+
+单元结构体
+  struct ArticleModule;
+  fn main() {
+    let module = ArticleModule;
+  }
+  单元结构体就是只有一个类型名字，没有任何字段的结构体。定义和创建实例时连后面的花括号都可以省略。
+  可以看到，上面示例中在使用let语句作绑定时，类型实际创建了一个结构体的实例。
+  这种写法非常紧凑，要注意分辨，不然会疑惑类型为啥能直接赋给一个变量。
+
+面向对象的特性
+  Rust不是一门面向对象的语言，但是其确实有部分面向对象的特性。
+  Rust承载面向对象特性的部分一般是结构体。
+  Rust有个关键字 impl 可以用来给结构体（或其它类型）实现方法，也就是关联在某个类型上的函数。
+
+方法（实例方法）
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021
+
+  impl的时候，也会对应三种引用，扩展上面的例子：
+    impl Rectangle {
+      fn area1(self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+      fn area2(&self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+      fn area3(&mut self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+    }
+  
+  方法是实现在类型上的一类特殊的函数，它的第一个参数为Self类型，包含 self: Self, self: &Self, self: &mut Self 三种情况, 
+  因为是标准用法了，所以Rust帮我们简写了。上述代码展开后是：
+    impl Rectangle {
+      fn area1(self: Self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+      fn area2(self: &Self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+      fn area3(self: &mut Self, n: u32) -> u32 {
+        self.width * self.height * n
+      }
+    }
+  
+  分别对应把实例所有权传进去，传实例的不可变引用进去，传实例的可变引用进去，三种情况。
+  这类方法调用的时候，只需要写成下面这样就行了。第一个参数就是调用者实例，会默认传进去：
+  rect1.area1(n);
+  rect1.area2(n);
+  rect1.area3(n);
+
+  看到这里，是不是感觉很熟悉。C++, Java 等的this指针即视感。不过，在Rust中，一切基本上都是显式化的，不存在隐藏提供一个参数给你的情况，统统要写清楚，不会存在坑。是不是很清晰。
+
+实例的引用  
+  实例的引用也是可以直接调用方法的，比如，对于不可变引用，要以像下面这样调用。Rust会自动做正确的多级解引用操作。
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a0b8232929baa8f1e6dfc8adfc6f95a0
+
+对同一个类型，impl可以分开写多次。这在组织代码的时候，有时会带来方便。
+  impl Rectangle {
+    fn area(&self) -> u32 {
+      self.width * self.height
+    }
+  }
+  impl Rectangle {
+    fn can_hold(&self, other: &Rectangle) -> bool {
+      self.width > other.width && self.height > other.height
+    }
+  }
+
+关联函数（静态方法）
+  在类型上实现方法，也可以第一个参数不带self参数。这种方法称为关系方法，比如：
+    impl Rectangle {
+      fn numbers(rows: u32, cols: u32) -> u32 {
+        rows * cols
+      }
+    }
+  
+  调用的时候，用路径符来调用：
+    Rectangle::numbers(10, 10);
+  
+  是不是跟 C++，Java中的静态方法起类似的作用？但是Rust这里不需要额外的static修饰符了。
+
+构造函数
+  Foo::new();
+  Foo::from();
+  Default
+
+配置器模式
+  使用配置器模式实现默认参数效果。
+
+构造器模式
+  builder模式。
+
+Newtype模式
+  struct MyVec(Vec<u8>)

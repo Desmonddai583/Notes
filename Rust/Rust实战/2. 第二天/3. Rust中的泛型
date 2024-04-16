@@ -1,0 +1,74 @@
+函数参数中的泛型
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=f85304a2d0c8120397590506d260a466
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a7b9b2177630ce8dd2b91f6a63c706ad
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=7bcd8b30dab3b2a693d5298ddfa09429
+
+结构体中的泛型
+  结构体由一些字段组成。字段是有类型的，这个类型当然适用于泛型。因此结构体中，是可以出现泛型的。在结构体类型名后定义泛型名称，在字段里面使用。
+  struct Point<T> {
+    x: T,
+    y: T,
+  }
+  fn main() {
+    let integer = Point { x: 5, y: 10 };
+    let float = Point { x: 1.0, y: 4.0 };
+  }
+
+  struct Point<T> {
+    x: T,
+    y: T,
+  }
+  fn main() {
+    let wont_work = Point { x: 5, y: 4.0 };
+  }
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=430c9f8318c92e14869a9ee4cb4f8e28
+
+不止一个泛型参数
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=246d56e6e46b561ea74862f7553bc0c7
+
+PhantomData
+  struct A<T> { 
+    _x: PhantomData<T>, 
+  } 
+
+枚举中的泛型
+  枚举是各种带类型参数的变体的和类型，每个类型参数位置当然可以出现泛型。
+
+最常见的两个泛型
+  enum Option<T> {
+    Some(T),
+    None,
+  }
+  enum Result<T, E> {
+    Ok(T),
+    Err(E),
+  }
+
+方法中的泛型
+  函数中可以有泛型，结构体中可以有泛型，它们组合起来，当然可以有泛型。
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=0c03708b2e421e28c2b282e89087149f
+
+实现单态化方法
+  单态是相对于多态来说的。可以在实现方法的时候，给具体某一个态实现方法（所以叫单态化方法）
+  impl Point<f32> {
+    fn distance_from_origin(&self) -> f32 {
+      (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+  }
+
+方法中的泛型参数与结构体中的可以不同
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=bdddc2f3d83e1509f0f1945af401e586
+
+Typestate 设计模式
+  Rust中的状态机模式。状态机在Rust最理想最直观的应该是使用enum表示。但是目前Rust无法直接对enum的变体进行impl方法。
+  enum Foo {
+    AAA,
+    BBB,
+    CCC
+  }
+  impl Foo::AAA { // 错误的
+  }
+
+  使用结构体泛型+单态化实现来解决
+    我们来设计一个状态机。A->B->C状态。一个温度旋钮。
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=329d3ac05b8ba26a03de7af4cf2de25c

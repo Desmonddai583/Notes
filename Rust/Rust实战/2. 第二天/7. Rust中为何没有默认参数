@@ -1,0 +1,75 @@
+什么是默认参数
+  函数的形参定义的时候，赋予一个默认值，就是默认参数。
+
+举例：C++中的默认参数
+  int foo(int a = 1, int b = 2);
+
+  几个规则：
+  ● 默认参数要放所有参数的最后面
+  ● 不要重载带默认参数的函数（函数重载是另外一个特性）
+
+  参考：https://www.cnblogs.com/chenhuan001/p/7400378.html
+
+举例：Python中的默认参数
+  def personinfo(name, age, gender = 'Female'):
+  
+  跟C++基本一样。
+
+举例：Java中的默认参数实现
+  Java没有默认参数的语法支持，但是支持函数重载。
+
+  void method(String p1, int p2, bool p3){
+  // ....
+  };
+  void method(String p1, int p2){
+    method(p1, p2, false);
+  };
+
+Rust的函数签名
+  fn foo(x: TypeX, y: TypeY) {}
+
+  Rust设计原则，显式化。
+  尽量不要有隐式转换。隐式是bug的来源之一。
+  所以Rust既不支持默认参数特性，也不支持函数重载特性。
+
+默认参数的优缺点
+  优点：
+  ● 简化代码写法，方便
+
+  缺点：
+  ● 增加认知负担，需要知道构造函数有几种形式，多的时候需要查阅文档
+  ● 有时会调用出错
+
+Rust中的Default
+  Rust中，所有的类型都可以实现一个Default Trait，其定义了default方法。
+  对于Rust的原生类型和基于原生类型的复合类型，使用 #[derive(Default)] 可直接实现默认值。
+  也可手动实现Default.
+
+  https://doc.rust-lang.org/std/default/trait.Default.html
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=98c987385d870d8eb9c0ef33dd333162
+
+Rust结构体更新的时候的Default语法糖
+  let wc = WindowConfig {
+    width: 200,
+    height: 240,
+    .. Default::default()
+  };
+
+Rust实现默认参数
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=729f213617ce7b39ff8365f975be506c
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=96ca5635f2e1eef70e12c9bf3920d699
+
+Rust方案的优势
+  1. 显式；
+  2. 集中定义；
+  3. 类型名和字段名即代码，不需要查阅文档；
+  4. 参数增多或减少的时候，不需要修改构造函数，不需要修改几个地方；
+  5. 可扩展性完美；
+  6. 没有增加边边角角的不重要的语法特性；
+
+介绍一下Rust的构造器（工厂）模式
+  业界常用，OOP中的普遍风格，从Java等过来的程序员觉得很舒服。
+
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=b9200860f882c67b9f8e48c59f640ff2
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=7e26bb845a0cb58675897b499ba29610
+  但是在Rust中更推荐用前面那个模式。

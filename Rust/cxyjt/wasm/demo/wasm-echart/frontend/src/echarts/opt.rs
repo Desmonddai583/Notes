@@ -1,8 +1,9 @@
 #![allow(unused_unsafe)]
 #![allow(non_snake_case)]
-use js_sys::Array;
+use js_sys::{Array, Object};
 use wasm_bindgen::{JsValue,JsCast};
-use crate::helper::{js, web::log};
+use crate::helper::{js, web::log, log_str};
+ 
 #[derive(Default)]
 pub struct EchartOption{
     series: Vec<js_sys::Object>,
@@ -199,6 +200,8 @@ impl EchartOption {
 
             self.set_prop(&series_obj, "itemStyle", &candles_style);
 
+            
+
             self.series.push(series_obj);
            
    //本课程来自 程序员在囧途(www.jtthink.com) 咨询群：98514334
@@ -338,7 +341,104 @@ impl EchartOption {
         let tooltip=js_sys::Object::new();
         {
             self.set_prop(&tooltip, "trigger", &JsValue::from("axis"));
+
+            let axisPointer=js_sys::Object::new();
+            {
+                self.set_prop(&axisPointer, "type", &JsValue::from("cross"));
+                self.set_prop(&tooltip, "axisPointer", &axisPointer);
+            }
+
+             
+            let pos_func=|point:js_sys::Array,_:js_sys::Object,
+            _:web_sys::HtmlElement,_:js_sys::Object,size:js_sys::Object|->js_sys::Object{
+                let obj=js_sys::Object::new();
+                unsafe{
+                    js_sys::Reflect::set(&obj,
+                        &JsValue::from_str("top"),&JsValue::from(60)).unwrap();
+                        //point: 鼠标位置，如 [20, 40]
+                    let pos=point.get(0).as_f64().unwrap();
+                    
+                    // {contentSize: [width, height], viewSize: [width, height]}
+                    let viewSize= js_sys::Reflect::get(&size, &JsValue::from_str("viewSize")).unwrap();
+                    let viewSizeWidth=viewSize.dyn_into::<js_sys::Array>().unwrap().get(0).as_f64().unwrap();
+                    if pos<(viewSizeWidth/2.0){
+                        js_sys::Reflect::set(&obj,
+                            &JsValue::from_str("right"),&JsValue::from(30)).unwrap();
+                    }else{
+                        js_sys::Reflect::set(&obj,
+                            &JsValue::from_str("left"),&JsValue::from(30)).unwrap();
+                    }
+                    return obj;
+
+                }
+             
+            };
+
+            let func = wasm_bindgen::closure::Closure::wrap(
+                Box::new(move |point:js_sys::Array,param:js_sys::Object,
+                    dom:web_sys::HtmlElement,react:js_sys::Object,size:js_sys::Object| { 
+                 return  pos_func(point,param,
+                    dom,react,size);
+        
+         }) as Box<dyn FnMut(js_sys::Array,js_sys::Object,
+                web_sys::HtmlElement,js_sys::Object,js_sys::Object)->js_sys::Object>);
+             
+                unsafe{
+                    js_sys::Reflect::set(&tooltip,
+                        &JsValue::from_str("position"),
+                        func.as_ref().unchecked_ref()).unwrap();
+                        func.forget(); //这句话一定要加，否则 会出错
+                }
+               // 设置formatter
+               //下面设置tooltip 
+         
+            {
+                let formater=js_sys::Object::new();
+                let format_func=|param:js_sys::Array|->JsValue{
+            
+                        unsafe{
+                          let seriesType=js_sys::Reflect::get(&param.get(0),&JsValue::from_str("seriesType")).unwrap().as_string().unwrap();
+                          if seriesType=="candlestick"{
+                            // name1 是时间
+                            let name1=js_sys::Reflect::get(&param.get(0),&JsValue::from_str("name")).unwrap().as_string().unwrap();
+                        
+                            //param.get(0) 得到的data是蜡烛图的 data [序号,open,close,low,heigh]
+                            let data=js_sys::Reflect::get(&param.get(0),&JsValue::from_str("data")).unwrap().dyn_into::<js_sys::Array>().unwrap();
+                             
+                            let ma5= js_sys::Reflect::get(&param.get(1),&JsValue::from_str("data")).unwrap().as_f64().unwrap();
+                            let ma10= js_sys::Reflect::get(&param.get(2),&JsValue::from_str("data")).unwrap().as_f64().unwrap();
+                            let ma20= js_sys::Reflect::get(&param.get(3),&JsValue::from_str("data")).unwrap().as_f64().unwrap();
+
+                             return JsValue::from_str(format!("{}<br/>开盘价: {}<br/>
+                             收盘价: {}<br/>最低价: {}<br/>最高价: {}<br/>
+                              MA5: {} <br/>MA10: {} <br/>MA20: {} <br/>",name1,
+                             data.get(1).as_f64().unwrap(),data.get(2).as_f64().unwrap(),
+                             data.get(3).as_f64().unwrap(),data.get(4).as_f64().unwrap(),
+                             ma5,ma10,ma20
+                            ).as_str());
+                            // return JsValue::from_str(format!("蜡烛图: {}","fefe").as_str());
+                          }else{
+                            let data=js_sys::Reflect::get(&param.get(0),&JsValue::from_str("data")).unwrap().dyn_into::<js_sys::Array>().unwrap();
+                            return JsValue::from_str(format!("成交量: {}",data.get(1).as_f64().unwrap()).as_str());
+                          }
+                            
+                         }
+                  
+                };
+                let func = wasm_bindgen::closure::Closure::wrap(
+                    Box::new(move |param:js_sys::Array|->JsValue { 
+                     return  format_func(param);
+            
+                }) as Box<dyn FnMut(js_sys::Array)->JsValue>);
+                self.set_prop(&tooltip, "formatter", func.as_ref().unchecked_ref());
+                func.forget();
+
+                
+            }
+            
             self.add_to_object("tooltip", &tooltip);
+
+
         }
     }
     // 缩放 。初步
